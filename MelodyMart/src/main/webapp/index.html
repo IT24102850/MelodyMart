@@ -2,9 +2,121 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelodyMart - Elevate Your Sound</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url('./images/1162694.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
 
+        @keyframes wave {
+            0% { transform: translateX(-50%) translateY(-50%); }
+            100% { transform: translateX(0%) translateY(-50%); }
+        }
+        .hero-image {
+            background-image: url('https://images.unsplash.com/photo-1511379936541-1b6e55863e73?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            filter: hue-rotate(30deg) brightness(1.2);
+            position: relative;
+            z-index: 1;
+        }
+        .cta-button {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+        .category-card {
+            transition: transform 0.3s ease;
+            background: linear-gradient(to bottom right, #2e3a4f, #1c1c1c);
+        }
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="relative">
+<!-- Wave Line -->
+<div class="wave-line"></div>
+
+<!-- Header Navigation -->
+<header class="flex justify-between items-center p-6 z-10 relative">
+    <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
+    <nav class="flex space-x-6 items-center">
+        <a href="#" class="text-lg hover:text-blue-300">Home</a>
+        <a href="#" class="text-lg hover:text-blue-300">Instruments</a>
+        <a href="#" class="text-lg hover:text-blue-300">Accessories</a>
+        <a href="#" class="text-lg hover:text-blue-300">Deals</a>
+        <button class="bg-white text-black px-4 py-2 rounded-full flex items-center space-x-2 cta-button">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2.5 3h15A1.5 1.5 0 0119 4.5v11A1.5 1.5 0 0117.5 17h-15A1.5 1.5 0 011 15.5v-11A1.5 1.5 0 012.5 3zm1 2v9h13v-9h-13zm2 2h8v1h-8V7zm0 2h8v1h-8V9zm0 2h5v1h-5v-1z"/>
+            </svg>
+            <span>Contact Us</span>
+        </button>
+    </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="flex flex-col md:flex-row items-center justify-between p-8 md:p-16 relative z-10">
+    <div class="md:w-1/2 text-center md:text-left">
+        <h1 class="text-6xl md:text-7xl font-bold font-['Inter'] leading-tight mb-6">
+            Elevate your Sound
+        </h1>
+        <button class="bg-white text-black px-6 py-3 rounded-full text-lg font-semibold cta-button">
+            Shop Now
+        </button>
+    </div>
+    <div class="md:w-[60%] h-96 mt-8 md:mt-0 hero-image"></div>
+</section>
+
+<!-- Product Category Grid -->
+<section class="p-8 md:p-16 relative z-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <div class="category-card rounded-lg p-6 flex flex-col items-center text-center relative">
+            <div class="absolute top-4 left-4 bg-blue-500 rounded-full w-6 h-6"></div>
+            <img src="https://images.unsplash.com/photo-1510915361893-4d1d6e7b0151?q=80&w=2070&auto=format&fit=crop" alt="Guitar" class="w-32 h-32 object-cover mb-4">
+            <h3 class="text-lg font-semibold">New Arrivals</h3>
+        </div>
+        <div class="category-card rounded-lg p-6 flex flex-col items-center text-center relative">
+            <div class="absolute top-4 left-4 bg-blue-500 rounded-full w-6 h-6"></div>
+            <img src="https://images.unsplash.com/photo-1511376777868-611b54f68947?q=80&w=2070&auto=format&fit=crop" alt="Keyboard" class="w-32 h-32 object-cover mb-4">
+            <h3 class="text-lg font-semibold">Best Sellers</h3>
+        </div>
+        <div class="category-card rounded-lg p-6 flex flex-col items-center text-center relative">
+            <div class="absolute top-4 left-4 bg-blue-500 rounded-full w-6 h-6"></div>
+            <img src="https://images.unsplash.com/photo-1518422676188-cde0fcdb6643?q=80&w=2070&auto=format&fit=crop" alt="Drums" class="w-32 h-32 object-cover mb-4">
+            <h3 class="text-lg font-semibold">Featured Brands</h3>
+        </div>
+        <div class="category-card rounded-lg p-6 flex flex-col items-center text-center relative">
+            <div class="absolute top-4 left-4 bg-blue-500 rounded-full w-6 h-6"></div>
+            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2070&auto=format&fit=crop" alt="Accessories" class="w-32 h-32 object-cover mb-4">
+            <h3 class="text-lg font-semibold">New Arrivals</h3>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.querySelectorAll('.cta-button').forEach(button => {
+        button.addEventListener('mouseenter', () => {
+            button.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.5)';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.boxShadow = 'none';
+        });
+    });
+</script>
 </body>
 </html>
