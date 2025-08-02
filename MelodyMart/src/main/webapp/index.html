@@ -41,10 +41,27 @@
         }
         .category-card {
             transition: transform 0.3s ease;
-            background: linear-gradient(to bottom right, #2e3a4f, #1c1c1c);
+            background: linear-gradient(to bottom right, #1a1a1a, #0f0f0f);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
         .category-card:hover {
             transform: translateY(-5px);
+        }
+        .category-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            object-position: center;
+        }
+        .category-card h3 {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+        }
+        .category-card a {
+            font-size: 0.9rem;
+            padding-bottom: 0.5rem;
         }
     </style>
 </head>
@@ -56,16 +73,11 @@
 <header class="flex justify-between items-center p-6 z-10 relative">
     <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
     <nav class="flex space-x-6 items-center">
-        <a href="#" class="text-lg hover:text-blue-300">Home</a>
-        <a href="#" class="text-lg hover:text-blue-300">Instruments</a>
-        <a href="#" class="text-lg hover:text-blue-300">Accessories</a>
-        <a href="#" class="text-lg hover:text-blue-300">Deals</a>
-        <button class="bg-white text-black px-4 py-2 rounded-full flex items-center space-x-2 cta-button">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2.5 3h15A1.5 1.5 0 0119 4.5v11A1.5 1.5 0 0117.5 17h-15A1.5 1.5 0 011 15.5v-11A1.5 1.5 0 012.5 3zm1 2v9h13v-9h-13zm2 2h8v1h-8V7zm0 2h8v1h-8V9zm0 2h5v1h-5v-1z"/>
-            </svg>
-            <span>Contact Us</span>
-        </button>
+        <a href="index.html" class="text-lg hover:text-blue-300">Home</a>
+        <a href="instruments.html" class="text-lg hover:text-blue-300">Instruments</a>
+        <a href="accessories.html" class="text-lg hover:text-blue-300">Accessories</a>
+        <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
+        <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
     </nav>
 </header>
 
@@ -76,7 +88,7 @@
             Elevate your Sound
         </h1>
         <button class="bg-white text-black px-6 py-3 rounded-full text-lg font-semibold cta-button">
-            Shop Now
+            <a href="instruments.html" class="text-black no-underline">Shop Now</a>
         </button>
     </div>
     <div class="md:w-[60%] h-96 mt-8 md:mt-0 hero-image"></div>
@@ -84,26 +96,26 @@
 
 <!-- Product Category Grid -->
 <section class="p-2 md:p-4 relative z-10">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
-        <div class="category-card rounded-lg p-2 flex flex-col items-center text-center relative">
-            <div class="absolute top-1 left-1 bg-blue-500 rounded-full w-4 h-4"></div>
-            <img src="https://images.unsplash.com/photo-1510915361893-4d1d6e7b0151?q=80&w=2070&auto=format&fit=crop" alt="Guitar" class="w-12 h-12 object-cover mb-1">
-            <h3 class="text-xs font-semibold">New Arrivals</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="category-card p-4 flex flex-col items-center text-center">
+            <img src="./images/guitar.jpg" alt="Guitar" class="mb-2">
+            <h3 class="font-semibold">New Arrivals</h3>
+            <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-        <div class="category-card rounded-lg p-2 flex flex-col items-center text-center relative">
-            <div class="absolute top-1 left-1 bg-blue-500 rounded-full w-4 h-4"></div>
-            <img src="https://images.unsplash.com/photo-1511376777868-611b54f68947?q=80&w=2070&auto=format&fit=crop" alt="Keyboard" class="w-12 h-12 object-cover mb-1">
-            <h3 class="text-xs font-semibold">Best Sellers</h3>
+        <div class="category-card p-4 flex flex-col items-center text-center">
+            <img src="./images/keyboard.jpg" alt="Keyboard" class="mb-2">
+            <h3 class="font-semibold">Best Sellers</h3>
+            <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-        <div class="category-card rounded-lg p-2 flex flex-col items-center text-center relative">
-            <div class="absolute top-1 left-1 bg-blue-500 rounded-full w-4 h-4"></div>
-            <img src="https://images.unsplash.com/photo-1518422676188-cde0fcdb6643?q=80&w=2070&auto=format&fit=crop" alt="Drums" class="w-12 h-12 object-cover mb-1">
-            <h3 class="text-xs font-semibold">Featured Brands</h3>
+        <div class="category-card p-4 flex flex-col items-center text-center">
+            <img src="./images/drums.jpg" alt="Drums" class="mb-2">
+            <h3 class="font-semibold">Featured Brands</h3>
+            <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-        <div class="category-card rounded-lg p-2 flex flex-col items-center text-center relative">
-            <div class="absolute top-1 left-1 bg-blue-500 rounded-full w-4 h-4"></div>
-            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2070&auto=format&fit=crop" alt="Accessories" class="w-12 h-12 object-cover mb-1">
-            <h3 class="text-xs font-semibold">New Arrivals</h3>
+        <div class="category-card p-4 flex flex-col items-center text-center">
+            <img src="./images/accessories.jpg" alt="Accessories" class="mb-2">
+            <h3 class="font-semibold">Accessories</h3>
+            <a href="accessories.html" class="text-blue-300">Explore</a>
         </div>
     </div>
 </section>
