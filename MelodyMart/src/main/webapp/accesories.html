@@ -2,9 +2,160 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelodyMart - Accessories</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url('./images/1162694.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+        .product-card {
+            transition: transform 0.3s ease;
+            background: linear-gradient(to bottom right, #2e3a4f, #1c1c1c);
+            border-radius: 0.5rem;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .search-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+        }
+        .search-bar:focus-within {
+            border-color: #4A90E2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        }
+        @media (max-width: 640px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-bar {
+                width: 100%;
+            }
+            .product-card img {
+                width: 100%;
+                height: auto;
+            }
+            .product-card h3 {
+                font-size: 1rem;
+            }
+            .product-card p {
+                font-size: 0.875rem;
+            }
+        }
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (min-width: 1025px) {
+            .product-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="relative">
+<!-- Navbar Include -->
+<div id="navbar-container"></div>
+<script>
+    // Dynamically load navbar.html
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
 
+<!-- Main Content -->
+<main class="p-4 md:p-6 relative z-10">
+    <!-- Search Bar -->
+    <div class="mb-4 md:mb-6">
+        <input type="text" id="searchInput" placeholder="Search accessories..." class="w-full md:w-1/2 p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-label="Search accessories">
+    </div>
+
+    <!-- Accessories Grid -->
+    <div id="accessoriesGrid" class="product-grid grid gap-4">
+        <!-- Sample Product Cards -->
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2070&auto=format&fit=crop" alt="Guitar Strings" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Guitar Strings</h3>
+            <p class="text-sm md:text-base text-gray-300">$9.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="https://images.unsplash.com/photo-1597239458147-2ec86f0e2a35?q=80&w=2070&auto=format&fit=crop" alt="Drum Sticks" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Drum Sticks</h3>
+            <p class="text-sm md:text-base text-gray-300">$14.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" alt="Keyboard Stand" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Keyboard Stand</h3>
+            <p class="text-sm md:text-base text-gray-300">$39.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="https://images.unsplash.com/photo-1600585154526-990d71e62b2b?q=80&w=2070&auto=format&fit=crop" alt="Tuner Pedal" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Tuner Pedal</h3>
+            <p class="text-sm md:text-base text-gray-300">$29.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="https://images.unsplash.com/photo-1600585154526-990d71e62b2b?q=80&w=2070&auto=format&fit=crop" alt="Metronome" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Metronome</h3>
+            <p class="text-sm md:text-base text-gray-300">$19.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" alt="Cable Pack" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Cable Pack</h3>
+            <p class="text-sm md:text-base text-gray-300">$24.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Search Functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            card.style.display = title.includes(searchTerm) ? 'block' : 'none';
+        });
+    });
+
+    // Optional: Add current date/time (e.g., 04:12 PM +0530, Thursday, July 31, 2025)
+    // Uncomment and adjust if needed
+    /*
+    const dateTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Colombo',
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    console.log(dateTime); // Example output: "Thursday, July 31, 2025, 04:12 PM +0530"
+    // Add to DOM, e.g., document.body.innerHTML += `<p class="text-center mt-4">${dateTime}</p>`;
+    */
+</script>
 </body>
 </html>
