@@ -21,7 +21,7 @@
         }
         .product-card {
             transition: transform 0.3s ease;
-            background: linear-gradient(to bottom right, #2e3a4f, #1c1c1c);
+            background: #000000;
             border-radius: 0.5rem;
         }
         .product-card:hover {
@@ -35,6 +35,22 @@
         .search-bar:focus-within {
             border-color: #4A90E2;
             box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        }
+        .auth-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            background-color: #1a1a1a;
+            color: #FFFFFF;
+            border: 1px solid #4A90E2;
+            margin-left: 0.5rem;
+        }
+        .auth-button:hover {
+            transform: scale(1.05);
+            background-color: #2a2a2a;
+            box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
         }
         @media (max-width: 640px) {
             .product-grid {
@@ -67,17 +83,21 @@
     </style>
 </head>
 <body class="relative">
-<!-- Navbar Include -->
-<div id="navbar-container"></div>
-<script>
-    // Dynamically load navbar.html
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('navbar-container').innerHTML = html;
-        })
-        .catch(error => console.error('Error loading navbar:', error));
-</script>
+
+
+<!-- Header Navigation (Fallback) -->
+<header class="flex justify-between items-center p-6 z-10 relative">
+    <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
+    <nav class="flex space-x-6 items-center">
+        <a href="index.html" class="text-lg hover:text-blue-300">Home</a>
+        <a href="instruments.html" class="text-lg hover:text-blue-300">Instruments</a>
+        <a href="accessories.html" class="text-lg hover:text-blue-300">Accessories</a>
+        <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
+        <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
+        <button class="auth-button" id="signInBtn">Sign In</button>
+        <button class="auth-button" id="signUpBtn">Sign Up</button>
+    </nav>
+</header>
 
 <!-- Main Content -->
 <main class="p-4 md:p-6 relative z-10">
@@ -88,9 +108,8 @@
 
     <!-- Instruments Grid -->
     <div id="instrumentsGrid" class="product-grid grid gap-4">
-        <!-- Sample Product Cards -->
         <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="acousticguitar.jpg" alt="Acoustic Guitar" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <img src="./images/acousticguitar.jpg" alt="Acoustic Guitar" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
             <h3 class="text-lg md:text-xl font-semibold">Acoustic Guitar</h3>
             <p class="text-sm md:text-base text-gray-300">$299.99</p>
             <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
@@ -151,13 +170,19 @@
         });
     });
 
-    // Dynamically load navbar.html
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('navbar-container').innerHTML = html;
-        })
-        .catch(error => console.error('Error loading navbar:', error));
+    // Display current date/time
+    const dateTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Colombo',
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    document.body.innerHTML += `<p class="text-center mt-4">${dateTime}</p>`;
 </script>
 </body>
 </html>
