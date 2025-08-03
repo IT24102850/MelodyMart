@@ -63,6 +63,22 @@
             font-size: 0.9rem;
             padding-bottom: 0.5rem;
         }
+        .auth-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            background-color: #1a1a1a;
+            color: #FFFFFF;
+            border: 1px solid #4A90E2;
+            margin-left: 0.5rem;
+        }
+        .auth-button:hover {
+            transform: scale(1.05);
+            background-color: #2a2a2a;
+            box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+        }
     </style>
 </head>
 <body class="relative">
@@ -78,6 +94,8 @@
         <a href="accessories.html" class="text-lg hover:text-blue-300">Accessories</a>
         <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
         <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
+        <button class="auth-button" id="signInBtn">Sign In</button>
+        <button class="auth-button" id="signUpBtn">Sign Up</button>
     </nav>
 </header>
 
@@ -128,6 +146,20 @@
         button.addEventListener('mouseleave', () => {
             button.style.boxShadow = 'none';
         });
+    });
+
+    // Sign In Redirect Logic
+    const signInBtn = document.getElementById('signInBtn');
+    const signUpBtn = document.getElementById('signUpBtn');
+
+    signInBtn.addEventListener('click', () => {
+        // Open sign-in popup
+        window.open('signin-popup.html', 'SignInPopup', 'width=600,height=700');
+    });
+
+    signUpBtn.addEventListener('click', () => {
+        // Redirect to registration page
+        window.location.href = 'register.html';
     });
 </script>
 </body>

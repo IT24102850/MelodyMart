@@ -19,46 +19,108 @@
             color: #FFFFFF;
             overflow-x: hidden;
         }
-        .product-card {
-            transition: transform 0.3s ease;
-            background: linear-gradient(to bottom right, #2e3a4f, #1c1c1c);
-            border-radius: 0.5rem;
+
+        @keyframes wave {
+            0% { transform: translateX(-50%) translateY(-50%); }
+            100% { transform: translateX(0%) translateY(-50%); }
         }
-        .product-card:hover {
+
+        .hero-image {
+            background-image: url('https://images.unsplash.com/photo-1511379936541-1b6e55863e73?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            filter: hue-rotate(30deg) brightness(1.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-button {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #1a1a1a;
+            color: #FFFFFF;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+            background-color: #2a2a2a;
+        }
+
+        .category-card, .product-card {
+            transition: transform 0.3s ease;
+            background: linear-gradient(to bottom right, #1a1a1a, #0f0f0f);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .category-card:hover, .product-card:hover {
             transform: translateY(-5px);
         }
-        .search-bar {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 9999px;
+
+        .category-card img, .product-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            object-position: center;
         }
-        .search-bar:focus-within {
-            border-color: #4A90E2;
-            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+
+        .category-card h3, .product-card h3 {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            color: #FFFFFF;
         }
+
+        .category-card a, .product-card a {
+            font-size: 0.9rem;
+            padding-bottom: 0.5rem;
+            color: #4A90E2;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin: 0.25rem 0;
+            color: #FFFFFF;
+        }
+
+        select {
+            padding: 0.5rem;
+            border: 1px solid #4A90E2;
+            border-radius: 0.25rem;
+            background-color: #1a1a1a;
+            color: #FFFFFF;
+        }
+
         @media (max-width: 640px) {
             .product-grid {
                 grid-template-columns: 1fr;
             }
-            .search-bar {
-                width: 100%;
-            }
-            .product-card img {
-                width: 100%;
+            .category-card img, .product-card img {
                 height: auto;
             }
-            .product-card h3 {
+            h3 {
                 font-size: 1rem;
             }
-            .product-card p {
+            p {
                 font-size: 0.875rem;
             }
         }
+
         @media (min-width: 641px) and (max-width: 1024px) {
             .product-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
         @media (min-width: 1025px) {
             .product-grid {
                 grid-template-columns: repeat(3, 1fr);
@@ -67,70 +129,129 @@
     </style>
 </head>
 <body class="relative">
-<!-- Navbar Include -->
-<div id="navbar-container"></div>
-<script>
-    // Dynamically load navbar.html
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('navbar-container').innerHTML = html;
-        })
-        .catch(error => console.error('Error loading navbar:', error));
-</script>
+<!-- Wave Line -->
+<div class="wave-line"></div>
 
-<!-- Main Content -->
-<main class="p-4 md:p-6 relative z-10">
-    <!-- Search Bar -->
-    <div class="mb-4 md:mb-6">
-        <input type="text" id="searchInput" placeholder="Search accessories..." class="w-full md:w-1/2 p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-label="Search accessories">
+<!-- Header Navigation -->
+<header class="flex justify-between items-center p-6 z-10 relative">
+    <div class="text-3xl font-bold font-['Bebas+Neue'] text-white">MelodyMart</div>
+    <nav class="flex space-x-6 items-center">
+        <a href="index.html" class="text-lg hover:text-blue-300 text-white">Home</a>
+        <a href="instruments.html" class="text-lg hover:text-blue-300 text-white">Instruments</a>
+        <a href="accessories.html" class="text-lg hover:text-blue-300 text-white">Accessories</a>
+        <a href="deals.html" class="text-lg hover:text-blue-300 text-white">Deals</a>
+        <a href="contact-us.html" class="text-lg hover:text-blue-300 text-white">Contact Us</a>
+    </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="flex flex-col md:flex-row items-center justify-between p-8 md:p-16 relative z-10">
+    <div class="md:w-1/2 text-center md:text-left">
+        <h1 class="text-6xl md:text-7xl font-bold font-['Bebas+Neue'] leading-tight mb-6 text-white">
+            Accessorize Your Rhythm
+        </h1>
+        <button class="bg-blue-600 text-white px-6 py-3 rounded-full text-lg font-semibold cta-button">
+            <a href="accessories.html" class="text-white no-underline">Shop Now</a>
+        </button>
+    </div>
+    <div class="md:w-[60%] h-96 mt-8 md:mt-0 hero-image"></div>
+</section>
+
+<!-- Product Category Grid -->
+<section class="p-2 md:p-4 relative z-10">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="category-card p-4 flex flex-col items-center text-center">
+            <img src="./images/cables.jpg" alt="Cables" class="mb-2">
+            <h3 class="font-semibold">Cables</h3>
+            <a href="accessories.html" class="text-blue-300">Explore</a>
+        </div>
+        <div class="category-card p-4 flex flex-col items-center text-center">
+            <img src="./images/stands.jpg" alt="Stands" class="mb-2">
+            <h3 class="font-semibold">Stands</h3>
+            <a href="accessories.html" class="text-blue-300">Explore</a>
+        </div>
+        <div class="category-card p-4 flex flex-col items-center text-center">
+            <img src="./images/tuners.jpg" alt="Tuners" class="mb-2">
+            <h3 class="font-semibold">Tuners</h3>
+            <a href="accessories.html" class="text-blue-300">Explore</a>
+        </div>
+        <div class="category-card p-4 flex flex-col items-center text-center">
+            <img src="./images/accessories.jpg" alt="Other Accessories" class="mb-2">
+            <h3 class="font-semibold">Other Accessories</h3>
+            <a href="accessories.html" class="text-blue-300">Explore</a>
+        </div>
+    </div>
+</section>
+
+<!-- Accessories Grid -->
+<main class="p-4 md:p-6 relative z-10" id="accessoriesGrid">
+    <!-- Hero Section -->
+    <section class="mb-8 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2 text-white">Accessories</h1>
+        <p class="text-lg md:text-xl text-gray-300">Showing 1-12 of 229 results</p>
+    </section>
+
+    <!-- Filters and Sort -->
+    <div class="mb-4 flex justify-between items-center">
+        <div></div> <!-- Placeholder for future filters -->
+        <select class="p-2 border rounded" id="sortSelect">
+            <option value="latest">Sort by latest</option>
+            <option value="price-low">Sort by price: low to high</option>
+            <option value="price-high">Sort by price: high to low</option>
+        </select>
     </div>
 
     <!-- Accessories Grid -->
-    <div id="accessoriesGrid" class="product-grid grid gap-4">
-        <!-- Sample Product Cards -->
+    <div class="product-grid grid gap-4">
+        <!-- Product Cards -->
         <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=2070&auto=format&fit=crop" alt="Guitar Strings" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Guitar Strings</h3>
-            <p class="text-sm md:text-base text-gray-300">$9.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+            <img src="https://via.placeholder.com/150" alt="Microphone Cable (XLR Male to Female)" class="w-32 h-32 object-cover mb-2">
+            <h3 class="text-lg font-semibold">Microphone Cable (XLR Male to Female)</h3>
+            <p class="text-gray-300">Rs.3,000.00</p>
+            <p class="text-sm text-gray-500">HebiKuo</p>
+            <a href="#" class="text-blue-300 mt-2">View Details</a>
         </div>
         <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="https://images.unsplash.com/photo-1597239458147-2ec86f0e2a35?q=80&w=2070&auto=format&fit=crop" alt="Drum Sticks" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Drum Sticks</h3>
-            <p class="text-sm md:text-base text-gray-300">$14.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+            <img src="https://via.placeholder.com/150" alt="Standard Cable (6.35mm)" class="w-32 h-32 object-cover mb-2">
+            <h3 class="text-lg font-semibold">Standard Cable (6.35mm)</h3>
+            <p class="text-gray-300">Rs.750.00</p>
+            <p class="text-sm text-gray-500">HebiKuo</p>
+            <a href="#" class="text-blue-300 mt-2">View Details</a>
         </div>
         <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" alt="Keyboard Stand" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Keyboard Stand</h3>
-            <p class="text-sm md:text-base text-gray-300">$39.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+            <img src="https://via.placeholder.com/150" alt="Speaker Stand HebiKuo" class="w-32 h-32 object-cover mb-2">
+            <h3 class="text-lg font-semibold">Speaker Stand HebiKuo</h3>
+            <p class="text-gray-300">Rs.5,500.00</p>
+            <p class="text-sm text-gray-500">HebiKuo</p>
+            <a href="#" class="text-blue-300 mt-2">View Details</a>
         </div>
         <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="https://images.unsplash.com/photo-1600585154526-990d71e62b2b?q=80&w=2070&auto=format&fit=crop" alt="Tuner Pedal" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Tuner Pedal</h3>
-            <p class="text-sm md:text-base text-gray-300">$29.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+            <img src="https://via.placeholder.com/150" alt="Guitar Stand with Neck Holder" class="w-32 h-32 object-cover mb-2">
+            <h3 class="text-lg font-semibold">Guitar Stand with Neck Holder</h3>
+            <p class="text-gray-300">Rs.5,000.00</p>
+            <p class="text-sm text-gray-500">HebiKuo</p>
+            <a href="#" class="text-blue-300 mt-2">View Details</a>
         </div>
         <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="https://images.unsplash.com/photo-1600585154526-990d71e62b2b?q=80&w=2070&auto=format&fit=crop" alt="Metronome" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Metronome</h3>
-            <p class="text-sm md:text-base text-gray-300">$19.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+            <img src="https://via.placeholder.com/150" alt="Tuning Peg" class="w-32 h-32 object-cover mb-2">
+            <h3 class="text-lg font-semibold">Tuning Peg</h3>
+            <p class="text-gray-300">Rs.1,200.00</p>
+            <p class="text-sm text-gray-500">HebiKuo</p>
+            <a href="#" class="text-blue-300 mt-2">View Details</a>
         </div>
         <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop" alt="Cable Pack" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Cable Pack</h3>
-            <p class="text-sm md:text-base text-gray-300">$24.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+            <img src="https://via.placeholder.com/150" alt="Pickguard" class="w-32 h-32 object-cover mb-2">
+            <h3 class="text-lg font-semibold">Pickguard</h3>
+            <p class="text-gray-300">Rs.900.00</p>
+            <p class="text-sm text-gray-500">HebiKuo</p>
+            <a href="#" class="text-blue-300 mt-2">View Details</a>
         </div>
     </div>
 </main>
 
 <script>
-    // Search Functionality
-    document.getElementById('searchInput').addEventListener('input', function() {
+    // Search Functionality (Placeholder - Add search input if needed)
+    document.getElementById('searchInput')?.addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
         const cards = document.querySelectorAll('.product-card');
         cards.forEach(card => {
@@ -139,23 +260,36 @@
         });
     });
 
-    // Optional: Add current date/time (e.g., 04:12 PM +0530, Thursday, July 31, 2025)
-    // Uncomment and adjust if needed
-    /*
-    const dateTime = new Date().toLocaleString('en-US', {
-        timeZone: 'Asia/Colombo',
-        hour12: true,
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZoneName: 'short',
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+    // Sort Functionality
+    document.getElementById('sortSelect').addEventListener('change', function() {
+        const sortBy = this.value;
+        const cards = Array.from(document.querySelectorAll('.product-card'));
+        if (sortBy === 'price-low') {
+            cards.sort((a, b) => {
+                const priceA = parseFloat(a.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
+                const priceB = parseFloat(b.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
+                return priceA - priceB;
+            });
+        } else if (sortBy === 'price-high') {
+            cards.sort((a, b) => {
+                const priceA = parseFloat(a.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
+                const priceB = parseFloat(b.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
+                return priceB - priceA;
+            });
+        }
+        const grid = document.querySelector('.product-grid');
+        cards.forEach(card => grid.appendChild(card));
     });
-    console.log(dateTime); // Example output: "Thursday, July 31, 2025, 04:12 PM +0530"
-    // Add to DOM, e.g., document.body.innerHTML += `<p class="text-center mt-4">${dateTime}</p>`;
-    */
+
+    // CTA Button Hover Effect
+    document.querySelectorAll('.cta-button').forEach(button => {
+        button.addEventListener('mouseenter', () => {
+            button.style.boxShadow = '0 0 15px rgba(74, 144, 226, 0.5)';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.boxShadow = 'none';
+        });
+    });
 </script>
 </body>
 </html>
