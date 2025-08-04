@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MelodyMart - Sign In Dashboard</title>
+  <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: url('./images/1162694.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      color: #FFFFFF;
+    }
+  </style>
+</head>
+<body>
+<!-- Navbar -->
+<div class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
+  <div>
+    <a href="index.html" class="text-2xl font-bold text-white">MelodyMart</a>
+  </div>
+  <div class="flex space-x-4">
+    <a href="index.html" class="text-white hover:text-gray-300">Home</a>
+    <a href="instruments.html" class="text-white hover:text-gray-300">Instruments</a>
+    <a href="accessories.html" class="text-white hover:text-gray-300">Accessories</a>
+    <a href="deals.html" class="text-white hover:text-gray-300">Deals</a>
+    <a href="contact.html" class="text-white hover:text-gray-300">Contact Us</a>
+    <a href="signin.html" target="_blank" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors add-to-cart">Sign In</a>
+    <a href="signup.html" target="_blank" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart">Sign Up</a>
+  </div>
+  <div class="ml-4">
+    <input type="text" placeholder="Search instruments..." class="w-full md:w-48 p-2 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="p-6 text-center">
+  <h1 class="text-4xl font-bold">Sign In Dashboard</h1>
+  <p class="mt-4">Welcome to your MelodyMart dashboard. Click below to sign in!</p>
+  <a href="signin.html" target="_blank" class="mt-4 inline-block px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors add-to-cart">Sign In</a>
+</div>
+</body>
+</html>

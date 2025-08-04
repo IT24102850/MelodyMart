@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MelodyMart - Accessories</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+
+    <style>
+        body {
+            background: url('./images/1162694.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Inter', sans-serif;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+
+        .wave-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, transparent, #4A90E2, transparent);
+            animation: wave 3s infinite linear;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .hero-image {
+            background-image: url('https://images.unsplash.com/photo-1511379936541-1b6e55863e73?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            filter: hue-rotate(30deg) brightness(1.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-button {
+            background-color: #1a1a1a;
+            color: #FFFFFF;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+            background-color: #2a2a2a;
+        }
+
+        .category-card, .product-card {
+            background: linear-gradient(to bottom right, #1a1a1a, #0f0f0f);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover, .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-card img, .product-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+
+        .category-card h3, .product-card h3 {
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            color: #FFFFFF;
+        }
+
+        .category-card a, .product-card a {
+            font-size: 0.9rem;
+            color: #4A90E2;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.8rem;
+            font-weight: 700;
+            color: #E5E7EB;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            .hero-title {
+                font-size: 5rem;
+            }
+        }
+
+        select {
+            padding: 0.5rem;
+            border: 1px solid #4A90E2;
+            border-radius: 0.25rem;
+            background-color: #1a1a1a;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body class="relative">
+<div class="wave-line"></div>
+
+<!-- Header -->
+<header class="flex justify-between items-center p-6 z-10 relative">
+    <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
+    <nav class="flex space-x-6 items-center">
+        <a href="index.html" class="text-lg hover:text-blue-300">Home</a>
+        <a href="instruments.html" class="text-lg hover:text-blue-300">Instruments</a>
+        <a href="accessories.html" class="text-lg hover:text-blue-300">Accessories</a>
+        <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
+        <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
+        <a href="sign-in.html" class="text-lg hover:text-blue-400">Sign In</a>
+        <a href="sign-up.html" class="text-lg hover:text-blue-400">Sign Up</a>
+    </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="flex flex-col md:flex-row items-center justify-between p-8 md:p-16 relative z-10">
+    <div class="md:w-1/2 text-center md:text-left">
+        <h1 class="hero-title">Accessorize Your Rhythm</h1>
+        <a href="#accessory-grid" class="cta-button text-white text-lg font-semibold inline-block mt-4">Shop Now</a>
+    </div>
+    <div class="md:w-[60%] h-96 mt-8 md:mt-0 hero-image"></div>
+</section>
+
+<!-- Categories -->
+<section class="p-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="category-card p-4 text-center">
+            <img src="./images/cables.jpg" alt="Cables" />
+            <h3>Cables</h3>
+            <a href="#">Explore</a>
+        </div>
+        <div class="category-card p-4 text-center">
+            <img src="./images/stands.jpg" alt="Stands" />
+            <h3>Stands</h3>
+            <a href="#">Explore</a>
+        </div>
+        <div class="category-card p-4 text-center">
+            <img src="./images/tuners.jpg" alt="Tuners" />
+            <h3>Tuners</h3>
+            <a href="#">Explore</a>
+        </div>
+        <div class="category-card p-4 text-center">
+            <img src="./images/accessories.jpg" alt="Other Accessories" />
+            <h3>Other Accessories</h3>
+            <a href="#">Explore</a>
+        </div>
+    </div>
+</section>
+
+<!-- Products -->
+<main class="p-4 md:p-6 relative z-10" id="accessory-grid">
+    <section class="mb-8 text-center">
+        <h2 class="text-4xl font-bold mb-2 text-white">Accessories</h2>
+        <p class="text-lg text-gray-300">Showing 1-6 of 229 results</p>
+    </section>
+
+    <!-- Sort -->
+    <div class="mb-4 flex justify-end">
+        <select id="sortSelect">
+            <option value="latest">Sort by latest</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+        </select>
+    </div>
+
+    <!-- Products Grid -->
+    <!-- Products Grid -->
+    <div class="product-grid">
+        <a href="#" class="product-card p-3 text-center no-underline text-white">
+            <img src="./images/microphonecable.jpg" alt="Cable" />
+            <h3>Microphone Cable</h3>
+            <p class="text-gray-300">Rs.3,000.00</p>
+            <span class="text-blue-300">View Details</span>
+        </a>
+
+        <a href="#" class="product-card p-3 text-center no-underline text-white">
+            <img src="./images/standardcable.jpg" alt="Cable" />
+            <h3>Standard Cable</h3>
+            <p class="text-gray-300">Rs.750.00</p>
+            <span class="text-blue-300">View Details</span>
+        </a>
+
+        <a href="#" class="product-card p-3 text-center no-underline text-white">
+            <img src="./images/speakerstand.jpg" alt="Stand" />
+            <h3>Speaker Stand</h3>
+            <p class="text-gray-300">Rs.5,500.00</p>
+            <span class="text-blue-300">View Details</span>
+        </a>
+
+        <a href="#" class="product-card p-3 text-center no-underline text-white">
+            <img src="./images/guitarstand.jpg" alt="Stand" />
+            <h3>Guitar Stand</h3>
+            <p class="text-gray-300">Rs.5,000.00</p>
+            <span class="text-blue-300">View Details</span>
+        </a>
+
+        <a href="#" class="product-card p-3 text-center no-underline text-white">
+            <img src="./images/tuningpeg.jpg" alt="Tuner" />
+            <h3>Tuning Peg</h3>
+            <p class="text-gray-300">Rs.1,200.00</p>
+            <span class="text-blue-300">View Details</span>
+        </a>
+
+        <a href="#" class="product-card p-3 text-center no-underline text-white">
+            <img src="./images/pickguard.jpg" alt="Pickguard" />
+            <h3>Pickguard</h3>
+            <p class="text-gray-300">Rs.900.00</p>
+            <span class="text-blue-300">View Details</span>
+        </a>
+    </div>
+
+</main>
+
+<!-- Sorting Script -->
+<script>
+    document.getElementById('sortSelect').addEventListener('change', function () {
+        const cards = Array.from(document.querySelectorAll('.product-card'));
+        const grid = document.querySelector('.product-grid');
+        const sort = this.value;
+
+        cards.sort((a, b) => {
+            const priceA = parseFloat(a.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
+            const priceB = parseFloat(b.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
+            return sort === 'price-low' ? priceA - priceB : sort === 'price-high' ? priceB - priceA : 0;
+        });
+
+        cards.forEach(card => grid.appendChild(card));
+    });
+</script>
+</body>
+</html>

@@ -2,9 +2,164 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelodyMart - Sign Up</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background: url('./images/1162694.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+    </style>
 </head>
-<body>
+<body class="relative">
+<!-- Navbar -->
+<div id="navbar-container" class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
+    <div>
+        <a href="index.html" class="text-2xl font-bold text-white">MelodyMart</a>
+    </div>
+    <div class="flex space-x-4">
+        <a href="index.html" class="text-white hover:text-gray-300">Home</a>
+        <a href="instruments.html" class="text-white hover:text-gray-300">Instruments</a>
+        <a href="accessories.html" class="text-white hover:text-gray-300">Accessories</a>
+        <a href="deals.html" class="text-white hover:text-gray-300">Deals</a>
+        <a href="contact.html" class="text-white hover:text-gray-300">Contact Us</a>
+        <a href="signin.html" target="_blank" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors add-to-cart">Sign In</a>
+        <a href="signup.html" target="_blank" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart">Sign Up</a>
+    </div>
+    <div class="ml-4">
+        <input type="text" placeholder="Search instruments..." class="w-full md:w-48 p-2 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
+    </div>
+</div>
+<script>
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+            const navbar = document.getElementById('navbar-container');
+            if (!navbar.querySelector('a[href="signin.html"]')) {
+                const signInButton = document.createElement('a');
+                signInButton.href = 'signin.html';
+                signInButton.target = '_blank';
+                signInButton.className = 'px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors add-to-cart mr-2';
+                signInButton.textContent = 'Sign In';
+                navbar.appendChild(signInButton);
+            }
+            if (!navbar.querySelector('a[href="signup.html"]')) {
+                const signUpButton = document.createElement('a');
+                signUpButton.href = 'signup.html';
+                signUpButton.target = '_blank';
+                signUpButton.className = 'px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart';
+                signUpButton.textContent = 'Sign Up';
+                navbar.appendChild(signUpButton);
+            }
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
 
+<!-- Main Content -->
+<main class="p-4 md:p-6 relative z-10 flex justify-center items-center min-h-[calc(100vh-80px)]">
+    <div class="w-full max-w-md bg-gray-900 bg-opacity-90 p-6 rounded-lg shadow-lg">
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Sign Up for MelodyMart</h1>
+        <form id="signupForm" class="space-y-4" novalidate>
+            <!-- Full Name -->
+            <div>
+                <label for="fullName" class="block text-sm md:text-base font-semibold text-gray-300">Full Name</label>
+                <input type="text" id="fullName" name="fullName" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your full name" aria-required="true" aria-describedby="name-error">
+                <p id="name-error" class="text-red-500 text-sm hidden">Please enter your full name.</p>
+            </div>
+            <!-- Email -->
+            <div>
+                <label for="email" class="block text-sm md:text-base font-semibold text-gray-300">Email Address</label>
+                <input type="email" id="email" name="email" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your email" aria-required="true" aria-describedby="email-error">
+                <p id="email-error" class="text-red-500 text-sm hidden">Please enter a valid email address.</p>
+            </div>
+            <!-- Password -->
+            <div>
+                <label for="password" class="block text-sm md:text-base font-semibold text-gray-300">Password</label>
+                <input type="password" id="password" name="password" required minlength="8" class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your password" aria-required="true" aria-describedby="password-error">
+                <p id="password-error" class="text-red-500 text-sm hidden">Password must be at least 8 characters.</p>
+            </div>
+            <!-- Country -->
+            <div>
+                <label for="country" class="block text-sm md:text-base font-semibold text-gray-300">Country</label>
+                <select id="country" name="country" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-required="true" aria-describedby="country-error">
+                    <option value="">Select your country</option>
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="AU">Australia</option>
+                    <option value="IN">India</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="CN">China</option>
+                    <option value="BR">Brazil</option>
+                </select>
+                <p id="country-error" class="text-red-500 text-sm hidden">Please select your country.</p>
+            </div>
+            <!-- Submit Button -->
+            <button type="submit" class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart">Create Account</button>
+        </form>
+        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Already have an account? <a href="signin.html" target="_blank" class="text-blue-300 hover:underline">Sign In</a></p>
+    </div>
+</main>
+
+<script>
+    // Form Validation and Simulated Sign-Up
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let isValid = true;
+
+        // Reset error messages
+        document.querySelectorAll('.text-red-500').forEach(error => error.classList.add('hidden'));
+
+        // Full Name validation
+        const fullName = document.getElementById('fullName').value.trim();
+        if (!fullName) {
+            document.getElementById('name-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        // Email validation
+        const email = document.getElementById('email').value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            document.getElementById('email-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        // Password validation
+        const password = document.getElementById('password').value;
+        if (password.length < 8) {
+            document.getElementById('password-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        // Country validation
+        const country = document.getElementById('country').value;
+        if (!country) {
+            document.getElementById('country-error').classList.remove('hidden');
+            isValid = false;
+        }
+
+        if (isValid) {
+            // Simulate successful sign-up
+            alert('Sign-up successful! Please sign in to continue.');
+            // Redirect to sign-in page
+            window.location.href = 'signin.html';
+        }
+    });
+</script>
 </body>
 </html>

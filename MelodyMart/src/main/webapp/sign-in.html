@@ -23,8 +23,12 @@
     </style>
 </head>
 <body class="relative">
+
+<!-- Navbar without Sign In / Sign Up buttons -->
 <!-- Navbar -->
-<div id="navbar-container" class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
+
+
+<div class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
     <div>
         <a href="index.html" class="text-2xl font-bold text-white">MelodyMart</a>
     </div>
@@ -34,88 +38,20 @@
         <a href="accessories.html" class="text-white hover:text-gray-300">Accessories</a>
         <a href="deals.html" class="text-white hover:text-gray-300">Deals</a>
         <a href="contact.html" class="text-white hover:text-gray-300">Contact Us</a>
-        <a href="signin.html" target="_blank" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors add-to-cart">Sign In</a>
-        <a href="signup.html" target="_blank" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart">Sign Up</a>
+        <a href="signin.html" class="auth-button px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">Sign In</a>
+        <a href="signup.html" class="auth-button px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">Sign Up</a>
+
     </div>
     <div class="ml-4">
         <input type="text" placeholder="Search instruments..." class="w-full md:w-48 p-2 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
     </div>
 </div>
-<script>
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('navbar-container').innerHTML = html;
-            // Ensure full navigation and buttons are present
-            const navbar = document.getElementById('navbar-container');
-            if (!navbar.querySelector('a[href="index.html"]')) {
-                const homeLink = document.createElement('a');
-                homeLink.href = 'index.html';
-                homeLink.className = 'text-white hover:text-gray-300 mr-4';
-                homeLink.textContent = 'Home';
-                navbar.appendChild(homeLink);
-            }
-            if (!navbar.querySelector('a[href="instruments.html"]')) {
-                const instrumentsLink = document.createElement('a');
-                instrumentsLink.href = 'instruments.html';
-                instrumentsLink.className = 'text-white hover:text-gray-300 mr-4';
-                instrumentsLink.textContent = 'Instruments';
-                navbar.appendChild(instrumentsLink);
-            }
-            if (!navbar.querySelector('a[href="accessories.html"]')) {
-                const accessoriesLink = document.createElement('a');
-                accessoriesLink.href = 'accessories.html';
-                accessoriesLink.className = 'text-white hover:text-gray-300 mr-4';
-                accessoriesLink.textContent = 'Accessories';
-                navbar.appendChild(accessoriesLink);
-            }
-            if (!navbar.querySelector('a[href="deals.html"]')) {
-                const dealsLink = document.createElement('a');
-                dealsLink.href = 'deals.html';
-                dealsLink.className = 'text-white hover:text-gray-300 mr-4';
-                dealsLink.textContent = 'Deals';
-                navbar.appendChild(dealsLink);
-            }
-            if (!navbar.querySelector('a[href="contact.html"]')) {
-                const contactLink = document.createElement('a');
-                contactLink.href = 'contact.html';
-                contactLink.className = 'text-white hover:text-gray-300 mr-4';
-                contactLink.textContent = 'Contact Us';
-                navbar.appendChild(contactLink);
-            }
-            if (!navbar.querySelector('a[href="signin.html"]')) {
-                const signInButton = document.createElement('a');
-                signInButton.href = 'signin.html';
-                signInButton.target = '_blank';
-                signInButton.className = 'px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors add-to-cart mr-2';
-                signInButton.textContent = 'Sign In';
-                navbar.appendChild(signInButton);
-            }
-            if (!navbar.querySelector('a[href="signup.html"]')) {
-                const signUpButton = document.createElement('a');
-                signUpButton.href = 'signup.html';
-                signUpButton.target = '_blank';
-                signUpButton.className = 'px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart';
-                signUpButton.textContent = 'Sign Up';
-                navbar.appendChild(signUpButton);
-            }
-            if (!navbar.querySelector('input[placeholder="Search instruments..."]')) {
-                const searchInput = document.createElement('input');
-                searchInput.type = 'text';
-                searchInput.placeholder = 'Search instruments...';
-                searchInput.className = 'w-full md:w-48 p-2 rounded-full search-bar text-white focus:outline-none';
-                searchInput.setAttribute('aria-label', 'Search instruments');
-                navbar.appendChild(searchInput);
-            }
-        })
-        .catch(error => console.error('Error loading navbar:', error));
-</script>
 
 <!-- Main Content -->
 <main class="p-4 md:p-6 relative z-10 flex justify-center items-center min-h-[calc(100vh-80px)]">
     <div class="w-full max-w-md bg-gray-900 bg-opacity-90 p-6 rounded-lg shadow-lg">
         <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Sign In to MelodyMart</h1>
-        <form id="signinForm" class="space-y-4" novalidate action="/api/signin" method="POST">
+        <form id="signinForm" class="space-y-4" novalidate>
             <!-- Email -->
             <div>
                 <label for="email" class="block text-sm md:text-base font-semibold text-gray-300">Email Address</label>
@@ -136,15 +72,15 @@
                 </label>
             </div>
             <!-- Submit Button -->
-            <button type="submit" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors add-to-cart">Sign In</button>
+            <button type="submit" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">Sign In</button>
         </form>
         <p class="text-center text-sm md:text-base text-gray-300 mt-4">Don't have an account? <a href="signup.html" target="_blank" class="text-blue-300 hover:underline">Sign Up</a></p>
         <p class="text-center text-sm md:text-base text-gray-300 mt-2"><a href="#" class="text-blue-300 hover:underline">Forgot Password?</a></p>
     </div>
 </main>
 
+<!-- Script -->
 <script>
-    // Form Validation and Submission
     document.getElementById('signinForm').addEventListener('submit', function(event) {
         event.preventDefault();
         let isValid = true;
@@ -154,7 +90,7 @@
 
         // Email validation
         const email = document.getElementById('email').value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
         if (!emailRegex.test(email)) {
             document.getElementById('email-error').classList.remove('hidden');
             isValid = false;
@@ -168,32 +104,18 @@
         }
 
         if (isValid) {
-            // Simulate API call for sign-in
-            fetch('/api/signin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                    remember: document.getElementById('remember').checked
-                })
-            })
-                .then(response => {
-                    if (response.ok) {
-                        // Navigate to the signed-in interface (e.g., dashboard)
-                        window.location.href = 'dashboard.html';
-                    } else {
-                        alert('Sign-in failed. Please check your credentials.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
-                });
+            const validEmail = "user@example.com";
+            const validPassword = "password123";
+
+            if (email === validEmail && password === validPassword) {
+                alert('Sign-in successful! Welcome to MelodyMart.');
+                window.location.href = 'dashboard.html';
+            } else {
+                alert('Invalid email or password. Please try again.');
+            }
         }
     });
 </script>
+
 </body>
 </html>

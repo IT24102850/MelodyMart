@@ -19,11 +19,6 @@
             color: #FFFFFF;
             overflow-x: hidden;
         }
-
-        @keyframes wave {
-            0% { transform: translateX(-50%) translateY(-50%); }
-            100% { transform: translateX(0%) translateY(-50%); }
-        }
         .hero-image {
             background-image: url('https://images.unsplash.com/photo-1511379936541-1b6e55863e73?q=80&w=2070&auto=format&fit=crop');
             background-size: cover;
@@ -39,65 +34,86 @@
             transform: scale(1.05);
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
-        .category-card {
+        .product-card {
             transition: transform 0.3s ease;
-            background: linear-gradient(to bottom right, #1a1a1a, #0f0f0f);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            background: #000000; /* Black background for category cards */
+            border-radius: 0.5rem;
         }
-        .category-card:hover {
+        .product-card:hover {
             transform: translateY(-5px);
         }
-        .category-card img {
+        .product-card img {
             width: 100%;
             height: 120px;
             object-fit: cover;
             object-position: center;
         }
-        .category-card h3 {
+        .product-card h3 {
             font-size: 1.1rem;
             margin: 0.5rem 0;
         }
-        .category-card a {
+        .product-card a {
             font-size: 0.9rem;
             padding-bottom: 0.5rem;
         }
-        .auth-button {
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: transform 0.3s ease, background-color 0.3s ease;
-            background-color: #1a1a1a;
-            color: #FFFFFF;
-            border: 1px solid #4A90E2;
-            margin-left: 0.5rem;
+        @media (max-width: 640px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            .product-card img {
+                height: auto;
+            }
+            .hero-image {
+                height: 200px;
+            }
         }
-        .auth-button:hover {
-            transform: scale(1.05);
-            background-color: #2a2a2a;
-            box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hero-image {
+                height: 300px;
+            }
+        }
+        @media (min-width: 1025px) {
+            .product-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .hero-image {
+                height: 400px;
+            }
         }
     </style>
 </head>
 <body class="relative">
-<!-- Wave Line -->
-<div class="wave-line"></div>
 
 <!-- Header Navigation -->
 <header class="flex justify-between items-center p-6 z-10 relative">
     <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
     <nav class="flex space-x-6 items-center">
-        <a href="index.html" class="text-lg hover:text-blue-300">Home</a>
-        <a href="instruments.html" class="text-lg hover:text-blue-300">Instruments</a>
-        <a href="accessories.html" class="text-lg hover:text-blue-300">Accessories</a>
-        <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
-        <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
-        <button class="auth-button" id="signInBtn">Sign In</button>
-        <button class="auth-button" id="signUpBtn">Sign Up</button>
+        <button class="auth-button" onclick="window.location.href='index.html'">Home</button>
+        <button class="auth-button" onclick="window.location.href='instruments.html'">Instruments</button>
+        <button class="auth-button" onclick="window.location.href='accessories.html'">Accessories</button>
+        <button class="auth-button" onclick="window.location.href='deals.html'">Deals</button>
+        <button class="auth-button" onclick="window.location.href='contact-us.html'">Contact Us</button>
+        <button class="auth-button" id="signInBtn" onclick="window.location.href='sign-in.html'">Sign In</button>
+        <button class="auth-button" id="signUpBtn" onclick="window.location.href='sign-up.html'">Sign Up</button>
     </nav>
 </header>
+<!-- Rest of your content (e.g., hero section, main) goes here -->
+</body>
+<!-- Navbar Include -->
+<div id="navbar-container"></div>
+<script>
+
+    // Dynamically load navbar.html
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
 
 <!-- Hero Section -->
 <section class="flex flex-col md:flex-row items-center justify-between p-8 md:p-16 relative z-10">
@@ -107,6 +123,8 @@
         </h1>
         <button class="bg-white text-black px-6 py-3 rounded-full text-lg font-semibold cta-button">
             <a href="instruments.html" class="text-black no-underline">Shop Now</a>
+
+
         </button>
     </div>
     <div class="md:w-[60%] h-96 mt-8 md:mt-0 hero-image"></div>
@@ -114,53 +132,57 @@
 
 <!-- Product Category Grid -->
 <section class="p-2 md:p-4 relative z-10">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="category-card p-4 flex flex-col items-center text-center">
-            <img src="./images/guitar.jpg" alt="Guitar" class="mb-2">
-            <h3 class="font-semibold">New Arrivals</h3>
+    <div class="product-grid grid gap-4">
+        <div class="product-card p-4 flex flex-col items-center text-center">
+            <a href="instruments.html" class="no-underline text-white">
+                <img src="./images/guitar.jpg" alt="Guitar" class="mb-2">
+                <h3 class="font-semibold">New Arrivals</h3>
+            </a>
             <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-        <div class="category-card p-4 flex flex-col items-center text-center">
-            <img src="./images/keyboard.jpg" alt="Keyboard" class="mb-2">
-            <h3 class="font-semibold">Best Sellers</h3>
+
+        <div class="product-card p-4 flex flex-col items-center text-center">
+            <a href="instruments.html" class="no-underline text-white">
+                <img src="./images/keyboard.jpg" alt="Keyboard" class="mb-2">
+                <h3 class="font-semibold">Best Sellers</h3>
+            </a>
             <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-        <div class="category-card p-4 flex flex-col items-center text-center">
-            <img src="./images/drums.jpg" alt="Drums" class="mb-2">
-            <h3 class="font-semibold">Featured Brands</h3>
+
+        <div class="product-card p-4 flex flex-col items-center text-center">
+            <a href="instruments.html" class="no-underline text-white">
+                <img src="./images/drums.jpg" alt="Drums" class="mb-2">
+                <h3 class="font-semibold">Featured Brands</h3>
+            </a>
             <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-        <div class="category-card p-4 flex flex-col items-center text-center">
-            <img src="./images/accessories.jpg" alt="Accessories" class="mb-2">
-            <h3 class="font-semibold">Accessories</h3>
+
+        <div class="product-card p-4 flex flex-col items-center text-center">
+            <a href="accessories.html" class="no-underline text-white">
+                <img src="./images/accessories.jpg" alt="Accessories" class="mb-2">
+                <h3 class="font-semibold">Accessories</h3>
+            </a>
             <a href="accessories.html" class="text-blue-300">Explore</a>
         </div>
     </div>
 </section>
 
+
 <script>
-    document.querySelectorAll('.cta-button').forEach(button => {
-        button.addEventListener('mouseenter', () => {
-            button.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.5)';
-        });
-        button.addEventListener('mouseleave', () => {
-            button.style.boxShadow = 'none';
-        });
+    // Optional: Add current date/time for reference (uncomment to display)
+    const dateTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Colombo',
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
     });
-
-    // Sign In Redirect Logic
-    const signInBtn = document.getElementById('signInBtn');
-    const signUpBtn = document.getElementById('signUpBtn');
-
-    signInBtn.addEventListener('click', () => {
-        // Open sign-in popup
-        window.open('signin-popup.html', 'SignInPopup', 'width=600,height=700');
-    });
-
-    signUpBtn.addEventListener('click', () => {
-        // Redirect to registration page
-        window.location.href = 'register.html';
-    });
+    // Uncomment the line below to display the date/time (e.g., "Monday, August 04, 2025, 01:45 AM +0530")
+    // document.body.innerHTML += `<p class="text-center mt-4">${dateTime}</p>`;
 </script>
 </body>
 </html>
