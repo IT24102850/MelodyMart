@@ -36,7 +36,7 @@
         }
         .product-card {
             transition: transform 0.3s ease;
-            background: #000000; /* Black background for category cards */
+            background: #000000;
             border-radius: 0.5rem;
         }
         .product-card:hover {
@@ -86,7 +86,6 @@
     </style>
 </head>
 <body class="relative">
-
 <!-- Header Navigation -->
 <header class="flex justify-between items-center p-6 z-10 relative">
     <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
@@ -100,20 +99,6 @@
         <button class="auth-button" id="signUpBtn" onclick="window.location.href='sign-up.html'">Sign Up</button>
     </nav>
 </header>
-<!-- Rest of your content (e.g., hero section, main) goes here -->
-</body>
-<!-- Navbar Include -->
-<div id="navbar-container"></div>
-<script>
-
-    // Dynamically load navbar.html
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('navbar-container').innerHTML = html;
-        })
-        .catch(error => console.error('Error loading navbar:', error));
-</script>
 
 <!-- Hero Section -->
 <section class="flex flex-col md:flex-row items-center justify-between p-8 md:p-16 relative z-10">
@@ -123,8 +108,6 @@
         </h1>
         <button class="bg-white text-black px-6 py-3 rounded-full text-lg font-semibold cta-button">
             <a href="instruments.html" class="text-black no-underline">Shop Now</a>
-
-
         </button>
     </div>
     <div class="md:w-[60%] h-96 mt-8 md:mt-0 hero-image"></div>
@@ -140,7 +123,6 @@
             </a>
             <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-
         <div class="product-card p-4 flex flex-col items-center text-center">
             <a href="instruments.html" class="no-underline text-white">
                 <img src="./images/keyboard.jpg" alt="Keyboard" class="mb-2">
@@ -148,7 +130,6 @@
             </a>
             <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-
         <div class="product-card p-4 flex flex-col items-center text-center">
             <a href="instruments.html" class="no-underline text-white">
                 <img src="./images/drums.jpg" alt="Drums" class="mb-2">
@@ -156,7 +137,6 @@
             </a>
             <a href="instruments.html" class="text-blue-300">Explore</a>
         </div>
-
         <div class="product-card p-4 flex flex-col items-center text-center">
             <a href="accessories.html" class="no-underline text-white">
                 <img src="./images/accessories.jpg" alt="Accessories" class="mb-2">
@@ -167,9 +147,7 @@
     </div>
 </section>
 
-
 <script>
-    // Optional: Add current date/time for reference (uncomment to display)
     const dateTime = new Date().toLocaleString('en-US', {
         timeZone: 'Asia/Colombo',
         hour12: true,
@@ -181,8 +159,6 @@
         month: 'long',
         day: 'numeric'
     });
-    // Uncomment the line below to display the date/time (e.g., "Monday, August 04, 2025, 01:45 AM +0530")
-    // document.body.innerHTML += `<p class="text-center mt-4">${dateTime}</p>`;
 </script>
 </body>
 </html>
