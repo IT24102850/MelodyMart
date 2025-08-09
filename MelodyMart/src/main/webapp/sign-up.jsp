@@ -25,13 +25,6 @@
     </style>
 </head>
 <body class="relative">
-<!-- Navbar -->
-<div class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
-    <div>
-        <a href="index.jsp" class="text-2xl font-bold text-white">MelodyMart</a>
-    </div>
-
-</div>
 
 <!-- Main Content -->
 <main class="p-4 md:p-6 relative z-10 flex justify-center items-center min-h-[calc(100vh-80px)]">
@@ -77,6 +70,7 @@
                     <option value="JP" ${param.country == 'JP' ? 'selected' : ''}>Japan</option>
                     <option value="CN" ${param.country == 'CN' ? 'selected' : ''}>China</option>
                     <option value="BR" ${param.country == 'BR' ? 'selected' : ''}>Brazil</option>
+                    <option value="SL" ${param.country == 'SL' ? 'selected' : ''}>Sri Lanka</option>
                 </select>
                 <p id="country-error" class="text-red-500 text-sm hidden">Please select your country.</p>
             </div>

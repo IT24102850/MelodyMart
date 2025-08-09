@@ -1,100 +1,48 @@
 package com.melodymart.dao;
 
 import com.melodymart.model.User;
-import com.melodymart.util.DatabaseUtil;
-
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAO {
-    // Create a new user in the database
-    public void addUser(User user) throws SQLException {
-        String sql = "INSERT INTO users (username, password, email, role, is_approved) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword()); // Consider hashing password in a real application
-            stmt.setString(3, user.getEmail());
-            stmt.setString(4, user.getRole());
-            stmt.setBoolean(5, user.isApproved());
-            stmt.executeUpdate();
-        }
+    private DataSource dataSource;
+
+    public UserDAO() {
+        // Initialize DataSource (e.g., via JNDI or a connection pool in your server config)
+        // This is a placeholder; configure it based on your environment
+        // dataSource = (DataSource) new InitialContext().lookup("java:comp/env/jdbc/melodymartDB");
     }
 
-    // Read a user by ID
-    public User getUserById(int id) throws SQLException {
-        String sql = "SELECT * FROM users WHERE id = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
+    public boolean isEmailExists(String email) {
+        String sql = "SELECT COUNT(*) FROM Users WHERE email = ?";
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return mapResultSetToUser(rs);
+                return rs.getInt(1) > 0;
             }
-            return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return false;
     }
 
-    // Read a user by username
-    public User getUserByUsername(String username) throws SQLException {
-        String sql = "SELECT * FROM users WHERE username = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
+    public void registerUser(User user) {
+        String sql = "INSERT INTO Users (fullName, email, password, role, country) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return mapResultSetToUser(rs);
-            }
-            return null;
-        }
-    }
-
-    // Update an existing user
-    public void updateUser(User user) throws SQLException {
-        String sql = "UPDATE users SET username = ?, password = ?, email = ?, role = ?, is_approved = ? WHERE id = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, user.getUsername());
-            stmt.setString(2, user.getPassword()); // Consider hashing password in a real application
-            stmt.setString(3, user.getEmail());
+            stmt.setString(1, user.getFullName());
+            stmt.setString(2, user.getEmail());
+            stmt.setString(3, user.getPassword()); // In production, hash the password
             stmt.setString(4, user.getRole());
-            stmt.setBoolean(5, user.isApproved());
-            stmt.setInt(6, user.getId());
+            stmt.setString(5, user.getCountry());
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    }
-
-    // Delete a user by ID
-    public void deleteUser(int id) throws SQLException {
-        String sql = "DELETE FROM users WHERE id = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
-    }
-
-    // Approve a user (e.g., for seller accounts)
-    public void approveUser(int id) throws SQLException {
-        String sql = "UPDATE users SET is_approved = true WHERE id = ?";
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            stmt.executeUpdate();
-        }
-    }
-
-    // Helper method to map ResultSet to User object
-    private User mapResultSetToUser(ResultSet rs) throws SQLException {
-        User user = new User();
-        user.setId(rs.getInt("id"));
-        user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("password")); // Consider decryption if hashed
-        user.setEmail(rs.getString("email"));
-        user.setRole(rs.getString("role"));
-        user.setApproved(rs.getBoolean("is_approved"));
-        return user;
     }
 }
