@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -84,14 +86,13 @@
 </head>
 <body class="relative">
 
-
 <!-- Header Navigation (Fallback) -->
 <header class="flex justify-between items-center p-6 z-10 relative">
     <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
     <nav class="flex space-x-6 items-center">
-        <a href="index.html" class="text-lg hover:text-blue-300">Home</a>
-        <a href="instruments.html" class="text-lg hover:text-blue-300">Instruments</a>
-        <a href="accessories.html" class="text-lg hover:text-blue-300">Accessories</a>
+        <a href="index.jsp" class="text-lg hover:text-blue-300">Home</a>
+        <a href="instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
+        <a href="accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
         <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
         <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
         <button class="auth-button" id="signInBtn">Sign In</button>
@@ -103,64 +104,27 @@
 <main class="p-4 md:p-6 relative z-10">
     <!-- Search Bar -->
     <div class="mb-4 md:mb-6">
-        <input type="text" id="searchInput" placeholder="Search instruments..." class="w-full md:w-1/2 p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
+        <form action="InstrumentServlet" method="get" class="w-full md:w-1/2">
+            <input type="text" name="searchTerm" id="searchInput" value="${param.searchTerm}" placeholder="Search instruments..." class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
+            <input type="submit" value="Search" class="auth-button mt-2">
+        </form>
     </div>
 
     <!-- Instruments Grid -->
     <div id="instrumentsGrid" class="product-grid grid gap-4">
-        <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="./images/acousticguitar.jpg" alt="Acoustic Guitar" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Acoustic Guitar</h3>
-            <p class="text-sm md:text-base text-gray-300">$299.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
-        </div>
-        <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="./images/digitalkeyboard.jpg" alt="Digital Keyboard" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Digital Keyboard</h3>
-            <p class="text-sm md:text-base text-gray-300">$499.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
-        </div>
-        <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="./images/drumset.jpg" alt="Drum Set" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Drum Set</h3>
-            <p class="text-sm md:text-base text-gray-300">$799.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
-        </div>
-        <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="./images/electricviolin.jpg" alt="Electric Violin" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Electric Violin</h3>
-            <p class="text-sm md:text-base text-gray-300">$399.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
-        </div>
-        <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="./images/saxophone.jpg" alt="Saxophone" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Saxophone</h3>
-            <p class="text-sm md:text-base text-gray-300">$549.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
-        </div>
-        <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="./images/ukulele.jpg" alt="Ukulele" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Ukulele</h3>
-            <p class="text-sm md:text-base text-gray-300">$129.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
-        </div>
-        <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="./images/trumpet.jpg" alt="Trumpet" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Trumpet</h3>
-            <p class="text-sm md:text-base text-gray-300">$349.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
-        </div>
-        <div class="product-card p-3 flex flex-col items-center text-center relative">
-            <img src="./images/flute.jpg" alt="Flute" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
-            <h3 class="text-lg md:text-xl font-semibold">Flute</h3>
-            <p class="text-sm md:text-base text-gray-300">$199.99</p>
-            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
-        </div>
+        <c:forEach var="instrument" items="${instruments}">
+            <div class="product-card p-3 flex flex-col items-center text-center relative">
+                <img src="${instrument.imageUrl}" alt="${instrument.name}" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+                <h3 class="text-lg md:text-xl font-semibold">${instrument.name}</h3>
+                <p class="text-sm md:text-base text-gray-300">$${instrument.price}</p>
+                <a href="instrument-details.jsp?id=${instrument.id}" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+            </div>
+        </c:forEach>
     </div>
 </main>
 
 <script>
-    // Search Functionality
+    // Client-side search functionality
     document.getElementById('searchInput').addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
         const cards = document.querySelectorAll('.product-card');

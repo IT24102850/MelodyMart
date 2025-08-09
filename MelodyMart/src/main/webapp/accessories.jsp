@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -124,13 +126,13 @@
 <header class="flex justify-between items-center p-6 z-10 relative">
     <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
     <nav class="flex space-x-6 items-center">
-        <a href="index.html" class="text-lg hover:text-blue-300">Home</a>
-        <a href="instruments.html" class="text-lg hover:text-blue-300">Instruments</a>
-        <a href="accessories.html" class="text-lg hover:text-blue-300">Accessories</a>
+        <a href="index.jsp" class="text-lg hover:text-blue-300">Home</a>
+        <a href="instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
+        <a href="accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
         <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
         <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
-        <a href="sign-in.html" class="text-lg hover:text-blue-400">Sign In</a>
-        <a href="sign-up.html" class="text-lg hover:text-blue-400">Sign Up</a>
+        <a href="sign-in.jsp" class="text-lg hover:text-blue-400">Sign In</a>
+        <a href="sign-up.jsp" class="text-lg hover:text-blue-400">Sign Up</a>
     </nav>
 </header>
 
@@ -149,22 +151,22 @@
         <div class="category-card p-4 text-center">
             <img src="./images/cables.jpg" alt="Cables" />
             <h3>Cables</h3>
-            <a href="#">Explore</a>
+            <a href="accessories.jsp?category=cables">Explore</a>
         </div>
         <div class="category-card p-4 text-center">
             <img src="./images/stands.jpg" alt="Stands" />
             <h3>Stands</h3>
-            <a href="#">Explore</a>
+            <a href="accessories.jsp?category=stands">Explore</a>
         </div>
         <div class="category-card p-4 text-center">
             <img src="./images/tuners.jpg" alt="Tuners" />
             <h3>Tuners</h3>
-            <a href="#">Explore</a>
+            <a href="accessories.jsp?category=tuners">Explore</a>
         </div>
         <div class="category-card p-4 text-center">
             <img src="./images/accessories.jpg" alt="Other Accessories" />
             <h3>Other Accessories</h3>
-            <a href="#">Explore</a>
+            <a href="accessories.jsp?category=others">Explore</a>
         </div>
     </div>
 </section>
@@ -173,81 +175,48 @@
 <main class="p-4 md:p-6 relative z-10" id="accessory-grid">
     <section class="mb-8 text-center">
         <h2 class="text-4xl font-bold mb-2 text-white">Accessories</h2>
-        <p class="text-lg text-gray-300">Showing 1-6 of 229 results</p>
+        <p class="text-lg text-gray-300">Showing 1-6 of <c:out value="${accessoryCount}"/> results</p>
     </section>
 
     <!-- Sort -->
     <div class="mb-4 flex justify-end">
-        <select id="sortSelect">
-            <option value="latest">Sort by latest</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
-        </select>
+        <form action="AccessoryServlet" method="get" class="flex items-center">
+            <select name="sort" id="sortSelect" onchange="this.form.submit()">
+                <option value="latest" ${param.sort == 'latest' ? 'selected' : ''}>Sort by latest</option>
+                <option value="price-low" ${param.sort == 'price-low' ? 'selected' : ''}>Price: Low to High</option>
+                <option value="price-high" ${param.sort == 'price-high' ? 'selected' : ''}>Price: High to Low</option>
+            </select>
+            <input type="hidden" name="category" value="${param.category}">
+        </form>
     </div>
 
-    <!-- Products Grid -->
     <!-- Products Grid -->
     <div class="product-grid">
-        <a href="#" class="product-card p-3 text-center no-underline text-white">
-            <img src="./images/microphonecable.jpg" alt="Cable" />
-            <h3>Microphone Cable</h3>
-            <p class="text-gray-300">Rs.3,000.00</p>
-            <span class="text-blue-300">View Details</span>
-        </a>
-
-        <a href="#" class="product-card p-3 text-center no-underline text-white">
-            <img src="./images/standardcable.jpg" alt="Cable" />
-            <h3>Standard Cable</h3>
-            <p class="text-gray-300">Rs.750.00</p>
-            <span class="text-blue-300">View Details</span>
-        </a>
-
-        <a href="#" class="product-card p-3 text-center no-underline text-white">
-            <img src="./images/speakerstand.jpg" alt="Stand" />
-            <h3>Speaker Stand</h3>
-            <p class="text-gray-300">Rs.5,500.00</p>
-            <span class="text-blue-300">View Details</span>
-        </a>
-
-        <a href="#" class="product-card p-3 text-center no-underline text-white">
-            <img src="./images/guitarstand.jpg" alt="Stand" />
-            <h3>Guitar Stand</h3>
-            <p class="text-gray-300">Rs.5,000.00</p>
-            <span class="text-blue-300">View Details</span>
-        </a>
-
-        <a href="#" class="product-card p-3 text-center no-underline text-white">
-            <img src="./images/tuningpeg.jpg" alt="Tuner" />
-            <h3>Tuning Peg</h3>
-            <p class="text-gray-300">Rs.1,200.00</p>
-            <span class="text-blue-300">View Details</span>
-        </a>
-
-        <a href="#" class="product-card p-3 text-center no-underline text-white">
-            <img src="./images/pickguard.jpg" alt="Pickguard" />
-            <h3>Pickguard</h3>
-            <p class="text-gray-300">Rs.900.00</p>
-            <span class="text-blue-300">View Details</span>
-        </a>
+        <c:forEach var="accessory" items="${accessories}">
+            <a href="accessory-details.jsp?id=${accessory.id}" class="product-card p-3 text-center no-underline text-white">
+                <img src="${accessory.imageUrl}" alt="${accessory.name}" />
+                <h3>${accessory.name}</h3>
+                <p class="text-gray-300">Rs.${accessory.price}</p>
+                <span class="text-blue-300">View Details</span>
+            </a>
+        </c:forEach>
     </div>
-
 </main>
 
 <!-- Sorting Script -->
 <script>
-    document.getElementById('sortSelect').addEventListener('change', function () {
-        const cards = Array.from(document.querySelectorAll('.product-card'));
-        const grid = document.querySelector('.product-grid');
-        const sort = this.value;
-
-        cards.sort((a, b) => {
-            const priceA = parseFloat(a.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
-            const priceB = parseFloat(b.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
-            return sort === 'price-low' ? priceA - priceB : sort === 'price-high' ? priceB - priceA : 0;
-        });
-
-        cards.forEach(card => grid.appendChild(card));
-    });
+    // Client-side sorting is disabled since server-side sorting is implemented
+    // document.getElementById('sortSelect').addEventListener('change', function () {
+    //     const cards = Array.from(document.querySelectorAll('.product-card'));
+    //     const grid = document.querySelector('.product-grid');
+    //     const sort = this.value;
+    //
+    //     cards.sort((a, b) => {
+    //         const priceA = parseFloat(a.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
+    //         const priceB = parseFloat(b.querySelector('p').textContent.replace('Rs.', '').replace(',', ''));
+    //         return sort === 'price-low' ? priceA - priceB : sort === 'price-high' ? priceB - priceA : 0;
+    //     });
+    //
+    //     cards.forEach(card => grid.appendChild(card));
+    // });
 </script>
-</body>
-</html>

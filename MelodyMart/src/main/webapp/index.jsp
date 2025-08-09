@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -86,17 +88,18 @@
     </style>
 </head>
 <body class="relative">
+
 <!-- Header Navigation -->
 <header class="flex justify-between items-center p-6 z-10 relative">
     <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
     <nav class="flex space-x-6 items-center">
-        <button class="auth-button" onclick="window.location.href='index.html'">Home</button>
-        <button class="auth-button" onclick="window.location.href='instruments.html'">Instruments</button>
-        <button class="auth-button" onclick="window.location.href='accessories.html'">Accessories</button>
+        <button class="auth-button" onclick="window.location.href='index.jsp'">Home</button>
+        <button class="auth-button" onclick="window.location.href='instruments.jsp'">Instruments</button>
+        <button class="auth-button" onclick="window.location.href='accessories.jsp'">Accessories</button>
         <button class="auth-button" onclick="window.location.href='deals.html'">Deals</button>
         <button class="auth-button" onclick="window.location.href='contact-us.html'">Contact Us</button>
-        <button class="auth-button" id="signInBtn" onclick="window.location.href='sign-in.html'">Sign In</button>
-        <button class="auth-button" id="signUpBtn" onclick="window.location.href='sign-up.html'">Sign Up</button>
+        <button class="auth-button" id="signInBtn" onclick="window.location.href='sign-in.jsp'">Sign In</button>
+        <button class="auth-button" id="signUpBtn" onclick="window.location.href='sign-up.jsp'">Sign Up</button>
     </nav>
 </header>
 
@@ -107,7 +110,7 @@
             Elevate your Sound
         </h1>
         <button class="bg-white text-black px-6 py-3 rounded-full text-lg font-semibold cta-button m1=4">
-            <a href="instruments.html" class="text-black no-underline">Shop Now</a>
+            <a href="instruments.jsp" class="text-black no-underline">Shop Now</a>
         </button>
     </div>
     <div class="md:w-[60%] h-96 mt-8 md:mt-0 hero-image"></div>
@@ -117,35 +120,40 @@
 <section class="p-2 md:p-4 relative z-10">
     <div class="product-grid grid gap-4">
         <div class="product-card p-4 flex flex-col items-center text-center">
-            <a href="instruments.html" class="no-underline text-white">
+            <a href="instruments.jsp" class="no-underline text-white">
                 <img src="./images/guitar.jpg" alt="Guitar" class="mb-2">
                 <h3 class="font-semibold">New Arrivals</h3>
             </a>
-            <a href="instruments.html" class="text-blue-300">Explore</a>
+            <a href="instruments.jsp" class="text-blue-300">Explore</a>
         </div>
         <div class="product-card p-4 flex flex-col items-center text-center">
-            <a href="instruments.html" class="no-underline text-white">
+            <a href="instruments.jsp" class="no-underline text-white">
                 <img src="./images/keyboard.jpg" alt="Keyboard" class="mb-2">
                 <h3 class="font-semibold">Best Sellers</h3>
             </a>
-            <a href="instruments.html" class="text-blue-300">Explore</a>
+            <a href="instruments.jsp" class="text-blue-300">Explore</a>
         </div>
-        <div class="product-card p-4 flex flex-col items-center text-center">
-            <a href="instruments.html" class="no-underline text-white">
+        <div class="product-card p-4 flex-col items-center text-center">
+            <a href="instruments.jsp" class="no-underline text-white">
                 <img src="./images/drums.jpg" alt="Drums" class="mb-2">
                 <h3 class="font-semibold">Featured Brands</h3>
             </a>
-            <a href="instruments.html" class="text-blue-300">Explore</a>
+            <a href="instruments.jsp" class="text-blue-300">Explore</a>
         </div>
         <div class="product-card p-4 flex flex-col items-center text-center">
-            <a href="accessories.html" class="no-underline text-white">
+            <a href="accessories.jsp" class="no-underline text-white">
                 <img src="./images/accessories.jpg" alt="Accessories" class="mb-2">
                 <h3 class="font-semibold">Accessories</h3>
             </a>
-            <a href="accessories.html" class="text-blue-300">Explore</a>
+            <a href="accessories.jsp" class="text-blue-300">Explore</a>
         </div>
     </div>
 </section>
+
+<!-- Dynamic Welcome Message (Placeholder) -->
+<c:if test="${not empty sessionScope.user}">
+    <p class="text-center mt-4">Welcome, ${sessionScope.user.fullName}!</p>
+</c:if>
 
 <script>
     const dateTime = new Date().toLocaleString('en-US', {
@@ -159,6 +167,7 @@
         month: 'long',
         day: 'numeric'
     });
+    document.body.innerHTML += `<p class="text-center mt-4">${dateTime}</p>`;
 </script>
 </body>
 </html>

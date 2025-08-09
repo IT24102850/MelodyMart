@@ -32,7 +32,7 @@ public class RegisterServlet extends HttpServlet {
             User existingUser = userDAO.getUserByUsername(username);
             if (existingUser != null) {
                 request.setAttribute("error", "Username already exists.");
-                request.getRequestDispatcher("/sign-up.html").forward(request, response);
+                request.getRequestDispatcher("/sign-up.jsp").forward(request, response);
                 return;
             }
 
@@ -46,7 +46,7 @@ public class RegisterServlet extends HttpServlet {
 
             userDAO.addUser(user);
             request.setAttribute("message", "Registration successful. " + ("seller".equals(role) ? "Please wait for admin approval." : "You can now log in."));
-            request.getRequestDispatcher("/sign-in.html").forward(request, response);
+            request.getRequestDispatcher("/sign-in.jsp").forward(request, response);
         } catch (SQLException e) {
             throw new ServletException("Database error during registration", e);
         }

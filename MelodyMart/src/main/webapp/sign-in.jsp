@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,19 +27,16 @@
 <body class="relative">
 
 <!-- Navbar without Sign In / Sign Up buttons -->
-<!-- Navbar -->
-
-
 <div class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
     <div>
-        <a href="index.html" class="text-2xl font-bold text-white">MelodyMart</a>
+        <a href="index.jsp" class="text-2xl font-bold text-white">MelodyMart</a>
     </div>
     <div class="flex space-x-4">
-        <a href="index.html" class="text-white hover:text-gray-300">Home</a>
-        <a href="instruments.html" class="text-white hover:text-gray-300">Instruments</a>
-        <a href="accessories.html" class="text-white hover:text-gray-300">Accessories</a>
-        <a href="deals.html" class="text-white hover:text-gray-300">Deals</a>
-        <a href="contact.html" class="text-white hover:text-gray-300">Contact Us</a>
+        <a href="index.jsp" class="text-white hover:text-gray-300">Home</a>
+        <a href="instruments.jsp" class="text-white hover:text-gray-300">Instruments</a>
+        <a href="accessories.jsp" class="text-white hover:text-gray-300">Accessories</a>
+        <a href="deals.jsp" class="text-white hover:text-gray-300">Deals</a>
+        <a href="contact.jsp" class="text-white hover:text-gray-300">Contact Us</a>
     </div>
     <div class="ml-4">
         <input type="text" placeholder="Search instruments..." class="w-full md:w-48 p-2 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
@@ -48,11 +47,17 @@
 <main class="p-4 md:p-6 relative z-10 flex justify-center items-center min-h-[calc(100vh-80px)]">
     <div class="w-full max-w-md bg-gray-900 bg-opacity-90 p-6 rounded-lg shadow-lg">
         <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Sign In to MelodyMart</h1>
-        <form id="signinForm" class="space-y-4" novalidate>
+        <c:if test="${not empty errorMessage}">
+            <p class="text-red-500 text-center mb-4">${errorMessage}</p>
+        </c:if>
+        <c:if test="${not empty successMessage}">
+            <p class="text-green-500 text-center mb-4">${successMessage}</p>
+        </c:if>
+        <form id="signinForm" action="LoginServlet" method="post" class="space-y-4" novalidate>
             <!-- Email -->
             <div>
                 <label for="email" class="block text-sm md:text-base font-semibold text-gray-300">Email Address</label>
-                <input type="email" id="email" name="email" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your email" aria-required="true" aria-describedby="email-error">
+                <input type="email" id="email" name="email" value="${param.email}" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your email" aria-required="true" aria-describedby="email-error">
                 <p id="email-error" class="text-red-500 text-sm hidden">Please enter a valid email address.</p>
             </div>
             <!-- Password -->
@@ -71,8 +76,8 @@
             <!-- Submit Button -->
             <button type="submit" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">Sign In</button>
         </form>
-        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Don't have an account? <a href="signup.html" target="_blank" class="text-blue-300 hover:underline">Sign Up</a></p>
-        <p class="text-center text-sm md:text-base text-gray-300 mt-2"><a href="#" class="text-blue-300 hover:underline">Forgot Password?</a></p>
+        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Don't have an account? <a href="sign-up.jsp" target="_blank" class="text-blue-300 hover:underline">Sign Up</a></p>
+        <p class="text-center text-sm md:text-base text-gray-300 mt-2"><a href="forgot-password.jsp" class="text-blue-300 hover:underline">Forgot Password?</a></p>
     </div>
 </main>
 
@@ -101,18 +106,7 @@
         }
 
         if (isValid) {
-            const validEmail = "user@example.com";
-            const validPassword = "password123";
-
-            if (email === validEmail && password === validPassword) {
-                alert('Sign-in successful! Welcome to MelodyMart.');
-                window.location.href = 'dashboard.html';
-            } else {
-                alert('Invalid email or password. Please try again.');
-            }
+            this.submit(); // Submit the form to the servlet
         }
     });
 </script>
-
-</body>
-</html>

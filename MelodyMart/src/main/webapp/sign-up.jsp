@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,63 +26,34 @@
 </head>
 <body class="relative">
 <!-- Navbar -->
-<div id="navbar-container" class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
+<div class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
     <div>
-        <a href="index.html" class="text-2xl font-bold text-white">MelodyMart</a>
+        <a href="index.jsp" class="text-2xl font-bold text-white">MelodyMart</a>
     </div>
-    <div class="flex space-x-4">
-        <a href="index.html" class="text-white hover:text-gray-300">Home</a>
-        <a href="instruments.html" class="text-white hover:text-gray-300">Instruments</a>
-        <a href="accessories.html" class="text-white hover:text-gray-300">Accessories</a>
-        <a href="deals.html" class="text-white hover:text-gray-300">Deals</a>
-        <a href="contact.html" class="text-white hover:text-gray-300">Contact Us</a>
 
-    </div>
-    <div class="ml-4">
-        <input type="text" placeholder="Search instruments..." class="w-full md:w-48 p-2 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
-    </div>
 </div>
-<script>
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('navbar-container').innerHTML = html;
-            const navbar = document.getElementById('navbar-container');
-            if (!navbar.querySelector('a[href="signin.html"]')) {
-                const signInButton = document.createElement('a');
-                signInButton.href = 'signin.html';
-                signInButton.target = '_blank';
-                signInButton.className = 'px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors add-to-cart mr-2';
-                signInButton.textContent = 'Sign In';
-                navbar.appendChild(signInButton);
-            }
-            if (!navbar.querySelector('a[href="signup.html"]')) {
-                const signUpButton = document.createElement('a');
-                signUpButton.href = 'signup.html';
-                signUpButton.target = '_blank';
-                signUpButton.className = 'px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart';
-                signUpButton.textContent = 'Sign Up';
-                navbar.appendChild(signUpButton);
-            }
-        })
-        .catch(error => console.error('Error loading navbar:', error));
-</script>
 
 <!-- Main Content -->
 <main class="p-4 md:p-6 relative z-10 flex justify-center items-center min-h-[calc(100vh-80px)]">
     <div class="w-full max-w-md bg-gray-900 bg-opacity-90 p-6 rounded-lg shadow-lg">
         <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Sign Up for MelodyMart</h1>
-        <form id="signupForm" class="space-y-4" novalidate>
+        <c:if test="${not empty errorMessage}">
+            <p class="text-red-500 text-center mb-4">${errorMessage}</p>
+        </c:if>
+        <c:if test="${not empty successMessage}">
+            <p class="text-green-500 text-center mb-4">${successMessage}</p>
+        </c:if>
+        <form id="signupForm" action="RegisterServlet" method="post" class="space-y-4" novalidate>
             <!-- Full Name -->
             <div>
                 <label for="fullName" class="block text-sm md:text-base font-semibold text-gray-300">Full Name</label>
-                <input type="text" id="fullName" name="fullName" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your full name" aria-required="true" aria-describedby="name-error">
+                <input type="text" id="fullName" name="fullName" value="${param.fullName}" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your full name" aria-required="true" aria-describedby="name-error">
                 <p id="name-error" class="text-red-500 text-sm hidden">Please enter your full name.</p>
             </div>
             <!-- Email -->
             <div>
                 <label for="email" class="block text-sm md:text-base font-semibold text-gray-300">Email Address</label>
-                <input type="email" id="email" name="email" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your email" aria-required="true" aria-describedby="email-error">
+                <input type="email" id="email" name="email" value="${param.email}" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your email" aria-required="true" aria-describedby="email-error">
                 <p id="email-error" class="text-red-500 text-sm hidden">Please enter a valid email address.</p>
             </div>
             <!-- Password -->
@@ -94,28 +67,28 @@
                 <label for="country" class="block text-sm md:text-base font-semibold text-gray-300">Country</label>
                 <select id="country" name="country" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-required="true" aria-describedby="country-error">
                     <option value="">Select your country</option>
-                    <option value="US">United States</option>
-                    <option value="CA">Canada</option>
-                    <option value="UK">United Kingdom</option>
-                    <option value="AU">Australia</option>
-                    <option value="IN">India</option>
-                    <option value="DE">Germany</option>
-                    <option value="FR">France</option>
-                    <option value="JP">Japan</option>
-                    <option value="CN">China</option>
-                    <option value="BR">Brazil</option>
+                    <option value="US" ${param.country == 'US' ? 'selected' : ''}>United States</option>
+                    <option value="CA" ${param.country == 'CA' ? 'selected' : ''}>Canada</option>
+                    <option value="UK" ${param.country == 'UK' ? 'selected' : ''}>United Kingdom</option>
+                    <option value="AU" ${param.country == 'AU' ? 'selected' : ''}>Australia</option>
+                    <option value="IN" ${param.country == 'IN' ? 'selected' : ''}>India</option>
+                    <option value="DE" ${param.country == 'DE' ? 'selected' : ''}>Germany</option>
+                    <option value="FR" ${param.country == 'FR' ? 'selected' : ''}>France</option>
+                    <option value="JP" ${param.country == 'JP' ? 'selected' : ''}>Japan</option>
+                    <option value="CN" ${param.country == 'CN' ? 'selected' : ''}>China</option>
+                    <option value="BR" ${param.country == 'BR' ? 'selected' : ''}>Brazil</option>
                 </select>
                 <p id="country-error" class="text-red-500 text-sm hidden">Please select your country.</p>
             </div>
             <!-- Submit Button -->
             <button type="submit" class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart">Create Account</button>
         </form>
-        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Already have an account? <a href="signin.html" target="_blank" class="text-blue-300 hover:underline">Sign In</a></p>
+        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Already have an account? <a href="sign-in.jsp" target="_blank" class="text-blue-300 hover:underline">Sign In</a></p>
     </div>
 </main>
 
 <script>
-    // Form Validation and Simulated Sign-Up
+    // Form Validation and Submit to Servlet
     document.getElementById('signupForm').addEventListener('submit', function(event) {
         event.preventDefault();
         let isValid = true;
@@ -153,12 +126,7 @@
         }
 
         if (isValid) {
-            // Simulate successful sign-up
-            alert('Sign-up successful! Please sign in to continue.');
-            // Redirect to sign-in page
-            window.location.href = 'signin.html';
+            this.submit(); // Submit the form to the servlet
         }
     });
 </script>
-</body>
-</html>

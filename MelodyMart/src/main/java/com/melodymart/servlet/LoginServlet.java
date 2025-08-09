@@ -42,11 +42,11 @@ public class LoginServlet extends HttpServlet {
                     }
                 } else {
                     request.setAttribute("error", "Account not approved yet.");
-                    request.getRequestDispatcher("/sign-in.html").forward(request, response);
+                    request.getRequestDispatcher("/sign-in.jsp").forward(request, response);
                 }
             } else {
                 request.setAttribute("error", "Invalid username or password.");
-                request.getRequestDispatcher("/sign-in.html").forward(request, response);
+                request.getRequestDispatcher("/sign-in.jsp").forward(request, response);
             }
         } catch (SQLException e) {
             throw new ServletException("Database error during login", e);
