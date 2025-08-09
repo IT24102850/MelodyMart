@@ -20,9 +20,9 @@
             overflow-x: hidden;
         }
         .content-container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1.5rem;
             background: rgba(0, 0, 0, 0.7);
             border-radius: 0.5rem;
             text-align: center;
@@ -46,9 +46,15 @@
         a:hover {
             color: #2b6cb0;
         }
+        button {
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #e5e7eb;
+        }
         @media (max-width: 640px) {
             .content-container {
-                padding: 1rem;
+                padding: 0.75rem;
             }
             h1 {
                 font-size: 2.25rem;
@@ -60,24 +66,59 @@
     </style>
 </head>
 <body>
-<header class="flex justify-between items-center p-6">
-    <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
-    <nav class="flex space-x-6 items-center">
-        <a href="index.html" class="text-lg hover:text-blue-300">Home</a>
-        <a href="instruments.html" class="text-lg hover:text-blue-300">Instruments</a>
-        <a href="accessories.html" class="text-lg hover:text-blue-300">Accessories</a>
-        <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
-        <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
-    </nav>
-</header>
+<!-- Navbar Include -->
+<div id="navbar-container"></div>
+<script>
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
+
 <main class="p-4">
     <div class="content-container">
         <h1>Saxophone</h1>
-        <img src="./images/saxophone2.jpg" alt="Saxophone" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
+        <img src="./images/saxophone2.jpg" alt="Soprano Saxophone" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
         <p>Price: $549.99</p>
-        <p>A high-quality saxophone with smooth tones for jazz and classical players.</p>
+        <p>A high-quality soprano saxophone with smooth tones for jazz and classical players.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
+        <a href="instruments.html">← Back to Instruments</a>
+    </div>
+    <div class="content-container mt-6">
+        <h1>Alto Saxophone</h1>
+        <img src="./images/saxophone3.jpg" alt="Alto Saxophone" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
+        <p>Price: $649.99</p>
+        <p>A versatile alto saxophone with a rich, warm sound, ideal for beginners and professionals.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
+        <a href="instruments.html">← Back to Instruments</a>
+    </div>
+    <div class="content-container mt-6">
+        <h1>Tenor Saxophone</h1>
+        <img src="./images/saxophone4.jpg" alt="Tenor Saxophone" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
+        <p>Price: $799.99</p>
+        <p>A deep-toned tenor saxophone, perfect for jazz, blues, and modern music styles.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
         <a href="instruments.html">← Back to Instruments</a>
     </div>
 </main>
+
+<script>
+    // Optional: Add current date/time for reference (uncomment to display)
+    const dateTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Colombo',
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    // Uncomment the line below to display the date/time (e.g., "Thursday, August 07, 2025, 11:33 PM +0530")
+    // document.body.innerHTML += `<p class="text-center mt-4">${dateTime}</p>`;
+</script>
 </body>
 </html>

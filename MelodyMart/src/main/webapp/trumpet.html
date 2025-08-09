@@ -20,9 +20,9 @@
             overflow-x: hidden;
         }
         .content-container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 1.5rem;
             background: rgba(0, 0, 0, 0.7);
             border-radius: 0.5rem;
             text-align: center;
@@ -48,7 +48,7 @@
         }
         @media (max-width: 640px) {
             .content-container {
-                padding: 1rem;
+                padding: 0.75rem;
             }
             h1 {
                 font-size: 2.25rem;
@@ -73,9 +73,26 @@
 <main class="p-4">
     <div class="content-container">
         <h1>Trumpet</h1>
-        <img src="./images/trumpet2.jpg" alt="Trumpet" class="w-full max-w-[200px] mx-auto mb-4 rounded-lg shadow-lg">
+        <img src="./images/trumpet2.jpg" alt="Standard Trumpet" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
         <p>Price: $399.99</p>
-        <p>A brilliant trumpet with clear, powerful tones for brass enthusiasts.</p>
+        <p>A brilliant standard trumpet with clear, powerful tones for brass enthusiasts.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
+        <a href="instruments.html">← Back to Instruments</a>
+    </div>
+    <div class="content-container mt-6">
+        <h1>Student Trumpet</h1>
+        <img src="./images/trumpet3.jpg" alt="Student Trumpet" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
+        <p>Price: $299.99</p>
+        <p>A durable student trumpet with a bright tone, perfect for beginners and school bands.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
+        <a href="instruments.html">← Back to Instruments</a>
+    </div>
+    <div class="content-container mt-6">
+        <h1>Professional Trumpet</h1>
+        <img src="./images/trumpet4.jpg" alt="Professional Trumpet" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
+        <p>Price: $599.99</p>
+        <p>A professional trumpet with rich, versatile tones, ideal for orchestral and jazz performances.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
         <a href="instruments.html">← Back to Instruments</a>
     </div>
 </main>
