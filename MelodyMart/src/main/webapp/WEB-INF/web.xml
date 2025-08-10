@@ -11,7 +11,7 @@
   <!-- RegisterServlet mapping -->
   <servlet>
     <servlet-name>RegisterServlet</servlet-name>
-    <servlet-class>com.melodymart.servlets.RegisterServlet</servlet-class>
+    <servlet-class>com.melodymart.servlet.RegisterServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>RegisterServlet</servlet-name>
@@ -20,7 +20,7 @@
 
   <servlet>
     <servlet-name>LoginServlet</servlet-name>
-    <servlet-class>com.melodymart.servlets.LoginServlet</servlet-class>
+    <servlet-class>com.melodymart.servlet.LoginServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
