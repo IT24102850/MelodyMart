@@ -1,4 +1,4 @@
--- Creating the MelodyMart database
+-- Create the MelodyMartDB database
 CREATE DATABASE MelodyMartDB;
 GO
 
@@ -8,75 +8,81 @@ GO
 
 -- Table for Users (Customers, Sellers, Admins)
 CREATE TABLE Users (
-    user_id INT PRIMARY KEY IDENTITY(1,1),
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(100) NOT NULL,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('customer', 'seller', 'admin')),
-    email VARCHAR(100) NOT NULL UNIQUE,
-    full_name VARCHAR(100),
-    created_date DATETIME DEFAULT GETDATE()
+                       id INT PRIMARY KEY IDENTITY(1,1),
+                       name NVARCHAR(100) NOT NULL,
+                       email NVARCHAR(100) UNIQUE NOT NULL,
+                       password NVARCHAR(100) NOT NULL, -- Plain text for prototype; use hashed passwords in production
+                       role NVARCHAR(20) NOT NULL CHECK (role IN ('customer', 'seller', 'admin')),
+                       address NVARCHAR(255),
+                       phone NVARCHAR(20),
+                       country NVARCHAR(50), -- Added to support country field from sign-up form
+                       created_at DATETIME DEFAULT GETDATE()
 );
 GO
 
--- Table for Instruments
+-- Table for Instruments (Product Catalog)
 CREATE TABLE Instruments (
-    instrument_id INT PRIMARY KEY IDENTITY(1,1),
-    name VARCHAR(100) NOT NULL,
-    brand VARCHAR(50),
-    price DECIMAL(10, 2) NOT NULL,
-    category VARCHAR(50) NOT NULL,
-    description TEXT,
-    image_url VARCHAR(255),
-    stock INT NOT NULL DEFAULT 0,
-    available BIT NOT NULL DEFAULT 1,
-    seller_id INT NOT NULL,
-    FOREIGN KEY (seller_id) REFERENCES Users(user_id) ON DELETE CASCADE
+                             id INT PRIMARY KEY IDENTITY(1,1),
+                             name NVARCHAR(100) NOT NULL,
+                             description NVARCHAR(500),
+                             price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+                             category NVARCHAR(50) NOT NULL,
+                             stock INT NOT NULL CHECK (stock >= 0),
+                             seller_id INT NOT NULL,
+                             created_at DATETIME DEFAULT GETDATE(),
+                             FOREIGN KEY (seller_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 GO
 
 -- Table for Orders
 CREATE TABLE Orders (
-    order_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT NOT NULL,
-    order_date DATETIME DEFAULT GETDATE(),
-    total_amount DECIMAL(10, 2) NOT NULL,
-    status VARCHAR(20) NOT NULL CHECK (status IN ('processing', 'shipped', 'delivered', 'cancelled')),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
-);
-GO
-
--- Table for Order Items (linking Instruments to Orders)
-CREATE TABLE OrderItems (
-    order_item_id INT PRIMARY KEY IDENTITY(1,1),
-    order_id INT NOT NULL,
-    instrument_id INT NOT NULL,
-    quantity INT NOT NULL DEFAULT 1,
-    unit_price DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE,
-    FOREIGN KEY (instrument_id) REFERENCES Instruments(instrument_id) ON DELETE CASCADE
+                        id INT PRIMARY KEY IDENTITY(1,1),
+                        customer_id INT NOT NULL,
+                        instrument_id INT NOT NULL,
+                        quantity INT NOT NULL CHECK (quantity > 0),
+                        total_price DECIMAL(10,2) NOT NULL CHECK (total_price >= 0),
+                        status NVARCHAR(20) NOT NULL CHECK (status IN ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled')),
+                        order_date DATETIME DEFAULT GETDATE(),
+                        delivery_address NVARCHAR(255) NOT NULL,
+                        FOREIGN KEY (customer_id) REFERENCES Users(id) ON DELETE CASCADE,
+                        FOREIGN KEY (instrument_id) REFERENCES Instruments(id) ON DELETE CASCADE
 );
 GO
 
 -- Table for Repair Requests
 CREATE TABLE RepairRequests (
-    request_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT NOT NULL,
-    instrument_id INT NOT NULL,
-    description TEXT NOT NULL,
-    request_date DATETIME DEFAULT GETDATE(),
-    status VARCHAR(20) NOT NULL CHECK (status IN ('pending', 'scheduled', 'in_progress', 'completed')),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (instrument_id) REFERENCES Instruments(instrument_id) ON DELETE CASCADE
+                                id INT PRIMARY KEY IDENTITY(1,1),
+                                customer_id INT NOT NULL,
+                                instrument_id INT NOT NULL,
+                                issue_description NVARCHAR(500) NOT NULL,
+                                status NVARCHAR(20) NOT NULL CHECK (status IN ('submitted', 'in_progress', 'completed', 'cancelled')),
+                                request_date DATETIME DEFAULT GETDATE(),
+                                estimated_cost DECIMAL(10,2),
+                                FOREIGN KEY (customer_id) REFERENCES Users(id) ON DELETE CASCADE,
+                                FOREIGN KEY (instrument_id) REFERENCES Instruments(id) ON DELETE CASCADE
 );
 GO
 
--- Table for Delivery Status
-CREATE TABLE DeliveryStatus (
-    delivery_id INT PRIMARY KEY IDENTITY(1,1),
-    order_id INT NOT NULL,
-    status VARCHAR(20) NOT NULL CHECK (status IN ('in_transit', 'delivered', 'returned')),
-    update_date DATETIME DEFAULT GETDATE(),
-    tracking_number VARCHAR(50),
-    FOREIGN KEY (order_id) REFERENCES Orders(order_id) ON DELETE CASCADE
+-- Table for Delivery Statuses
+CREATE TABLE DeliveryStatuses (
+                                  id INT PRIMARY KEY IDENTITY(1,1),
+                                  order_id INT NOT NULL,
+                                  status NVARCHAR(20) NOT NULL CHECK (status IN ('dispatched', 'in_transit', 'delivered', 'returned')),
+                                  update_date DATETIME DEFAULT GETDATE(),
+                                  notes NVARCHAR(255),
+                                  FOREIGN KEY (order_id) REFERENCES Orders(id) ON DELETE CASCADE
+);
+GO
+
+-- Table for Customer Feedback
+CREATE TABLE Feedback (
+                          id INT PRIMARY KEY IDENTITY(1,1),
+                          customer_id INT NOT NULL,
+                          instrument_id INT NOT NULL,
+                          rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                          comment NVARCHAR(500),
+                          feedback_date DATETIME DEFAULT GETDATE(),
+                          FOREIGN KEY (customer_id) REFERENCES Users(id) ON DELETE CASCADE,
+                          FOREIGN KEY (instrument_id) REFERENCES Instruments(id) ON DELETE CASCADE
 );
 GO

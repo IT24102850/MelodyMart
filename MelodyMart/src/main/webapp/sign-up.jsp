@@ -9,7 +9,7 @@
     <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         body {
             background: url('./images/1162694.jpg');
@@ -22,21 +22,33 @@
             color: #FFFFFF;
             overflow-x: hidden;
         }
+        .search-bar {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .search-bar:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .add-to-cart {
+            background-color: #4B5563;
+        }
+        .add-to-cart:hover {
+            background-color: #6B7280;
+        }
     </style>
 </head>
 <body class="relative">
-
 <!-- Main Content -->
 <main class="p-4 md:p-6 relative z-10 flex justify-center items-center min-h-[calc(100vh-80px)]">
     <div class="w-full max-w-md bg-gray-900 bg-opacity-90 p-6 rounded-lg shadow-lg">
         <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Sign Up for MelodyMart</h1>
         <c:if test="${not empty errorMessage}">
-            <p class="text-red-500 text-center mb-4">${errorMessage}</p>
+            <p class="text-red-500 text-center mb-4"><c:out value="${errorMessage}"/></p>
         </c:if>
         <c:if test="${not empty successMessage}">
-            <p class="text-green-500 text-center mb-4">${successMessage}</p>
+            <p class="text-green-500 text-center mb-4"><c:out value="${successMessage}"/></p>
         </c:if>
-        <form id="signupForm" action="RegisterServlet" method="post" class="space-y-4" novalidate>
+        <form id="signupForm" action="register" method="post" class="space-y-4" novalidate>
             <!-- Full Name -->
             <div>
                 <label for="fullName" class="block text-sm md:text-base font-semibold text-gray-300">Full Name</label>
@@ -54,6 +66,17 @@
                 <label for="password" class="block text-sm md:text-base font-semibold text-gray-300">Password</label>
                 <input type="password" id="password" name="password" required minlength="8" class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your password" aria-required="true" aria-describedby="password-error">
                 <p id="password-error" class="text-red-500 text-sm hidden">Password must be at least 8 characters.</p>
+            </div>
+            <!-- Role -->
+            <div>
+                <label for="role" class="block text-sm md:text-base font-semibold text-gray-300">Role</label>
+                <select id="role" name="role" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-required="true" aria-describedby="role-error">
+                    <option value="">Select your role</option>
+                    <option value="customer" ${param.role == 'customer' ? 'selected' : ''}>Customer</option>
+                    <option value="seller" ${param.role == 'seller' ? 'selected' : ''}>Seller</option>
+                    <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin</option>
+                </select>
+                <p id="role-error" class="text-red-500 text-sm hidden">Please select your role.</p>
             </div>
             <!-- Country -->
             <div>
@@ -77,12 +100,12 @@
             <!-- Submit Button -->
             <button type="submit" class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart">Create Account</button>
         </form>
-        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Already have an account? <a href="sign-in.jsp" target="_blank" class="text-blue-300 hover:underline">Sign In</a></p>
+        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Already have an account? <a href="sign-in.jsp" class="text-blue-300 hover:underline">Sign In</a></p>
     </div>
 </main>
 
 <script>
-    // Form Validation and Submit to Servlet
+    // Form Validation
     document.getElementById('signupForm').addEventListener('submit', function(event) {
         event.preventDefault();
         let isValid = true;
@@ -112,6 +135,13 @@
             isValid = false;
         }
 
+        // Role validation
+        const role = document.getElementById('role').value;
+        if (!role) {
+            document.getElementById('role-error').classList.remove('hidden');
+            isValid = false;
+        }
+
         // Country validation
         const country = document.getElementById('country').value;
         if (!country) {
@@ -124,3 +154,5 @@
         }
     });
 </script>
+</body>
+</html>
