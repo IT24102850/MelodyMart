@@ -1,33 +1,37 @@
-package com.melodymart.servlet;
+package com.melodymart.servlets;
 
-import com.melodymart.dao.UserDAO;
-import com.melodymart.model.User;
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import com.melodymart.util.DBConnection;
 
-@WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        UserDAO userDAO = new UserDAO();
-        User user = userDAO.loginUser(email, password);
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "SELECT * FROM Users WHERE email = ? AND password = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, email);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
 
-        if (user != null) {
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-            response.sendRedirect("user-dashboard.jsp");
-        } else {
-            request.setAttribute("error", "Invalid email or password");
-            request.getRequestDispatcher("sign-in.jsp").forward(request, response);
+            if (rs.next()) {
+                HttpSession session = request.getSession();
+                session.setAttribute("user", rs.getString("name"));
+                response.sendRedirect("home.jsp");
+            } else {
+                response.sendRedirect("login.jsp?error=Invalid credentials");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.getWriter().println("Error: " + e.getMessage());
         }
     }
 }

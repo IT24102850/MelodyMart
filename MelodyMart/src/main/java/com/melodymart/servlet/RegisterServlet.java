@@ -1,39 +1,33 @@
-package com.melodymart.servlet;
+package com.melodymart.servlets;
 
-import com.melodymart.dao.UserDAO;
-import com.melodymart.model.User;
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import com.melodymart.util.DBConnection;
 
-@WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String fullName = request.getParameter("fullName");
+
+        String name = request.getParameter("name");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String role = request.getParameter("role");
-        String country = request.getParameter("country");
 
-        User user = new User(0, fullName, email, password, role, null, null, country);
-        UserDAO userDAO = new UserDAO();
-
-        try {
-            if (userDAO.registerUser(user)) {
-                request.setAttribute("successMessage", "Registration successful! Please sign in.");
-                request.getRequestDispatcher("sign-in.jsp").forward(request, response);
-            } else {
-                request.setAttribute("errorMessage", "Registration failed. Email may already be in use.");
-                request.getRequestDispatcher("sign-up.jsp").forward(request, response);
-            }
+        try (Connection con = DBConnection.getConnection()) {
+            String sql = "INSERT INTO Users (name, email, password, role) VALUES (?, ?, ?, ?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.setString(2, email);
+            ps.setString(3, password);
+            ps.setString(4, role);
+            ps.executeUpdate();
+            response.sendRedirect("login.jsp");
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "An error occurred: " + e.getMessage());
-            request.getRequestDispatcher("sign-up.jsp").forward(request, response);
+            e.printStackTrace();
+            response.getWriter().println("Error: " + e.getMessage());
         }
     }
 }
