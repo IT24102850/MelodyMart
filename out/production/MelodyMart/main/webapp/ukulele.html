@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ukulele - MelodyMart</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url('./images/1162694.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+        .content-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.75rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #d1d5db;
+        }
+        a {
+            color: #4A90E2;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: #2b6cb0;
+        }
+        button {
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #e5e7eb;
+        }
+        @media (max-width: 640px) {
+            .content-container {
+                padding: 0.75rem;
+            }
+            h1 {
+                font-size: 2.25rem;
+            }
+            p {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navbar Include -->
+<div id="navbar-container"></div>
+<script>
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
+
+<main class="p-4">
+    <div class="content-container">
+        <h1>Soprano Ukulele</h1>
+        <img src="./images/ukulele2.jpg" alt="Soprano Ukulele" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
+        <p>Price: $99.99</p>
+        <p>A bright and cheerful soprano ukulele, great for beginners and island music lovers.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
+        <a href="instruments.jsp">← Back to Instruments</a>
+    </div>
+    <div class="content-container mt-6">
+        <h1>Concert Ukulele</h1>
+        <img src="./images/ukulele3.jpg" alt="Concert Ukulele" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
+        <p>Price: $129.99</p>
+        <p>A concert ukulele with a balanced tone, ideal for players of all levels.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
+        <a href="instruments.jsp">← Back to Instruments</a>
+    </div>
+    <div class="content-container mt-6">
+        <h1>Tenor Ukulele</h1>
+        <img src="./images/tenor.ukulele.jpeg" alt="Tenor Ukulele" class="w-full max-w-[270px] mx-auto mb-4 rounded-lg shadow-lg">
+        <p>Price: $149.99</p>
+        <p>A tenor ukulele with a deeper, richer sound, perfect for solo performances.</p>
+        <button onclick="alert('Added to cart!')" class="bg-white text-black px-4 py-2 rounded-full font-semibold hover:bg-gray-200 transition-colors mb-4">Add to Cart</button>
+        <a href="instruments.jsp">← Back to Instruments</a>
+    </div>
+</main>
+
+<script>
+    // Optional: Add current date/time for reference (uncomment to display)
+    const dateTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Colombo',
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZoneName: 'short',
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    // Uncomment the line below to display the date/time (e.g., "Saturday, August 09, 2025, 07:02 AM +0530")
+    // document.body.innerHTML += `<p class="text-center mt-4">${dateTime}</p>`;
+</script>
+</body>
+</html>
