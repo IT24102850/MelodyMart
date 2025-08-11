@@ -71,6 +71,16 @@
         </webroots>
       </configuration>
     </facet>
+    <facet type="web" name="Web9">
+      <configuration>
+        <descriptors>
+          <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/web/WEB-INF/web.xml" />
+        </descriptors>
+        <webroots>
+          <root url="file://$MODULE_DIR$/MelodyMart/src/main/webapp" relative="/" />
+        </webroots>
+      </configuration>
+    </facet>
     <facet type="web" name="Web8">
       <configuration>
         <descriptors>
@@ -84,7 +94,9 @@
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/MelodyMart/src" isTestSource="false" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="WEB-INF" level="project" />

@@ -1,13 +1,17 @@
-package com.melodymart.servlets;
+package com.melodymart.servlet;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import com.melodymart.util.DBConnection;
 
 public class RegisterServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -18,15 +22,16 @@ public class RegisterServlet extends HttpServlet {
 
         try (Connection con = DBConnection.getConnection()) {
             String sql = "INSERT INTO Users (name, email, password, role) VALUES (?, ?, ?, ?)";
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, name);
-            ps.setString(2, email);
-            ps.setString(3, password);
-            ps.setString(4, role);
-            ps.executeUpdate();
-            response.sendRedirect("login.jsp");
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, name);
+                ps.setString(2, email);
+                ps.setString(3, password);
+                ps.setString(4, role);
+                ps.executeUpdate();
+                response.sendRedirect("login.jsp");
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Error in RegisterServlet: " + e.getMessage());
             response.getWriter().println("Error: " + e.getMessage());
         }
     }

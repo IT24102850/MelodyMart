@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Context docBase="C:\Users\hasir\OneDrive\Documents\Git Hub\MelodyMart\MelodyMart\src\main\webapp\WEB-INF">
+  <Resources cacheMaxSize="10240">
+    <PostResources base="C:/Users/hasir/OneDrive/Documents/Git Hub/MelodyMart/MelodyMart/src/main/webapp/WEB-INF/jstl-1.2.jar" className="org.apache.catalina.webresources.FileResourceSet" webAppMount="/WEB-INF/lib/jstl-1.2.jar"/>
+  </Resources>
+</Context>

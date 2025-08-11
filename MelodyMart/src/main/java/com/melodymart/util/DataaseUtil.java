@@ -1,8 +1,6 @@
 package com.melodymart.util;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.util.Properties;
+
 
 public class DatabaseUtil {
     private static String url;
