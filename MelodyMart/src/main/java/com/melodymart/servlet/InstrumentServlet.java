@@ -50,7 +50,7 @@ public class InstrumentServlet extends HttpServlet {
                 instruments = instrumentDAO.getInstrumentsByCategory(category, page, size, sort);
                 totalItems = instrumentDAO.getTotalInstruments(category);
             } else {
-                instruments = instrumentDAO.getAllInstruments(page, size, sort);
+                instruments = instrumentDAO.getAllInstruments(page,size,sort);
                 totalItems = instrumentDAO.getTotalInstruments(null);
             }
 

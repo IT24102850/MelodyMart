@@ -98,4 +98,19 @@ public class InstrumentDAO {
         instrument.setAvailable(rs.getBoolean("available"));
         return instrument;
     }
+
+    public List<Instrument> getInstrumentsByCategory(String category) throws SQLException {
+        String sql = "SELECT * FROM instruments WHERE category = ?";
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, category);
+            try (ResultSet rs = stmt.executeQuery()) {
+                List<Instrument> instruments = new ArrayList<>();
+                while (rs.next()) {
+                    instruments.add(mapResultSetToInstrument(rs));
+                }
+                return instruments;
+            }
+        }
+    }
 }
