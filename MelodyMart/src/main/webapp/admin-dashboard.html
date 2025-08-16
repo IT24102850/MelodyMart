@@ -1,12 +1,10 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MelodyMart - Admin Nexus</title>
-    <link rel="icon" type="image/x-icon" href="${pageContext.request.contextPath}/images/favicon_io%20(9)/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -27,7 +25,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('${pageContext.request.contextPath}/images/1162694.jpg') no-repeat center/cover;
+            background: url('./images/1162694.jpg') no-repeat center/cover;
             opacity: 0.1;
             z-index: -1;
         }
@@ -155,7 +153,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('${pageContext.request.contextPath}/images/1162694.jpg') no-repeat center/cover;
+            background: url('./images/1162694.jpg') no-repeat center/cover;
             opacity: 0.15;
             z-index: -1;
         }
@@ -208,29 +206,22 @@
             }
         }
     </style>
+    <!-- Header Navigation -->
+    <header class="flex justify-between items-center p-6 z-10 relative">
+        <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
+        <nav class="flex space-x-6 items-center">
+            <a href="index.jsp" class="text-lg hover:text-blue-300">Home</a>
+            <a href="instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
+            <a href="accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
+            <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
+            <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
+            <button class="auth-button" id="signInBtn">Sign In</button>
+            <button class="auth-button" id="signUpBtn">Sign Up</button>
+        </nav>
+    </header>
+
 </head>
 <body class="relative">
-<!-- Header Navigation -->
-<header class="flex justify-between items-center p-6 z-10 relative">
-    <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
-    <nav class="flex space-x-6 items-center">
-        <a href="${pageContext.request.contextPath}/index.jsp" class="text-lg hover:text-blue-300">Home</a>
-        <a href="${pageContext.request.contextPath}/instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
-        <a href="${pageContext.request.contextPath}/accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
-        <a href="${pageContext.request.contextPath}/deals.jsp" class="text-lg hover:text-blue-300">Deals</a>
-        <a href="${pageContext.request.contextPath}/contact-us.jsp" class="text-lg hover:text-blue-300">Contact Us</a>
-        <c:choose>
-            <c:when test="${not empty sessionScope.user}">
-                <a href="${pageContext.request.contextPath}/logout" class="auth-button">Sign Out</a>
-            </c:when>
-            <c:otherwise>
-                <button class="auth-button" id="signInBtn">Sign In</button>
-                <button class="auth-button" id="signUpBtn">Sign Up</button>
-            </c:otherwise>
-        </c:choose>
-    </nav>
-</header>
-
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
@@ -255,11 +246,11 @@
         <span>Admin Profile</span>
     </div>
     <div class="profile-details" id="profileDetails">
-        <p><strong>Name:</strong> <c:out value="${sessionScope.user.name != null ? sessionScope.user.name : 'Admin User'}"/></p>
-        <p><strong>Email:</strong> <c:out value="${sessionScope.user.email != null ? sessionScope.user.email : 'admin@melodymart.com'}"/></p>
-        <p><strong>Role:</strong> <c:out value="${sessionScope.user.role != null ? sessionScope.user.role : 'Super Admin'}"/></p>
+        <p><strong>Name:</strong> Admin User</p>
+        <p><strong>Email:</strong> admin@melodymart.com</p>
+        <p><strong>Role:</strong> Super Admin</p>
     </div>
-    <a href="${pageContext.request.contextPath}/logout" class="cta-button mt-4">Exit Nexus</a>
+    <button class="cta-button mt-4" onclick="logout()">Exit Nexus</button>
 </div>
 
 <!-- Main Content -->
@@ -288,36 +279,24 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <c:forEach var="user" items="${users}">
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600"><c:out value="${user.id}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${user.name}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${user.email}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${user.role}"/></td>
-                                <td class="p-3 border-b border-gray-600"><a href="${pageContext.request.contextPath}/editUser?id=${user.id}" class="cta-button text-xs">Edit</a></td>
-                            </tr>
-                        </c:forEach>
-                        <!-- Static fallback data -->
-                        <c:if test="${empty users}">
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600">1</td>
-                                <td class="p-3 border-b border-gray-600">John Doe</td>
-                                <td class="p-3 border-b border-gray-600">john.doe@example.com</td>
-                                <td class="p-3 border-b border-gray-600">Customer</td>
-                                <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
-                            </tr>
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600">2</td>
-                                <td class="p-3 border-b border-gray-600">Jane Smith</td>
-                                <td class="p-3 border-b border-gray-600">jane.smith@example.com</td>
-                                <td class="p-3 border-b border-gray-600">Admin</td>
-                                <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
-                            </tr>
-                        </c:if>
+                        <tr class="hover:bg-gray-700 transition-colors">
+                            <td class="p-3 border-b border-gray-600">1</td>
+                            <td class="p-3 border-b border-gray-600">John Doe</td>
+                            <td class="p-3 border-b border-gray-600">john.doe@example.com</td>
+                            <td class="p-3 border-b border-gray-600">Customer</td>
+                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-700 transition-colors">
+                            <td class="p-3 border-b border-gray-600">2</td>
+                            <td class="p-3 border-b border-gray-600">Jane Smith</td>
+                            <td class="p-3 border-b border-gray-600">jane.smith@example.com</td>
+                            <td class="p-3 border-b border-gray-600">Admin</td>
+                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
-                <a href="${pageContext.request.contextPath}/addUser" class="cta-button mt-4">Add New User</a>
+                <button class="cta-button mt-4">Add New User</button>
             </div>
 
             <div id="products" class="tab-content">
@@ -334,36 +313,24 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <c:forEach var="product" items="${products}">
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600"><c:out value="${product.id}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${product.name}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${product.price}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${product.category}"/></td>
-                                <td class="p-3 border-b border-gray-600"><a href="${pageContext.request.contextPath}/editProduct?id=${product.id}" class="cta-button text-xs">Edit</a></td>
-                            </tr>
-                        </c:forEach>
-                        <!-- Static fallback data -->
-                        <c:if test="${empty products}">
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600">1</td>
-                                <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
-                                <td class="p-3 border-b border-gray-600">$299.99</td>
-                                <td class="p-3 border-b border-gray-600">Instruments</td>
-                                <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
-                            </tr>
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600">2</td>
-                                <td class="p-3 border-b border-gray-600">Guitar Strings</td>
-                                <td class="p-3 border-b border-gray-600">$9.99</td>
-                                <td class="p-3 border-b border-gray-600">Accessories</td>
-                                <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
-                            </tr>
-                        </c:if>
+                        <tr class="hover:bg-gray-700 transition-colors">
+                            <td class="p-3 border-b border-gray-600">1</td>
+                            <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
+                            <td class="p-3 border-b border-gray-600">$299.99</td>
+                            <td class="p-3 border-b border-gray-600">Instruments</td>
+                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-700 transition-colors">
+                            <td class="p-3 border-b border-gray-600">2</td>
+                            <td class="p-3 border-b border-gray-600">Guitar Strings</td>
+                            <td class="p-3 border-b border-gray-600">$9.99</td>
+                            <td class="p-3 border-b border-gray-600">Accessories</td>
+                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
-                <a href="${pageContext.request.contextPath}/addProduct" class="cta-button mt-4">Add New Product</a>
+                <button class="cta-button mt-4">Add New Product</button>
             </div>
 
             <div id="orders" class="tab-content">
@@ -380,36 +347,24 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <c:forEach var="order" items="${orders}">
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600"><c:out value="${order.id}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${order.user}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${order.item}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${order.status}"/></td>
-                                <td class="p-3 border-b border-gray-600"><a href="${pageContext.request.contextPath}/editOrder?id=${order.id}" class="cta-button text-xs">Update</a></td>
-                            </tr>
-                        </c:forEach>
-                        <!-- Static fallback data -->
-                        <c:if test="${empty orders}">
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600">1234</td>
-                                <td class="p-3 border-b border-gray-600">John Doe</td>
-                                <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
-                                <td class="p-3 border-b border-gray-600">Delivered</td>
-                                <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Update</button></td>
-                            </tr>
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600">1235</td>
-                                <td class="p-3 border-b border-gray-600">Jane Smith</td>
-                                <td class="p-3 border-b border-gray-600">Drum Sticks</td>
-                                <td class="p-3 border-b border-gray-600">Shipped</td>
-                                <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Update</button></td>
-                            </tr>
-                        </c:if>
+                        <tr class="hover:bg-gray-700 transition-colors">
+                            <td class="p-3 border-b border-gray-600">1234</td>
+                            <td class="p-3 border-b border-gray-600">John Doe</td>
+                            <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
+                            <td class="p-3 border-b border-gray-600">Delivered</td>
+                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Update</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-700 transition-colors">
+                            <td class="p-3 border-b border-gray-600">1235</td>
+                            <td class="p-3 border-b border-gray-600">Jane Smith</td>
+                            <td class="p-3 border-b border-gray-600">Drum Sticks</td>
+                            <td class="p-3 border-b border-gray-600">Shipped</td>
+                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Update</button></td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
-                <a href="${pageContext.request.contextPath}/allOrders" class="cta-button mt-4">View All Orders</a>
+                <button class="cta-button mt-4">View All Orders</button>
             </div>
 
             <div id="reviews" class="tab-content">
@@ -426,36 +381,24 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <c:forEach var="review" items="${reviews}">
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600"><c:out value="${review.id}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${review.user}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${review.product}"/></td>
-                                <td class="p-3 border-b border-gray-600"><c:out value="${review.rating}"/></td>
-                                <td class="p-3 border-b border-gray-600"><a href="${pageContext.request.contextPath}/approveReview?id=${review.id}" class="cta-button text-xs">Approve</a></td>
-                            </tr>
-                        </c:forEach>
-                        <!-- Static fallback data -->
-                        <c:if test="${empty reviews}">
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600">1</td>
-                                <td class="p-3 border-b border-gray-600">John Doe</td>
-                                <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
-                                <td class="p-3 border-b border-gray-600">4.5/5</td>
-                                <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Approve</button></td>
-                            </tr>
-                            <tr class="hover:bg-gray-700 transition-colors">
-                                <td class="p-3 border-b border-gray-600">2</td>
-                                <td class="p-3 border-b border-gray-600">Jane Smith</td>
-                                <td class="p-3 border-b border-gray-600">Guitar Strings</td>
-                                <td class="p-3 border-b border-gray-600">4.0/5</td>
-                                <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Approve</button></td>
-                            </tr>
-                        </c:if>
+                        <tr class="hover:bg-gray-700 transition-colors">
+                            <td class="p-3 border-b border-gray-600">1</td>
+                            <td class="p-3 border-b border-gray-600">John Doe</td>
+                            <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
+                            <td class="p-3 border-b border-gray-600">4.5/5</td>
+                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Approve</button></td>
+                        </tr>
+                        <tr class="hover:bg-gray-700 transition-colors">
+                            <td class="p-3 border-b border-gray-600">2</td>
+                            <td class="p-3 border-b border-gray-600">Jane Smith</td>
+                            <td class="p-3 border-b border-gray-600">Guitar Strings</td>
+                            <td class="p-3 border-b border-gray-600">4.0/5</td>
+                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Approve</button></td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
-                <a href="${pageContext.request.contextPath}/allReviews" class="cta-button mt-4">View All Reviews</a>
+                <button class="cta-button mt-4">View All Reviews</button>
             </div>
 
             <div id="settings" class="tab-content">
@@ -470,14 +413,14 @@
                     </div>
                     <div>
                         <label class="block text-sm md:text-base text-blue-300">Notifications</label>
-                        <input type="checkbox" class="mr-2" <c:if test="${sessionScope.user.notificationsEnabled}">checked</c:if>> Enable Notifications
+                        <input type="checkbox" class="mr-2" checked> Enable Notifications
                     </div>
                 </div>
-                <a href="${pageContext.request.contextPath}/saveSettings" class="cta-button mt-4">Save Settings</a>
+                <button class="cta-button mt-4">Save Settings</button>
             </div>
 
             <!-- Logout Button -->
-            <a href="${pageContext.request.contextPath}/logout" class="bg-red-600 text-white px-6 py-3 rounded-full text-base font-semibold cta-button mt-6">Exit Nexus</a>
+            <button class="bg-red-600 text-white px-6 py-3 rounded-full text-base font-semibold cta-button mt-6" onclick="logout()">Exit Nexus</button>
         </div>
     </div>
 </main>
@@ -495,9 +438,11 @@
         profileDetails.style.display = profileDetails.style.display === 'block' ? 'none' : 'block';
     }
 
-    // Logout Function
+    // Logout Function (Placeholder)
     function logout() {
-        window.location.href = '${pageContext.request.contextPath}/logout';
+        alert('Exiting Admin Nexus. Redirecting to login page.');
+        // Replace with servlet call (e.g., /servlet/Logout)
+        // window.location.href = 'login.html';
     }
 
     // Highlight active page and show corresponding tab
@@ -514,7 +459,7 @@
         });
     }
 
-    // Display current date/time
+    // Display current date/time (04:32 PM +0530, Thursday, July 31, 2025)
     const dateTime = new Date().toLocaleString('en-US', {
         timeZone: 'Asia/Colombo',
         hour12: true,
@@ -542,4 +487,4 @@
     }
 </script>
 </body>
-</html>
+</html>   
