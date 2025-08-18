@@ -1,4 +1,4 @@
-package com.melodymart.util;
+ /*   package com.melodymart.util;
 
 public class DatabaseUtil {
     private static String url;
@@ -21,3 +21,7 @@ public class DatabaseUtil {
         return DriverManager.getConnection(url, username, password);
     }
 }
+
+
+
+  */

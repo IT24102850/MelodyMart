@@ -130,7 +130,7 @@
         <a href="instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
         <a href="accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
         <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
-        <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
+        <a href="contact-us.jsp" class="text-lg hover:text-blue-300">Contact Us</a>
         <a href="sign-in.jsp" class="text-lg hover:text-blue-400">Sign In</a>
         <a href="sign-up.jsp" class="text-lg hover:text-blue-400">Sign Up</a>
     </nav>

@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -206,22 +207,22 @@
             }
         }
     </style>
-    <!-- Header Navigation -->
-    <header class="flex justify-between items-center p-6 z-10 relative">
-        <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
-        <nav class="flex space-x-6 items-center">
-            <a href="index.jsp" class="text-lg hover:text-blue-300">Home</a>
-            <a href="instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
-            <a href="accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
-            <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
-            <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
-            <button class="auth-button" id="signInBtn">Sign In</button>
-            <button class="auth-button" id="signUpBtn">Sign Up</button>
-        </nav>
-    </header>
-
 </head>
 <body class="relative">
+<!-- Header Navigation -->
+<header class="flex justify-between items-center p-6 z-10 relative">
+    <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
+    <nav class="flex space-x-6 items-center">
+        <a href="index.jsp" class="text-lg hover:text-blue-300">Home</a>
+        <a href="instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
+        <a href="accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
+        <a href="deals.jsp" class="text-lg hover:text-blue-300">Deals</a>
+        <a href="contact-us.jsp" class="text-lg hover:text-blue-300">Contact Us</a>
+        <button class="auth-button" id="signInBtn">Sign In</button>
+        <button class="auth-button" id="signUpBtn">Sign Up</button>
+    </nav>
+</header>
+
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
@@ -246,9 +247,9 @@
         <span>Admin Profile</span>
     </div>
     <div class="profile-details" id="profileDetails">
-        <p><strong>Name:</strong> Admin User</p>
-        <p><strong>Email:</strong> admin@melodymart.com</p>
-        <p><strong>Role:</strong> Super Admin</p>
+        <p><strong>Name:</strong> <%= request.getSession().getAttribute("adminName") != null ? request.getSession().getAttribute("adminName") : "Admin User" %></p>
+        <p><strong>Email:</strong> <%= request.getSession().getAttribute("adminEmail") != null ? request.getSession().getAttribute("adminEmail") : "admin@melodymart.com" %></p>
+        <p><strong>Role:</strong> <%= request.getSession().getAttribute("adminRole") != null ? request.getSession().getAttribute("adminRole") : "Super Admin" %></p>
     </div>
     <button class="cta-button mt-4" onclick="logout()">Exit Nexus</button>
 </div>
@@ -438,11 +439,11 @@
         profileDetails.style.display = profileDetails.style.display === 'block' ? 'none' : 'block';
     }
 
-    // Logout Function (Placeholder)
+    // Logout Function
     function logout() {
-        alert('Exiting Admin Nexus. Redirecting to login page.');
-        // Replace with servlet call (e.g., /servlet/Logout)
-        // window.location.href = 'login.html';
+        if(confirm('Are you sure you want to logout?')) {
+            window.location.href = 'LogoutServlet'; // Replace with your logout servlet URL
+        }
     }
 
     // Highlight active page and show corresponding tab
@@ -459,7 +460,7 @@
         });
     }
 
-    // Display current date/time (04:32 PM +0530, Thursday, July 31, 2025)
+    // Display current date/time
     const dateTime = new Date().toLocaleString('en-US', {
         timeZone: 'Asia/Colombo',
         hour12: true,
@@ -487,4 +488,4 @@
     }
 </script>
 </body>
-</html>   
+</html>

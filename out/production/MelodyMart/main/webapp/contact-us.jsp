@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -64,17 +65,6 @@
     </style>
 </head>
 <body class="relative">
-<!-- Navbar Include -->
-<div id="navbar-container"></div>
-<script>
-    // Dynamically load navbar.html
-    fetch('navbar.html')
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('navbar-container').innerHTML = html;
-        })
-        .catch(error => console.error('Error loading navbar:', error));
-</script>
 <!-- Header Navigation -->
 <header class="flex justify-between items-center p-6 z-10 relative">
     <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
@@ -82,28 +72,38 @@
         <a href="index.jsp" class="text-lg hover:text-blue-300">Home</a>
         <a href="instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
         <a href="accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
-        <a href="deals.html" class="text-lg hover:text-blue-300">Deals</a>
-        <a href="contact-us.html" class="text-lg hover:text-blue-300">Contact Us</a>
-        <button class="auth-button" id="signInBtn">Sign In</button>
-        <button class="auth-button" id="signUpBtn">Sign Up</button>
+        <a href="deals.jsp" class="text-lg hover:text-blue-300">Deals</a>
+        <a href="contact-us.jsp" class="text-lg hover:text-blue-300">Contact Us</a>
+        <% if (session.getAttribute("user") == null) { %>
+        <button class="auth-button" id="signInBtn" onclick="window.location.href='login.jsp'">Sign In</button>
+        <button class="auth-button" id="signUpBtn" onclick="window.location.href='register.jsp'">Sign Up</button>
+        <% } else { %>
+        <button class="auth-button" onclick="window.location.href='profile.jsp'">My Account</button>
+        <button class="auth-button" onclick="window.location.href='LogoutServlet'">Logout</button>
+        <% } %>
     </nav>
 </header>
+
 <!-- Main Content -->
 <main class="p-4 md:p-6 relative z-10">
     <div class="max-w-2xl mx-auto">
         <div class="contact-card p-4 md:p-6">
             <h2 class="text-2xl md:text-3xl font-semibold mb-4">Contact Us</h2>
-            <p class="text-sm md:text-base mb-6">We’d love to hear from you! Please fill out the form below or reach us at <a href="mailto:support@melodymart.com" class="text-blue-300">support@melodymart.com</a>.</p>
+            <p class="text-sm md:text-base mb-6">We'd love to hear from you! Please fill out the form below or reach us at <a href="mailto:support@melodymart.com" class="text-blue-300">support@melodymart.com</a>.</p>
 
             <!-- Contact Form -->
-            <form id="contactForm" class="space-y-4">
+            <form id="contactForm" action="ContactServlet" method="POST" class="space-y-4">
                 <div>
                     <label for="name" class="block text-sm md:text-base mb-1">Name</label>
-                    <input type="text" id="name" name="name" required class="w-full p-2 form-input text-white focus:outline-none" aria-label="Your name">
+                    <input type="text" id="name" name="name" required class="w-full p-2 form-input text-white focus:outline-none"
+                           value="<%= session.getAttribute("userName") != null ? session.getAttribute("userName") : "" %>"
+                           aria-label="Your name">
                 </div>
                 <div>
                     <label for="email" class="block text-sm md:text-base mb-1">Email</label>
-                    <input type="email" id="email" name="email" required class="w-full p-2 form-input text-white focus:outline-none" aria-label="Your email">
+                    <input type="email" id="email" name="email" required class="w-full p-2 form-input text-white focus:outline-none"
+                           value="<%= session.getAttribute("userEmail") != null ? session.getAttribute("userEmail") : "" %>"
+                           aria-label="Your email">
                 </div>
                 <div>
                     <label for="subject" class="block text-sm md:text-base mb-1">Subject</label>
@@ -117,34 +117,36 @@
             </form>
 
             <!-- Feedback Message -->
-            <p id="feedback" class="mt-4 text-sm md:text-base text-green-300 hidden">Thank you! Your message has been sent.</p>
+            <% if (request.getAttribute("message") != null) { %>
+            <p id="feedback" class="mt-4 text-sm md:text-base
+                    <%= request.getAttribute("status").equals("success") ? "text-green-300" : "text-red-300" %>">
+                <%= request.getAttribute("message") %>
+            </p>
+            <script>
+                // Hide feedback after 5 seconds
+                setTimeout(() => {
+                    document.getElementById('feedback').style.display = 'none';
+                }, 5000);
+            </script>
+            <% } else { %>
+            <p id="feedback" class="mt-4 text-sm md:text-base text-green-300 hidden"></p>
+            <% } %>
         </div>
     </div>
 </main>
 
 <script>
-    // Form Submission (Placeholder)
+    // Form Submission
     document.getElementById('contactForm').addEventListener('submit', function(e) {
-        e.preventDefault();
         const feedback = document.getElementById('feedback');
+        feedback.textContent = "Sending your message...";
         feedback.classList.remove('hidden');
-        setTimeout(() => feedback.classList.add('hidden'), 5000); // Hide after 5 seconds
 
-        // Placeholder: Replace with servlet call (e.g., POST to /servlet/ContactUs)
-        // const formData = new FormData(this);
-        // fetch('/servlet/ContactUs', { method: 'POST', body: formData })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         if (data.success) feedback.textContent = 'Thank you! Your message has been sent.';
-        //         else feedback.textContent = 'Error sending message. Please try again.';
-        //         feedback.classList.remove('hidden');
-        //     })
-        //     .catch(error => console.error('Error:', error));
-
-        this.reset(); // Clear form
+        // Form will submit to ContactServlet via normal form submission
+        // The servlet will process and redirect back with status/message
     });
 
-    // Button hover effect (if navbar doesn't include cta-button)
+    // Button hover effect
     document.querySelectorAll('.cta-button').forEach(button => {
         button.addEventListener('mouseenter', () => {
             button.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.5)';
@@ -154,7 +156,7 @@
         });
     });
 
-    // Display current date/time (04:13 PM +0530, Thursday, July 31, 2025)
+    // Display current date/time
     const dateTime = new Date().toLocaleString('en-US', {
         timeZone: 'Asia/Colombo',
         hour12: true,
