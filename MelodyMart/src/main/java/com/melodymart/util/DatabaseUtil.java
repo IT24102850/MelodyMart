@@ -1,7 +1,5 @@
 package com.melodymart.util;
 
-
-
 public class DatabaseUtil {
     private static String url;
     private static String username;
