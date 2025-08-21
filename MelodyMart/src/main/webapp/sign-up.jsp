@@ -1,12 +1,80 @@
+
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="java.sql.*, org.mindrot.jbcrypt.BCrypt, java.sql.DriverManager, java.sql.Connection, java.sql.PreparedStatement, java.sql.SQLException, java.util.Date" %>
+<%
+    // Handle form submission
+    if ("POST".equalsIgnoreCase(request.getMethod())) {
+        String fullName = request.getParameter("fullName");
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        String role = request.getParameter("role");
+        String country = request.getParameter("country");
+
+        // Server-side validation
+        if (fullName == null || fullName.trim().isEmpty() ||
+                email == null || email.trim().isEmpty() ||
+                password == null || password.length() < 8 ||
+                role == null || role.trim().isEmpty() ||
+                country == null || country.trim().isEmpty()) {
+            request.setAttribute("errorMessage", "All fields are required and password must be at least 8 characters.");
+        } else {
+            // Database connection parameters
+            String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
+            String dbUser = "your_username"; // Replace with your SQL Server username
+            String dbPassword = "your_password"; // Replace with your SQL Server password
+
+            try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "INSERT INTO users (fullName, email, password, role, country, created_at) VALUES (?, ?, ?, ?, ?, ?)")) {
+                // Load JDBC driver (optional, handled by container if JAR present)
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+
+                // Hash the password
+                String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+
+                // Set parameters
+                stmt.setString(1, fullName);
+                stmt.setString(2, email);
+                stmt.setString(3, hashedPassword);
+                stmt.setString(4, role);
+                stmt.setString(5, country);
+                stmt.setTimestamp(6, new java.sql.Timestamp(new Date().getTime())); // Current timestamp
+
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
+                    // Set session attributes
+                    session.setAttribute("userEmail", email);
+                    session.setAttribute("userRole", role);
+                    session.setMaxInactiveInterval(30 * 60); // 30 minutes session timeout
+                    response.sendRedirect("dashboard.jsp");
+                    return; // Exit JSP processing
+                } else {
+                    request.setAttribute("errorMessage", "Registration failed. Please try again.");
+                }
+            } catch (ClassNotFoundException e) {
+                System.err.println("JDBC Driver not found: " + e.getMessage());
+                request.setAttribute("errorMessage", "Database driver not found. Ensure mssql-jdbc.jar is in WEB-INF/lib.");
+            } catch (SQLException e) {
+                System.err.println("SQL Error: " + e.getMessage());
+                String errorMessage = "Database error: " + e.getMessage();
+                if (e.getErrorCode() == 2627) { // Unique constraint violation (duplicate email)
+                    errorMessage = "Email already exists. Please use a different email.";
+                } else if (e.getSQLState().equals("08S01")) { // Communication link failure
+                    errorMessage = "Database connection failed. Check server status.";
+                }
+                request.setAttribute("errorMessage", errorMessage);
+            }
+        }
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MelodyMart - Sign Up</title>
-    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
@@ -48,7 +116,7 @@
         <c:if test="${not empty successMessage}">
             <p class="text-green-500 text-center mb-4"><c:out value="${successMessage}"/></p>
         </c:if>
-        <form id="signupForm" action="register" method="post" class="space-y-4" novalidate>
+        <form id="signupForm" action="sign-up.jsp" method="post" class="space-y-4" novalidate>
             <!-- Full Name -->
             <div>
                 <label for="fullName" class="block text-sm md:text-base font-semibold text-gray-300">Full Name</label>
@@ -150,7 +218,7 @@
         }
 
         if (isValid) {
-            this.submit(); // Submit the form to the servlet
+            this.submit(); // Submit the form to the JSP
         }
     });
 </script>
