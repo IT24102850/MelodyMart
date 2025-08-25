@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HASIRU | Cyberpunk Developer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --neon-purple: #bc13fe;
+            --neon-blue: #0ff0fc;
+            --neon-yellow: #f5d742;
+            --neon-green: #2ecc71;
+            --neon-red: #e74c3c;
+            --dark-bg: #0a0a12;
+            --glass: rgba(20, 20, 40, 0.7);
+            --glow: 0 0 10px;
+            --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                    radial-gradient(circle at 10% 20%, rgba(188, 19, 254, 0.1) 0%, transparent 20%),
+                    radial-gradient(circle at 90% 80%, rgba(15, 240, 252, 0.1) 0%, transparent 20%);
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            min-height: 100vh;
+        }
+
+        .logo {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            z-index: 100;
+            text-shadow: 0 0 15px rgba(188, 19, 254, 0.7);
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--glow) var(--neon-purple);
+        }
+
+        nav {
+            width: 100px;
+            height: 100vh;
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            position: fixed;
+            left: 0;
+            top: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.6);
+            transition: var(--transition);
+            position: relative;
+            padding: 1rem 0;
+        }
+
+        .nav-link:hover {
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .nav-link.active {
+            color: white;
+            text-shadow: 0 0 10px var(--neon-purple);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--neon-purple);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--neon-purple);
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-text {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .nav-dots {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .dot:hover {
+            transform: scale(1.5);
+        }
+
+        .dot.active {
+            background: var(--neon-blue);
+            box-shadow: 0 0 8px var(--neon-blue);
+            transform: scale(1.3);
+        }
+
+        main {
+            position: relative;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin: 0 auto;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 15px rgba(188, 19, 254, 0.4));
+            }
+            50% {
+                filter: drop-shadow(0 0 30px rgba(15, 240, 252, 0.6));
+            }
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            border: 2px solid var(--neon-purple);
+            box-shadow:
+                    0 0 30px rgba(188, 19, 254, 0.3),
+                    0 0 60px rgba(11, 240, 252, 0.2),
+                    inset 0 0 20px rgba(188, 19, 254, 0.2);
+            background: rgba(10, 10, 20, 0.5);
+            transition: var(--transition);
+        }
+
+        .profile-image:hover {
+            transform: scale(1.02);
+            border-color: var(--neon-blue);
+            box-shadow:
+                    0 0 40px rgba(188, 19, 254, 0.5),
+                    0 0 80px rgba(11, 240, 252, 0.4),
+                    inset 0 0 30px rgba(188, 19, 254, 0.3);
+        }
+
+        .camera-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 10;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .camera-icon:hover {
+            background: var(--neon-blue);
+            color: black;
+            box-shadow: 0 0 15px var(--neon-blue);
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        .hero {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            z-index: 20;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--neon-purple), var(--neon-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(188, 19, 254, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 1rem;
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+            z-index: -1;
+            transition: var(--transition);
+            opacity: 0;
+        }
+
+        .btn:hover::before {
+            opacity: 1;
+        }
+
+        .btn-primary {
+            background: transparent;
+            color: white;
+            border: 2px solid var(--neon-purple);
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.5);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.8);
+            color: black;
+        }
+
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+        }
+
+        .theme-pill {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: rgba(20, 20, 40, 0.8);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .theme-pill:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .theme-pill.active {
+            background: var(--neon-purple);
+            color: black;
+            box-shadow: 0 0 15px var(--neon-purple);
+        }
+
+        .project-card {
+            position: absolute;
+            width: 180px;
+            padding: 1rem;
+            border-radius: 10px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow:
+                    0 5px 15px rgba(0, 0, 0, 0.3),
+                    0 0 10px rgba(188, 19, 254, 0.2);
+            transition: var(--transition);
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, var(--neon-purple), var(--neon-blue));
+            border-radius: 10px 10px 0 0;
+        }
+
+        .project-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-card-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .project-card-icons {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .project-card-icon {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .project-card-icon.minimize {
+            background: var(--neon-yellow);
+            box-shadow: 0 0 5px var(--neon-yellow);
+        }
+
+        .project-card-icon.maximize {
+            background: var(--neon-green);
+            box-shadow: 0 0 5px var(--neon-green);
+        }
+
+        .project-card-icon.close {
+            background: var(--neon-red);
+            box-shadow: 0 0 5px var(--neon-red);
+        }
+
+        .project-card-icon:hover {
+            transform: scale(1.2);
+        }
+
+        .project-card-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-bottom: 0.8rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .tech-tag {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.4rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        .tech-tag:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .project-card-progress {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--neon-purple), var(--neon-blue));
+            width: 75%;
+        }
+
+        .card-special .progress-bar {
+            background: linear-gradient(to right, var(--neon-yellow), #f5a623);
+            width: 95%;
+        }
+
+        .project-card.minimized {
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .project-card.minimized .project-card-tech,
+        .project-card.minimized .project-card-progress {
+            opacity: 0;
+            height: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .project-card.highlighted {
+            box-shadow:
+                    0 0 30px rgba(245, 215, 66, 0.7),
+                    0 10px 25px rgba(0, 0, 0, 0.5);
+            transform: scale(1.05);
+            z-index: 20;
+        }
+
+        .card-1 {
+            top: 10%;
+            left: 5%;
+            transform: rotate(-5deg);
+            animation: float-1 8s ease-in-out infinite;
+        }
+
+        .card-2 {
+            top: 15%;
+            right: 5%;
+            transform: rotate(3deg);
+            animation: float-2 7s ease-in-out infinite;
+        }
+
+        .card-3 {
+            top: 30%;
+            right: 8%;
+            transform: rotate(5deg);
+            animation: float-3 9s ease-in-out infinite;
+        }
+
+        .card-4 {
+            bottom: 20%;
+            right: 5%;
+            transform: rotate(-2deg);
+            animation: float-4 6s ease-in-out infinite;
+        }
+
+        .card-5 {
+            bottom: 15%;
+            left: 5%;
+            transform: rotate(2deg);
+            animation: float-5 7s ease-in-out infinite;
+        }
+
+        @keyframes float-1 {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            50% { transform: translateY(-15px) rotate(-8deg); }
+        }
+
+        @keyframes float-2 {
+            0%, 100% { transform: translateY(0) rotate(3deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+
+        @keyframes float-3 {
+            0%, 100% { transform: translateY(0) rotate(5deg); }
+            50% { transform: translateY(-20px) rotate(3deg); }
+        }
+
+        @keyframes float-4 {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-12px) rotate(-4deg); }
+        }
+
+        @keyframes float-5 {
+            0%, 100% { transform: translateY(0) rotate(2deg); }
+            50% { transform: translateY(-8px) rotate(4deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .avatar-container {
+                width: 400px;
+                height: 400px;
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            .tagline {
+                font-size: 1.2rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 80px 1fr;
+            }
+
+            nav {
+                width: 80px;
+            }
+
+            .nav-links {
+                gap: 2rem;
+            }
+
+            .avatar-container {
+                width: 350px;
+                height: 350px;
+            }
+
+            .card-1 { left: 2%; }
+            .card-2 { right: 2%; }
+            .card-3 { right: 3%; }
+            .card-4 { right: 2%; }
+            .card-5 { left: 2%; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 80px 1fr;
+            }
+
+            nav {
+                width: 100%;
+                height: 80px;
+                flex-direction: row;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                top: 0;
+                left: 0;
+                padding: 0;
+            }
+
+            .nav-links {
+                flex-direction: row;
+                gap: 1.5rem;
+                padding: 0 1rem;
+            }
+
+            .nav-dots {
+                display: none;
+            }
+
+            .logo {
+                position: absolute;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .avatar-container {
+                width: 300px;
+                height: 300px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1rem;
+            }
+
+            .theme-selector {
+                top: 15px;
+                right: 15px;
+            }
+
+            .card-1, .card-2, .card-3, .card-4, .card-5 {
+                display: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            main {
+                padding: 1rem;
+            }
+
+            .avatar-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                padding: 0.6rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .nav-icon {
+                font-size: 1.2rem;
+            }
+
+            .nav-text {
+                font-size: 0.7rem;
+            }
+        }
+
+        /* Cyberpunk grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                    linear-gradient(rgba(10, 10, 18, 0.9), rgba(10, 10, 18, 0.9)),
+                    repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(255, 255, 255, 0.03) 1px, rgba(255, 255, 255, 0.03) 2px),
+                    repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(255, 255, 255, 0.03) 1px, rgba(255, 255, 255, 0.03) 2px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Additional animations */
+        .profile-image {
+            animation: glitch 5s infinite;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        /* Scroll reveal animation */
+        .project-card {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Delay animations for cards */
+        .card-1 { animation-delay: 0.1s; }
+        .card-2 { animation-delay: 0.2s; }
+        .card-3 { animation-delay: 0.3s; }
+        .card-4 { animation-delay: 0.4s; }
+        .card-5 { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+<div class="logo">
+    <span>HASIRU</span>
+</div>
+
+<nav>
+    <div class="nav-links">
+        <a href="#home" class="nav-link active">
+            <i class="fas fa-home nav-icon"></i>
+            <span class="nav-text">Home</span>
+        </a>
+        <a href="#about" class="nav-link">
+            <i class="fas fa-user nav-icon"></i>
+            <span class="nav-text">About</span>
+        </a>
+        <a href="#portfolio" class="nav-link">
+            <i class="fas fa-briefcase nav-icon"></i>
+            <span class="nav-text">Portfolio</span>
+        </a>
+        <a href="#skills" class="nav-link">
+            <i class="fas fa-code nav-icon"></i>
+            <span class="nav-text">Skills</span>
+        </a>
+        <a href="#contact" class="nav-link">
+            <i class="fas fa-envelope nav-icon"></i>
+            <span class="nav-text">Contact</span>
+        </a>
+    </div>
+
+    <div class="nav-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+</nav>
+
+<div class="theme-selector">
+    <div class="theme-pill active">Purple</div>
+    <div class="theme-pill">Blue</div>
+    <div class="theme-pill">Yellow</div>
+</div>
+
+<main>
+    <div class="avatar-container">
+        <img src="https://hasiruchamika.github.io/hasiruchamika.dev/images/my.jpg" alt="Hasiru's Profile" class="profile-image">
+        <div class="camera-icon">
+            <i class="fas fa-camera"></i>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>CYBERPUNK DEVELOPER</h1>
+        <p class="tagline">Creating digital experiences beyond reality</p>
+        <button class="btn btn-primary">View Projects</button>
+    </div>
+
+    <div class="project-card card-1">
+        <div class="project-card-header">
+            <div class="project-card-title">Neural Interface</div>
+            <div class="project-card-icons">
+                <div class="project-card-icon minimize"></div>
+                <div class="project-card-icon maximize"></div>
+                <div class="project-card-icon close"></div>
+            </div>
+        </div>
+        <div class="project-card-tech">
+            <div class="tech-tag">React</div>
+            <div class="tech-tag">WebGL</div>
+            <div class="tech-tag">Three.js</div>
+        </div>
+        <div class="project-card-progress">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+
+    <div class="project-card card-2">
+        <div class="project-card-header">
+            <div class="project-card-title">Quantum Net</div>
+            <div class="project-card-icons">
+                <div class="project-card-icon minimize"></div>
+                <div class="project-card-icon maximize"></div>
+                <div class="project-card-icon close"></div>
+            </div>
+        </div>
+        <div class="project-card-tech">
+            <div class="tech-tag">Vue</div>
+            <div class="tech-tag">Node.js</div>
+            <div class="tech-tag">WebSockets</div>
+        </div>
+        <div class="project-card-progress">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+
+    <div class="project-card card-3 card-special">
+        <div class="project-card-header">
+            <div class="project-card-title">Holo Dashboard</div>
+            <div class="project-card-icons">
+                <div class="project-card-icon minimize"></div>
+                <div class="project-card-icon maximize"></div>
+                <div class="project-card-icon close"></div>
+            </div>
+        </div>
+        <div class="project-card-tech">
+            <div class="tech-tag">Angular</div>
+            <div class="tech-tag">D3.js</div>
+            <div class="tech-tag">Firebase</div>
+        </div>
+        <div class="project-card-progress">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+
+    <div class="project-card card-4">
+        <div class="project-card-header">
+            <div class="project-card-title">Synthwave API</div>
+            <div class="project-card-icons">
+                <div class="project-card-icon minimize"></div>
+                <div class="project-card-icon maximize"></div>
+                <div class="project-card-icon close"></div>
+                </dv>
+            </div>
+            <div class="project-card-tech">
+                <div class="tech-tag">Express</div>
+                <div class="tech-tag">MongoDB</div>
+                <div class="tech-tag">GraphQL</div>
+            </div>
+            <div class="project-card-progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+
+        <div class="project-card card-5">
+            <div class="project-card-header">
+                <div class="project-card-title">Digital Mind</div>
+                <div class="project-card-icons">
+                    <div class="project-card-icon minimize"></div>
+                    <div class="project-card-icon maximize"></div>
+                    <div class="project-card-icon close"></div>
+                </div>
+            </div>
+            <div class="project-card-tech">
+                <div class="tech-tag">AI</div>
+                <div class="tech-tag">TensorFlow</div>
+                <div class="tech-tag">Python</div>
+            </div>
+            <div class="project-card-progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+</main>
+
+<script>
+    // Navigation active state
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            navLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Dot navigation
+    const dots = document.querySelectorAll('.dot');
+    dots.forEach(dot => {
+        dot.addEventListener('click', function() {
+            dots.forEach(d => d.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Theme selector
+    const themePills = document.querySelectorAll('.theme-pill');
+    themePills.forEach(pill => {
+        pill.addEventListener('click', function() {
+            themePills.forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    // Project card interactions
+    const projectCards = document.querySelectorAll('.project-card');
+    projectCards.forEach(card => {
+        card.addEventListener('click', function() {
+            this.classList.toggle('highlighted');
+        });
+
+        const minimizeBtn = card.querySelector('.minimize');
+        const maximizeBtn = card.querySelector('.maximize');
+        const closeBtn = card.querySelector('.close');
+
+        minimizeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            card.classList.toggle('minimized');
+        });
+
+        maximizeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            card.classList.toggle('highlighted');
+        });
+
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            card.style.display = 'none';
+        });
+    });
+
+    // Camera icon effect
+    const cameraIcon = document.querySelector('.camera-icon');
+    cameraIcon.addEventListener('click', function() {
+        const profileImage = document.querySelector('.profile-image');
+        profileImage.style.filter = 'brightness(1.2) contrast(1.2)';
+        setTimeout(() => {
+            profileImage.style.filter = '';
+        }, 300);
+    });
+
+    // Add scroll effect for responsive design
+    window.addEventListener('scroll', function() {
+        const scrollPosition = window.scrollY;
+        document.querySelector('.avatar-container').style.transform = `translateY(${scrollPosition * 0.5}px)`;
+    });
+
+    // Initialize animations with staggered delays
+    document.addEventListener('DOMContentLoaded', function() {
+        projectCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.animation = 'fadeInUp 0.5s forwards';
+            }, index * 100);
+        });
+    });
+</script>
+</body>
+</html>

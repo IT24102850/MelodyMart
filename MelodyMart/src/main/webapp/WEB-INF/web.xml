@@ -5,32 +5,48 @@
                              http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-
   <display-name>MelodyMart</display-name>
 
-  <!-- RegisterServlet mapping -->
+  <!-- Disable Logback's ServletContainerInitializer -->
+  <absolute-ordering>
+    <!-- Explicitly list only the initializers you want, excluding Logback -->
+  </absolute-ordering>
+
+  <!-- RegisterServlet mapping
   <servlet>
     <servlet-name>RegisterServlet</servlet-name>
     <servlet-class>com.melodymart.servlet.RegisterServlet</servlet-class>
   </servlet>
+
+
   <servlet-mapping>
     <servlet-name>RegisterServlet</servlet-name>
-    <url-pattern>/RegisterServlet</url-pattern>
+    <url-pattern>/register</url-pattern>  Simplified URL pattern
   </servlet-mapping>
 
+   LoginServlet mapping
   <servlet>
     <servlet-name>LoginServlet</servlet-name>
     <servlet-class>com.melodymart.servlet.LoginServlet</servlet-class>
   </servlet>
+
+
   <servlet-mapping>
     <servlet-name>LoginServlet</servlet-name>
-    <url-pattern>/LoginServlet</url-pattern>
+    <url-pattern>/login</url-pattern>  Simplified URL pattern
   </servlet-mapping>
-
-
+  -->
   <!-- Default welcome page -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
+
+  <!-- Optional: Session configuration -->
+  <session-config>
+    <session-timeout>30</session-timeout> <!-- Session timeout in minutes -->
+  </session-config>
+
+  <!-- Optional: Error page configuration -->
+
 
 </web-app>

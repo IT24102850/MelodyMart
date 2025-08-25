@@ -1,6 +1,8 @@
 USE MelodyMartDB;
 GO
 
+
+
 -- Insert sample Users
 INSERT INTO Users (name, email, password, role, address, phone, country) VALUES
 ('John Doe', 'john@example.com', 'password123', 'customer', '123 Main St, Colombo', '0711234567', 'SL'),

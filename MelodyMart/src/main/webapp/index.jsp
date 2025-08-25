@@ -97,7 +97,7 @@
         <button class="auth-button" onclick="window.location.href='instruments.jsp'">Instruments</button>
         <button class="auth-button" onclick="window.location.href='accessories.jsp'">Accessories</button>
         <button class="auth-button" onclick="window.location.href='deals.html'">Deals</button>
-        <button class="auth-button" onclick="window.location.href='contact-us.html'">Contact Us</button>
+        <button class="auth-button" onclick="window.location.href='contact-us.jsp'">Contact Us</button>
         <button class="auth-button" id="signInBtn" onclick="window.location.href='sign-in.jsp'">Sign In</button>
         <button class="auth-button" id="signUpBtn" onclick="window.location.href='sign-up.jsp'">Sign Up</button>
     </nav>
