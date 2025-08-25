@@ -5,6 +5,12 @@
       <element id="dir-copy" path="$PROJECT_DIR$/web/WEB-INF" />
       <element id="library" level="project" name="WEB-INF" />
       <element id="artifact" artifact-name="MelodyMart:war exploded2" />
+      <element id="javaee-facet-resources" facet="MelodyMart/web/Web9" />
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="MelodyMart" />
+        </element>
+      </element>
     </root>
   </artifact>
 </component>

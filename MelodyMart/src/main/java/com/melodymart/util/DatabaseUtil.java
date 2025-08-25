@@ -1,4 +1,9 @@
-package com.melodymart.util;
+package main.java.com.melodymart.util;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.Properties;
+import java.io.InputStream;
 
 public class DatabaseUtil {
     private static String url;
@@ -8,11 +13,20 @@ public class DatabaseUtil {
     static {
         try {
             Properties props = new Properties();
-            props.load(DatabaseUtil.class.getClassLoader().getResourceAsStream("db.properties"));
+            InputStream inputStream = DatabaseUtil.class.getClassLoader().getResourceAsStream("db.properties");
+
+            if (inputStream == null) {
+                throw new RuntimeException("Cannot find db.properties file in classpath");
+            }
+
+            props.load(inputStream);
             url = props.getProperty("db.url");
             username = props.getProperty("db.username");
             password = props.getProperty("db.password");
+
+            inputStream.close();
         } catch (Exception e) {
+            System.err.println("Error loading database configuration: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -21,6 +35,3 @@ public class DatabaseUtil {
         return DriverManager.getConnection(url, username, password);
     }
 }
-
-
-
