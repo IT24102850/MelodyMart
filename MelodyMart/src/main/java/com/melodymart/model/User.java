@@ -1,5 +1,5 @@
 
-package com.melodymart.model;
+package main.java.com.melodymart.model;
 
 public class User {
     private int id;
@@ -7,8 +7,7 @@ public class User {
     private String email;
     private String password;
     private String role; // "customer", "seller", or "admin"
-    private String address;
-    private String phone;
+
     private String country;
 
     // Constructor
@@ -20,8 +19,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
-        this.address = address;
-        this.phone = phone;
+
         this.country = country;
     }
 
@@ -36,10 +34,7 @@ public class User {
     public void setPassword(String password) { this.password = password; }
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
 }

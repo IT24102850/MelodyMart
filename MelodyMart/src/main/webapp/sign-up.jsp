@@ -1,4 +1,3 @@
-
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.sql.*, org.mindrot.jbcrypt.BCrypt, java.sql.DriverManager, java.sql.Connection, java.sql.PreparedStatement, java.sql.SQLException, java.util.Date" %>
@@ -11,6 +10,12 @@
         String role = request.getParameter("role");
         String country = request.getParameter("country");
 
+        System.out.println("=== Registration Attempt ===");
+        System.out.println("Full Name: " + fullName);
+        System.out.println("Email: " + email);
+        System.out.println("Role: " + role);
+        System.out.println("Country: " + country);
+
         // Server-side validation
         if (fullName == null || fullName.trim().isEmpty() ||
                 email == null || email.trim().isEmpty() ||
@@ -19,51 +24,154 @@
                 country == null || country.trim().isEmpty()) {
             request.setAttribute("errorMessage", "All fields are required and password must be at least 8 characters.");
         } else {
-            // Database connection parameters
-            String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
-            String dbUser = "your_username"; // Replace with your SQL Server username
-            String dbPassword = "your_password"; // Replace with your SQL Server password
 
-            try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-                 PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO users (fullName, email, password, role, country, created_at) VALUES (?, ?, ?, ?, ?, ?)")) {
-                // Load JDBC driver (optional, handled by container if JAR present)
+            // STEP 1: Load JDBC driver first
+            try {
+                System.out.println("Loading JDBC driver...");
                 Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                System.out.println("JDBC driver loaded successfully!");
 
-                // Hash the password
+                // Check registered drivers
+                System.out.println("Registered JDBC drivers:");
+                java.util.Enumeration<java.sql.Driver> drivers = DriverManager.getDrivers();
+                while (drivers.hasMoreElements()) {
+                    java.sql.Driver driver = drivers.nextElement();
+                    System.out.println("- " + driver.getClass().getName());
+                }
+
+            } catch (ClassNotFoundException e) {
+                System.err.println("JDBC Driver not found: " + e.getMessage());
+                request.setAttribute("errorMessage", "Database driver not found. Please check if mssql-jdbc jar is in classpath.");
+                return;
+            }
+
+            // STEP 2: Database connection parameters - TRY THESE OPTIONS ONE BY ONE
+
+            // Option 1: Default sa account (if Windows Auth doesn't work)
+            // String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
+            // String dbUser = "sa";
+            // String dbPassword = "your_sa_password"; // Replace with the password you set for 'sa'
+
+            // Try these connection strings one by one:
+
+            // Option 1: Default instance with port
+            String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
+            String dbUser = "Hasiru";          // Your SQL Server login
+            String dbPassword = "hasiru2004";  // Your SQL Server password
+
+            Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+
+
+            // Option 2: SQL Server Express (if you're using Express)
+            // String dbUrl = "jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=MelodyMartDB;integratedSecurity=true;encrypt=false";
+            // String dbUser = "";
+            // String dbPassword = "";
+
+            // Option 3: Try without specifying port (let JDBC find it)
+            // String dbUrl = "jdbc:sqlserver://localhost;databaseName=MelodyMartDB;integratedSecurity=true;encrypt=false";
+            // String dbUser = "";
+            // String dbPassword = "";
+
+            // Option 4: Named pipes (alternative to TCP/IP)
+            // String dbUrl = "jdbc:sqlserver://localhost;databaseName=MelodyMartDB;integratedSecurity=true;encrypt=false;namedPipe=true";
+            // String dbUser = "";
+            // String dbPassword = "";
+
+            // Option 3: If you created a custom user, use those credentials:
+            // String dbUser = "your_custom_username";
+            // String dbPassword = "your_custom_password";
+
+            System.out.println("Attempting connection to: " + dbUrl);
+            System.out.println("Username: " + dbUser);
+
+            Connection aconn = null;
+            PreparedStatement stmt = null;
+
+            try {
+                // STEP 3: Establish connection
+                conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+                System.out.println("Database connection established successfully!");
+
+                // STEP 4: Prepare SQL statement - Updated to match your table structure
+                String sql = "INSERT INTO Users (name, email, password, role, country, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+                System.out.println("Executing SQL: " + sql);
+
+                stmt = conn.prepareStatement(sql);
+
+                // STEP 5: Hash the password
                 String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                System.out.println("Password hashed successfully");
 
-                // Set parameters
-                stmt.setString(1, fullName);
-                stmt.setString(2, email);
+                // STEP 6: Set parameters
+                stmt.setString(1, fullName.trim());
+                stmt.setString(2, email.trim().toLowerCase());
                 stmt.setString(3, hashedPassword);
                 stmt.setString(4, role);
                 stmt.setString(5, country);
-                stmt.setTimestamp(6, new java.sql.Timestamp(new Date().getTime())); // Current timestamp
+                stmt.setTimestamp(6, new java.sql.Timestamp(new Date().getTime()));
 
+                System.out.println("Parameters set, executing update...");
+
+                // STEP 7: Execute the insert
                 int rowsAffected = stmt.executeUpdate();
+                System.out.println("Rows affected: " + rowsAffected);
+
                 if (rowsAffected > 0) {
+                    System.out.println("User registered successfully: " + email);
+
                     // Set session attributes
-                    session.setAttribute("userEmail", email);
+                    session.setAttribute("userEmail", email.trim().toLowerCase());
                     session.setAttribute("userRole", role);
+                    session.setAttribute("userFullName", fullName.trim());
                     session.setMaxInactiveInterval(30 * 60); // 30 minutes session timeout
-                    response.sendRedirect("dashboard.jsp");
+
+                    // Redirect to dashboard
+                    response.sendRedirect("user-dashboard.jsp");
                     return; // Exit JSP processing
                 } else {
-                    request.setAttribute("errorMessage", "Registration failed. Please try again.");
+                    request.setAttribute("errorMessage", "Registration failed. No rows were inserted.");
                 }
-            } catch (ClassNotFoundException e) {
-                System.err.println("JDBC Driver not found: " + e.getMessage());
-                request.setAttribute("errorMessage", "Database driver not found. Ensure mssql-jdbc.jar is in WEB-INF/lib.");
+
             } catch (SQLException e) {
-                System.err.println("SQL Error: " + e.getMessage());
-                String errorMessage = "Database error: " + e.getMessage();
-                if (e.getErrorCode() == 2627) { // Unique constraint violation (duplicate email)
-                    errorMessage = "Email already exists. Please use a different email.";
-                } else if (e.getSQLState().equals("08S01")) { // Communication link failure
-                    errorMessage = "Database connection failed. Check server status.";
+                System.err.println("=== SQL ERROR DETAILS ===");
+                System.err.println("Message: " + e.getMessage());
+                System.err.println("SQL State: " + e.getSQLState());
+                System.err.println("Error Code: " + e.getErrorCode());
+                e.printStackTrace();
+
+                String errorMessage = "Database error occurred.";
+
+                // Handle specific SQL errors
+                if (e.getErrorCode() == 2627 || e.getMessage().contains("UNIQUE KEY constraint")) {
+                    errorMessage = "Email already exists. Please use a different email address.";
+                } else if (e.getMessage().contains("Login failed") || e.getSQLState().equals("28000")) {
+                    errorMessage = "Database authentication failed. Please check SQL Server credentials.";
+                } else if (e.getMessage().contains("server was not found") || e.getSQLState().equals("08001")) {
+                    errorMessage = "Cannot connect to SQL Server. Please ensure it's running on port 1433.";
+                } else if (e.getMessage().contains("Invalid object name")) {
+                    errorMessage = "Database table 'Users' not found. Please check if the table exists.";
+                } else if (e.getSQLState().equals("08S01")) {
+                    errorMessage = "Communication link failure. Check database server status.";
+                } else {
+                    errorMessage = "Database error: " + e.getMessage();
                 }
+
                 request.setAttribute("errorMessage", errorMessage);
+
+            } finally {
+                // STEP 8: Clean up resources
+                try {
+                    if (stmt != null) {
+                        stmt.close();
+                        System.out.println("PreparedStatement closed");
+                    }
+                    if (conn != null) {
+                        conn.close();
+                        System.out.println("Connection closed");
+                    }
+                } catch (SQLException e) {
+                    System.err.println("Error closing database resources: " + e.getMessage());
+                }
             }
         }
     }
