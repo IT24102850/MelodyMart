@@ -126,7 +126,7 @@
                     session.setMaxInactiveInterval(30 * 60); // 30 minutes session timeout
 
                     // Redirect to dashboard
-                    response.sendRedirect("user-dashboard.jsp");
+                    response.sendRedirect("sign-in.jsp");
                     return; // Exit JSP processing
                 } else {
                     request.setAttribute("errorMessage", "Registration failed. No rows were inserted.");
@@ -250,7 +250,8 @@
                     <option value="">Select your role</option>
                     <option value="customer" ${param.role == 'customer' ? 'selected' : ''}>Customer</option>
                     <option value="seller" ${param.role == 'seller' ? 'selected' : ''}>Seller</option>
-                    <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin</option>
+
+
                 </select>
                 <p id="role-error" class="text-red-500 text-sm hidden">Please select your role.</p>
             </div>

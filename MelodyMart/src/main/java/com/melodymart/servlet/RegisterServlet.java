@@ -28,7 +28,7 @@ public class RegisterServlet extends HttpServlet {
                 ps.setString(3, password);
                 ps.setString(4, role);
                 ps.executeUpdate();
-                response.sendRedirect("login.jsp");
+                response.sendRedirect("sign-up.jsp");
             }
         } catch (Exception e) {
             System.err.println("Error in RegisterServlet: " + e.getMessage());
