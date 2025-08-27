@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="jackson-databind-2.13.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/MelodyMart/src/main/webapp/WEB-INF/lib/jackson-databind-2.13.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MelodyMart/src/main/webapp/WEB-INF/lib/javax.servlet-api-4.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MelodyMart/src/main/webapp/WEB-INF/lib/jbcrypt-0.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MelodyMart/src/main/webapp/WEB-INF/lib/jstl-1.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MelodyMart/src/main/webapp/WEB-INF/lib/logback-classic-1.2.11.jar!/" />
+      <root url="jar://$PROJECT_DIR$/MelodyMart/src/main/webapp/WEB-INF/lib/mssql-jdbc-12.10.1.jre11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
