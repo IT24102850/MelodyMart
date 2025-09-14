@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MelodyMart - Instruments</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: url('./images/1162694.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+        .product-card {
+            transition: transform 0.3s ease;
+            background: linear-gradient(to bottom right, #2e3a4f, #1c1c1c);
+            border-radius: 0.5rem;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        .search-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+        }
+        .search-bar:focus-within {
+            border-color: #4A90E2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+        }
+        @media (max-width: 640px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-bar {
+                width: 100%;
+            }
+            .product-card img {
+                width: 100%;
+                height: auto;
+            }
+            .product-card h3 {
+                font-size: 1rem;
+            }
+            .product-card p {
+                font-size: 0.875rem;
+            }
+        }
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (min-width: 1025px) {
+            .product-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body class="relative">
+<!-- Navbar Include -->
+<div id="navbar-container"></div>
+<script>
+    // Dynamically load navbar.html
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
+
+<!-- Main Content -->
+<main class="p-4 md:p-6 relative z-10">
+    <!-- Search Bar -->
+    <div class="mb-4 md:mb-6">
+        <input type="text" id="searchInput" placeholder="Search instruments..." class="w-full md:w-1/2 p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
+    </div>
+
+    <!-- Instruments Grid -->
+    <div id="instrumentsGrid" class="product-grid grid gap-4">
+        <!-- Sample Product Cards -->
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="acousticguitar.jpg" alt="Acoustic Guitar" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Acoustic Guitar</h3>
+            <p class="text-sm md:text-base text-gray-300">$299.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="digitalkeyboard.jpg" alt="Digital Keyboard" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Digital Keyboard</h3>
+            <p class="text-sm md:text-base text-gray-300">$499.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="drumset.jpg" alt="Drum Set" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Drum Set</h3>
+            <p class="text-sm md:text-base text-gray-300">$799.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="electricviolin.jpg" alt="Electric Violin" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Electric Violin</h3>
+            <p class="text-sm md:text-base text-gray-300">$399.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="saxophone.jpg" alt="Saxophone" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Saxophone</h3>
+            <p class="text-sm md:text-base text-gray-300">$549.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="ukulele.jpg" alt="Ukulele" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Ukulele</h3>
+            <p class="text-sm md:text-base text-gray-300">$129.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="trumpet.jpg" alt="Trumpet" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Trumpet</h3>
+            <p class="text-sm md:text-base text-gray-300">$349.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+        <div class="product-card p-3 flex flex-col items-center text-center relative">
+            <img src="flute.jpg" alt="Flute" class="w-32 h-32 md:w-40 md:h-40 object-cover mb-2">
+            <h3 class="text-lg md:text-xl font-semibold">Flute</h3>
+            <p class="text-sm md:text-base text-gray-300">$199.99</p>
+            <a href="#" class="text-blue-300 text-sm md:text-base mt-2">View Details</a>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Search Functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            card.style.display = title.includes(searchTerm) ? 'block' : 'none';
+        });
+    });
+
+    // Dynamically load navbar.html
+    fetch('navbar.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('navbar-container').innerHTML = html;
+        })
+        .catch(error => console.error('Error loading navbar:', error));
+</script>
+</body>
+</html>
