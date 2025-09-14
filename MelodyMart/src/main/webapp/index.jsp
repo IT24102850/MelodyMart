@@ -478,8 +478,8 @@
     <div class="nav-links">
         <a href="${pageContext.request.contextPath}/">Home</a>
         <a href="${pageContext.request.contextPath}/instruments.jsp">Instruments</a>
-        <a href="${pageContext.request.contextPath}/brands">Brands</a>
-        <a href="${pageContext.request.contextPath}/deals">Deals</a>
+        <a href="${pageContext.request.contextPath}/brands.jsp">Brands</a>
+        <a href="${pageContext.request.contextPath}/deals.jsp">Deals</a>
         <a href="${pageContext.request.contextPath}/studio">Studio</a>
         <a href="${pageContext.request.contextPath}/contact">Contact</a>
     </div>
