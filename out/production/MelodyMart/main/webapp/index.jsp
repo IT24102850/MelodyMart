@@ -269,6 +269,30 @@
             transform: scale(1.05);
         }
 
+        .slider-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--light-gray);
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.3s ease, background 0.3s ease;
+        }
+
+        .slider-dot.active {
+            opacity: 1;
+            background: var(--golden-yellow);
+        }
+
         .categories {
             padding: 5rem 5%;
             background: var(--dark-bg);
@@ -477,9 +501,9 @@
     </div>
     <div class="nav-links">
         <a href="${pageContext.request.contextPath}/">Home</a>
-        <a href="${pageContext.request.contextPath}/instruments">Instruments</a>
-        <a href="${pageContext.request.contextPath}/brands">Brands</a>
-        <a href="${pageContext.request.contextPath}/deals">Deals</a>
+        <a href="${pageContext.request.contextPath}/instruments.jsp">Instruments</a>
+        <a href="${pageContext.request.contextPath}/brands.jsp">Brands</a>
+        <a href="${pageContext.request.contextPath}/deals.jsp">Deals</a>
         <a href="${pageContext.request.contextPath}/studio">Studio</a>
         <a href="${pageContext.request.contextPath}/contact">Contact</a>
     </div>
@@ -506,16 +530,13 @@
                 <div class="slide">
                     <div class="instrument-card">
                         <div class="instrument-image">
-                            <img src="${pageContext.request.contextPath}/images/guitar.jpg" alt="Fender Stratocaster">
+                            <img src="${pageContext.request.contextPath}/images/digitalkeyboard2.jpg" alt="Fender Stratocaster">
                         </div>
                         <div class="instrument-info">
                             <h3>Fender Stratocaster</h3>
                             <p>The iconic electric guitar loved by professionals worldwide for its versatile tone and comfortable playability.</p>
-                            <div class="instrument-price">$1,499</div>
-                            <div class="instrument-actions">
-                                <button class="add-to-cart">Add to Cart</button>
-                                <button class="details-btn">Details</button>
-                            </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -551,6 +572,11 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="slider-controls">
+                <div class="slider-dot active" data-slide="0"></div>
+                <div class="slider-dot" data-slide="1"></div>
+                <div class="slider-dot" data-slide="2"></div>
             </div>
         </div>
     </div>
@@ -639,27 +665,59 @@
 <script>
     // Initialize slider
     document.addEventListener('DOMContentLoaded', () => {
-        const slides = document.querySelector('.instrument-slides');
-        if (!slides) {
-            console.error('Instrument slides container not found.');
-            document.getElementById('debugMessage').style.display = 'block';
-            document.getElementById('debugMessage').innerText = 'Slider container not found.';
+        const slidesContainer = document.querySelector('.instrument-slides');
+        const dots = document.querySelectorAll('.slider-dot');
+        const debugMessage = document.getElementById('debugMessage');
+        let currentSlide = 0;
+        let slideInterval;
+
+        if (!slidesContainer || !dots.length) {
+            console.error('Slider initialization failed: Missing slides container or dots.');
+            debugMessage.style.display = 'block';
+            debugMessage.innerText = 'Slider initialization failed. Check console.';
             return;
         }
 
-        let currentSlide = 0;
-        function nextSlide() {
+        // Calculate total slides dynamically
+        const totalSlides = document.querySelectorAll('.slide').length;
+
+        // Function to update slide and dot
+        function updateSlide(index) {
             try {
-                currentSlide = (currentSlide + 1) % 3;
-                slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+                currentSlide = index;
+                slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+                dots.forEach(dot => dot.classList.remove('active'));
+                dots[currentSlide].classList.add('active');
             } catch (e) {
                 console.error(`Slider error: ${e.message}`);
-                document.getElementById('debugMessage').style.display = 'block';
-                document.getElementById('debugMessage').innerText = 'Slider error. Check console.';
+                debugMessage.style.display = 'block';
+                debugMessage.innerText = 'Slider error. Check console.';
             }
         }
 
-        setInterval(nextSlide, 5000);
+        // Automatic slide transition
+        function startSlider() {
+            slideInterval = setInterval(() => {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateSlide(currentSlide);
+            }, 5000); // Change slide every 5 seconds
+        }
+
+        // Manual slide navigation
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                clearInterval(slideInterval); // Pause auto-slide on manual click
+                updateSlide(parseInt(dot.dataset.slide));
+                startSlider(); // Restart auto-slide
+            });
+        });
+
+        // Pause slider on hover
+        slidesContainer.addEventListener('mouseenter', () => clearInterval(slideInterval));
+        slidesContainer.addEventListener('mouseleave', startSlider);
+
+        // Start the slider
+        startSlider();
     });
 </script>
 </body>
