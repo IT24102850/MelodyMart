@@ -9,7 +9,7 @@
   <packaging>war</packaging>
 
   <properties>
-    <!-- Changed from 22 to 11 for better compatibility -->
+    <!-- Using Java 11 for compatibility with Tomcat 9 and your JDK -->
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <tomcat.version>9.0.108</tomcat.version>
@@ -18,7 +18,7 @@
   </properties>
 
   <dependencies>
-    <!-- Servlet API (provided by Tomcat, so scope is 'provided') -->
+    <!-- Servlet API (provided by Tomcat) -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
@@ -48,7 +48,7 @@
       <version>2.17.1</version>
     </dependency>
 
-    <!-- SQL Server JDBC Driver - Updated to latest version -->
+    <!-- SQL Server JDBC Driver -->
     <dependency>
       <groupId>com.microsoft.sqlserver</groupId>
       <artifactId>mssql-jdbc</artifactId>
@@ -61,15 +61,6 @@
       <artifactId>jbcrypt</artifactId>
       <version>0.4</version>
     </dependency>
-
-    <!-- Removed MySQL driver since you're using SQL Server -->
-    <!-- Keep this commented out unless you need MySQL
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.33</version>
-    </dependency>
-    -->
 
     <!-- Commons Lang (useful utilities) -->
     <dependency>
@@ -84,7 +75,6 @@
       <artifactId>slf4j-api</artifactId>
       <version>2.0.9</version>
     </dependency>
-
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -99,13 +89,12 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Added Apache Commons Validator for input validation -->
+    <!-- Apache Commons Validator for input validation -->
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
       <version>1.7</version>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -134,10 +123,10 @@
         </configuration>
       </plugin>
 
-      <!-- Updated Tomcat plugin for Maven -->
+      <!-- Tomcat plugin for Maven (updated to Tomcat 9) -->
       <plugin>
         <groupId>org.apache.tomcat.maven</groupId>
-        <artifactId>tomcat7-maven-plugin</artifactId>
+        <artifactId>tomcat9-maven-plugin</artifactId>
         <version>2.2</version>
         <configuration>
           <path>/MelodyMart</path>
@@ -172,7 +161,6 @@
         <artifactId>maven-clean-plugin</artifactId>
         <version>3.3.2</version>
       </plugin>
-
     </plugins>
   </build>
 </project>

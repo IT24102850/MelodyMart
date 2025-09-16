@@ -387,10 +387,10 @@
             background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
         }
         .slide-4 {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1571974599782-87624638275f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1738&q=80');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./images/drums1.jpg');
         }
         .slide-5 {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1511192336575-5a79af67b7f6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1732&q=80');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./images/10.jpg');
         }
         .slide-6 {
             background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
@@ -399,7 +399,7 @@
             background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
         }
         .slide-8 {
-            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1519285180680-2c9b5df175bb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./images/99.jpg');
         }
         .slide-9 {
             background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
@@ -1115,7 +1115,61 @@
     </div>
 </header>
 
+<!-- Sign In Modal -->
+<div class="modal" id="signInModal">
+    <div class="modal-content">
+        <button class="modal-close" aria-label="Close Sign In Modal">&times;</button>
+        <h2>Sign In</h2>
+        <form id="signInForm">
+            <input type="email" placeholder="Email *" required aria-label="Email">
+            <input type="password" placeholder="Password *" required aria-label="Password">
+            <button type="submit">Sign In</button>
+            <div class="switch-form">
+                Don't have an account? <a href="#" onclick="switchModal('signUpModal')">Sign Up</a>
+            </div>
+        </form>
+    </div>
+</div>
 
+
+
+
+<!-- Sign Up Modal -->
+<div class="modal" id="signUpModal">
+    <div class="modal-content">
+        <button class="modal-close" aria-label="Close Sign Up Modal">&times;</button>
+        <h2>Sign Up</h2>
+        <form id="signUpForm" action="sign-up.jsp" method="post" class="space-y-4">
+            <input type="text" name="fullName" placeholder="Full Name *" required aria-label="Full Name">
+            <input type="email" name="email" placeholder="Email *" required aria-label="Email">
+            <input type="password" name="password" placeholder="Password *" required minlength="8" aria-label="Password">
+            <select name="role" required aria-label="Role">
+                <option value="" disabled selected>Select Role</option>
+                <option value="customer">Customer</option>
+                <option value="seller">Seller</option>
+                <option value="admin">Admin</option>
+            </select>
+            <select name="country" required aria-label="Country">
+                <option value="" disabled selected>Select Country</option>
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="UK">United Kingdom</option>
+                <option value="AU">Australia</option>
+                <option value="IN">India</option>
+                <option value="DE">Germany</option>
+                <option value="FR">France</option>
+                <option value="JP">Japan</option>
+                <option value="CN">China</option>
+                <option value="BR">Brazil</option>
+                <option value="SL">Sri Lanka</option>
+            </select>
+            <button type="submit">Sign Up</button>
+            <div class="switch-form">
+                Already have an account? <a href="#" onclick="switchModal('signInModal')">Sign In</a>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Hero Section with Slideshow -->
 <section class="hero">

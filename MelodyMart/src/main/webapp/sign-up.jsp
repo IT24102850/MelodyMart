@@ -57,7 +57,7 @@
                     session.setAttribute("userRole", role);
                     session.setAttribute("userFullName", fullName.trim());
                     session.setMaxInactiveInterval(30 * 60);
-                    response.sendRedirect("user-dashboard.jsp");
+                    response.sendRedirect("sign-in.jsp");
                     return;
                 } else {
                     request.setAttribute("errorMessage", "Registration failed. No rows were inserted.");
@@ -104,6 +104,7 @@
     <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --primary: #8a2be2;
@@ -111,18 +112,20 @@
             --secondary: #0a0a0a;
             --accent: #00e5ff;
             --accent-alt: #ff00c8;
+            --gold-accent: #d4af37;
             --text: #ffffff;
             --text-secondary: #b3b3b3;
             --card-bg: #1a1a1a;
             --card-hover: #2a2a2a;
-            --glass-bg: rgba(30, 30, 30, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-bg: rgba(26, 26, 26, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.2);
             --gradient: linear-gradient(135deg, var(--primary), var(--accent));
             --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
+            --metallic-gradient: linear-gradient(135deg, #c0c0c0, #a9a9a9);
         }
 
         body {
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./images/1162694.jpg');
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1511735111819-9a3f7709049c');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -131,12 +134,26 @@
             font-family: 'Inter', sans-serif;
             color: var(--text);
             overflow-x: hidden;
+            position: relative;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .signup-container {
@@ -144,112 +161,226 @@
             justify-content: center;
             align-items: center;
             min-height: calc(100vh - 80px);
-            padding: 20px;
+            padding: 50px 20px;
         }
 
         .signup-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 400px;
+            backdrop-filter: blur(20px);
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, var(--primary), var(--gold-accent)) 1;
+            border-radius: 25px;
+            padding: 50px;
+            max-width: 480px;
             width: 100%;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.5s ease-in-out;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 15px rgba(138, 43, 226, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: floatIn 1s cubic-bezier(0.2, 0.6, 0.4, 1);
+            will-change: transform, opacity;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes floatIn {
+            from { opacity: 0; transform: translateY(60px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .signup-card::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 20 Q50 80 80 20" fill="none" stroke="%23d4af37" stroke-width="0.5" opacity="0.15"/></svg>');
+            background-size: 60px 60px;
+            z-index: 0;
+            animation: rotateSlow 30s linear infinite;
+        }
+
+        @keyframes rotateSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .signup-card > * {
+            position: relative;
+            z-index: 1;
         }
 
         .signup-card h1 {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             text-align: center;
-            background: var(--gradient);
+            background: linear-gradient(90deg, var(--primary), var(--gold-accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 25px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin: 0;
         }
 
         .form-group label {
             display: block;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-secondary);
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 12px;
-            border: 1px solid var(--glass-border);
-            background: var(--secondary);
+            padding: 16px 20px;
+            border: 2px solid var(--glass-border);
+            background: linear-gradient(var(--secondary), rgba(255, 255, 255, 0.05));
             color: var(--text);
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            transform: scale(1.03);
+        }
+
+        .form-group input:hover,
+        .form-group select:hover {
+            transform: scale(1.02);
         }
 
         .error-message {
-            color: #ef4444;
-            font-size: 12px;
-            margin-top: 5px;
-            animation: shake 0.3s ease-in-out;
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            animation: fadeInError 0.4s ease-in-out;
             display: none;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        @keyframes fadeInError {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .submit-btn {
-            background: var(--gradient);
-            padding: 12px;
+            background: var(--metallic-gradient);
+            padding: 16px;
             border: none;
-            border-radius: 30px;
+            border-radius: 40px;
             color: var(--text);
-            font-weight: 600;
+            font-weight: 800;
             width: 100%;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.7s ease, height 0.7s ease;
+            z-index: 0;
+        }
+
+        .submit-btn:hover::before {
+            width: 300%;
+            height: 300%;
         }
 
         .submit-btn:hover {
-            background: var(--gradient-alt);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+            background: linear-gradient(135deg, #d3d3d3, #c0c0c0);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .submit-btn .spinner {
+            display: none;
+            border: 3px solid #fff;
+            border-top: 3px solid var(--gold-accent);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1.2s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            color: var(--gold-accent);
+            font-size: 1rem;
+            margin-top: 15px;
+            animation: fadeInSuccess 0.5s ease-in-out;
+        }
+
+        @keyframes fadeInSuccess {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .switch-link {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 25px;
             color: var(--text-secondary);
+            font-size: 1.1rem;
         }
 
         .switch-link a {
             color: var(--accent);
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .switch-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold-accent);
+            transition: width 0.3s ease;
+        }
+
+        .switch-link a:hover::after {
+            width: 100%;
         }
 
         .switch-link a:hover {
             color: var(--primary-light);
+            text-shadow: 0 0 15px var(--gold-accent);
         }
     </style>
 </head>
@@ -260,7 +391,7 @@
         <c:if test="${not empty errorMessage}">
             <p class="error-message" style="display: block;"><c:out value="${errorMessage}"/></p>
         </c:if>
-        <form id="signupForm" action="sign-up.jsp" method="post" class="space-y-4" novalidate>
+        <form id="signupForm" action="sign-up.jsp" method="post" class="form-grid" novalidate>
             <div class="form-group">
                 <label for="fullName">Full Name</label>
                 <input type="text" id="fullName" name="fullName" value="${param.fullName}" required aria-label="Full Name" aria-describedby="name-error">
@@ -304,10 +435,13 @@
                 </select>
                 <p id="country-error" class="error-message">Please select your country.</p>
             </div>
-            <button type="submit" class="submit-btn">Create Account</button>
+            <button type="submit" class="submit-btn" id="submitButton">
+                <span class="spinner" id="spinner"></span>Create Account
+            </button>
             <div class="switch-link">
                 Already have an account? <a href="sign-in.jsp">Sign In</a>
             </div>
+            <div id="successMessage" class="success-message">Registration successful! Redirecting...</div>
         </form>
     </div>
 </div>
@@ -316,9 +450,15 @@
     document.getElementById('signupForm').addEventListener('submit', function(event) {
         event.preventDefault();
         let isValid = true;
+        const submitButton = document.getElementById('submitButton');
+        const spinner = document.getElementById('spinner');
+        const successMessage = document.getElementById('successMessage');
 
-        // Reset error messages
+        // Reset states
         document.querySelectorAll('.error-message').forEach(error => error.style.display = 'none');
+        spinner.style.display = 'inline-block';
+        submitButton.disabled = true;
+        successMessage.style.display = 'none';
 
         // Full Name validation
         const fullName = document.getElementById('fullName').value.trim();
@@ -357,8 +497,22 @@
         }
 
         if (isValid) {
-            this.submit();
+            setTimeout(() => {
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    this.submit();
+                }, 1000); // Delay for success message visibility
+            }, 500); // Simulate server processing
+        } else {
+            spinner.style.display = 'none';
+            submitButton.disabled = false;
         }
+    });
+
+    // Parallax effect
+    window.addEventListener('scroll', () => {
+        const scrollPosition = window.pageYOffset;
+        document.body.style.backgroundPositionY = -scrollPosition * 0.3 + 'px';
     });
 </script>
 </body>

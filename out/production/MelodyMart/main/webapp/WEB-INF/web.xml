@@ -12,41 +12,17 @@
     <!-- Explicitly list only the initializers you want, excluding Logback -->
   </absolute-ordering>
 
-  <!-- RegisterServlet mapping
-  <servlet>
-    <servlet-name>RegisterServlet</servlet-name>
-    <servlet-class>com.melodymart.servlet.RegisterServlet</servlet-class>
-  </servlet>
-
-
-  <servlet-mapping>
-    <servlet-name>RegisterServlet</servlet-name>
-    <url-pattern>/register</url-pattern>  Simplified URL pattern
-  </servlet-mapping>
-
-   LoginServlet mapping
-  <servlet>
-    <servlet-name>LoginServlet</servlet-name>
-    <servlet-class>com.melodymart.servlet.LoginServlet</servlet-class>
-  </servlet>
-
-
-  <servlet-mapping>
-    <servlet-name>LoginServlet</servlet-name>
-    <url-pattern>/login</url-pattern>  Simplified URL pattern
-  </servlet-mapping>
-  -->
   <!-- Default welcome page -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
 
-  <!-- Optional: Session configuration -->
+  <!-- Session configuration -->
   <session-config>
     <session-timeout>30</session-timeout> <!-- Session timeout in minutes -->
   </session-config>
 
-  <!-- Optional: Error page configuration -->
+  <!-- Error page configuration -->
 
 
 </web-app>

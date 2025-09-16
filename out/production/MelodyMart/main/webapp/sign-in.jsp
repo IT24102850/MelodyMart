@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,104 +10,359 @@
     <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #8a2be2;
+            --primary-light: #9b45f0;
+            --secondary: #0a0a0a;
+            --accent: #00e5ff;
+            --gold-accent: #d4af37;
+            --text: #ffffff;
+            --text-secondary: #b3b3b3;
+            --card-bg: #1a1a1a;
+            --card-hover: #2a2a2a;
+            --glass-bg: rgba(26, 26, 26, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
+            --gradient-alt: linear-gradient(135deg, var(--accent), var(--primary));
+            --metallic-gradient: linear-gradient(135deg, #c0c0c0, #a9a9a9);
+        }
+
         body {
-            background: url('./images/1162694.jpg');
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
             font-family: 'Inter', sans-serif;
-            color: #FFFFFF;
+            color: var(--text);
             overflow-x: hidden;
+            position: relative;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 60%, rgba(0, 0, 0, 0.4) 100%);
+            pointer-events: none;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+            padding: 20px;
+        }
+
+        .signin-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 2px solid transparent;
+            border-image: linear-gradient(45deg, var(--primary), var(--gold-accent)) 1;
+            border-radius: 25px;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 15px rgba(138, 43, 226, 0.3);
+            position: relative;
+            overflow: hidden;
+            animation: floatIn 1s cubic-bezier(0.2, 0.6, 0.4, 1);
+            will-change: transform, opacity;
+        }
+
+        @keyframes floatIn {
+            from { opacity: 0; transform: translateY(60px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .signin-card::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 20 Q50 80 80 20" fill="none" stroke="%23d4af37" stroke-width="0.5" opacity="0.15"/></svg>');
+            background-size: 60px 60px;
+            z-index: 0;
+            animation: rotateSlow 30s linear infinite;
+        }
+
+        @keyframes rotateSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .signin-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .signin-card h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 3rem;
+            text-align: center;
+            background: linear-gradient(90deg, var(--primary), var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--glass-border);
+            background: linear-gradient(var(--secondary), rgba(255, 255, 255, 0.05));
+            color: var(--text);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--gold-accent);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+            transform: scale(1.03);
+        }
+
+        .form-group input:hover {
+            transform: scale(1.02);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 0.9rem;
+            margin-top: 6px;
+            animation: fadeInError 0.4s ease-in-out;
+            display: none;
+        }
+
+        @keyframes fadeInError {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .signin-btn {
+            background: var(--metallic-gradient);
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            color: var(--text);
+            font-weight: 800;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signin-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.7s ease, height 0.7s ease;
+            z-index: 0;
+        }
+
+        .signin-btn:hover::before {
+            width: 300%;
+            height: 300%;
+        }
+
+        .signin-btn:hover {
+            background: linear-gradient(135deg, #d3d3d3, #c0c0c0);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .signin-btn .spinner {
+            display: none;
+            border: 3px solid #fff;
+            border-top: 3px solid var(--gold-accent);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1.2s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            color: var(--gold-accent);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            animation: fadeInSuccess 0.5s ease-in-out;
+        }
+
+        @keyframes fadeInSuccess {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .switch-link a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .switch-link a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gold-accent);
+            transition: width 0.3s ease;
+        }
+
+        .switch-link a:hover::after {
+            width: 100%;
+        }
+
+        .switch-link a:hover {
+            color: var(--primary-light);
+            text-shadow: 0 0 15px var(--gold-accent);
         }
     </style>
 </head>
-<body class="relative">
-
-<!-- Navbar without Sign In / Sign Up buttons -->
-<div class="flex justify-between items-center p-4 bg-gray-900 bg-opacity-80">
-    <div>
-        <a href="index.jsp" class="text-2xl font-bold text-white">MelodyMart</a>
-    </div>
-    <div class="flex space-x-4">
-        <a href="index.jsp" class="text-white hover:text-gray-300">Home</a>
-        <a href="instruments.jsp" class="text-white hover:text-gray-300">Instruments</a>
-        <a href="accessories.jsp" class="text-white hover:text-gray-300">Accessories</a>
-        <a href="deals.jsp" class="text-white hover:text-gray-300">Deals</a>
-        <a href="contact.jsp" class="text-white hover:text-gray-300">Contact Us</a>
-    </div>
-    <div class="ml-4">
-        <input type="text" placeholder="Search instruments..." class="w-full md:w-48 p-2 rounded-full search-bar text-white focus:outline-none" aria-label="Search instruments">
-    </div>
-</div>
-
-<!-- Main Content -->
-<main class="p-4 md:p-6 relative z-10 flex justify-center items-center min-h-[calc(100vh-80px)]">
-    <div class="w-full max-w-md bg-gray-900 bg-opacity-90 p-6 rounded-lg shadow-lg">
-        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Sign In to MelodyMart</h1>
-        <c:if test="${not empty errorMessage}">
-            <p class="text-red-500 text-center mb-4">${errorMessage}</p>
+<body>
+<main class="main-content">
+    <div class="signin-card">
+        <h1>Sign In to MelodyMart</h1>
+        <c:if test="${not empty param.error}">
+            <p class="error-message" style="display: block">${param.error}</p>
         </c:if>
-        <c:if test="${not empty successMessage}">
-            <p class="text-green-500 text-center mb-4">${successMessage}</p>
-        </c:if>
-        <form id="signinForm" action="LoginServlet" method="post" class="space-y-4" novalidate>
-            <!-- Email -->
-            <div>
-                <label for="email" class="block text-sm md:text-base font-semibold text-gray-300">Email Address</label>
-                <input type="email" id="email" name="email" value="${param.email}" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your email" aria-required="true" aria-describedby="email-error">
-                <p id="email-error" class="text-red-500 text-sm hidden">Please enter a valid email address.</p>
+        <form id="signinForm" action="/login" method="post" class="form-grid" novalidate>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" value="${param.email}" required aria-label="Email" aria-describedby="email-error">
+                <p id="email-error" class="error-message">Please enter a valid email address.</p>
             </div>
-            <!-- Password -->
-            <div>
-                <label for="password" class="block text-sm md:text-base font-semibold text-gray-300">Password</label>
-                <input type="password" id="password" name="password" required minlength="8" class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your password" aria-required="true" aria-describedby="password-error">
-                <p id="password-error" class="text-red-500 text-sm hidden">Please enter your password.</p>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="8" aria-label="Password" aria-describedby="password-error">
+                <p id="password-error" class="error-message">Please enter your password.</p>
             </div>
-            <!-- Remember Me -->
-            <div>
-                <label class="flex items-center space-x-2">
-                    <input type="checkbox" id="remember" name="remember" class="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded">
-                    <span class="text-sm md:text-base text-gray-300">Remember Me</span>
+            <div class="form-group">
+                <label class="flex items-center space-x-3">
+                    <input type="checkbox" id="remember" name="remember" class="h-5 w-5 text-gray-600 focus:ring-gray-500 border-gray-300 rounded">
+                    <span class="text-base text-gray-300">Remember Me</span>
                 </label>
             </div>
-            <!-- Submit Button -->
-            <button type="submit" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">Sign In</button>
+            <button type="submit" class="signin-btn" id="signinButton">
+                <span class="spinner" id="spinner"></span>Sign In
+            </button>
+            <div class="switch-link">
+                Don't have an account? <a href="sign-up.jsp" target="_blank">Sign Up</a>
+            </div>
+            <div class="switch-link">
+                <a href="forgot-password.jsp">Forgot Password?</a>
+            </div>
+            <div id="successMessage" class="success-message">Sign-in successful! Redirecting...</div>
         </form>
-        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Don't have an account? <a href="sign-up.jsp" target="_blank" class="text-blue-300 hover:underline">Sign Up</a></p>
-        <p class="text-center text-sm md:text-base text-gray-300 mt-2"><a href="forgot-password.jsp" class="text-blue-300 hover:underline">Forgot Password?</a></p>
     </div>
 </main>
 
-<!-- Script -->
 <script>
     document.getElementById('signinForm').addEventListener('submit', function(event) {
         event.preventDefault();
         let isValid = true;
+        const signinButton = document.getElementById('signinButton');
+        const spinner = document.getElementById('spinner');
+        const successMessage = document.getElementById('successMessage');
 
-        // Reset error messages
-        document.querySelectorAll('.text-red-500').forEach(error => error.classList.add('hidden'));
+        // Reset states
+        document.querySelectorAll('.error-message').forEach(error => error.style.display = 'none');
+        spinner.style.display = 'inline-block';
+        signinButton.disabled = true;
+        successMessage.style.display = 'none';
 
         // Email validation
         const email = document.getElementById('email').value.trim();
-        const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            document.getElementById('email-error').classList.remove('hidden');
+            document.getElementById('email-error').style.display = 'block';
             isValid = false;
         }
 
         // Password validation
         const password = document.getElementById('password').value;
         if (!password) {
-            document.getElementById('password-error').classList.remove('hidden');
+            document.getElementById('password-error').style.display = 'block';
             isValid = false;
         }
 
         if (isValid) {
-            this.submit(); // Submit the form to the servlet
+            setTimeout(() => {
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    this.submit(); // Servlet handles the actual redirect
+                }, 1000); // Delay for success message visibility
+            }, 500); // Simulate server processing
+        } else {
+            spinner.style.display = 'none';
+            signinButton.disabled = false;
         }
     });
+
+    // Parallax effect
+    window.addEventListener('scroll', () => {
+        const scrollPosition = window.pageYOffset;
+        document.body.style.backgroundPositionY = -scrollPosition * 0.3 + 'px';
+    });
 </script>
+</body>
+</html>
