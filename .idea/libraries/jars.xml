@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="jars">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/sqljdbc_13.2.0.0_enu/sqljdbc_13.2/enu/jars/mssql-jdbc-13.2.0.jre8.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/sqljdbc_13.2.0.0_enu/sqljdbc_13.2/enu/jars/mssql-jdbc-13.2.0.jre11.jar!/" />
+      <root url="file://$USER_HOME$/Downloads/sqljdbc_13.2.0.0_enu/sqljdbc_13.2/enu/jars" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/Downloads/sqljdbc_13.2.0.0_enu/sqljdbc_13.2/enu/jars/mssql-jdbc-13.2.0.jre8-sources.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/sqljdbc_13.2.0.0_enu/sqljdbc_13.2/enu/jars/mssql-jdbc-13.2.0.jre11-sources.jar!/" />
+      <root url="file://$USER_HOME$/Downloads/sqljdbc_13.2.0.0_enu/sqljdbc_13.2/enu/jars" />
+    </SOURCES>
+    <jarDirectory url="file://$USER_HOME$/Downloads/sqljdbc_13.2.0.0_enu/sqljdbc_13.2/enu/jars" recursive="false" />
+    <jarDirectory url="file://$USER_HOME$/Downloads/sqljdbc_13.2.0.0_enu/sqljdbc_13.2/enu/jars" recursive="false" type="SOURCES" />
+  </library>
+</component>

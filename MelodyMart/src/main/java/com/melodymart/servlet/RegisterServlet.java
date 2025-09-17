@@ -1,4 +1,4 @@
-package com.melodymart.servlet;
+package main.java.com.melodymart.servlet;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import com.melodymart.util.DBConnection;
+import main.java.com.melodymart.util.DBConnection;
 
 public class RegisterServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;

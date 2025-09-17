@@ -1,491 +1,1154 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MelodyMart - Admin Nexus</title>
-    <link rel="icon" type="image/x-icon" href="./images/favicon_io%20(9)/favicon.ico">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Melody Mart | Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --primary: #8a2be2;
+            --primary-light: #9b45f0;
+            --secondary: #0a0a0a;
+            --accent: #00e5ff;
+            --accent-alt: #ff00c8;
+            --text: #ffffff;
+            --text-secondary: #b3b3b3;
+            --card-bg: #1a1a1a;
+            --card-hover: #2a2a2a;
+            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
+            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
+            --glass-bg: rgba(30, 30, 30, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #0a0f1c, #1a2a44);
-            background-size: cover;
-            background-attachment: fixed;
-            min-height: 100vh;
-            font-family: 'Orbitron', sans-serif;
-            color: #e0e7ff;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--secondary);
+            color: var(--text);
             overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .container-fluid {
+            padding: 0;
+        }
+
+        /* Header/Navbar */
+        .navbar {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 28px;
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text);
+            font-weight: 500;
+            transition: color 0.3s ease;
             position: relative;
         }
-        body::before {
+
+        .navbar-nav .nav-link:after {
             content: '';
-            position: fixed;
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        .navbar-nav .nav-link:hover:after {
+            width: 100%;
+        }
+
+        /* Main Layout */
+        .main-wrapper {
+            display: flex;
+            min-height: calc(100vh - 76px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            width: 280px;
+            padding: 30px 20px;
+            transition: all 0.3s ease;
+            position: sticky;
+            top: 76px;
+            height: calc(100vh - 76px);
+            overflow-y: auto;
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        .sidebar-header {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .sidebar-header h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: fadeInRight 0.5s ease-out forwards;
+        }
+
+        .sidebar-menu li:nth-child(1) { animation-delay: 0.1s; }
+        .sidebar-menu li:nth-child(2) { animation-delay: 0.15s; }
+        .sidebar-menu li:nth-child(3) { animation-delay: 0.2s; }
+        .sidebar-menu li:nth-child(4) { animation-delay: 0.25s; }
+        .sidebar-menu li:nth-child(5) { animation-delay: 0.3s; }
+        .sidebar-menu li:nth-child(6) { animation-delay: 0.35s; }
+        .sidebar-menu li:nth-child(7) { animation-delay: 0.4s; }
+        .sidebar-menu li:nth-child(8) { animation-delay: 0.45s; }
+        .sidebar-menu li:nth-child(9) { animation-delay: 0.5s; }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            color: var(--text);
+            text-decoration: none;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: var(--gradient);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar-menu i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .dashboard-header {
+            margin-bottom: 30px;
+            animation: fadeInUp 0.5s ease-out 0.3s both;
+        }
+
+        .dashboard-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            margin-bottom: 10px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.4s; }
+        .stat-card:nth-child(2) { animation-delay: 0.5s; }
+        .stat-card:nth-child(3) { animation-delay: 0.6s; }
+        .stat-card:nth-child(4) { animation-delay: 0.7s; }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('./images/1162694.jpg') no-repeat center/cover;
+            background: var(--gradient);
             opacity: 0.1;
             z-index: -1;
         }
-        .dashboard-card {
-            background: rgba(10, 15, 28, 0.9);
-            border: 1px solid #2a4066;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 20px rgba(42, 64, 102, 0.3);
-            backdrop-filter: blur(5px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        .stat-icon {
+            font-size: 30px;
+            margin-bottom: 15px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6), 0 0 30px rgba(42, 64, 102, 0.5);
-        }
-        .table-section {
-            max-height: 350px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #4a90e2 #1a2a44;
-        }
-        .table-section::-webkit-scrollbar {
-            width: 8px;
-        }
-        .table-section::-webkit-scrollbar-thumb {
-            background-color: #4a90e2;
-            border-radius: 4px;
-        }
-        .cta-button {
-            background: linear-gradient(45deg, #4a90e2, #50e3c2);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: #fff;
+
+        .stat-value {
+            font-size: 28px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 0;
+            margin-bottom: 30px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .section-card:nth-child(1) { animation-delay: 0.5s; }
+        .section-card:nth-child(2) { animation-delay: 0.6s; }
+        .section-card:nth-child(3) { animation-delay: 0.7s; }
+        .section-card:nth-child(4) { animation-delay: 0.8s; }
+        .section-card:nth-child(5) { animation-delay: 0.9s; }
+        .section-card:nth-child(6) { animation-delay: 1.0s; }
+        .section-card:nth-child(7) { animation-delay: 1.1s; }
+        .section-card:nth-child(8) { animation-delay: 1.2s; }
+
+        .section-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            background: rgba(138, 43, 226, 0.1);
+            padding: 20px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-header h3 i {
+            margin-right: 10px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        th {
+            background: rgba(138, 43, 226, 0.1);
+            font-weight: 600;
+        }
+
+        tr {
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        tr:nth-child(1) { animation-delay: 0.3s; }
+        tr:nth-child(2) { animation-delay: 0.4s; }
+        tr:nth-child(3) { animation-delay: 0.5s; }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--gradient-alt);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        /* Forms */
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--glass-border);
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 8px;
+            margin-bottom: 15px;
             transition: all 0.3s ease;
         }
-        .cta-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(74, 144, 226, 0.7);
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.3);
         }
-        .notification {
-            background: #ff4444;
-            padding: 8px 16px;
-            border-radius: 20px;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .sidebar {
-            background: linear-gradient(135deg, #0a0f1c, #1a2a44);
-            width: 250px;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            transition: transform 0.3s ease;
-            z-index: 100;
-            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.5);
-            overflow-y: auto;
-        }
-        .sidebar.collapsed {
-            transform: translateX(-100%);
-        }
-        .sidebar-toggle {
-            position: absolute;
-            top: 10px;
-            right: -40px;
-            background: #4a90e2;
-            border: none;
-            padding: 8px;
-            border-radius: 0 5px 5px 0;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            z-index: 101;
-        }
-        .sidebar-toggle:hover {
-            background: #50e3c2;
-        }
-        .nav-item {
-            padding: 12px 20px;
-            color: #e0e7ff;
-            font-family: 'Orbitron', sans-serif;
-            transition: background 0.3s ease, color 0.3s ease;
+
+        .form-label {
             display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
         }
-        .nav-item:hover, .nav-item.active {
-            background: #2a4066;
-            color: #50e3c2;
-            border-left: 4px solid #4a90e2;
+
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            animation: slideInRight 0.5s ease-out;
         }
-        .nav-section {
-            margin-bottom: 10px;
+
+        .alert i {
+            margin-right: 10px;
+            font-size: 20px;
         }
-        .nav-section h4 {
-            padding: 8px 20px;
-            font-size: 0.875rem;
-            color: #a0b4d8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.2);
+            border: 1px solid rgba(23, 162, 184, 0.3);
         }
-        .profile-toggle {
-            cursor: pointer;
-            padding: 10px 20px;
-            margin-top: auto;
-            transition: background 0.3s ease;
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.3);
         }
-        .profile-toggle:hover {
-            background: #2a4066;
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.3);
         }
-        .profile-details {
-            display: none;
-            padding: 10px 20px;
-            background: #1a2a44;
+
+        /* List Group */
+        .list-group {
+            list-style: none;
+            border-radius: 8px;
+            overflow: hidden;
         }
-        .sidebar::before {
-            content: '';
-            position: absolute;
+
+        .list-group-item {
+            padding: 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .list-group-item:nth-child(1) { animation-delay: 0.3s; }
+        .list-group-item:nth-child(2) { animation-delay: 0.4s; }
+        .list-group-item:nth-child(3) { animation-delay: 0.5s; }
+
+        .list-group-item:hover {
+            background: var(--card-hover);
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Floating elements */
+        .floating-elements {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: url('./images/1162694.jpg') no-repeat center/cover;
-            opacity: 0.15;
+            pointer-events: none;
             z-index: -1;
         }
-        .tab-content {
-            display: none;
+
+        .floating-element {
+            position: absolute;
+            font-size: 24px;
+            color: rgba(138, 43, 226, 0.1);
+            animation: float 6s ease-in-out infinite;
         }
-        .tab-content.active {
-            display: block;
+
+        /* Footer */
+        footer {
+            background: #0a0a0a;
+            padding: 30px 0;
+            border-top: 1px solid var(--glass-border);
+            text-align: center;
+            animation: fadeInUp 0.5s ease-out;
         }
-        @media (max-width: 640px) {
-            .dashboard-card {
-                padding: 1rem;
+
+        footer p {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
-            .dashboard-card h2 {
-                font-size: 1.5rem;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
-            .dashboard-card p, .dashboard-card th, .dashboard-card td {
-                font-size: 0.875rem;
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
             }
-            .cta-button {
-                width: 100%;
-                margin: 0.5rem 0;
+            to {
+                opacity: 1;
+                transform: translateX(0);
             }
-            .table-section {
-                max-height: 200px;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
             }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Hover effects */
+        .hover-lift {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
             .sidebar {
-                width: 200px;
-            }
-            .nav-item, .profile-toggle, .nav-section h4 {
-                font-size: 0.875rem;
-                padding: 10px 15px;
-            }
-            .profile-details {
-                font-size: 0.75rem;
-            }
-            .cta-button {
-                margin: 10px 15px;
-            }
-            main {
-                margin-left: 0;
+                width: 230px;
             }
         }
-        @media (min-width: 641px) {
-            .dashboard-card {
-                padding: 2rem;
+
+        @media (max-width: 768px) {
+            .main-wrapper {
+                flex-direction: column;
             }
-            main {
-                margin-left: 250px;
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
-<body class="relative">
-<!-- Header Navigation -->
-<header class="flex justify-between items-center p-6 z-10 relative">
-    <div class="text-3xl font-bold font-['Bebas+Neue']">MelodyMart</div>
-    <nav class="flex space-x-6 items-center">
-        <a href="index.jsp" class="text-lg hover:text-blue-300">Home</a>
-        <a href="instruments.jsp" class="text-lg hover:text-blue-300">Instruments</a>
-        <a href="accessories.jsp" class="text-lg hover:text-blue-300">Accessories</a>
-        <a href="deals.jsp" class="text-lg hover:text-blue-300">Deals</a>
-        <a href="contact-us.jsp" class="text-lg hover:text-blue-300">Contact Us</a>
-        <button class="auth-button" id="signInBtn">Sign In</button>
-        <button class="auth-button" id="signUpBtn">Sign Up</button>
-    </nav>
-</header>
-
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-    <nav class="mt-16">
-        <div class="nav-section">
-            <h4>Main</h4>
-            <a href="#" class="nav-item block" onclick="showTab('dashboard')">Dashboard</a>
-        </div>
-        <div class="nav-section">
-            <h4>Management</h4>
-            <a href="#" class="nav-item block" onclick="showTab('users')">Users</a>
-            <a href="#" class="nav-item block" onclick="showTab('products')">Products</a>
-            <a href="#" class="nav-item block" onclick="showTab('orders')">Orders</a>
-            <a href="#" class="nav-item block" onclick="showTab('reviews')">Reviews</a>
-        </div>
-        <div class="nav-section">
-            <h4>Settings</h4>
-            <a href="#" class="nav-item block" onclick="showTab('settings')">Settings</a>
-        </div>
-    </nav>
-    <div class="profile-toggle" onclick="toggleProfile()">
-        <span>Admin Profile</span>
-    </div>
-    <div class="profile-details" id="profileDetails">
-        <p><strong>Name:</strong> <%= request.getSession().getAttribute("adminName") != null ? request.getSession().getAttribute("adminName") : "Admin User" %></p>
-        <p><strong>Email:</strong> <%= request.getSession().getAttribute("adminEmail") != null ? request.getSession().getAttribute("adminEmail") : "admin@melodymart.com" %></p>
-        <p><strong>Role:</strong> <%= request.getSession().getAttribute("adminRole") != null ? request.getSession().getAttribute("adminRole") : "Super Admin" %></p>
-    </div>
-    <button class="cta-button mt-4" onclick="logout()">Exit Nexus</button>
+<body>
+<!-- Floating elements for background -->
+<div class="floating-elements">
+    <div class="floating-element" style="top: 10%; left: 5%; animation-delay: 0s;">🎸</div>
+    <div class="floating-element" style="top: 20%; left: 90%; animation-delay: 2s;">🎹</div>
+    <div class="floating-element" style="top: 40%; left: 7%; animation-delay: 4s;">🎷</div>
+    <div class="floating-element" style="top: 70%; left: 85%; animation-delay: 1s;">🥁</div>
+    <div class="floating-element" style="top: 85%; left: 10%; animation-delay: 3s;">🎻</div>
+    <div class="floating-element" style="top: 30%; left: 80%; animation-delay: 5s;">🎺</div>
 </div>
 
-<!-- Main Content -->
-<main class="p-4 md:p-6 relative z-10 transition-margin duration-300">
-    <div class="max-w-6xl mx-auto">
-        <div class="dashboard-card p-4 md:p-6">
-            <!-- Tab Content -->
-            <div id="dashboard" class="tab-content active">
-                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Admin Nexus</h2>
-                <div class="mb-6">
-                    <p class="notification inline-block">2 New Orders Pending!</p>
-                </div>
-            </div>
-
-            <div id="users" class="tab-content">
-                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">User Management</h2>
-                <div class="table-section">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-800">
-                        <tr>
-                            <th class="p-3 border-b border-gray-600">ID</th>
-                            <th class="p-3 border-b border-gray-600">Name</th>
-                            <th class="p-3 border-b border-gray-600">Email</th>
-                            <th class="p-3 border-b border-gray-600">Role</th>
-                            <th class="p-3 border-b border-gray-600">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="hover:bg-gray-700 transition-colors">
-                            <td class="p-3 border-b border-gray-600">1</td>
-                            <td class="p-3 border-b border-gray-600">John Doe</td>
-                            <td class="p-3 border-b border-gray-600">john.doe@example.com</td>
-                            <td class="p-3 border-b border-gray-600">Customer</td>
-                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
-                        </tr>
-                        <tr class="hover:bg-gray-700 transition-colors">
-                            <td class="p-3 border-b border-gray-600">2</td>
-                            <td class="p-3 border-b border-gray-600">Jane Smith</td>
-                            <td class="p-3 border-b border-gray-600">jane.smith@example.com</td>
-                            <td class="p-3 border-b border-gray-600">Admin</td>
-                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <button class="cta-button mt-4">Add New User</button>
-            </div>
-
-            <div id="products" class="tab-content">
-                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Product Management</h2>
-                <div class="table-section">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-800">
-                        <tr>
-                            <th class="p-3 border-b border-gray-600">ID</th>
-                            <th class="p-3 border-b border-gray-600">Name</th>
-                            <th class="p-3 border-b border-gray-600">Price</th>
-                            <th class="p-3 border-b border-gray-600">Category</th>
-                            <th class="p-3 border-b border-gray-600">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="hover:bg-gray-700 transition-colors">
-                            <td class="p-3 border-b border-gray-600">1</td>
-                            <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
-                            <td class="p-3 border-b border-gray-600">$299.99</td>
-                            <td class="p-3 border-b border-gray-600">Instruments</td>
-                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
-                        </tr>
-                        <tr class="hover:bg-gray-700 transition-colors">
-                            <td class="p-3 border-b border-gray-600">2</td>
-                            <td class="p-3 border-b border-gray-600">Guitar Strings</td>
-                            <td class="p-3 border-b border-gray-600">$9.99</td>
-                            <td class="p-3 border-b border-gray-600">Accessories</td>
-                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Edit</button></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <button class="cta-button mt-4">Add New Product</button>
-            </div>
-
-            <div id="orders" class="tab-content">
-                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Order Management</h2>
-                <div class="table-section">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-800">
-                        <tr>
-                            <th class="p-3 border-b border-gray-600">Order ID</th>
-                            <th class="p-3 border-b border-gray-600">User</th>
-                            <th class="p-3 border-b border-gray-600">Item</th>
-                            <th class="p-3 border-b border-gray-600">Status</th>
-                            <th class="p-3 border-b border-gray-600">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="hover:bg-gray-700 transition-colors">
-                            <td class="p-3 border-b border-gray-600">1234</td>
-                            <td class="p-3 border-b border-gray-600">John Doe</td>
-                            <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
-                            <td class="p-3 border-b border-gray-600">Delivered</td>
-                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Update</button></td>
-                        </tr>
-                        <tr class="hover:bg-gray-700 transition-colors">
-                            <td class="p-3 border-b border-gray-600">1235</td>
-                            <td class="p-3 border-b border-gray-600">Jane Smith</td>
-                            <td class="p-3 border-b border-gray-600">Drum Sticks</td>
-                            <td class="p-3 border-b border-gray-600">Shipped</td>
-                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Update</button></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <button class="cta-button mt-4">View All Orders</button>
-            </div>
-
-            <div id="reviews" class="tab-content">
-                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Review Management</h2>
-                <div class="table-section">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-800">
-                        <tr>
-                            <th class="p-3 border-b border-gray-600">ID</th>
-                            <th class="p-3 border-b border-gray-600">User</th>
-                            <th class="p-3 border-b border-gray-600">Product</th>
-                            <th class="p-3 border-b border-gray-600">Rating</th>
-                            <th class="p-3 border-b border-gray-600">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr class="hover:bg-gray-700 transition-colors">
-                            <td class="p-3 border-b border-gray-600">1</td>
-                            <td class="p-3 border-b border-gray-600">John Doe</td>
-                            <td class="p-3 border-b border-gray-600">Acoustic Guitar</td>
-                            <td class="p-3 border-b border-gray-600">4.5/5</td>
-                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Approve</button></td>
-                        </tr>
-                        <tr class="hover:bg-gray-700 transition-colors">
-                            <td class="p-3 border-b border-gray-600">2</td>
-                            <td class="p-3 border-b border-gray-600">Jane Smith</td>
-                            <td class="p-3 border-b border-gray-600">Guitar Strings</td>
-                            <td class="p-3 border-b border-gray-600">4.0/5</td>
-                            <td class="p-3 border-b border-gray-600"><button class="cta-button text-xs">Approve</button></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <button class="cta-button mt-4">View All Reviews</button>
-            </div>
-
-            <div id="settings" class="tab-content">
-                <h2 class="text-3xl md:text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Settings</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm md:text-base text-blue-300">Theme</label>
-                        <select class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:outline-none">
-                            <option>Dark</option>
-                            <option>Light</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm md:text-base text-blue-300">Notifications</label>
-                        <input type="checkbox" class="mr-2" checked> Enable Notifications
-                    </div>
-                </div>
-                <button class="cta-button mt-4">Save Settings</button>
-            </div>
-
-            <!-- Logout Button -->
-            <button class="bg-red-600 text-white px-6 py-3 rounded-full text-base font-semibold cta-button mt-6" onclick="logout()">Exit Nexus</button>
+<!-- Header/Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.jsp">
+            <i class="fas fa-music"></i>Melody Mart Admin
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"><i class="fas fa-bars"></i></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="index.jsp"><i class="fas fa-home"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
         </div>
     </div>
-</main>
+</nav>
 
+<div class="main-wrapper">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h4>Admin Dashboard</h4>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#user-management" class="active"><i class="fas fa-users"></i> User Management</a></li>
+            <li><a href="#stock-management"><i class="fas fa-boxes"></i> Stock Management</a></li>
+            <li><a href="#item-review"><i class="fas fa-flag"></i> Item Review Queue</a></li>
+            <li><a href="#reporting"><i class="fas fa-chart-bar"></i> Reporting Tools</a></li>
+            <li><a href="#policy-update"><i class="fas fa-file-alt"></i> Policy Update</a></li>
+            <li><a href="#admin-management"><i class="fas fa-user-shield"></i> Admin Management</a></li>
+            <li><a href="#feedback-management"><i class="fas fa-comments"></i> Feedback Management</a></li>
+            <li><a href="#monitoring"><i class="fas fa-desktop"></i> Monitoring Dashboard</a></li>
+            <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications & Alerts</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-header">
+            <h2>Admin Dashboard</h2>
+            <p>As of September 16, 2025, manage all aspects of the platform efficiently.</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-value">1,248</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+                <div class="stat-value">356</div>
+                <div class="stat-label">Orders Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-box-open"></i></div>
+                <div class="stat-value">5,892</div>
+                <div class="stat-label">Products in Stock</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-value">4.8/5</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+        </div>
+
+        <!-- User Management Section -->
+        <section id="user-management" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-users"></i> User Management Section</h3>
+                <div class="card-header-actions">
+                    <button class="btn btn-sm btn-primary"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Add New</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <p>Tools to manage users (e.g., view user lists, approve registrations, suspend accounts).</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1001</td>
+                            <td>John Doe</td>
+                            <td>Customer</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Suspend</button>
+                                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>1002</td>
+                            <td>Jane Smith</td>
+                            <td>Seller</td>
+                            <td><span class="badge bg-warning">Pending</span></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm"><i class="fas fa-check"></i> Approve</button>
+                                <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Reject</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>1003</td>
+                            <td>Robert Johnson</td>
+                            <td>Admin</td>
+                            <td><span class="badge bg-success">Active</span></td>
+                            <td>
+                                <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Suspend</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stock Management Tools -->
+        <section id="stock-management" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-boxes"></i> Stock Management Tools</h3>
+            </div>
+            <div class="card-body">
+                <p>Interfaces to view and manually update stock levels, coordinate availability, and handle overselling alerts.</p>
+                <form>
+                    <div class="form-group">
+                        <label for="instrumentId" class="form-label">Instrument ID</label>
+                        <input type="text" class="form-control" id="instrumentId" placeholder="Enter ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="stockQuantity" class="form-label">Update Stock Quantity</label>
+                        <input type="number" class="form-control" id="stockQuantity" placeholder="New Quantity">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-sync"></i> Update Stock</button>
+                </form>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-triangle"></i> Alert: Item ID 123 is low on stock!
+                </div>
+            </div>
+        </section>
+
+        <!-- Item Review Queue -->
+        <section id="item-review" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-flag"></i> Item Review Queue</h3>
+            </div>
+            <div class="card-body">
+                <p>A list of flagged instruments for review (e.g., those violating guidelines).</p>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <div>
+                            <strong>Guitar XYZ</strong>
+                            <div class="text-muted">Flagged for: Guideline Violation</div>
+                        </div>
+                        <button class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Review</button>
+                    </li>
+                    <li class="list-group-item">
+                        <div>
+                            <strong>Drum Set Pro</strong>
+                            <div class="text-muted">Flagged for: Suspected Counterfeit</div>
+                        </div>
+                        <button class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Review</button>
+                    </li>
+                    <li class="list-group-item">
+                        <div>
+                            <strong>Microphone Studio</strong>
+                            <div class="text-muted">Flagged for: Inaccurate Description</div>
+                        </div>
+                        <button class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Review</button>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Reporting Tools -->
+        <section id="reporting" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-chart-bar"></i> Reporting Tools</h3>
+            </div>
+            <div class="card-body">
+                <p>Options to generate system reports on site activity, sales, or user metrics.</p>
+                <div class="form-group">
+                    <select class="form-control">
+                        <option>Select Report Type</option>
+                        <option>Sales Report</option>
+                        <option>User Activity</option>
+                        <option>System Performance</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary"><i class="fas fa-file-export"></i> Generate Report</button>
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Policy Update Interface -->
+        <section id="policy-update" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-file-alt"></i> Policy Update Interface</h3>
+            </div>
+            <div class="card-body">
+                <p>Forms or editors to update platform policies.</p>
+                <div class="form-group">
+                    <textarea class="form-control" rows="5" placeholder="Update Policy Text Here"></textarea>
+                </div>
+                <button class="btn btn-primary"><i class="fas fa-save"></i> Save Policy</button>
+            </div>
+        </section>
+
+        <!-- Admin Management -->
+        <section id="admin-management" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-shield"></i> Admin Management</h3>
+            </div>
+            <div class="card-body">
+                <p>Section to add or remove other admins.</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Admin ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>001</td>
+                            <td>Admin User</td>
+                            <td>admin@melodymart.com</td>
+                            <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remove</button></td>
+                        </tr>
+                        <tr>
+                            <td>002</td>
+                            <td>Site Manager</td>
+                            <td>manager@melodymart.com</td>
+                            <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remove</button></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-success mt-3"><i class="fas fa-plus"></i> Add New Admin</button>
+            </div>
+        </section>
+
+        <!-- Feedback Management -->
+        <section id="feedback-management" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-comments"></i> Feedback Management</h3>
+            </div>
+            <div class="card-body">
+                <p>Area to view, delete, or manage user feedbacks and ratings.</p>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <div>
+                            <strong>Great service!</strong>
+                            <div class="text-muted">Rating: 5/5 • Posted by: John D.</div>
+                        </div>
+                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                    </li>
+                    <li class="list-group-item">
+                        <div>
+                            <strong>Product arrived damaged</strong>
+                            <div class="text-muted">Rating: 2/5 • Posted by: Sarah M.</div>
+                        </div>
+                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                    </li>
+                    <li class="list-group-item">
+                        <div>
+                            <strong>Fast shipping, great quality</strong>
+                            <div class="text-muted">Rating: 5/5 • Posted by: Mike R.</div>
+                        </div>
+                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Monitoring Dashboard -->
+        <section id="monitoring" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-desktop"></i> Monitoring Dashboard</h3>
+            </div>
+            <div class="card-body">
+                <p>Real-time or historical views of site activity, such as user logins, orders, or errors.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
+                        <div class="stat-value">152</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                        <div class="stat-value">47</div>
+                        <div class="stat-label">Orders Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-bug"></i></div>
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">System Errors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-server"></i></div>
+                        <div class="stat-value">99.8%</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notifications and Alerts -->
+        <section id="notifications" class="section-card">
+            <div class="card-header">
+                <h3><i class="fas fa-bell"></i> Notifications & Alerts</h3>
+            </div>
+            <div class="card-body">
+                <p>Inbox for system-generated alerts (e.g., flagged items or stock issues).</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> New item flagged for review: Electric Guitar Pro X
+                </div>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> Stock low on Premium Guitar - only 2 left in inventory
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Unusual login activity detected from new location
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <p>© 2025 Melody Mart. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Toggle Sidebar
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('collapsed');
-    }
-
-    // Toggle Profile Details
-    function toggleProfile() {
-        const profileDetails = document.getElementById('profileDetails');
-        profileDetails.style.display = profileDetails.style.display === 'block' ? 'none' : 'block';
-    }
-
-    // Logout Function
-    function logout() {
-        if(confirm('Are you sure you want to logout?')) {
-            window.location.href = 'LogoutServlet'; // Replace with your logout servlet URL
-        }
-    }
-
-    // Highlight active page and show corresponding tab
-    function showTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.getElementById(tabId).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('onclick').includes(tabId)) {
-                item.classList.add('active');
+    // Initialize charts
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sales Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                datasets: [{
+                    label: 'Sales ($)',
+                    data: [12500, 19000, 18000, 22000, 21000, 25000, 28000, 30000, 32000],
+                    borderColor: '#8a2be2',
+                    backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#b3b3b3'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#b3b3b3'
+                        }
+                    }
+                }
             }
         });
-    }
 
-    // Display current date/time
-    const dateTime = new Date().toLocaleString('en-US', {
-        timeZone: 'Asia/Colombo',
-        hour12: true,
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZoneName: 'short',
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    document.body.innerHTML += `<p class="text-center mt-4 text-sm md:text-base text-gray-400">${dateTime}</p>`;
+        // Activity Chart
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'User Activity',
+                    data: [120, 190, 140, 180, 160, 140, 180],
+                    backgroundColor: 'rgba(0, 229, 255, 0.5)',
+                    borderColor: '#00e5ff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#b3b3b3'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#b3b3b3'
+                        }
+                    }
+                }
+            }
+        });
 
-    // Adjust main content margin based on window size
-    window.addEventListener('resize', () => {
-        const width = window.innerWidth;
-        document.querySelector('main').style.marginLeft = width > 640 ? '250px' : '0';
-        const sidebar = document.getElementById('sidebar');
-        if (width <= 640) sidebar.classList.add('collapsed');
-        else sidebar.classList.remove('collapsed');
+        // Simple script to handle sidebar navigation
+        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                document.querySelectorAll('.sidebar-menu a').forEach(item => {
+                    item.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                e.preventDefault();
+            });
+        });
+
+        // Add hover effects to cards
+        document.querySelectorAll('.stat-card, .section-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+                this.style.boxShadow = '0 10px 20px rgba(138, 43, 226, 0.2)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Animate elements on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.stat-card, .section-card').forEach(card => {
+            card.style.opacity = 0;
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
     });
-    // Initial check
-    if (window.innerWidth <= 640) {
-        document.getElementById('sidebar').classList.add('collapsed');
-    }
 </script>
 </body>
 </html>
