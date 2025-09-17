@@ -1093,11 +1093,11 @@
 
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
-            <li><a href="#">Shop</a></li>
-            <li><a href="#">Categories</a></li>
-            <li><a href="#">Brands</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="shop.jsp">Shop</a></li>
+            <li><a href="categories.jsp">Categories</a></li>
+            <li><a href="brands.jsp">Brands</a></li>
+            <li><a href="about.jsp">About</a></li>
+            <li><a href="content.jsp">Contact</a></li>
         </ul>
 
         <div class="nav-actions">

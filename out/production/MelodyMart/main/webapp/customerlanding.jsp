@@ -44,8 +44,8 @@
             padding: 0 20px;
         }
 
-        /* Header & Navigation */
-        header {
+        /* Enhanced Navbar Styles */
+        .navbar {
             position: fixed;
             top: 0;
             left: 0;
@@ -53,22 +53,17 @@
             z-index: 1000;
             padding: 20px 0;
             transition: all 0.4s ease;
+            background: transparent;
         }
 
-        header.scrolled {
+        .navbar.scrolled {
             background: rgba(10, 10, 10, 0.95);
             padding: 15px 0;
             backdrop-filter: blur(10px);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
         }
 
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
+        .navbar-brand {
             font-family: 'Playfair Display', serif;
             font-size: 28px;
             font-weight: 800;
@@ -79,29 +74,25 @@
             align-items: center;
         }
 
-        .logo i {
+        .navbar-brand i {
             margin-right: 10px;
             font-size: 32px;
         }
 
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-
-        .nav-links li {
-            margin: 0 15px;
-        }
-
-        .nav-links a {
+        .navbar-nav .nav-link {
             color: var(--text);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
             position: relative;
+            padding: 0.5rem 1rem;
         }
 
-        .nav-links a:after {
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        .navbar-nav .nav-link:after {
             content: '';
             position: absolute;
             bottom: -5px;
@@ -112,236 +103,30 @@
             transition: width 0.3s ease;
         }
 
-        .nav-links a:hover {
-            color: var(--primary-light);
-        }
-
-        .nav-links a:hover:after {
+        .navbar-nav .nav-link:hover:after {
             width: 100%;
         }
 
-        .nav-actions {
-            display: flex;
-            align-items: center;
+        .d-flex {
+            gap: 10px;
         }
 
-        .search-btn, .cart-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            margin-left: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .search-btn:hover, .cart-btn:hover {
-            color: var(--primary-light);
-        }
-
-        .cta-btn {
-            background: var(--gradient);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 20px;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .cta-btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 100%;
-            background: var(--gradient-alt);
-            transition: all 0.4s ease;
-            z-index: -1;
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
-        }
-
-        .cta-btn:hover:before {
-            width: 100%;
-        }
-
-        /* User Dropdown */
-        .user-menu {
-            position: relative;
-            margin-left: 20px;
-        }
-
-        .user-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .user-btn:hover {
-            color: var(--primary-light);
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            width: 150px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
-            z-index: 1000;
-        }
-
-        .user-menu:hover .dropdown {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-item {
-            display: block;
-            padding: 10px 15px;
-            color: var(--text);
-            text-decoration: none;
-            font-size: 14px;
-            transition: background 0.3s ease, color 0.3s ease;
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover {
-            background: var(--card-hover);
-            color: var(--primary-light);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 400px;
-            width: 90%;
-            position: relative;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .modal.active .modal-content {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .modal-close:hover {
-            color: var(--primary-light);
-        }
-
-        .modal h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            margin-bottom: 20px;
-            text-align: center;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .modal form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .modal input {
-            padding: 12px;
-            border: 1px solid var(--glass-border);
+        .form-control {
             background: var(--secondary);
             color: var(--text);
+            border: 1px solid var(--glass-border);
             border-radius: 5px;
-            font-size: 14px;
         }
 
-        .modal input:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
+        .btn-outline-primary {
+            color: var(--text);
+            border-color: var(--glass-border);
+            background: transparent;
         }
 
-        .modal button[type="submit"] {
-            background: var(--gradient);
-            padding: 12px;
-            border: none;
-            border-radius: 30px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .modal button[type="submit"]:hover {
-            background: var(--gradient-alt);
-            transform: translateY(-2px);
-        }
-
-        .modal .switch-form {
-            text-align: center;
-            margin-top: 15px;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .modal .switch-form a {
+        .btn-outline-primary:hover {
             color: var(--primary-light);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .modal .switch-form a:hover {
-            color: var(--accent);
+            border-color: var(--primary-light);
         }
 
         /* Hero Section with Slideshow */
@@ -1001,7 +786,7 @@
         }
 
         @media (max-width: 768px) {
-            .nav-links {
+            .navbar-nav {
                 display: none;
             }
 
@@ -1040,23 +825,6 @@
             .locations {
                 flex-direction: column;
             }
-
-            .user-menu:hover .dropdown {
-                display: none;
-            }
-
-            .user-btn {
-                font-size: 16px;
-            }
-
-            .dropdown {
-                width: 120px;
-                right: -10px;
-            }
-
-            .modal-content {
-                padding: 20px;
-            }
         }
 
         @media (max-width: 576px) {
@@ -1068,52 +836,48 @@
                 font-size: 16px;
             }
 
-            .cta-btn {
-                padding: 10px 20px;
-            }
-
             .section-title {
                 font-size: 28px;
-            }
-
-            .modal-content {
-                width: 95%;
             }
         }
     </style>
 </head>
 <body>
-<!-- Header & Navigation -->
-<header>
-    <div class="container nav-container">
-        <div class="logo">
-            <i class="fas fa-music"></i>
-            Melody Mart
-        </div>
-
-        <ul class="nav-links">
-            <li><a href="#">Home</a></li>
-            <li><a href="shop.jsp">Shop</a></li>
-            <li><a href="categories.jsp">Categories</a></li>
-            <li><a href="brands.jsp">Brands</a></li>
-            <li><a href="about.jsp">About</a></li>
-            <li><a href="content.jsp">Contact</a></li>
-        </ul>
-
-        <div class="nav-actions">
-            <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
-            <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
-            <div class="user-menu">
-                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
-                <div class="dropdown">
-                    <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
-                    <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
-                </div>
-            </div>
-            <button class="cta-btn">Shop Now</button>
+<!-- Enhanced Header/Navbar inspired by index.jsp -->
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="index.jsp">Melody Mart Customer 🎵</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <form class="d-flex ms-auto me-3">
+                <input class="form-control me-2" type="search" placeholder="Search instruments..." aria-label="Search">
+                <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <%
+                        String customerName = (String) session.getAttribute("customerName");
+                        if (customerName != null) {
+                    %>
+                    <a class="nav-link" href="#">Welcome, <%= customerName %>!</a>
+                    <% } else { %>
+                    <a class="nav-link" href="login.jsp"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <% } %>
+                </li>
+                <li class="nav-item">
+                    <%
+                        if (customerName != null) {
+                    %>
+                    <a class="nav-link" href="LogoutServlet"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    <% } %>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#" id="darkModeToggle"><i class="fas fa-moon"></i> Dark Mode</a></li>
+            </ul>
         </div>
     </div>
-</header>
+</nav>
 
 <!-- Sign In Modal -->
 <div class="modal" id="signInModal">
@@ -1130,9 +894,6 @@
         </form>
     </div>
 </div>
-
-
-
 
 <!-- Sign Up Modal -->
 <div class="modal" id="signUpModal">
@@ -1543,11 +1304,11 @@
 <script>
     // Header scroll effect
     window.addEventListener('scroll', function() {
-        const header = document.querySelector('header');
+        const navbar = document.querySelector('.navbar');
         if (window.scrollY > 50) {
-            header.classList.add('scrolled');
+            navbar.classList.add('scrolled');
         } else {
-            header.classList.remove('scrolled');
+            navbar.classList.remove('scrolled');
         }
     });
 
@@ -1555,13 +1316,13 @@
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
         modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('active'), 10); // Allow animation
+        setTimeout(() => modal.classList.add('active'), 10);
     }
 
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
         modal.classList.remove('active');
-        setTimeout(() => modal.style.display = 'none', 300); // Match animation duration
+        setTimeout(() => modal.style.display = 'none', 300);
     }
 
     function switchModal(modalId) {
@@ -1572,7 +1333,6 @@
         openModal(modalId);
     }
 
-    // Close modal on clicking outside
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -1581,14 +1341,12 @@
         });
     });
 
-    // Close modal on clicking close button
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', () => {
             closeModal(btn.closest('.modal').id);
         });
     });
 
-    // Form submission (placeholder)
     document.getElementById('signInForm').addEventListener('submit', (e) => {
         e.preventDefault();
         alert('Sign In submitted! (Placeholder)');
