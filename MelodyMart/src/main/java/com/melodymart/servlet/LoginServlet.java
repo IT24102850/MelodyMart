@@ -63,7 +63,7 @@ public class LoginServlet extends HttpServlet {
                         String redirectUrl;
                         switch (role.toLowerCase()) {
                             case "customer":
-                                redirectUrl = "customerdashboard.jsp";
+                                redirectUrl = "customerlanding.jsp";
                                 break;
                             case "seller":
                                 redirectUrl = "sellerdashboard.jsp";

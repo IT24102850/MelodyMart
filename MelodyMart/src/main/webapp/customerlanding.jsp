@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1090,6 +1094,45 @@
             <i class="fas fa-music"></i>
             Melody Mart
         </div>
+
+
+
+        <!-- Check if user is logged in -->
+        <%
+            // Simulate a logged-in user (in a real application, this would come from session)
+            String customerName = (String) session.getAttribute("customerName");
+            if (customerName != null) {
+        %>
+        <!-- Display welcome message and user dropdown -->
+        <div class="user-welcome">
+            <i class="fas fa-user-circle"></i>
+            <span>Welcome, <%= customerName %></span>
+        </div>
+
+        <%
+        } else {
+        %>
+   
+        <%
+            }
+        %>
+
+        <!-- Mobile view user welcome (hidden on desktop) -->
+        <%
+            if (customerName != null) {
+        %>
+        <div class="user-welcome mobile" style="display: none;">
+            <i class="fas fa-user-circle"></i>
+            <span>Welcome, <%= customerName %></span>
+        </div>
+        <%
+            }
+        %>
+
+
+
+
+
 
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
