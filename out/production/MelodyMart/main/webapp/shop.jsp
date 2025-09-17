@@ -419,6 +419,16 @@
             overflow: hidden;
         }
 
+        .product-title a {
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .product-title a:hover {
+            color: var(--primary-light);
+        }
+
         .product-rating {
             display: flex;
             align-items: center;
@@ -770,12 +780,16 @@
                 <div class="product-card">
                     <div class="product-badge">Popular</div>
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Fender Stratocaster">
+                        <a href="product.jsp?id=1">
+                            <img src="https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Fender Stratocaster">
+                        </a>
                         <button class="quick-view">Quick View</button>
                     </div>
                     <div class="product-info">
                         <div class="product-category">Guitars</div>
-                        <h3 class="product-title">Fender American Professional II Stratocaster</h3>
+                        <h3 class="product-title">
+                            <a href="product.jsp?id=1">Fender American Professional II Stratocaster</a>
+                        </h3>
                         <div class="product-rating">
                             <div class="stars">★★★★★</div>
                             <div class="rating-count">(128)</div>
@@ -798,12 +812,16 @@
                 <!-- Product 2 -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1507748632472-2f976b7730e4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Yamaha Piano">
+                        <a href="product.jsp?id=2">
+                            <img src="https://images.unsplash.com/photo-1507748632472-2f976b7730e4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=774&q=80" alt="Yamaha Piano">
+                        </a>
                         <button class="quick-view">Quick View</button>
                     </div>
                     <div class="product-info">
                         <div class="product-category">Pianos</div>
-                        <h3 class="product-title">Yamaha P-125 Digital Piano</h3>
+                        <h3 class="product-title">
+                            <a href="product.jsp?id=2">Yamaha P-125 Digital Piano</a>
+                        </h3>
                         <div class="product-rating">
                             <div class="stars">★★★★☆</div>
                             <div class="rating-count">(96)</div>
@@ -826,12 +844,16 @@
                 <div class="product-card">
                     <div class="product-badge">Sale</div>
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Drum Set">
+                        <a href="product.jsp?id=3">
+                            <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Drum Set">
+                        </a>
                         <button class="quick-view">Quick View</button>
                     </div>
                     <div class="product-info">
                         <div class="product-category">Drums</div>
-                        <h3 class="product-title">Pearl Export Series Drum Set</h3>
+                        <h3 class="product-title">
+                            <a href="product.jsp?id=3">Pearl Export Series Drum Set</a>
+                        </h3>
                         <div class="product-rating">
                             <div class="stars">★★★★★</div>
                             <div class="rating-count">(74)</div>
@@ -854,12 +876,16 @@
                 <!-- Product 4 -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1599407950360-5fd3c0fe2a31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Saxophone">
+                        <a href="product.jsp?id=4">
+                            <img src="https://images.unsplash.com/photo-1599407950360-5fd3c0fe2a31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Saxophone">
+                        </a>
                         <button class="quick-view">Quick View</button>
                     </div>
                     <div class="product-info">
                         <div class="product-category">Woodwind</div>
-                        <h3 class="product-title">Yamaha YAS-280 Alto Saxophone</h3>
+                        <h3 class="product-title">
+                            <a href="product.jsp?id=4">Yamaha YAS-280 Alto Saxophone</a>
+                        </h3>
                         <div class="product-rating">
                             <div class="stars">★★★★☆</div>
                             <div class="rating-count">(52)</div>
@@ -882,12 +908,16 @@
                 <div class="product-card">
                     <div class="product-badge">New</div>
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1605020420620-44c155a96725?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Violin">
+                        <a href="product.jsp?id=5">
+                            <img src="https://images.unsplash.com/photo-1605020420620-44c155a96725?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Violin">
+                        </a>
                         <button class="quick-view">Quick View</button>
                     </div>
                     <div class="product-info">
                         <div class="product-category">Strings</div>
-                        <h3 class="product-title">Stentor Student II Violin Outfit</h3>
+                        <h3 class="product-title">
+                            <a href="product.jsp?id=5">Stentor Student II Violin Outfit</a>
+                        </h3>
                         <div class="product-rating">
                             <div class="stars">★★★★☆</div>
                             <div class="rating-count">(38)</div>
@@ -909,12 +939,16 @@
                 <!-- Product 6 -->
                 <div class="product-card">
                     <div class="product-image">
-                        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Microphone">
+                        <a href="product.jsp?id=6">
+                            <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=870&q=80" alt="Microphone">
+                        </a>
                         <button class="quick-view">Quick View</button>
                     </div>
                     <div class="product-info">
                         <div class="product-category">Accessories</div>
-                        <h3 class="product-title">Shure SM58 Dynamic Vocal Microphone</h3>
+                        <h3 class="product-title">
+                            <a href="product.jsp?id=6">Shure SM58 Dynamic Vocal Microphone</a>
+                        </h3>
                         <div class="product-rating">
                             <div class="stars">★★★★★</div>
                             <div class="rating-count">(214)</div>

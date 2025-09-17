@@ -1,4 +1,4 @@
-package main.java.com.melodymart.servlet;
+ package main.java.com.melodymart.servlet;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -6,14 +6,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import org.mindrot.jbcrypt.BCrypt;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import main.java.com.melodymart.util.DBConnection;
 
-@WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -23,16 +21,24 @@ public class LoginServlet extends HttpServlet {
     }
 
     @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        System.out.println("Redirecting GET request to sign-in.jsp");
+        response.sendRedirect("sign-in.jsp");
+    }
+
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("Received POST request for /login with email: " + request.getParameter("email"));
+        System.out.println("Servlet reached for /login");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        // Validate input
         if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
             System.out.println("Validation failed: Email or password missing");
-            response.sendRedirect("sign-in.jsp?error=Email and password are required");
+            String redirectUrl = "sign-in.jsp?error=Email and password are required";
+            System.out.println("Redirecting to: " + redirectUrl);
+            response.sendRedirect(redirectUrl);
             return;
         }
 
@@ -54,33 +60,42 @@ public class LoginServlet extends HttpServlet {
                         session.setAttribute("userRole", role);
                         System.out.println("Login successful for " + email + " with role: " + role);
 
-                        // Role-based redirection
+                        String redirectUrl;
                         switch (role.toLowerCase()) {
                             case "customer":
-                                response.sendRedirect("customerdashboard.jsp");
+                                redirectUrl = "customerdashboard.jsp";
                                 break;
                             case "seller":
-                                response.sendRedirect("sellerdashboard.jsp");
+                                redirectUrl = "sellerdashboard.jsp";
                                 break;
                             case "manufacturer":
-                                response.sendRedirect("manufacturedashboard.jsp");
+                                redirectUrl = "manufacturedashboard.jsp";
                                 break;
                             default:
                                 System.out.println("Unknown role: " + role);
-                                response.sendRedirect("sign-in.jsp?error=Unknown role");
+                                redirectUrl = "sign-in.jsp?error=Unknown role";
+                                break;
                         }
+                        System.out.println("Redirecting to: " + redirectUrl);
+                        response.sendRedirect(redirectUrl);
                     } else {
                         System.out.println("Invalid credentials for email: " + email);
-                        response.sendRedirect("sign-in.jsp?error=Invalid credentials");
+                        String redirectUrl = "sign-in.jsp?error=Invalid credentials";
+                        System.out.println("Redirecting to: " + redirectUrl);
+                        response.sendRedirect(redirectUrl);
                     }
                 } else {
                     System.out.println("No user found for email: " + email);
-                    response.sendRedirect("sign-in.jsp?error=Invalid credentials");
+                    String redirectUrl = "sign-in.jsp?error=Invalid credentials";
+                    System.out.println("Redirecting to: " + redirectUrl);
+                    response.sendRedirect(redirectUrl);
                 }
             }
         } catch (Exception e) {
             System.err.println("Login error: " + e.getMessage());
-            response.sendRedirect("sign-in.jsp?error=Login failed. Please try again.");
+            String redirectUrl = "sign-in.jsp?error=Login failed. Please try again.";
+            System.out.println("Redirecting to: " + redirectUrl);
+            response.sendRedirect(redirectUrl);
         }
     }
 }
