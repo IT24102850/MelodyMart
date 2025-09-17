@@ -108,5 +108,8 @@
     <orderEntry type="library" name="mssql-jdbc-13.2.0.jre8" level="project" />
     <orderEntry type="library" name="mssql-jdbc-12.10.1.jre12" level="project" />
     <orderEntry type="library" name="jars" level="project" />
+    <orderEntry type="library" name="mssql-jdbc-13.2.0.jre9" level="project" />
+    <orderEntry type="library" name="mssql-jdbc-13.2.0.jre8-sources" level="project" />
+    <orderEntry type="library" name="javax.servlet-api-4.0.2" level="project" />
   </component>
 </module>

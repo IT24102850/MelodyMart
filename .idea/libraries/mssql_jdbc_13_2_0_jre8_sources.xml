@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="mssql-jdbc-13.2.0.jre8-sources">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/Downloads/jars/mssql-jdbc-13.2.0.jre8.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jars/mssql-jdbc-13.2.0.jre11.jar!/" />
+      <root url="file://$PROJECT_DIR$" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/Downloads/jars/mssql-jdbc-13.2.0.jre8-sources.jar!/" />
+      <root url="jar://$USER_HOME$/Downloads/jars/mssql-jdbc-13.2.0.jre11-sources.jar!/" />
+      <root url="file://$PROJECT_DIR$/MelodyMart/src" />
+      <root url="file://$PROJECT_DIR$/work/Catalina/localhost/student-registration" />
+      <root url="file://$PROJECT_DIR$" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$" recursive="false" type="SOURCES" />
+  </library>
+</component>

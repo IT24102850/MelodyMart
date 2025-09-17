@@ -15,6 +15,12 @@
     <tomcat.version>9.0.108</tomcat.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- Updated dependency versions -->
+    <jackson.version>2.17.1</jackson.version>
+    <mssql.jdbc.version>12.8.1.jre11</mssql.jdbc.version>
+    <slf4j.version>2.0.13</slf4j.version>
+    <logback.version>1.5.6</logback.version>
+    <junit.version>4.13.2</junit.version>
   </properties>
 
   <dependencies>
@@ -41,18 +47,28 @@
       <version>1.2</version>
     </dependency>
 
-    <!-- Jackson Databind -->
+    <!-- Jackson for JSON processing -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.17.1</version>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <!-- SQL Server JDBC Driver -->
     <dependency>
       <groupId>com.microsoft.sqlserver</groupId>
       <artifactId>mssql-jdbc</artifactId>
-      <version>12.8.1.jre11</version>
+      <version>${mssql.jdbc.version}</version>
     </dependency>
 
     <!-- BCrypt for password hashing -->
@@ -73,19 +89,19 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>2.0.9</version>
+      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.14</version>
+      <version>${logback.version}</version>
     </dependency>
 
-    <!-- JUnit for testing (optional) -->
+    <!-- JUnit for testing -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.13.2</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -94,6 +110,13 @@
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
       <version>1.7</version>
+    </dependency>
+
+    <!-- Apache Commons IO for file operations -->
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.16.1</version>
     </dependency>
   </dependencies>
 
@@ -104,11 +127,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.12.1</version>
+        <version>3.13.0</version>
         <configuration>
           <source>11</source>
           <target>11</target>
           <encoding>UTF-8</encoding>
+          <compilerArgs>
+            <arg>-parameters</arg> <!-- Useful for getting parameter names in servlets -->
+          </compilerArgs>
         </configuration>
       </plugin>
 
@@ -120,6 +146,19 @@
         <configuration>
           <warSourceDirectory>src/main/webapp</warSourceDirectory>
           <failOnMissingWebXml>false</failOnMissingWebXml>
+          <webResources>
+            <resource>
+              <directory>src/main/webapp</directory>
+              <includes>
+                <include>**/*.html</include>
+                <include>**/*.jsp</include>
+                <include>**/*.css</include>
+                <include>**/*.js</include>
+                <include>**/*.png</include>
+                <include>**/*.jpg</include>
+              </includes>
+            </resource>
+          </webResources>
         </configuration>
       </plugin>
 
@@ -143,6 +182,11 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.5</version>
+        <configuration>
+          <includes>
+            <include>**/*Test.java</include>
+          </includes>
+        </configuration>
       </plugin>
 
       <!-- Resources plugin -->
