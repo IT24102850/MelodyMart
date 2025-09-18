@@ -2,21 +2,21 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.sql.*, org.mindrot.jbcrypt.BCrypt, java.sql.DriverManager, java.sql.Connection, java.sql.PreparedStatement, java.sql.SQLException, java.util.Date" %>
 <%
-    // Handle form submission (unchanged from original)
     if ("POST".equalsIgnoreCase(request.getMethod())) {
-        String fullName = request.getParameter("fullName");
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String role = request.getParameter("role");
+        String phone = request.getParameter("phone");
+        String street = request.getParameter("street");
+        String city = request.getParameter("city");
+        String state = request.getParameter("state");
+        String zipCode = request.getParameter("zipCode");
         String country = request.getParameter("country");
+        String role = request.getParameter("role");
 
-        System.out.println("=== Registration Attempt ===");
-        System.out.println("Full Name: " + fullName);
-        System.out.println("Email: " + email);
-        System.out.println("Role: " + role);
-        System.out.println("Country: " + country);
-
-        if (fullName == null || fullName.trim().isEmpty() ||
+        if (firstName == null || firstName.trim().isEmpty() ||
+                lastName == null || lastName.trim().isEmpty() ||
                 email == null || email.trim().isEmpty() ||
                 password == null || password.length() < 8 ||
                 role == null || role.trim().isEmpty() ||
@@ -26,8 +26,7 @@
             try {
                 Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             } catch (ClassNotFoundException e) {
-                System.err.println("JDBC Driver not found: " + e.getMessage());
-                request.setAttribute("errorMessage", "Database driver not found. Please check if mssql-jdbc jar is in classpath.");
+                request.setAttribute("errorMessage", "JDBC Driver not found.");
                 return;
             }
 
@@ -37,60 +36,65 @@
 
             Connection conn = null;
             PreparedStatement stmt = null;
-
             try {
                 conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-                String sql = "INSERT INTO Users (name, email, password, role, country, created_at) VALUES (?, ?, ?, ?, ?, ?)";
-                stmt = conn.prepareStatement(sql);
+                conn.setAutoCommit(false);
 
+                String personSql = "INSERT INTO Person (FirstName, LastName, Email, Phone, Password, Street, City, State, ZipCode, Country, RegistrationDate, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?)";
+                stmt = conn.prepareStatement(personSql, Statement.RETURN_GENERATED_KEYS);
                 String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-                stmt.setString(1, fullName.trim());
-                stmt.setString(2, email.trim().toLowerCase());
-                stmt.setString(3, hashedPassword);
-                stmt.setString(4, role);
-                stmt.setString(5, country);
-                stmt.setTimestamp(6, new java.sql.Timestamp(new Date().getTime()));
+                stmt.setString(1, firstName.trim());
+                stmt.setString(2, lastName.trim());
+                stmt.setString(3, email.trim().toLowerCase());
+                stmt.setString(4, phone);
+                stmt.setString(5, hashedPassword);
+                stmt.setString(6, street);
+                stmt.setString(7, city);
+                stmt.setString(8, state);
+                stmt.setString(9, zipCode);
+                stmt.setString(10, country);
+                stmt.setString(11, role.toLowerCase());
 
                 int rowsAffected = stmt.executeUpdate();
                 if (rowsAffected > 0) {
+                    ResultSet rs = stmt.getGeneratedKeys();
+                    int personId = 0;
+                    if (rs.next()) personId = rs.getInt(1);
+                    rs.close();
+
+                    if ("customer".equalsIgnoreCase(role)) {
+                        PreparedStatement customerStmt = conn.prepareStatement("INSERT INTO Customer (CustomerID, PersonID) VALUES (?, ?)");
+                        customerStmt.setInt(1, personId);
+                        customerStmt.setInt(2, personId);
+                        customerStmt.executeUpdate();
+                        customerStmt.close();
+                    } else if ("seller".equalsIgnoreCase(role)) {
+                        PreparedStatement sellerStmt = conn.prepareStatement("INSERT INTO Seller (SellerID, PersonID) VALUES (?, ?)");
+                        sellerStmt.setInt(1, personId);
+                        sellerStmt.setInt(2, personId);
+                        sellerStmt.executeUpdate();
+                        sellerStmt.close();
+                    } else if ("admin".equalsIgnoreCase(role)) {
+                        PreparedStatement adminStmt = conn.prepareStatement("INSERT INTO Admin (AdminID, PersonID) VALUES (?, ?)");
+                        adminStmt.setInt(1, personId);
+                        adminStmt.setInt(2, personId);
+                        adminStmt.executeUpdate();
+                        adminStmt.close();
+                    }
+
+                    conn.commit();
                     session.setAttribute("userEmail", email.trim().toLowerCase());
-                    session.setAttribute("userRole", role);
-                    session.setAttribute("userFullName", fullName.trim());
-                    session.setMaxInactiveInterval(30 * 60);
+                    session.setAttribute("userRole", role.toLowerCase());
+                    session.setAttribute("userFullName", firstName.trim() + " " + lastName.trim());
                     response.sendRedirect("sign-in.jsp");
                     return;
-                } else {
-                    request.setAttribute("errorMessage", "Registration failed. No rows were inserted.");
                 }
             } catch (SQLException e) {
-                System.err.println("=== SQL ERROR DETAILS ===");
-                System.err.println("Message: " + e.getMessage());
-                System.err.println("SQL State: " + e.getSQLState());
-                System.err.println("Error Code: " + e.getErrorCode());
-                e.printStackTrace();
-
-                String errorMessage = "Database error occurred.";
-                if (e.getErrorCode() == 2627 || e.getMessage().contains("UNIQUE KEY constraint")) {
-                    errorMessage = "Email already exists. Please use a different email address.";
-                } else if (e.getMessage().contains("Login failed") || e.getSQLState().equals("28000")) {
-                    errorMessage = "Database authentication failed.";
-                } else if (e.getMessage().contains("server was not found") || e.getSQLState().equals("08001")) {
-                    errorMessage = "Cannot connect to SQL Server.";
-                } else if (e.getMessage().contains("Invalid object name")) {
-                    errorMessage = "Database table 'Users' not found.";
-                } else if (e.getSQLState().equals("08S01")) {
-                    errorMessage = "Communication link failure.";
-                } else {
-                    errorMessage = "Database error: " + e.getMessage();
-                }
-                request.setAttribute("errorMessage", errorMessage);
+                if (conn != null) conn.rollback();
+                request.setAttribute("errorMessage", e.getMessage().contains("UNIQUE KEY") ? "Email already exists" : "Database error: " + e.getMessage());
             } finally {
-                try {
-                    if (stmt != null) stmt.close();
-                    if (conn != null) conn.close();
-                } catch (SQLException e) {
-                    System.err.println("Error closing database resources: " + e.getMessage());
-                }
+                if (stmt != null) stmt.close();
+                if (conn != null) conn.close();
             }
         }
     }
@@ -125,267 +129,166 @@
         }
 
         body {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.75)), url('https://images.unsplash.com/photo-1511735111819-9a3f7709049c');
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary)), url('https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-blend-mode: overlay;
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
             color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
             overflow-x: hidden;
-            position: relative;
-        }
-
-        body::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, transparent 50%, rgba(0, 0, 0, 0.3) 100%);
-            pointer-events: none;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            position: relative;
-            z-index: 1;
+            line-height: 1.6;
         }
 
         .signup-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: calc(100vh - 80px);
-            padding: 50px 20px;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
         }
 
         .signup-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 2px solid transparent;
-            border-image: linear-gradient(45deg, var(--primary), var(--gold-accent)) 1;
-            border-radius: 25px;
-            padding: 50px;
-            max-width: 480px;
-            width: 100%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 15px rgba(138, 43, 226, 0.3);
-            position: relative;
-            overflow: hidden;
-            animation: floatIn 1s cubic-bezier(0.2, 0.6, 0.4, 1);
-            will-change: transform, opacity;
-        }
-
-        @keyframes floatIn {
-            from { opacity: 0; transform: translateY(60px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .signup-card::before {
-            content: '';
-            position: absolute;
-            top: -30%;
-            left: -30%;
-            width: 160%;
-            height: 160%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20 20 Q50 80 80 20" fill="none" stroke="%23d4af37" stroke-width="0.5" opacity="0.15"/></svg>');
-            background-size: 60px 60px;
-            z-index: 0;
-            animation: rotateSlow 30s linear infinite;
-        }
-
-        @keyframes rotateSlow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .signup-card > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .signup-card h1 {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 3.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             text-align: center;
-            background: linear-gradient(90deg, var(--primary), var(--gold-accent));
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            color: var(--text);
+            margin-bottom: 20px;
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 30px;
-            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
         }
 
         .form-grid {
             display: grid;
-            gap: 25px;
+            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         }
 
         .form-group {
-            margin: 0;
+            text-align: left;
         }
 
         .form-group label {
             display: block;
-            font-weight: 700;
+            font-weight: 500;
             color: var(--text-secondary);
-            margin-bottom: 10px;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            margin-bottom: 5px;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 16px 20px;
-            border: 2px solid var(--glass-border);
-            background: linear-gradient(var(--secondary), rgba(255, 255, 255, 0.05));
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 5px;
             color: var(--text);
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
+            font-size: 1rem;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: var(--gold-accent);
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
-            transform: scale(1.03);
-        }
-
-        .form-group input:hover,
-        .form-group select:hover {
-            transform: scale(1.02);
-        }
-
-        .error-message {
-            color: #dc2626;
-            font-size: 0.9rem;
-            margin-top: 8px;
-            animation: fadeInError 0.4s ease-in-out;
-            display: none;
-        }
-
-        @keyframes fadeInError {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
         }
 
         .submit-btn {
-            background: var(--metallic-gradient);
-            padding: 16px;
-            border: none;
-            border-radius: 40px;
-            color: var(--text);
-            font-weight: 800;
             width: 100%;
+            padding: 12px;
+            background: var(--gradient);
+            border: none;
+            border-radius: 25px;
+            color: var(--text);
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.5s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 215, 0, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.7s ease, height 0.7s ease;
-            z-index: 0;
-        }
-
-        .submit-btn:hover::before {
-            width: 300%;
-            height: 300%;
         }
 
         .submit-btn:hover {
-            background: linear-gradient(135deg, #d3d3d3, #c0c0c0);
-            transform: translateY(-4px);
-            box-shadow: 0 15px 30px rgba(212, 175, 55, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
         }
 
         .submit-btn .spinner {
             display: none;
+            width: 20px;
+            height: 20px;
             border: 3px solid #fff;
-            border-top: 3px solid var(--gold-accent);
+            border-top: 3px solid transparent;
             border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1.2s linear infinite;
+            animation: spin 1s linear infinite;
             margin-right: 10px;
+            vertical-align: middle;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .success-message {
-            display: none;
-            text-align: center;
-            color: var(--gold-accent);
-            font-size: 1rem;
-            margin-top: 15px;
-            animation: fadeInSuccess 0.5s ease-in-out;
-        }
-
-        @keyframes fadeInSuccess {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .switch-link {
-            text-align: center;
-            margin-top: 25px;
+            margin-top: 15px;
             color: var(--text-secondary);
-            font-size: 1.1rem;
         }
 
         .switch-link a {
-            color: var(--accent);
+            color: var(--primary-light);
             text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .switch-link a::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--gold-accent);
-            transition: width 0.3s ease;
-        }
-
-        .switch-link a:hover::after {
-            width: 100%;
+            font-weight: 600;
         }
 
         .switch-link a:hover {
-            color: var(--primary-light);
-            text-shadow: 0 0 15px var(--gold-accent);
+            color: var(--accent);
+            text-decoration: underline;
+        }
+
+        .success-message {
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .signup-card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container signup-container">
+<div class="signup-container">
     <div class="signup-card">
         <h1>Sign Up for MelodyMart</h1>
         <c:if test="${not empty errorMessage}">
@@ -393,9 +296,14 @@
         </c:if>
         <form id="signupForm" action="sign-up.jsp" method="post" class="form-grid" novalidate>
             <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" name="fullName" value="${param.fullName}" required aria-label="Full Name" aria-describedby="name-error">
-                <p id="name-error" class="error-message">Please enter your full name.</p>
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="firstName" value="${param.firstName}" required aria-label="First Name" aria-describedby="name-error">
+                <p id="name-error" class="error-message">Please enter your first name.</p>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="lastName" value="${param.lastName}" required aria-label="Last Name" aria-describedby="lastName-error">
+                <p id="lastName-error" class="error-message">Please enter your last name.</p>
             </div>
             <div class="form-group">
                 <label for="email">Email Address</label>
@@ -408,14 +316,25 @@
                 <p id="password-error" class="error-message">Password must be at least 8 characters.</p>
             </div>
             <div class="form-group">
-                <label for="role">Role</label>
-                <select id="role" name="role" required aria-label="Role" aria-describedby="role-error">
-                    <option value="">Select your role</option>
-                    <option value="customer" ${param.role == 'customer' ? 'selected' : ''}>Customer</option>
-                    <option value="seller" ${param.role == 'seller' ? 'selected' : ''}>Seller</option>
-                    <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin</option>
-                </select>
-                <p id="role-error" class="error-message">Please select your role.</p>
+                <label for="phone">Phone</label>
+                <input type="tel" id="phone" name="phone" value="${param.phone}" aria-label="Phone">
+            </div>
+            <div class="form-group">
+                <label for="street">Street</label>
+                <input type="text" id="street" name="street" value="${param.street}" aria-label="Street">
+            </div>
+            <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" value="${param.city}" required aria-label="City" aria-describedby="city-error">
+                <p id="city-error" class="error-message">Please enter your city.</p>
+            </div>
+            <div class="form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" name="state" value="${param.state}" aria-label="State">
+            </div>
+            <div class="form-group">
+                <label for="zipCode">Zip Code</label>
+                <input type="text" id="zipCode" name="zipCode" value="${param.zipCode}" aria-label="Zip Code">
             </div>
             <div class="form-group">
                 <label for="country">Country</label>
@@ -434,6 +353,16 @@
                     <option value="SL" ${param.country == 'SL' ? 'selected' : ''}>Sri Lanka</option>
                 </select>
                 <p id="country-error" class="error-message">Please select your country.</p>
+            </div>
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role" required aria-label="Role" aria-describedby="role-error">
+                    <option value="">Select your role</option>
+                    <option value="customer" ${param.role == 'customer' ? 'selected' : ''}>Customer</option>
+                    <option value="seller" ${param.role == 'seller' ? 'selected' : ''}>Seller</option>
+                    <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin</option>
+                </select>
+                <p id="role-error" class="error-message">Please select your role.</p>
             </div>
             <button type="submit" class="submit-btn" id="submitButton">
                 <span class="spinner" id="spinner"></span>Create Account
@@ -460,14 +389,19 @@
         submitButton.disabled = true;
         successMessage.style.display = 'none';
 
-        // Full Name validation
-        const fullName = document.getElementById('fullName').value.trim();
-        if (!fullName) {
+        // Validation
+        const firstName = document.getElementById('firstName').value.trim();
+        if (!firstName) {
             document.getElementById('name-error').style.display = 'block';
             isValid = false;
         }
 
-        // Email validation
+        const lastName = document.getElementById('lastName').value.trim();
+        if (!lastName) {
+            document.getElementById('lastName-error').style.display = 'block';
+            isValid = false;
+        }
+
         const email = document.getElementById('email').value.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -475,24 +409,27 @@
             isValid = false;
         }
 
-        // Password validation
         const password = document.getElementById('password').value;
         if (password.length < 8) {
             document.getElementById('password-error').style.display = 'block';
             isValid = false;
         }
 
-        // Role validation
-        const role = document.getElementById('role').value;
-        if (!role) {
-            document.getElementById('role-error').style.display = 'block';
+        const city = document.getElementById('city').value.trim();
+        if (!city) {
+            document.getElementById('city-error').style.display = 'block';
             isValid = false;
         }
 
-        // Country validation
         const country = document.getElementById('country').value;
         if (!country) {
             document.getElementById('country-error').style.display = 'block';
+            isValid = false;
+        }
+
+        const role = document.getElementById('role').value;
+        if (!role) {
+            document.getElementById('role-error').style.display = 'block';
             isValid = false;
         }
 

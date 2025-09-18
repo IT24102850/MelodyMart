@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,73 +34,95 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--secondary);
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.95), rgba(20, 20, 20, 0.95)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-size: cover;
+            background-attachment: fixed;
             color: var(--text);
-            overflow-x: hidden;
             line-height: 1.6;
             min-height: 100vh;
-            background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            overflow-x: hidden;
         }
 
         .container-fluid {
             padding: 0;
         }
 
-        /* Header/Navbar */
+        /* Enhanced Navbar */
         .navbar {
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(10px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
             padding: 15px 20px;
             border-bottom: 1px solid var(--glass-border);
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             animation: slideDown 0.5s ease-out;
         }
 
         .navbar-brand {
             font-family: 'Playfair Display', serif;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 800;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            transform: scale(1.05);
         }
 
         .navbar-brand i {
             margin-right: 10px;
-            font-size: 28px;
+            font-size: 32px;
+            animation: pulse 2s infinite;
+        }
+
+        .navbar-toggler {
+            border: none;
+            color: var(--text);
+            font-size: 20px;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-toggler:hover {
+            color: var(--primary-light);
         }
 
         .navbar-nav .nav-link {
             color: var(--text);
             font-weight: 500;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
             position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0 5px;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary-light);
+            background: rgba(138, 43, 226, 0.1);
+            transform: translateY(-2px);
         }
 
         .navbar-nav .nav-link:after {
             content: '';
             position: absolute;
             bottom: -5px;
-            left: 0;
+            left: 50%;
+            transform: translateX(-50%);
             width: 0;
             height: 2px;
             background: var(--gradient);
             transition: width 0.3s ease;
         }
 
-        .navbar-nav .nav-link:hover {
-            color: var(--primary-light);
-        }
-
         .navbar-nav .nav-link:hover:after {
-            width: 100%;
+            width: 80%;
         }
 
         /* Main Layout */
@@ -110,7 +134,7 @@
         /* Sidebar */
         .sidebar {
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(20px);
             border-right: 1px solid var(--glass-border);
             width: 280px;
             padding: 30px 20px;
@@ -120,20 +144,28 @@
             height: calc(100vh - 76px);
             overflow-y: auto;
             animation: slideInLeft 0.5s ease-out;
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.2);
         }
 
         .sidebar-header {
             margin-bottom: 30px;
             padding-bottom: 15px;
             border-bottom: 1px solid var(--glass-border);
+            text-align: center;
         }
 
         .sidebar-header h4 {
             font-family: 'Playfair Display', serif;
-            font-size: 24px;
+            font-size: 26px;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
         }
 
         .sidebar-menu {
@@ -141,7 +173,7 @@
         }
 
         .sidebar-menu li {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             opacity: 0;
             transform: translateX(-20px);
             animation: fadeInRight 0.5s ease-out forwards;
@@ -162,15 +194,18 @@
             align-items: center;
             color: var(--text);
             text-decoration: none;
-            padding: 12px 15px;
-            border-radius: 8px;
+            padding: 14px 15px;
+            border-radius: 10px;
             transition: all 0.3s ease;
+            border: 1px solid transparent;
         }
 
         .sidebar-menu a:hover, .sidebar-menu a.active {
             background: var(--gradient);
             color: white;
             transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+            border-color: var(--primary-light);
         }
 
         .sidebar-menu i {
@@ -178,23 +213,30 @@
             font-size: 18px;
             width: 24px;
             text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-menu a:hover i, .sidebar-menu a.active i {
+            transform: rotate(15deg);
         }
 
         /* Main Content */
         .main-content {
             flex: 1;
-            padding: 30px;
+            padding: 40px;
             overflow-y: auto;
+            background: linear-gradient(to bottom, rgba(10, 10, 10, 0.8), rgba(20, 20, 20, 0.8));
         }
 
         .dashboard-header {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
+            text-align: center;
             animation: fadeInUp 0.5s ease-out 0.3s both;
         }
 
         .dashboard-header h2 {
             font-family: 'Playfair Display', serif;
-            font-size: 32px;
+            font-size: 36px;
             margin-bottom: 10px;
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -209,34 +251,29 @@
         /* Stats Cards */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
 
         .stat-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 20px;
-            transition: all 0.3s ease;
+            border-radius: 18px;
+            padding: 25px;
+            transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
             opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s ease-out forwards;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease-out forwards;
         }
 
         .stat-card:nth-child(1) { animation-delay: 0.4s; }
         .stat-card:nth-child(2) { animation-delay: 0.5s; }
         .stat-card:nth-child(3) { animation-delay: 0.6s; }
         .stat-card:nth-child(4) { animation-delay: 0.7s; }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.2);
-        }
 
         .stat-card::before {
             content: '';
@@ -246,42 +283,52 @@
             width: 100%;
             height: 100%;
             background: var(--gradient);
-            opacity: 0.1;
+            opacity: 0.05;
             z-index: -1;
+            border-radius: 18px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(138, 43, 226, 0.25);
         }
 
         .stat-icon {
-            font-size: 30px;
+            font-size: 36px;
             margin-bottom: 15px;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            animation: pulse 2s infinite;
         }
 
         .stat-value {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 32px;
+            font-weight: 800;
             margin-bottom: 5px;
+            color: var(--primary-light);
         }
 
         .stat-label {
             color: var(--text-secondary);
             font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         /* Section Cards */
         .section-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 15px;
+            border-radius: 18px;
             padding: 0;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s ease;
             opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s ease-out forwards;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease-out forwards;
         }
 
         .section-card:nth-child(1) { animation-delay: 0.5s; }
@@ -294,12 +341,12 @@
         .section-card:nth-child(8) { animation-delay: 1.2s; }
 
         .section-card:hover {
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         .card-header {
-            background: rgba(138, 43, 226, 0.1);
-            padding: 20px;
+            background: rgba(138, 43, 226, 0.15);
+            padding: 25px;
             border-bottom: 1px solid var(--glass-border);
             display: flex;
             justify-content: space-between;
@@ -308,17 +355,19 @@
 
         .card-header h3 {
             font-family: 'Playfair Display', serif;
-            font-size: 24px;
+            font-size: 26px;
             margin: 0;
             display: flex;
             align-items: center;
+            color: var(--text);
         }
 
         .card-header h3 i {
-            margin-right: 10px;
+            margin-right: 12px;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            font-size: 24px;
         }
 
         .card-header-actions {
@@ -327,12 +376,14 @@
         }
 
         .card-body {
-            padding: 20px;
+            padding: 25px;
         }
 
         /* Tables */
         .table-container {
             overflow-x: auto;
+            border-radius: 10px;
+            background: rgba(20, 20, 20, 0.5);
         }
 
         table {
@@ -342,7 +393,7 @@
         }
 
         th, td {
-            padding: 12px 15px;
+            padding: 15px;
             text-align: left;
             border-bottom: 1px solid var(--glass-border);
         }
@@ -350,11 +401,13 @@
         th {
             background: rgba(138, 43, 226, 0.1);
             font-weight: 600;
+            color: var(--primary-light);
         }
 
         tr {
             opacity: 0;
-            animation: fadeIn 0.5s ease-out forwards;
+            animation: fadeIn 0.6s ease-out forwards;
+            transition: background 0.3s ease;
         }
 
         tr:nth-child(1) { animation-delay: 0.3s; }
@@ -362,24 +415,61 @@
         tr:nth-child(3) { animation-delay: 0.5s; }
 
         tr:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.bg-success {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+        }
+
+        .badge.bg-warning {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
         }
 
         /* Buttons */
         .btn {
-            padding: 8px 16px;
+            padding: 10px 18px;
             border: none;
-            border-radius: 30px;
+            border-radius: 20px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn i {
             margin-right: 8px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s ease, height 0.4s ease;
+        }
+
+        .btn:hover::before {
+            width: 200px;
+            height: 200px;
         }
 
         .btn-primary {
@@ -398,9 +488,19 @@
             color: white;
         }
 
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.4);
+        }
+
         .btn-danger {
             background: linear-gradient(135deg, #dc3545, #c82333);
             color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
         }
 
         .btn-success {
@@ -408,12 +508,21 @@
             color: white;
         }
 
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
         .btn-sm {
-            padding: 5px 10px;
+            padding: 6px 12px;
             font-size: 14px;
         }
 
         /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
         .form-control {
             width: 100%;
             padding: 12px 15px;
@@ -438,14 +547,30 @@
             color: var(--text-secondary);
         }
 
+        .form-select {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 12px 15px;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
         /* Alerts */
         .alert {
             padding: 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
             animation: slideInRight 0.5s ease-out;
+            border-left: 4px solid;
         }
 
         .alert i {
@@ -454,31 +579,34 @@
         }
 
         .alert-info {
-            background: rgba(23, 162, 184, 0.2);
-            border: 1px solid rgba(23, 162, 184, 0.3);
+            background: rgba(23, 162, 184, 0.1);
+            border-left-color: #17a2b8;
+            color: #17a2b8;
         }
 
         .alert-danger {
-            background: rgba(220, 53, 69, 0.2);
-            border: 1px solid rgba(220, 53, 69, 0.3);
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: #dc3545;
+            color: #dc3545;
         }
 
         .alert-warning {
-            background: rgba(255, 193, 7, 0.2);
-            border: 1px solid rgba(255, 193, 7, 0.3);
+            background: rgba(255, 193, 7, 0.1);
+            border-left-color: #ffc107;
+            color: #ffc107;
         }
 
         /* List Group */
         .list-group {
             list-style: none;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
+            background: var(--card-bg);
         }
 
         .list-group-item {
             padding: 15px;
-            background: var(--card-bg);
-            border: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -495,12 +623,18 @@
             background: var(--card-hover);
         }
 
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
         /* Charts */
         .chart-container {
             position: relative;
-            height: 300px;
+            height: 350px;
             width: 100%;
             margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         /* Floating elements */
@@ -516,7 +650,7 @@
 
         .floating-element {
             position: absolute;
-            font-size: 24px;
+            font-size: 20px;
             color: rgba(138, 43, 226, 0.1);
             animation: float 6s ease-in-out infinite;
         }
@@ -544,7 +678,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -555,7 +689,7 @@
         @keyframes fadeInRight {
             from {
                 opacity: 0;
-                transform: translateX(-20px);
+                transform: translateX(-30px);
             }
             to {
                 opacity: 1;
@@ -566,7 +700,7 @@
         @keyframes slideInLeft {
             from {
                 opacity: 0;
-                transform: translateX(-20px);
+                transform: translateX(-30px);
             }
             to {
                 opacity: 1;
@@ -577,7 +711,7 @@
         @keyframes slideInRight {
             from {
                 opacity: 0;
-                transform: translateX(20px);
+                transform: translateX(30px);
             }
             to {
                 opacity: 1;
@@ -588,7 +722,7 @@
         @keyframes slideDown {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(-30px);
             }
             to {
                 opacity: 1;
@@ -599,6 +733,11 @@
         @keyframes float {
             0%, 100% { transform: translateY(0) rotate(0deg); }
             50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
 
         /* Hover effects */
@@ -613,7 +752,11 @@
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
-                width: 230px;
+                width: 250px;
+            }
+
+            .main-content {
+                padding: 20px;
             }
         }
 
@@ -630,6 +773,15 @@
 
             .stats-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .card-header-actions {
+                align-self: flex-start;
             }
         }
     </style>
@@ -668,6 +820,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <h4>Admin Dashboard</h4>
+            <p>Control Center</p>
         </div>
         <ul class="sidebar-menu">
             <li><a href="#user-management" class="active"><i class="fas fa-users"></i> User Management</a></li>
@@ -686,7 +839,7 @@
     <div class="main-content">
         <div class="dashboard-header">
             <h2>Admin Dashboard</h2>
-            <p>As of September 16, 2025, manage all aspects of the platform efficiently.</p>
+            <p>As of September 16, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
         </div>
 
         <!-- Stats Overview -->
@@ -742,9 +895,9 @@
                             <td>Customer</td>
                             <td><span class="badge bg-success">Active</span></td>
                             <td>
-                                <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Suspend</button>
-                                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-warning btn-sm hover-lift"><i class="fas fa-ban"></i> Suspend</button>
+                                <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
                             </td>
                         </tr>
                         <tr>
@@ -753,8 +906,8 @@
                             <td>Seller</td>
                             <td><span class="badge bg-warning">Pending</span></td>
                             <td>
-                                <button class="btn btn-primary btn-sm"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Reject</button>
+                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-check"></i> Approve</button>
+                                <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-times"></i> Reject</button>
                             </td>
                         </tr>
                         <tr>
@@ -763,8 +916,8 @@
                             <td>Admin</td>
                             <td><span class="badge bg-success">Active</span></td>
                             <td>
-                                <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-warning btn-sm"><i class="fas fa-ban"></i> Suspend</button>
+                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-warning btn-sm hover-lift"><i class="fas fa-ban"></i> Suspend</button>
                             </td>
                         </tr>
                         </tbody>
@@ -780,7 +933,7 @@
             </div>
             <div class="card-body">
                 <p>Interfaces to view and manually update stock levels, coordinate availability, and handle overselling alerts.</p>
-                <form>
+                <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
                         <label for="instrumentId" class="form-label">Instrument ID</label>
                         <input type="text" class="form-control" id="instrumentId" placeholder="Enter ID">
@@ -789,9 +942,9 @@
                         <label for="stockQuantity" class="form-label">Update Stock Quantity</label>
                         <input type="number" class="form-control" id="stockQuantity" placeholder="New Quantity">
                     </div>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-sync"></i> Update Stock</button>
+                    <button type="submit" class="btn btn-primary hover-lift"><i class="fas fa-sync"></i> Update Stock</button>
                 </form>
-                <div class="alert alert-warning mt-3">
+                <div class="alert alert-warning mt-4">
                     <i class="fas fa-exclamation-triangle"></i> Alert: Item ID 123 is low on stock!
                 </div>
             </div>
@@ -810,21 +963,21 @@
                             <strong>Guitar XYZ</strong>
                             <div class="text-muted">Flagged for: Guideline Violation</div>
                         </div>
-                        <button class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Review</button>
+                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
                     </li>
                     <li class="list-group-item">
                         <div>
                             <strong>Drum Set Pro</strong>
                             <div class="text-muted">Flagged for: Suspected Counterfeit</div>
                         </div>
-                        <button class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Review</button>
+                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
                     </li>
                     <li class="list-group-item">
                         <div>
                             <strong>Microphone Studio</strong>
                             <div class="text-muted">Flagged for: Inaccurate Description</div>
                         </div>
-                        <button class="btn btn-info btn-sm"><i class="fas fa-eye"></i> Review</button>
+                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
                     </li>
                 </ul>
             </div>
@@ -838,14 +991,14 @@
             <div class="card-body">
                 <p>Options to generate system reports on site activity, sales, or user metrics.</p>
                 <div class="form-group">
-                    <select class="form-control">
+                    <select class="form-select">
                         <option>Select Report Type</option>
                         <option>Sales Report</option>
                         <option>User Activity</option>
                         <option>System Performance</option>
                     </select>
                 </div>
-                <button class="btn btn-primary"><i class="fas fa-file-export"></i> Generate Report</button>
+                <button class="btn btn-primary hover-lift"><i class="fas fa-file-export"></i> Generate Report</button>
                 <div class="chart-container">
                     <canvas id="salesChart"></canvas>
                 </div>
@@ -860,9 +1013,9 @@
             <div class="card-body">
                 <p>Forms or editors to update platform policies.</p>
                 <div class="form-group">
-                    <textarea class="form-control" rows="5" placeholder="Update Policy Text Here"></textarea>
+                    <textarea class="form-control" rows="6" placeholder="Update Policy Text Here..."></textarea>
                 </div>
-                <button class="btn btn-primary"><i class="fas fa-save"></i> Save Policy</button>
+                <button class="btn btn-primary hover-lift"><i class="fas fa-save"></i> Save Policy</button>
             </div>
         </section>
 
@@ -888,18 +1041,18 @@
                             <td>001</td>
                             <td>Admin User</td>
                             <td>admin@melodymart.com</td>
-                            <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remove</button></td>
+                            <td><button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Remove</button></td>
                         </tr>
                         <tr>
                             <td>002</td>
                             <td>Site Manager</td>
                             <td>manager@melodymart.com</td>
-                            <td><button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Remove</button></td>
+                            <td><button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Remove</button></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <button class="btn btn-success mt-3"><i class="fas fa-plus"></i> Add New Admin</button>
+                <button class="btn btn-success mt-3 hover-lift"><i class="fas fa-plus"></i> Add New Admin</button>
             </div>
         </section>
 
@@ -916,21 +1069,21 @@
                             <strong>Great service!</strong>
                             <div class="text-muted">Rating: 5/5 • Posted by: John D.</div>
                         </div>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
                     </li>
                     <li class="list-group-item">
                         <div>
                             <strong>Product arrived damaged</strong>
                             <div class="text-muted">Rating: 2/5 • Posted by: Sarah M.</div>
                         </div>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
                     </li>
                     <li class="list-group-item">
                         <div>
                             <strong>Fast shipping, great quality</strong>
                             <div class="text-muted">Rating: 5/5 • Posted by: Mike R.</div>
                         </div>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
                     </li>
                 </ul>
             </div>

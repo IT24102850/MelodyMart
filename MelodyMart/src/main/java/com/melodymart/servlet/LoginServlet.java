@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -44,21 +45,25 @@ public class LoginServlet extends HttpServlet {
 
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(
-                     "SELECT id, name, email, password, role FROM Users WHERE email = ?")) {
+                     "SELECT PersonID, FirstName, LastName, Password FROM Person WHERE Email = ?")) {
 
-            ps.setString(1, email);
+            ps.setString(1, email.toLowerCase());
             System.out.println("Executing query for user: " + email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    String storedHash = rs.getString("password");
+                    int personId = rs.getInt("PersonID");
+                    String fullName = rs.getString("FirstName") + " " + rs.getString("LastName");
+                    String storedHash = rs.getString("Password");
                     if (BCrypt.checkpw(password, storedHash)) {
+                        String role = determineRole(con, personId);
                         HttpSession session = request.getSession();
-                        session.setAttribute("userId", rs.getInt("id"));
-                        session.setAttribute("userName", rs.getString("name"));
-                        session.setAttribute("userEmail", rs.getString("email"));
-                        String role = rs.getString("role");
+                        session.setAttribute("userId", personId);
+                        session.setAttribute("userName", fullName);
+                        session.setAttribute("userEmail", email.toLowerCase());
                         session.setAttribute("userRole", role);
                         System.out.println("Login successful for " + email + " with role: " + role);
+
+                        updateLastLogin(con, personId);
 
                         String redirectUrl;
                         switch (role.toLowerCase()) {
@@ -68,34 +73,69 @@ public class LoginServlet extends HttpServlet {
                             case "seller":
                                 redirectUrl = "sellerdashboard.jsp";
                                 break;
-                            case "manufacturer":
-                                redirectUrl = "manufacturedashboard.jsp";
+                            case "admin":
+                                redirectUrl = "admindashboard.jsp";
                                 break;
                             default:
-                                System.out.println("Unknown role: " + role);
-                                redirectUrl = "sign-in.jsp?error=Unknown role";
+                                redirectUrl = "sign-in.jsp?error=Unknown role or page not found";
                                 break;
                         }
                         System.out.println("Redirecting to: " + redirectUrl);
                         response.sendRedirect(redirectUrl);
                     } else {
                         System.out.println("Invalid credentials for email: " + email);
-                        String redirectUrl = "sign-in.jsp?error=Invalid credentials";
-                        System.out.println("Redirecting to: " + redirectUrl);
-                        response.sendRedirect(redirectUrl);
+                        response.sendRedirect("sign-in.jsp?error=Invalid credentials");
                     }
                 } else {
                     System.out.println("No user found for email: " + email);
-                    String redirectUrl = "sign-in.jsp?error=Invalid credentials";
-                    System.out.println("Redirecting to: " + redirectUrl);
-                    response.sendRedirect(redirectUrl);
+                    response.sendRedirect("sign-in.jsp?error=Invalid credentials");
                 }
             }
         } catch (Exception e) {
             System.err.println("Login error: " + e.getMessage());
-            String redirectUrl = "sign-in.jsp?error=Login failed. Please try again.";
-            System.out.println("Redirecting to: " + redirectUrl);
-            response.sendRedirect(redirectUrl);
+            if (e instanceof SQLException) {
+                SQLException sqlEx = (SQLException) e;
+                System.err.println("SQL State: " + sqlEx.getSQLState());
+                System.err.println("Error Code: " + sqlEx.getErrorCode());
+            }
+            response.sendRedirect("sign-in.jsp?error=Login failed. Please try again. Details: " + e.getMessage());
+        }
+    }
+
+    private String determineRole(Connection con, int personId) throws SQLException {
+        try (PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM Customer WHERE PersonID = ?")) {
+            ps.setInt(1, personId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) return "customer";
+        }
+
+        try (PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM Seller WHERE PersonID = ?")) {
+            ps.setInt(1, personId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) return "seller";
+        }
+
+        try (PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM Admin WHERE PersonID = ?")) {
+            ps.setInt(1, personId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) return "admin";
+        }
+
+        try (PreparedStatement ps = con.prepareStatement("SELECT role FROM Person WHERE PersonID = ?")) {
+            ps.setInt(1, personId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next() && rs.getString("role") != null) {
+                return rs.getString("role").toLowerCase();
+            }
+        }
+
+        return "unknown";
+    }
+
+    private void updateLastLogin(Connection con, int personId) throws SQLException {
+        try (PreparedStatement ps = con.prepareStatement("UPDATE Person SET LastLogin = GETDATE() WHERE PersonID = ?")) {
+            ps.setInt(1, personId);
+            ps.executeUpdate();
         }
     }
 }
