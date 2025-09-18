@@ -1,6 +1,3 @@
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1101,25 +1098,9 @@
             <li><a href="brands.jsp">Brands</a></li>
             <li><a href="about.jsp">About</a></li>
             <li><a href="content.jsp">Contact</a></li>
-
-
         </ul>
 
-        <%
-            String userName = (String) session.getAttribute("userName");
-            String userRole = (String) session.getAttribute("userRole");
-        %>
-
-        <% if (userName != null && "customer".equalsIgnoreCase(userRole)) { %>
-        <span class="welcome-text">Welcome, <%= userName %> </span>
-        <% } %>
-
-
-
-
         <div class="nav-actions">
-
-
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
             <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
             <div class="user-menu">
