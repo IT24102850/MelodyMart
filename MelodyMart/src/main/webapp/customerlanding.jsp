@@ -1,7 +1,6 @@
 
 
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1095,45 +1094,6 @@
             Melody Mart
         </div>
 
-
-
-        <!-- Check if user is logged in -->
-        <%
-            // Simulate a logged-in user (in a real application, this would come from session)
-            String customerName = (String) session.getAttribute("customerName");
-            if (customerName != null) {
-        %>
-        <!-- Display welcome message and user dropdown -->
-        <div class="user-welcome">
-            <i class="fas fa-user-circle"></i>
-            <span>Welcome, <%= customerName %></span>
-        </div>
-
-        <%
-        } else {
-        %>
-   
-        <%
-            }
-        %>
-
-        <!-- Mobile view user welcome (hidden on desktop) -->
-        <%
-            if (customerName != null) {
-        %>
-        <div class="user-welcome mobile" style="display: none;">
-            <i class="fas fa-user-circle"></i>
-            <span>Welcome, <%= customerName %></span>
-        </div>
-        <%
-            }
-        %>
-
-
-
-
-
-
         <ul class="nav-links">
             <li><a href="#">Home</a></li>
             <li><a href="shop.jsp">Shop</a></li>
@@ -1141,9 +1101,25 @@
             <li><a href="brands.jsp">Brands</a></li>
             <li><a href="about.jsp">About</a></li>
             <li><a href="content.jsp">Contact</a></li>
+
+
         </ul>
 
+        <%
+            String userName = (String) session.getAttribute("userName");
+            String userRole = (String) session.getAttribute("userRole");
+        %>
+
+        <% if (userName != null && "customer".equalsIgnoreCase(userRole)) { %>
+        <span class="welcome-text">Welcome, <%= userName %> </span>
+        <% } %>
+
+
+
+
         <div class="nav-actions">
+
+
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
             <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
             <div class="user-menu">

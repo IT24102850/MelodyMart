@@ -1,3 +1,6 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1098,20 +1101,44 @@
             <li><a href="brands.jsp">Brands</a></li>
             <li><a href="about.jsp">About</a></li>
             <li><a href="content.jsp">Contact</a></li>
+
+
         </ul>
+
+
+
+
 
         <div class="nav-actions">
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
             <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
+
             <div class="user-menu">
                 <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
                 <div class="dropdown">
+                    <%
+                        String customerName = (String) session.getAttribute("customerName");
+                        if (customerName == null) {
+                    %>
                     <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
                     <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
+                    <%
+                    } else {
+                    %>
+                    <a href="logout.jsp" class="dropdown-item">Logout</a>
+                    <%
+                        }
+                    %>
                 </div>
             </div>
+
+            <% if (customerName != null) { %>
+            <span class="welcome-text">Welcome, <%= customerName %> 🎶</span>
+            <% } %>
+
             <button class="cta-btn">Shop Now</button>
         </div>
+
     </div>
 </header>
 

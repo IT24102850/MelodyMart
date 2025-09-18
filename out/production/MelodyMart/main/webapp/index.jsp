@@ -1110,7 +1110,8 @@
                     <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
                 </div>
             </div>
-            <button class="cta-btn">Shop Now</button>
+            <button class="cta-btn" onclick="window.location.href='shop.jsp'">Shop Now</button>
+
         </div>
     </div>
 </header>
