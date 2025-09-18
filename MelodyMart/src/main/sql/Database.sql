@@ -270,3 +270,21 @@ INSERT INTO Brand (Name, ManufacturerID) VALUES
 INSERT INTO Instrument (Name, Description, BrandID, Model, Color, Price, Specifications, Warranty, ImageURL, Quantity, ManufacturerID) VALUES 
 (N'Fender American Professional II Stratocaster', N'High-quality electric guitar', 1, N'Stratocaster', N'Sunburst', 1499.99, N'Body: Alder, Neck: Maple', N'2 Years', N'https://example.com/fender.jpg', 10, 1);
 GO
+
+
+
+ALTER TABLE Person
+ADD role NVARCHAR(50) NULL;
+GO
+
+
+UPDATE Person
+SET role = 'customer'
+WHERE role IS NULL;
+GO
+
+SELECT all * FROM Person;
+
+
+
+

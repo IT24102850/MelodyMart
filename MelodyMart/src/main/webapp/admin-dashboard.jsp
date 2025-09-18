@@ -51,13 +51,16 @@
         .navbar {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
-            padding: 15px 20px;
+            padding: 15px 40px;
             border-bottom: 1px solid var(--glass-border);
             position: sticky;
             top: 0;
             z-index: 1000;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             animation: slideDown 0.5s ease-out;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .navbar-brand {
@@ -70,6 +73,7 @@
             display: flex;
             align-items: center;
             transition: transform 0.3s ease;
+            text-decoration: none;
         }
 
         .navbar-brand:hover {
@@ -82,34 +86,34 @@
             animation: pulse 2s infinite;
         }
 
-        .navbar-toggler {
-            border: none;
-            color: var(--text);
-            font-size: 20px;
-            transition: color 0.3s ease;
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        .navbar-toggler:hover {
-            color: var(--primary-light);
-        }
-
-        .navbar-nav .nav-link {
+        .nav-link {
             color: var(--text);
             font-weight: 500;
             transition: all 0.3s ease;
-            position: relative;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            margin: 0 5px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
         }
 
-        .navbar-nav .nav-link:hover {
+        .nav-link:hover {
             color: var(--primary-light);
             background: rgba(138, 43, 226, 0.1);
             transform: translateY(-2px);
         }
 
-        .navbar-nav .nav-link:after {
+        .nav-link i {
+            margin-right: 8px;
+        }
+
+        .nav-link:after {
             content: '';
             position: absolute;
             bottom: -5px;
@@ -121,7 +125,7 @@
             transition: width 0.3s ease;
         }
 
-        .navbar-nav .nav-link:hover:after {
+        .nav-link:hover:after {
             width: 80%;
         }
 
@@ -751,6 +755,15 @@
 
         /* Responsive */
         @media (max-width: 992px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+
+            .nav-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
             .sidebar {
                 width: 250px;
             }
@@ -798,20 +811,13 @@
 </div>
 
 <!-- Header/Navbar -->
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="index.jsp">
-            <i class="fas fa-music"></i>Melody Mart Admin
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"><i class="fas fa-bars"></i></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" href="index.jsp"><i class="fas fa-home"></i> Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-        </div>
+<nav class="navbar">
+    <a class="navbar-brand" href="index.jsp">
+        <i class="fas fa-music"></i>Melody Mart Admin
+    </a>
+    <div class="nav-actions">
+        <a href="index.jsp" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 </nav>
 
@@ -839,7 +845,7 @@
     <div class="main-content">
         <div class="dashboard-header">
             <h2>Admin Dashboard</h2>
-            <p>As of September 16, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
+            <p>As of 11:07 AM +0530 on September 18, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
         </div>
 
         <!-- Stats Overview -->
@@ -871,8 +877,8 @@
             <div class="card-header">
                 <h3><i class="fas fa-users"></i> User Management Section</h3>
                 <div class="card-header-actions">
-                    <button class="btn btn-sm btn-primary"><i class="fas fa-download"></i> Export</button>
-                    <button class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Add New</button>
+                    <button class="btn btn-sm btn-primary hover-lift"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn btn-sm btn-success hover-lift"><i class="fas fa-plus"></i> Add New</button>
                 </div>
             </div>
             <div class="card-body">
