@@ -1106,8 +1106,8 @@
             <div class="user-menu">
                 <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
                 <div class="dropdown">
-                    <a href="#" class="dropdown-item" onclick="openModal('signInModal')">Sign In</a>
-                    <a href="#" class="dropdown-item" onclick="openModal('signUpModal')">Sign Up</a>
+                    <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
+                    <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
                 </div>
             </div>
             <button class="cta-btn">Shop Now</button>
@@ -1115,46 +1115,7 @@
     </div>
 </header>
 
-<!-- Sign In Modal -->
-<div class="modal" id="signInModal">
-    <div class="modal-content">
-        <button class="modal-close" aria-label="Close Sign In Modal">&times;</button>
-        <h2>Sign In</h2>
-        <form id="signInForm">
-            <input type="email" placeholder="Email *" required aria-label="Email">
-            <input type="password" placeholder="Password *" required aria-label="Password">
-            <button type="submit">Sign In</button>
-            <div class="switch-form">
-                Don't have an account? <a href="#" onclick="switchModal('signUpModal')">Sign Up</a>
-            </div>
-        </form>
-    </div>
-</div>
 
-<!-- Sign Up Modal -->
-<div class="modal" id="signUpModal">
-    <div class="modal-content">
-        <button class="modal-close" aria-label="Close Sign Up Modal">&times;</button>
-        <h2>Sign Up</h2>
-        <form id="signUpForm">
-            <input type="text" placeholder="First Name *" required aria-label="First Name">
-            <input type="text" placeholder="Last Name *" required aria-label="Last Name">
-            <input type="text" placeholder="Phone Number *" required aria-label="Phone Number">
-            <input type="email" placeholder="Email *" required aria-label="Email">
-            <input type="password" placeholder="Password *" required aria-label="Password">
-            <select name="role" required aria-label="Role">
-                <option value="" disabled selected>Select Role</option>
-                <option value="customer">Customer</option>
-                <option value="seller">Seller</option>
-                <option value="manufacturer">Manufacturer</option>
-            </select>
-            <button type="submit">Sign Up</button>
-            <div class="switch-form">
-                Already have an account? <a href="#" onclick="switchModal('signInModal')">Sign In</a>
-            </div>
-        </form>
-    </div>
-</div>
 
 <!-- Hero Section with Slideshow -->
 <section class="hero">

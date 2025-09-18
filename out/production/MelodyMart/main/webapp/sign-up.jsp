@@ -2,7 +2,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page import="java.sql.*, org.mindrot.jbcrypt.BCrypt, java.sql.DriverManager, java.sql.Connection, java.sql.PreparedStatement, java.sql.SQLException, java.util.Date" %>
 <%
-    // Handle form submission
+    // Handle form submission (unchanged from original)
     if ("POST".equalsIgnoreCase(request.getMethod())) {
         String fullName = request.getParameter("fullName");
         String email = request.getParameter("email");
@@ -16,7 +16,6 @@
         System.out.println("Role: " + role);
         System.out.println("Country: " + country);
 
-        // Server-side validation
         if (fullName == null || fullName.trim().isEmpty() ||
                 email == null || email.trim().isEmpty() ||
                 password == null || password.length() < 8 ||
@@ -24,85 +23,27 @@
                 country == null || country.trim().isEmpty()) {
             request.setAttribute("errorMessage", "All fields are required and password must be at least 8 characters.");
         } else {
-
-            // STEP 1: Load JDBC driver first
             try {
-                System.out.println("Loading JDBC driver...");
                 Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                System.out.println("JDBC driver loaded successfully!");
-
-                // Check registered drivers
-                System.out.println("Registered JDBC drivers:");
-                java.util.Enumeration<java.sql.Driver> drivers = DriverManager.getDrivers();
-                while (drivers.hasMoreElements()) {
-                    java.sql.Driver driver = drivers.nextElement();
-                    System.out.println("- " + driver.getClass().getName());
-                }
-
             } catch (ClassNotFoundException e) {
                 System.err.println("JDBC Driver not found: " + e.getMessage());
                 request.setAttribute("errorMessage", "Database driver not found. Please check if mssql-jdbc jar is in classpath.");
                 return;
             }
 
-            // STEP 2: Database connection parameters - TRY THESE OPTIONS ONE BY ONE
-
-            // Option 1: Default sa account (if Windows Auth doesn't work)
-            // String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
-            // String dbUser = "sa";
-            // String dbPassword = "your_sa_password"; // Replace with the password you set for 'sa'
-
-            // Try these connection strings one by one:
-
-            // Option 1: Default instance with port
             String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
-            String dbUser = "Hasiru";          // Your SQL Server login
-            String dbPassword = "hasiru2004";  // Your SQL Server password
+            String dbUser = "Hasiru";
+            String dbPassword = "hasiru2004";
 
-            Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-
-
-            // Option 2: SQL Server Express (if you're using Express)
-            // String dbUrl = "jdbc:sqlserver://localhost\\SQLEXPRESS;databaseName=MelodyMartDB;integratedSecurity=true;encrypt=false";
-            // String dbUser = "";
-            // String dbPassword = "";
-
-            // Option 3: Try without specifying port (let JDBC find it)
-            // String dbUrl = "jdbc:sqlserver://localhost;databaseName=MelodyMartDB;integratedSecurity=true;encrypt=false";
-            // String dbUser = "";
-            // String dbPassword = "";
-
-            // Option 4: Named pipes (alternative to TCP/IP)
-            // String dbUrl = "jdbc:sqlserver://localhost;databaseName=MelodyMartDB;integratedSecurity=true;encrypt=false;namedPipe=true";
-            // String dbUser = "";
-            // String dbPassword = "";
-
-            // Option 3: If you created a custom user, use those credentials:
-            // String dbUser = "your_custom_username";
-            // String dbPassword = "your_custom_password";
-
-            System.out.println("Attempting connection to: " + dbUrl);
-            System.out.println("Username: " + dbUser);
-
-            Connection aconn = null;
+            Connection conn = null;
             PreparedStatement stmt = null;
 
             try {
-                // STEP 3: Establish connection
                 conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-                System.out.println("Database connection established successfully!");
-
-                // STEP 4: Prepare SQL statement - Updated to match your table structure
                 String sql = "INSERT INTO Users (name, email, password, role, country, created_at) VALUES (?, ?, ?, ?, ?, ?)";
-                System.out.println("Executing SQL: " + sql);
-
                 stmt = conn.prepareStatement(sql);
 
-                // STEP 5: Hash the password
                 String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-                System.out.println("Password hashed successfully");
-
-                // STEP 6: Set parameters
                 stmt.setString(1, fullName.trim());
                 stmt.setString(2, email.trim().toLowerCase());
                 stmt.setString(3, hashedPassword);
@@ -110,28 +51,17 @@
                 stmt.setString(5, country);
                 stmt.setTimestamp(6, new java.sql.Timestamp(new Date().getTime()));
 
-                System.out.println("Parameters set, executing update...");
-
-                // STEP 7: Execute the insert
                 int rowsAffected = stmt.executeUpdate();
-                System.out.println("Rows affected: " + rowsAffected);
-
                 if (rowsAffected > 0) {
-                    System.out.println("User registered successfully: " + email);
-
-                    // Set session attributes
                     session.setAttribute("userEmail", email.trim().toLowerCase());
                     session.setAttribute("userRole", role);
                     session.setAttribute("userFullName", fullName.trim());
-                    session.setMaxInactiveInterval(30 * 60); // 30 minutes session timeout
-
-                    // Redirect to dashboard
+                    session.setMaxInactiveInterval(30 * 60);
                     response.sendRedirect("user-dashboard.jsp");
-                    return; // Exit JSP processing
+                    return;
                 } else {
                     request.setAttribute("errorMessage", "Registration failed. No rows were inserted.");
                 }
-
             } catch (SQLException e) {
                 System.err.println("=== SQL ERROR DETAILS ===");
                 System.err.println("Message: " + e.getMessage());
@@ -140,35 +70,24 @@
                 e.printStackTrace();
 
                 String errorMessage = "Database error occurred.";
-
-                // Handle specific SQL errors
                 if (e.getErrorCode() == 2627 || e.getMessage().contains("UNIQUE KEY constraint")) {
                     errorMessage = "Email already exists. Please use a different email address.";
                 } else if (e.getMessage().contains("Login failed") || e.getSQLState().equals("28000")) {
-                    errorMessage = "Database authentication failed. Please check SQL Server credentials.";
+                    errorMessage = "Database authentication failed.";
                 } else if (e.getMessage().contains("server was not found") || e.getSQLState().equals("08001")) {
-                    errorMessage = "Cannot connect to SQL Server. Please ensure it's running on port 1433.";
+                    errorMessage = "Cannot connect to SQL Server.";
                 } else if (e.getMessage().contains("Invalid object name")) {
-                    errorMessage = "Database table 'Users' not found. Please check if the table exists.";
+                    errorMessage = "Database table 'Users' not found.";
                 } else if (e.getSQLState().equals("08S01")) {
-                    errorMessage = "Communication link failure. Check database server status.";
+                    errorMessage = "Communication link failure.";
                 } else {
                     errorMessage = "Database error: " + e.getMessage();
                 }
-
                 request.setAttribute("errorMessage", errorMessage);
-
             } finally {
-                // STEP 8: Clean up resources
                 try {
-                    if (stmt != null) {
-                        stmt.close();
-                        System.out.println("PreparedStatement closed");
-                    }
-                    if (conn != null) {
-                        conn.close();
-                        System.out.println("Connection closed");
-                    }
+                    if (stmt != null) stmt.close();
+                    if (conn != null) conn.close();
                 } catch (SQLException e) {
                     System.err.println("Error closing database resources: " + e.getMessage());
                 }
@@ -185,79 +104,191 @@
     <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
     <style>
+        :root {
+            --primary: #8a2be2;
+            --primary-light: #9b45f0;
+            --secondary: #0a0a0a;
+            --accent: #00e5ff;
+            --accent-alt: #ff00c8;
+            --text: #ffffff;
+            --text-secondary: #b3b3b3;
+            --card-bg: #1a1a1a;
+            --card-hover: #2a2a2a;
+            --glass-bg: rgba(30, 30, 30, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
+            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
+        }
+
         body {
-            background: url('./images/1162694.jpg');
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('./images/1162694.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
             font-family: 'Inter', sans-serif;
-            color: #FFFFFF;
+            color: var(--text);
             overflow-x: hidden;
         }
-        .search-bar {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
-        .search-bar:focus {
-            border-color: rgba(255, 255, 255, 0.4);
+
+        .signup-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px);
+            padding: 20px;
         }
-        .add-to-cart {
-            background-color: #4B5563;
+
+        .signup-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in-out;
         }
-        .add-to-cart:hover {
-            background-color: #6B7280;
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .signup-card h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            text-align: center;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--glass-border);
+            background: var(--secondary);
+            color: var(--text);
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 5px;
+            animation: shake 0.3s ease-in-out;
+            display: none;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .submit-btn {
+            background: var(--gradient);
+            padding: 12px;
+            border: none;
+            border-radius: 30px;
+            color: var(--text);
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--gradient-alt);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-secondary);
+        }
+
+        .switch-link a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .switch-link a:hover {
+            color: var(--primary-light);
         }
     </style>
 </head>
-<body class="relative">
-<!-- Main Content -->
-<main class="p-4 md:p-6 relative z-10 flex justify-center items-center min-h-[calc(100vh-80px)]">
-    <div class="w-full max-w-md bg-gray-900 bg-opacity-90 p-6 rounded-lg shadow-lg">
-        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6">Sign Up for MelodyMart</h1>
+<body>
+<div class="container signup-container">
+    <div class="signup-card">
+        <h1>Sign Up for MelodyMart</h1>
         <c:if test="${not empty errorMessage}">
-            <p class="text-red-500 text-center mb-4"><c:out value="${errorMessage}"/></p>
-        </c:if>
-        <c:if test="${not empty successMessage}">
-            <p class="text-green-500 text-center mb-4"><c:out value="${successMessage}"/></p>
+            <p class="error-message" style="display: block;"><c:out value="${errorMessage}"/></p>
         </c:if>
         <form id="signupForm" action="sign-up.jsp" method="post" class="space-y-4" novalidate>
-            <!-- Full Name -->
-            <div>
-                <label for="fullName" class="block text-sm md:text-base font-semibold text-gray-300">Full Name</label>
-                <input type="text" id="fullName" name="fullName" value="${param.fullName}" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your full name" aria-required="true" aria-describedby="name-error">
-                <p id="name-error" class="text-red-500 text-sm hidden">Please enter your full name.</p>
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" name="fullName" value="${param.fullName}" required aria-label="Full Name" aria-describedby="name-error">
+                <p id="name-error" class="error-message">Please enter your full name.</p>
             </div>
-            <!-- Email -->
-            <div>
-                <label for="email" class="block text-sm md:text-base font-semibold text-gray-300">Email Address</label>
-                <input type="email" id="email" name="email" value="${param.email}" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your email" aria-required="true" aria-describedby="email-error">
-                <p id="email-error" class="text-red-500 text-sm hidden">Please enter a valid email address.</p>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" value="${param.email}" required aria-label="Email" aria-describedby="email-error">
+                <p id="email-error" class="error-message">Please enter a valid email address.</p>
             </div>
-            <!-- Password -->
-            <div>
-                <label for="password" class="block text-sm md:text-base font-semibold text-gray-300">Password</label>
-                <input type="password" id="password" name="password" required minlength="8" class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" placeholder="Enter your password" aria-required="true" aria-describedby="password-error">
-                <p id="password-error" class="text-red-500 text-sm hidden">Password must be at least 8 characters.</p>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="8" aria-label="Password" aria-describedby="password-error">
+                <p id="password-error" class="error-message">Password must be at least 8 characters.</p>
             </div>
-            <!-- Role -->
-            <div>
-                <label for="role" class="block text-sm md:text-base font-semibold text-gray-300">Role</label>
-                <select id="role" name="role" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-required="true" aria-describedby="role-error">
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role" required aria-label="Role" aria-describedby="role-error">
                     <option value="">Select your role</option>
                     <option value="customer" ${param.role == 'customer' ? 'selected' : ''}>Customer</option>
                     <option value="seller" ${param.role == 'seller' ? 'selected' : ''}>Seller</option>
                     <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin</option>
                 </select>
-                <p id="role-error" class="text-red-500 text-sm hidden">Please select your role.</p>
+                <p id="role-error" class="error-message">Please select your role.</p>
             </div>
-            <!-- Country -->
-            <div>
-                <label for="country" class="block text-sm md:text-base font-semibold text-gray-300">Country</label>
-                <select id="country" name="country" required class="w-full p-2 md:p-3 rounded-full search-bar text-white focus:outline-none" aria-required="true" aria-describedby="country-error">
+            <div class="form-group">
+                <label for="country">Country</label>
+                <select id="country" name="country" required aria-label="Country" aria-describedby="country-error">
                     <option value="">Select your country</option>
                     <option value="US" ${param.country == 'US' ? 'selected' : ''}>United States</option>
                     <option value="CA" ${param.country == 'CA' ? 'selected' : ''}>Canada</option>
@@ -271,28 +302,28 @@
                     <option value="BR" ${param.country == 'BR' ? 'selected' : ''}>Brazil</option>
                     <option value="SL" ${param.country == 'SL' ? 'selected' : ''}>Sri Lanka</option>
                 </select>
-                <p id="country-error" class="text-red-500 text-sm hidden">Please select your country.</p>
+                <p id="country-error" class="error-message">Please select your country.</p>
             </div>
-            <!-- Submit Button -->
-            <button type="submit" class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors add-to-cart">Create Account</button>
+            <button type="submit" class="submit-btn">Create Account</button>
+            <div class="switch-link">
+                Already have an account? <a href="sign-in.jsp">Sign In</a>
+            </div>
         </form>
-        <p class="text-center text-sm md:text-base text-gray-300 mt-4">Already have an account? <a href="sign-in.jsp" class="text-blue-300 hover:underline">Sign In</a></p>
     </div>
-</main>
+</div>
 
 <script>
-    // Form Validation
     document.getElementById('signupForm').addEventListener('submit', function(event) {
         event.preventDefault();
         let isValid = true;
 
         // Reset error messages
-        document.querySelectorAll('.text-red-500').forEach(error => error.classList.add('hidden'));
+        document.querySelectorAll('.error-message').forEach(error => error.style.display = 'none');
 
         // Full Name validation
         const fullName = document.getElementById('fullName').value.trim();
         if (!fullName) {
-            document.getElementById('name-error').classList.remove('hidden');
+            document.getElementById('name-error').style.display = 'block';
             isValid = false;
         }
 
@@ -300,33 +331,33 @@
         const email = document.getElementById('email').value.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            document.getElementById('email-error').classList.remove('hidden');
+            document.getElementById('email-error').style.display = 'block';
             isValid = false;
         }
 
         // Password validation
         const password = document.getElementById('password').value;
         if (password.length < 8) {
-            document.getElementById('password-error').classList.remove('hidden');
+            document.getElementById('password-error').style.display = 'block';
             isValid = false;
         }
 
         // Role validation
         const role = document.getElementById('role').value;
         if (!role) {
-            document.getElementById('role-error').classList.remove('hidden');
+            document.getElementById('role-error').style.display = 'block';
             isValid = false;
         }
 
         // Country validation
         const country = document.getElementById('country').value;
         if (!country) {
-            document.getElementById('country-error').classList.remove('hidden');
+            document.getElementById('country-error').style.display = 'block';
             isValid = false;
         }
 
         if (isValid) {
-            this.submit(); // Submit the form to the JSP
+            this.submit();
         }
     });
 </script>
