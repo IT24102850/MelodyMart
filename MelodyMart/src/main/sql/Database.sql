@@ -86,6 +86,14 @@ CREATE TABLE Brand (
     FOREIGN KEY (ManufacturerID) REFERENCES Manufacturer(ManufacturerID)
 );
 
+
+
+
+
+
+
+
+
 -- Instrument table
 CREATE TABLE Instrument (
     InstrumentID INT PRIMARY KEY IDENTITY(1,1),
@@ -285,6 +293,40 @@ GO
 
 SELECT all * FROM Person;
 
+
+
+
+
+SELECT * FROM Instrument 
+
+
+ALTER TABLE Instrument DROP CONSTRAINT FK__Instrumen__Manuf__47A6A41B;
+
+INSERT INTO Instrument (Name, ManufacturerID, Price)
+VALUES ('Guitar', 10, 5000);
+
+ALTER TABLE Instrument
+DROP CONSTRAINT FK__Instrumen__Manuf__47A6A41B;
+
+ALTER TABLE Instrument
+ALTER COLUMN BrandID INT NULL;
+
+
+
+
+INSERT INTO Instrument (Name, Description, Price)
+VALUES ('Guitar', 'Standard acoustic guitar', 5000);
+
+
+
+ALTER TABLE Instrument
+ALTER COLUMN BrandID INT NULL;
+
+ALTER TABLE Instrument
+ALTER COLUMN ManufacturerID INT NULL;
+
+SELECT * FROM Brand;
+SELECT * FROM Manufacturer;
 
 
 

@@ -86,6 +86,14 @@ CREATE TABLE Brand (
     FOREIGN KEY (ManufacturerID) REFERENCES Manufacturer(ManufacturerID)
 );
 
+
+
+
+
+
+
+
+
 -- Instrument table
 CREATE TABLE Instrument (
     InstrumentID INT PRIMARY KEY IDENTITY(1,1),
@@ -270,3 +278,55 @@ INSERT INTO Brand (Name, ManufacturerID) VALUES
 INSERT INTO Instrument (Name, Description, BrandID, Model, Color, Price, Specifications, Warranty, ImageURL, Quantity, ManufacturerID) VALUES 
 (N'Fender American Professional II Stratocaster', N'High-quality electric guitar', 1, N'Stratocaster', N'Sunburst', 1499.99, N'Body: Alder, Neck: Maple', N'2 Years', N'https://example.com/fender.jpg', 10, 1);
 GO
+
+
+
+ALTER TABLE Person
+ADD role NVARCHAR(50) NULL;
+GO
+
+
+UPDATE Person
+SET role = 'customer'
+WHERE role IS NULL;
+GO
+
+SELECT all * FROM Person;
+
+
+
+
+
+SELECT * FROM Instrument 
+
+
+ALTER TABLE Instrument DROP CONSTRAINT FK__Instrumen__Manuf__47A6A41B;
+
+INSERT INTO Instrument (Name, ManufacturerID, Price)
+VALUES ('Guitar', 10, 5000);
+
+ALTER TABLE Instrument
+DROP CONSTRAINT FK__Instrumen__Manuf__47A6A41B;
+
+ALTER TABLE Instrument
+ALTER COLUMN BrandID INT NULL;
+
+
+
+
+INSERT INTO Instrument (Name, Description, Price)
+VALUES ('Guitar', 'Standard acoustic guitar', 5000);
+
+
+
+ALTER TABLE Instrument
+ALTER COLUMN BrandID INT NULL;
+
+ALTER TABLE Instrument
+ALTER COLUMN ManufacturerID INT NULL;
+
+SELECT * FROM Brand;
+SELECT * FROM Manufacturer;
+
+
+

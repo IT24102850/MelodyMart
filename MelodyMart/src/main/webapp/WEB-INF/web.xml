@@ -42,4 +42,14 @@
     <url-pattern>/login</url-pattern>
   </servlet-mapping>
 
+  <!-- Servlet mapping for AddInstrumentServlet -->
+  <servlet>
+    <servlet-name>AddInstrumentServlet</servlet-name>
+    <servlet-class>main.java.com.melodymart.servlet.AddInstrumentServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AddInstrumentServlet</servlet-name>
+    <url-pattern>/AddInstrumentServlet</url-pattern>
+  </servlet-mapping>
+
 </web-app>
