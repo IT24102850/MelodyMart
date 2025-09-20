@@ -1056,6 +1056,18 @@
     </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
 <!-- Add Product Modal -->
 <div class="modal" id="addProductModal">
     <div class="modal-content">
@@ -1143,6 +1155,8 @@
         </div>
     </div>
 </div>
+
+
 
 <script>
     // Sidebar toggle for mobile
