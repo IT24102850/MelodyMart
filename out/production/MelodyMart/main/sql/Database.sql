@@ -328,5 +328,49 @@ ALTER COLUMN ManufacturerID INT NULL;
 SELECT * FROM Brand;
 SELECT * FROM Manufacturer;
 
+USE MelodyMartDB;
+SELECT TABLE_SCHEMA, TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_NAME LIKE '%Instrument%';
+
+SELECT TABLE_SCHEMA, TABLE_NAME
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_NAME LIKE '%Instrument%';
+
+SELECT BrandID, 
+FROM Brand;
 
 
+INSERT INTO Instrument (Name, ManufacturerID, Price)
+VALUES ('Guitar', 10, 5000);
+
+
+
+
+
+
+
+USE MelodyMartDB;
+GO
+
+INSERT INTO Instrument (Name, Description, BrandID, Price)
+VALUES ('Guitar', 'Standard acoustic guitar', 10, 5000);
+
+SELECT * FROM sys.foreign_keys WHERE name = 'FK__Instrumen__Brand__489AC854';
+
+SELECT DB_NAME() AS CurrentDatabase;
+
+SELECT BrandID, Name, ManufacturerID FROM Brand;
+
+INSERT INTO Instrument (Name, Description, BrandID, Price)
+VALUES ('Guitar', 'Standard acoustic guitar', 10, 5000.00);
+
+INSERT INTO Instrument (Name, Description, BrandID, Price)
+VALUES ('Guitar', 'Standard acoustic guitar', 1, 5000.00); -- Using BrandID 1 (Stratocaster)
+
+SELECT * FROM Instrument WHERE Name = 'Guitar';
+
+SELECT * FROM Instrument WHERE Name = 'Guitar';
+
+INSERT INTO Instrument (Name, Description, BrandID, Price)
+VALUES ('Guitar', 'Standard acoustic guitar', 10, 5000.00);

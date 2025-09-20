@@ -1,40 +1,50 @@
 package com.melodymart.model;
 
 public class Instrument {
-    private int id;
+    private int instrumentId;
     private String name;
-    private String brand;
-    private double price;
-    private String category;
     private String description;
+    private Integer brandId;  // Nullable foreign key
+    private String model;
+    private String color;
+    private double price;
+    private String specifications;
+    private String warranty;
     private String imageUrl;
-    private int stock;
-    private boolean available;
+    private int quantity;
+    private String stockLevel;  // e.g., 'In Stock', 'Low Stock', 'Out of Stock'
+    private Integer manufacturerId;  // Nullable foreign key
 
     // Default constructor
     public Instrument() {
     }
 
     // Parameterized constructor
-    public Instrument(int id, String name, String brand, double price, String category, String description, String imageUrl, int stock, boolean available) {
-        this.id = id;
+    public Instrument(int instrumentId, String name, String description, Integer brandId, String model, String color,
+                      double price, String specifications, String warranty, String imageUrl, int quantity,
+                      String stockLevel, Integer manufacturerId) {
+        this.instrumentId = instrumentId;
         this.name = name;
-        this.brand = brand;
-        this.price = price;
-        this.category = category;
         this.description = description;
+        this.brandId = brandId;
+        this.model = model;
+        this.color = color;
+        this.price = price;
+        this.specifications = specifications;
+        this.warranty = warranty;
         this.imageUrl = imageUrl;
-        this.stock = stock;
-        this.available = available;
+        this.quantity = quantity;
+        this.stockLevel = stockLevel;
+        this.manufacturerId = manufacturerId;
     }
 
     // Getters and Setters
-    public int getId() {
-        return id;
+    public int getInstrumentId() {
+        return instrumentId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setInstrumentId(int instrumentId) {
+        this.instrumentId = instrumentId;
     }
 
     public String getName() {
@@ -45,12 +55,36 @@ public class Instrument {
         this.name = name;
     }
 
-    public String getBrand() {
-        return brand;
+    public String getDescription() {
+        return description;
     }
 
-    public void setBrand(String brand) {
-        this.brand = brand;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getBrandId() {
+        return brandId;
+    }
+
+    public void setBrandId(Integer brandId) {
+        this.brandId = brandId;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public double getPrice() {
@@ -61,20 +95,20 @@ public class Instrument {
         this.price = price;
     }
 
-    public String getCategory() {
-        return category;
+    public String getSpecifications() {
+        return specifications;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setSpecifications(String specifications) {
+        this.specifications = specifications;
     }
 
-    public String getDescription() {
-        return description;
+    public String getWarranty() {
+        return warranty;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setWarranty(String warranty) {
+        this.warranty = warranty;
     }
 
     public String getImageUrl() {
@@ -85,34 +119,46 @@ public class Instrument {
         this.imageUrl = imageUrl;
     }
 
-    public int getStock() {
-        return stock;
+    public int getQuantity() {
+        return quantity;
     }
 
-    public void setStock(int stock) {
-        this.stock = stock;
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
-    public boolean isAvailable() {
-        return available;
+    public String getStockLevel() {
+        return stockLevel;
     }
 
-    public void setAvailable(boolean available) {
-        this.available = available;
+    public void setStockLevel(String stockLevel) {
+        this.stockLevel = stockLevel;
+    }
+
+    public Integer getManufacturerId() {
+        return manufacturerId;
+    }
+
+    public void setManufacturerId(Integer manufacturerId) {
+        this.manufacturerId = manufacturerId;
     }
 
     @Override
     public String toString() {
         return "Instrument{" +
-                "id=" + id +
+                "instrumentId=" + instrumentId +
                 ", name='" + name + '\'' +
-                ", brand='" + brand + '\'' +
-                ", price=" + price +
-                ", category='" + category + '\'' +
                 ", description='" + description + '\'' +
+                ", brandId=" + brandId +
+                ", model='" + model + '\'' +
+                ", color='" + color + '\'' +
+                ", price=" + price +
+                ", specifications='" + specifications + '\'' +
+                ", warranty='" + warranty + '\'' +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", stock=" + stock +
-                ", available=" + available +
+                ", quantity=" + quantity +
+                ", stockLevel='" + stockLevel + '\'' +
+                ", manufacturerId=" + manufacturerId +
                 '}';
     }
 }

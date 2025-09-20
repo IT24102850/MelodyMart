@@ -52,4 +52,13 @@
     <url-pattern>/AddInstrumentServlet</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>SaveInstrument</servlet-name>
+    <servlet-class>com.melodymart.servlet.inventory.SaveInstrument</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SaveInstrument</servlet-name>
+    <url-pattern>/saveInstrument</url-pattern>
+  </servlet-mapping>
+
 </web-app>
