@@ -179,6 +179,8 @@
                     <p class="product-desc"><%= rs.getString("Description") != null ? rs.getString("Description") : "No description available" %></p>
                     <div class="product-actions">
                         <button class="cta-btn">Add to Cart</button>
+                        <button class="cta-btn" onclick="window.location.href='order.jsp'">Order Now</button>
+
                         <button><i class="far fa-heart"></i></button>
                     </div>
                 </div>

@@ -374,3 +374,78 @@ SELECT * FROM Instrument WHERE Name = 'Guitar';
 
 INSERT INTO Instrument (Name, Description, BrandID, Price)
 VALUES ('Guitar', 'Standard acoustic guitar', 10, 5000.00);
+
+INSERT INTO Brand (Name, ManufacturerID) VALUES ('Stratocaster', 1);
+INSERT INTO Brand (Name, ManufacturerID) VALUES ('P-125', 2);
+SELECT * FROM Brand;
+
+INSERT INTO Instrument (Name, Description, BrandID, Model, Color, Price, Specifications, Warranty, ImageURL, Quantity) VALUES
+('Fender American Professional II Stratocaster', 'High-quality electric guitar with maple neck', 1, 'Stratocaster', 'Sunburst', 1499.99, 'Body: Alder, Neck: Maple, Pickups: V-Mod II', '2 Years', 'https://example.com/fender_strat.jpg', 10),
+('Yamaha P-125 Digital Piano', 'Compact digital piano with weighted keys', 2, 'P-125', 'Black', 799.99, 'Keys: 88, Polyphony: 192, Power: 12W', '1 Year', 'https://example.com/yamaha_p125.jpg', 15),
+('Pearl Export Series Drum Kit', 'Versatile drum set for beginners', 3, 'Export Series', 'Mahogany', 1299.95, 'Shells: 6-Ply, Sizes: 22x18, 10x8, 12x9, 16x16', '2 Years', 'https://example.com/pearl_export.jpg', 8),
+('Acoustic Guitar', 'Standard acoustic guitar for learners', 0, 'Classic', 'Natural', 299.99, 'Top: Spruce, Back/Sides: Mahogany', '1 Year', 'https://example.com/acoustic_guitar.jpg', 20);
+GO
+
+USE MelodyMartDB;
+GO
+SELECT * FROM Brand;
+
+INSERT INTO Brand (Name, ManufacturerID) VALUES
+('Stratocaster', 1),  -- Fender
+('P-125', 2),         -- Yamaha
+('Export Series', 3); -- Pearl
+GO
+
+INSERT INTO Instrument (Name, Description, BrandID, Model, Color, Price, Specifications, Warranty, ImageURL, Quantity) VALUES
+('Fender American Professional II Stratocaster', 'High-quality electric guitar with maple neck', 1, 'Stratocaster', 'Sunburst', 1499.99, 'Body: Alder, Neck: Maple, Pickups: V-Mod II', '2 Years', 'https://example.com/fender_strat.jpg', 10),
+('Yamaha P-125 Digital Piano', 'Compact digital piano with weighted keys', 2, 'P-125', 'Black', 799.99, 'Keys: 88, Polyphony: 192, Power: 12W', '1 Year', 'https://example.com/yamaha_p125.jpg', 15),
+('Pearl Export Series Drum Kit', 'Versatile drum set for beginners', 3, 'Export Series', 'Mahogany', 1299.95, 'Shells: 6-Ply, Sizes: 22x18, 10x8, 12x9, 16x16', '2 Years', 'https://example.com/pearl_export.jpg', 8),
+('Acoustic Guitar', 'Standard acoustic guitar for learners', NULL, 'Classic', 'Natural', 299.99, 'Top: Spruce, Back/Sides: Mahogany', '1 Year', 'https://example.com/acoustic_guitar.jpg', 20);
+GO
+
+SELECT * FROM Instrument;
+
+ALTER TABLE Instrument
+DROP CONSTRAINT FK__Instrumen__Brand__489AC854;
+ALTER TABLE Instrument
+ADD CONSTRAINT FK__Instrumen__Brand__489AC854
+FOREIGN KEY (BrandID) REFERENCES Brand(BrandID) ON DELETE SET NULL;
+
+INSERT INTO Instrument (Name, Description, BrandID, Model, Color, Price, Specifications, Warranty, ImageURL, Quantity) VALUES
+('Fender American Professional II Stratocaster', 'High-quality electric guitar with maple neck', 1, 'Stratocaster', 'Sunburst', 1499.99, 'Body: Alder, Neck: Maple, Pickups: V-Mod II', '2 Years', 'https://example.com/fender_strat.jpg', 10),
+('Yamaha P-125 Digital Piano', 'Compact digital piano with weighted keys', 2, 'P-125', 'Black', 799.99, 'Keys: 88, Polyphony: 192, Power: 12W', '1 Year', 'https://example.com/yamaha_p125.jpg', 15),
+('Pearl Export Series Drum Kit', 'Versatile drum set for beginners', 3, 'Export Series', 'Mahogany', 1299.95, 'Shells: 6-Ply, Sizes: 22x18, 10x8, 12x9, 16x16', '2 Years', 'https://example.com/pearl_export.jpg', 8),
+('Acoustic Guitar', 'Standard acoustic guitar for learners', NULL, 'Classic', 'Natural', 299.99, 'Top: Spruce, Back/Sides: Mahogany', '1 Year', 'https://example.com/acoustic_guitar.jpg', 20);
+GO
+
+SELECT * FROM Instrument;
+
+INSERT INTO Instrument (Name, Description, BrandID, Model, Color, Price, Specifications, Warranty, ImageURL, Quantity, ManufacturerID) VALUES
+('Fender American Professional II Stratocaster', 'High-quality electric guitar with maple neck', 1, 'Stratocaster', 'Sunburst', 1499.99, 'Body: Alder, Neck: Maple, Pickups: V-Mod II', '2 Years', 'https://example.com/fender_strat.jpg', 10, 1),
+('Yamaha P-125 Digital Piano', 'Compact digital piano with weighted keys', 2, 'P-125', 'Black', 799.99, 'Keys: 88, Polyphony: 192, Power: 12W', '1 Year', 'https://example.com/yamaha_p125.jpg', 15, 2),
+('Pearl Export Series Drum Kit', 'Versatile drum set for beginners', 3, 'Export Series', 'Mahogany', 1299.95, 'Shells: 6-Ply, Sizes: 22x18, 10x8, 12x9, 16x16', '2 Years', 'https://example.com/pearl_export.jpg', 8, 3),
+('Acoustic Guitar', 'Standard acoustic guitar for learners', NULL, 'Classic', 'Natural', 299.99, 'Top: Spruce, Back/Sides: Mahogany', '1 Year', 'https://example.com/acoustic_guitar.jpg', 20, NULL);
+GO
+
+SELECT BrandID FROM Brand;
+SELECT ManufacturerID FROM Manufacturer;
+
+CREATE TABLE Instrument (
+    InstrumentID INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(500),
+    BrandID INT,  -- Link to Brand
+    Model NVARCHAR(50),
+    Color NVARCHAR(30),
+    Price DECIMAL(10,2) NOT NULL,
+    Specifications NVARCHAR(500),
+    Warranty NVARCHAR(100),
+    ImageURL NVARCHAR(255),
+    Quantity INT DEFAULT 0,
+    StockLevel NVARCHAR(20) DEFAULT 'In Stock',  -- e.g., 'In Stock', 'Low Stock', 'Out of Stock'
+    ManufacturerID INT,
+    FOREIGN KEY (ManufacturerID) REFERENCES Manufacturer(ManufacturerID),
+    FOREIGN KEY (BrandID) REFERENCES Brand(BrandID)
+);
+
+SELECT * FROM Instrument;

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <style>
+        /* Your existing CSS styles remain unchanged */
         :root {
             --primary: #8a2be2;
             --primary-light: #9b45f0;
@@ -632,6 +633,41 @@
             font-size: 14px;
         }
 
+        /* Quantity Controls */
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--secondary);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .quantity-input {
+            width: 40px;
+            text-align: center;
+            margin: 0 10px;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             .form-grid {
                 grid-template-columns: 1fr;
@@ -705,59 +741,33 @@
                     <h2 class="card-title">Order Details</h2>
                 </div>
 
-                <div class="product-item">
-                    <div class="product-image">
-                        <i class="fas fa-guitar"></i>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Professional Electric Guitar</h3>
-                        <p class="product-desc">Premium crafted with exceptional tone and playability</p>
-                        <div class="product-price">
-                            <s>Rs. 1,499.99</s> Rs. 1,299.99
-                            <span style="color: var(--success); margin-left: 10px;">(-13%)</span>
-                        </div>
-                        <p class="product-meta">Qty: 1 | Color: Sunburst</p>
-                    </div>
-                </div>
-
-                <div class="product-item">
-                    <div class="product-image">
-                        <i class="fas fa-drum"></i>
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">Premium Drum Set</h3>
-                        <p class="product-desc">Professional 7-piece drum kit with hardware</p>
-                        <div class="product-price">
-                            <s>Rs. 2,699.99</s> Rs. 2,499.99
-                            <span style="color: var(--success); margin-left: 10px;">(-7%)</span>
-                        </div>
-                        <p class="product-meta">Qty: 1 | Size: Standard</p>
-                    </div>
+                <div id="order-items-container">
+                    <!-- Order items will be dynamically inserted here -->
                 </div>
 
                 <div class="summary-item">
-                    <span>Subtotal (2 items)</span>
-                    <span>Rs. 3,799.98</span>
+                    <span>Subtotal (<span id="total-items">0</span> items)</span>
+                    <span id="subtotal-amount">Rs. 0.00</span>
                 </div>
 
                 <div class="summary-item">
                     <span>Delivery Fee</span>
-                    <span>Rs. 199.00</span>
+                    <span id="delivery-fee">Rs. 199.00</span>
                 </div>
 
                 <div class="summary-item">
                     <span>Discount</span>
-                    <span style="color: var(--success);">- Rs. 400.00</span>
+                    <span id="discount-amount" style="color: var(--success);">- Rs. 0.00</span>
                 </div>
 
                 <div class="summary-item">
                     <span>Tax</span>
-                    <span>Rs. 265.99</span>
+                    <span id="tax-amount">Rs. 0.00</span>
                 </div>
 
                 <div class="summary-total">
                     <span>Total</span>
-                    <span class="total-amount">Rs. 3,864.97</span>
+                    <span class="total-amount" id="total-amount">Rs. 0.00</span>
                 </div>
 
                 <div class="security-badge">
@@ -935,67 +945,229 @@
 </footer>
 
 <script>
-    // Payment confirmation
-    document.getElementById('pay-now-btn').addEventListener('click', function(e) {
-        e.preventDefault();
-
-        // Simulate payment processing
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-        this.disabled = true;
-
-        // Simulate API call
-        setTimeout(() => {
-            alert('Payment successful! Your order is now being processed.');
-            this.innerHTML = '<i class="fas fa-check"></i> Payment Successful';
-            this.style.background = 'var(--success)';
-
-            // Update order status
-            document.querySelectorAll('.status-step')[2].querySelector('.status-icon').classList.add('completed');
-            document.querySelectorAll('.status-connector')[1].classList.add('completed');
-            document.querySelectorAll('.status-step')[1].querySelector('.status-icon').classList.remove('active');
-            document.querySelectorAll('.status-step')[1].querySelector('.status-icon').classList.add('completed');
-            document.querySelectorAll('.status-step')[2].querySelector('.status-label').classList.add('active');
-        }, 2000);
-    });
-
-    // Payment method selection
-    const paymentOptions = document.querySelectorAll('.payment-option');
-    paymentOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            paymentOptions.forEach(o => o.classList.remove('active'));
-            option.classList.add('active');
-
-            // Update card display
-            const cardType = option.querySelector('i').classList[1];
-            const cardIcon = document.querySelector('#current-card .payment-icon i');
-            cardIcon.className = '';
-            cardIcon.classList.add('fab', cardType);
-
-            document.querySelector('#current-card .payment-info h3').textContent =
-                option.querySelector('div').textContent + ' ending in 4567';
-        });
-    });
-
-    // Edit payment details
-    document.getElementById('edit-payment-btn').addEventListener('click', function(e) {
-        e.preventDefault();
-        alert('Edit payment feature would open a form to update payment details.');
-    });
-
-    // CVV eye icon functionality
-    document.querySelector('#cvv + .input-icon').addEventListener('click', function() {
-        const cvvInput = document.getElementById('cvv');
-        const eyeIcon = this.querySelector('i');
-
-        if (cvvInput.type === 'password') {
-            cvvInput.type = 'text';
-            eyeIcon.classList.remove('fa-eye');
-            eyeIcon.classList.add('fa-eye-slash');
-        } else {
-            cvvInput.type = 'password';
-            eyeIcon.classList.remove('fa-eye-slash');
-            eyeIcon.classList.add('fa-eye');
+    // Sample instrument data - This would typically come from your backend/database
+    const instrumentTable = [
+        {
+            id: 1,
+            name: "Professional Electric Guitar",
+            description: "Premium crafted with exceptional tone and playability",
+            originalPrice: 1499.99,
+            salePrice: 1299.99,
+            icon: "guitar",
+            color: "Sunburst",
+            category: "String"
+        },
+        {
+            id: 2,
+            name: "Premium Drum Set",
+            description: "Professional 7-piece drum kit with hardware",
+            originalPrice: 2699.99,
+            salePrice: 2499.99,
+            icon: "drum",
+            size: "Standard",
+            category: "Percussion"
+        },
+        {
+            id: 3,
+            name: "Digital Piano",
+            description: "88-key weighted keyboard with authentic piano sound",
+            originalPrice: 1899.99,
+            salePrice: 1599.99,
+            icon: "piano",
+            color: "Black",
+            category: "Keyboard"
+        },
+        {
+            id: 4,
+            name: "Violin",
+            description: "Handcrafted violin with bow and case",
+            originalPrice: 899.99,
+            salePrice: 799.99,
+            icon: "violin",
+            size: "4/4",
+            category: "String"
+        },
+        {
+            id: 5,
+            name: "Saxophone",
+            description: "Professional alto saxophone with rich tone",
+            originalPrice: 2199.99,
+            salePrice: 1999.99,
+            icon: "saxophone",
+            color: "Gold Lacquer",
+            category: "Wind"
         }
+    ];
+
+    // Cart data - This would typically come from your shopping cart
+    // For demo purposes, we'll use a sample cart with some items
+    let cartItems = [
+        { instrumentId: 1, quantity: 1 },
+        { instrumentId: 2, quantity: 1 },
+        { instrumentId: 3, quantity: 2 }
+    ];
+
+    // Constants for calculations
+    const DELIVERY_FEE = 199.00;
+    const TAX_RATE = 0.07; // 7% tax
+
+    // Function to calculate order totals
+    function calculateOrderTotals() {
+        let subtotal = 0;
+        let totalDiscount = 0;
+        let totalItems = 0;
+
+        // Calculate subtotal and discounts
+        cartItems.forEach(cartItem => {
+            const instrument = instrumentTable.find(item => item.id === cartItem.instrumentId);
+            if (instrument) {
+                subtotal += instrument.salePrice * cartItem.quantity;
+                totalDiscount += (instrument.originalPrice - instrument.salePrice) * cartItem.quantity;
+                totalItems += cartItem.quantity;
+            }
+        });
+
+        // Calculate tax and total
+        const tax = subtotal * TAX_RATE;
+        const total = subtotal + DELIVERY_FEE + tax;
+
+        // Update the UI
+        document.getElementById('total-items').textContent = totalItems;
+        document.getElementById('subtotal-amount').textContent = `Rs. ${subtotal.toFixed(2)}`;
+        document.getElementById('delivery-fee').textContent = `Rs. ${DELIVERY_FEE.toFixed(2)}`;
+        document.getElementById('discount-amount').textContent = `- Rs. ${totalDiscount.toFixed(2)}`;
+        document.getElementById('tax-amount').textContent = `Rs. ${tax.toFixed(2)}`;
+        document.getElementById('total-amount').textContent = `Rs. ${total.toFixed(2)}`;
+    }
+
+    // Function to render order items
+    function renderOrderItems() {
+        const container = document.getElementById('order-items-container');
+        container.innerHTML = '';
+
+        cartItems.forEach(cartItem => {
+            const instrument = instrumentTable.find(item => item.id === cartItem.instrumentId);
+            if (instrument) {
+                const discountPercent = Math.round((1 - (instrument.salePrice / instrument.originalPrice)) * 100);
+
+                const itemElement = document.createElement('div');
+                itemElement.className = 'product-item';
+                itemElement.innerHTML = `
+                    <div class="product-image">
+                        <i class="fas fa-${instrument.icon}"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${instrument.name}</h3>
+                        <p class="product-desc">${instrument.description}</p>
+                        <div class="product-price">
+                            <s>Rs. ${instrument.originalPrice.toFixed(2)}</s> Rs. ${instrument.salePrice.toFixed(2)}
+                            <span style="color: var(--success); margin-left: 10px;">(-${discountPercent}%)</span>
+                        </div>
+                        <p class="product-meta">Qty: ${cartItem.quantity} ${instrument.color ? '| Color: ' + instrument.color : ''} ${instrument.size ? '| Size: ' + instrument.size : ''}</p>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn decrease-btn" data-id="${instrument.id}">-</button>
+                            <input type="text" class="quantity-input" value="${cartItem.quantity}" data-id="${instrument.id}" readonly>
+                            <button class="quantity-btn increase-btn" data-id="${instrument.id}">+</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(itemElement);
+            }
+        });
+
+        // Add event listeners for quantity controls
+        document.querySelectorAll('.increase-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = parseInt(this.getAttribute('data-id'));
+                const cartItem = cartItems.find(item => item.instrumentId === id);
+                if (cartItem) {
+                    cartItem.quantity++;
+                    renderOrderItems();
+                    calculateOrderTotals();
+                }
+            });
+        });
+
+        document.querySelectorAll('.decrease-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = parseInt(this.getAttribute('data-id'));
+                const cartItem = cartItems.find(item => item.instrumentId === id);
+                if (cartItem && cartItem.quantity > 1) {
+                    cartItem.quantity--;
+                    renderOrderItems();
+                    calculateOrderTotals();
+                }
+            });
+        });
+    }
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        renderOrderItems();
+        calculateOrderTotals();
+
+        // Payment confirmation
+        document.getElementById('pay-now-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Simulate payment processing
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            this.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                alert('Payment successful! Your order is now being processed.');
+                this.innerHTML = '<i class="fas fa-check"></i> Payment Successful';
+                this.style.background = 'var(--success)';
+
+                // Update order status
+                document.querySelectorAll('.status-step')[2].querySelector('.status-icon').classList.add('completed');
+                document.querySelectorAll('.status-connector')[1].classList.add('completed');
+                document.querySelectorAll('.status-step')[1].querySelector('.status-icon').classList.remove('active');
+                document.querySelectorAll('.status-step')[1].querySelector('.status-icon').classList.add('completed');
+                document.querySelectorAll('.status-step')[2].querySelector('.status-label').classList.add('active');
+            }, 2000);
+        });
+
+        // Payment method selection
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                paymentOptions.forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+
+                // Update card display
+                const cardType = option.querySelector('i').classList[1];
+                const cardIcon = document.querySelector('#current-card .payment-icon i');
+                cardIcon.className = '';
+                cardIcon.classList.add('fab', cardType);
+
+                document.querySelector('#current-card .payment-info h3').textContent =
+                    option.querySelector('div').textContent + ' ending in 4567';
+            });
+        });
+
+        // Edit payment details
+        document.getElementById('edit-payment-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Edit payment feature would open a form to update payment details.');
+        });
+
+        // CVV eye icon functionality
+        document.querySelector('#cvv + .input-icon').addEventListener('click', function() {
+            const cvvInput = document.getElementById('cvv');
+            const eyeIcon = this.querySelector('i');
+
+            if (cvvInput.type === 'password') {
+                cvvInput.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                cvvInput.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
     });
 </script>
 </body>
