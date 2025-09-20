@@ -1085,36 +1085,52 @@
                 <span id="errorText"></span>
             </div>
 
-            <form id="instrumentForm" action="SaveInstrument" method="post">
+            <!-- Display success message if exists -->
+            <div class="notification" style="display: none; background: rgba(40, 167, 69, 0.2); border: 1px solid rgba(40, 167, 69, 0.5); color: #28a745;" id="successNotification">
+                <i class="fas fa-check-circle"></i>
+                <span id="successText"></span>
+            </div>
+
+            <form id="instrumentForm" action="SaveInstrument" method="post" enctype="multipart/form-data">
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="name" class="form-label">Name *</label>
-                        <input type="text" id="name" name="name" class="form-control" required>
+                        <input type="text" id="name" name="name" class="form-control" required
+                               placeholder="e.g., Fender Stratocaster">
+                        <div class="error-message" id="nameError" style="display: none;"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="price" class="form-label">Price ($) *</label>
-                        <input type="number" id="price" name="price" class="form-control" step="0.01" min="0.01" required>
+                        <input type="number" id="price" name="price" class="form-control"
+                               step="0.01" min="0.01" required placeholder="0.00">
+                        <div class="error-message" id="priceError" style="display: none;"></div>
                     </div>
 
                     <div class="form-group">
                         <label for="brandId" class="form-label">Brand ID</label>
-                        <input type="number" id="brandId" name="brandId" class="form-control" min="1">
+                        <input type="number" id="brandId" name="brandId" class="form-control"
+                               min="1" placeholder="Optional">
+                        <small style="color: var(--text-secondary); font-size: 11px;">Leave empty if unknown</small>
                     </div>
 
                     <div class="form-group">
                         <label for="model" class="form-label">Model</label>
-                        <input type="text" id="model" name="model" class="form-control">
+                        <input type="text" id="model" name="model" class="form-control"
+                               placeholder="e.g., American Professional II">
                     </div>
 
                     <div class="form-group">
                         <label for="color" class="form-label">Color</label>
-                        <input type="text" id="color" name="color" class="form-control">
+                        <input type="text" id="color" name="color" class="form-control"
+                               placeholder="e.g., Sunburst, Black, White">
                     </div>
 
                     <div class="form-group">
                         <label for="quantity" class="form-label">Quantity *</label>
-                        <input type="number" id="quantity" name="quantity" class="form-control" min="0" required>
+                        <input type="number" id="quantity" name="quantity" class="form-control"
+                               min="0" required placeholder="0">
+                        <div class="error-message" id="quantityError" style="display: none;"></div>
                     </div>
 
                     <div class="form-group">
@@ -1124,31 +1140,56 @@
                             <option value="Low Stock">Low Stock</option>
                             <option value="Out of Stock">Out of Stock</option>
                         </select>
+                        <small style="color: var(--text-secondary); font-size: 11px;">Will auto-update based on quantity</small>
                     </div>
 
                     <div class="form-group">
                         <label for="manufacturerId" class="form-label">Manufacturer ID</label>
-                        <input type="number" id="manufacturerId" name="manufacturerId" class="form-control" min="1">
+                        <input type="number" id="manufacturerId" name="manufacturerId" class="form-control"
+                               min="1" placeholder="Optional">
+                        <small style="color: var(--text-secondary); font-size: 11px;">Leave empty if unknown</small>
                     </div>
 
                     <div class="form-group full-width">
                         <label for="description" class="form-label">Description</label>
-                        <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+                        <textarea id="description" name="description" class="form-control" rows="3"
+                                  placeholder="Describe the instrument's features, condition, and any special characteristics..."></textarea>
                     </div>
 
                     <div class="form-group full-width">
                         <label for="specifications" class="form-label">Specifications</label>
-                        <textarea id="specifications" name="specifications" class="form-control" rows="3"></textarea>
+                        <textarea id="specifications" name="specifications" class="form-control" rows="3"
+                                  placeholder="Technical specifications like dimensions, materials, pickup types, etc..."></textarea>
                     </div>
 
                     <div class="form-group">
                         <label for="warranty" class="form-label">Warranty</label>
-                        <input type="text" id="warranty" name="warranty" class="form-control">
+                        <input type="text" id="warranty" name="warranty" class="form-control"
+                               placeholder="e.g., 2 years, Limited lifetime">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="imageFile" class="form-label">Product Image</label>
+                        <div class="image-upload" id="imageUpload">
+                            <div class="upload-btn" onclick="document.getElementById('imageFile').click()">
+                                <i class="fas fa-plus"></i>
+                                <span style="margin-left: 5px; font-size: 12px;">Add Image</span>
+                            </div>
+                        </div>
+                        <input type="file" id="imageFile" name="imageFile" accept="image/jpeg,image/jpg,image/png,image/gif"
+                               style="display: none;" onchange="handleImageUpload(this)">
+                        <input type="hidden" id="imageUrl" name="imageUrl">
+                        <small style="color: var(--text-secondary); font-size: 12px; margin-top: 5px; display: block;">
+                            Upload a clear product image. Max size: 5MB. Formats: JPG, PNG, GIF
+                        </small>
+                        <div class="error-message" id="imageError" style="display: none;"></div>
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('addProductModal')">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Instrument</button>
+                        <button type="button" class="btn btn-secondary" onclick="cancelForm()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-plus"></i> Add Instrument
+                        </button>
                     </div>
                 </div>
             </form>
@@ -1156,9 +1197,210 @@
     </div>
 </div>
 
-
-
 <script>
+    // Enhanced form handling and validation
+    document.getElementById('instrumentForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default submission initially
+
+        // Clear previous errors
+        clearAllErrors();
+
+        // Validate form
+        if (validateForm()) {
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            submitBtn.disabled = true;
+
+            // Submit the form
+            this.submit();
+        }
+    });
+
+    function validateForm() {
+        let isValid = true;
+
+        // Validate name
+        const name = document.getElementById('name');
+        if (!name.value.trim()) {
+            showFieldError('nameError', 'Product name is required');
+            name.focus();
+            isValid = false;
+        }
+
+        // Validate price
+        const price = document.getElementById('price');
+        const priceValue = parseFloat(price.value);
+        if (!price.value || priceValue <= 0) {
+            showFieldError('priceError', 'Price must be greater than 0');
+            if (isValid) price.focus(); // Focus first error
+            isValid = false;
+        } else if (priceValue > 999999.99) {
+            showFieldError('priceError', 'Price cannot exceed $999,999.99');
+            if (isValid) price.focus();
+            isValid = false;
+        }
+
+        // Validate quantity
+        const quantity = document.getElementById('quantity');
+        const quantityValue = parseInt(quantity.value);
+        if (!quantity.value || quantityValue < 0) {
+            showFieldError('quantityError', 'Quantity must be 0 or greater');
+            if (isValid) quantity.focus();
+            isValid = false;
+        } else if (quantityValue > 10000) {
+            showFieldError('quantityError', 'Quantity cannot exceed 10,000');
+            if (isValid) quantity.focus();
+            isValid = false;
+        }
+
+        // Auto-update stock level based on quantity
+        updateStockLevelFromQuantity();
+
+        return isValid;
+    }
+
+    function showFieldError(errorId, message) {
+        const errorElement = document.getElementById(errorId);
+        errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+        errorElement.style.display = 'flex';
+    }
+
+    function clearAllErrors() {
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(element => {
+            element.style.display = 'none';
+            element.innerHTML = '';
+        });
+    }
+
+    function updateStockLevelFromQuantity() {
+        const quantity = parseInt(document.getElementById('quantity').value) || 0;
+        const stockLevel = document.getElementById('stockLevel');
+
+        if (quantity === 0) {
+            stockLevel.value = 'Out of Stock';
+        } else if (quantity <= 5) {
+            stockLevel.value = 'Low Stock';
+        } else {
+            stockLevel.value = 'In Stock';
+        }
+    }
+
+    // Auto-update stock level when quantity changes
+    document.getElementById('quantity').addEventListener('input', updateStockLevelFromQuantity);
+
+    function handleImageUpload(input) {
+        const file = input.files[0];
+        const imageError = document.getElementById('imageError');
+
+        // Clear previous errors
+        imageError.style.display = 'none';
+
+        if (file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type.toLowerCase())) {
+                showFieldError('imageError', 'Please select a valid image file (JPG, PNG, GIF)');
+                input.value = '';
+                removeImagePreview();
+                return;
+            }
+
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showFieldError('imageError', 'Image size must be less than 5MB');
+                input.value = '';
+                removeImagePreview();
+                return;
+            }
+
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                createImagePreview(e.target.result, file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function createImagePreview(src, filename) {
+        const uploadContainer = document.getElementById('imageUpload');
+
+        // Remove existing previews
+        const existingPreviews = uploadContainer.querySelectorAll('.image-preview');
+        existingPreviews.forEach(preview => preview.remove());
+
+        // Create new preview
+        const preview = document.createElement('div');
+        preview.className = 'image-preview';
+        preview.innerHTML = `
+        <img src="${src}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+        <button type="button" class="remove-image" onclick="removeImagePreview()" title="Remove image">
+            <i class="fas fa-times"></i>
+        </button>
+        <div style="position: absolute; bottom: 2px; left: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; padding: 2px; border-radius: 2px; text-align: center;">
+            ${filename.length > 15 ? filename.substring(0, 12) + '...' : filename}
+        </div>
+    `;
+
+        // Insert before upload button
+        const uploadBtn = uploadContainer.querySelector('.upload-btn');
+        uploadContainer.insertBefore(preview, uploadBtn);
+
+        // Update upload button text
+        uploadBtn.innerHTML = '<i class="fas fa-sync"></i><span style="margin-left: 5px; font-size: 12px;">Change</span>';
+    }
+
+    function removeImagePreview() {
+        const uploadContainer = document.getElementById('imageUpload');
+        const preview = uploadContainer.querySelector('.image-preview');
+        const imageFile = document.getElementById('imageFile');
+        const imageUrl = document.getElementById('imageUrl');
+        const uploadBtn = uploadContainer.querySelector('.upload-btn');
+
+        if (preview) {
+            preview.remove();
+        }
+        imageFile.value = '';
+        imageUrl.value = '';
+
+        // Reset upload button text
+        uploadBtn.innerHTML = '<i class="fas fa-plus"></i><span style="margin-left: 5px; font-size: 12px;">Add Image</span>';
+    }
+
+    function cancelForm() {
+        // Clear form
+        document.getElementById('instrumentForm').reset();
+        removeImagePreview();
+        clearAllErrors();
+
+        // Reset submit button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Instrument';
+        submitBtn.disabled = false;
+
+        // Close modal
+        closeModal('addProductModal');
+    }
+
+    // Reset form when modal is opened
+    function openModal(modalId) {
+        if (modalId === 'addProductModal') {
+            // Reset form state
+            document.getElementById('instrumentForm').reset();
+            removeImagePreview();
+            clearAllErrors();
+
+            // Reset submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Instrument';
+            submitBtn.disabled = false;
+        }
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
     // Sidebar toggle for mobile
     document.getElementById('menuToggle').addEventListener('click', function() {
         document.getElementById('sidebar').classList.toggle('active');
