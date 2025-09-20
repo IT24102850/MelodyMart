@@ -244,6 +244,7 @@
             padding: 25px;
             margin-bottom: 30px;
             border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .card-header {
@@ -310,6 +311,7 @@
         .btn-primary:hover {
             background: var(--gradient-alt);
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
         }
 
         .btn-secondary {
@@ -364,6 +366,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 500;
+            color: var(--text);
         }
 
         .form-control {
@@ -374,6 +377,7 @@
             border-radius: 5px;
             color: var(--text);
             font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s ease;
         }
 
         .form-control:focus {
@@ -405,17 +409,20 @@
             z-index: 2000;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .modal-content {
             background: var(--card-bg);
             border-radius: 15px;
             padding: 30px;
-            max-width: 600px;
-            width: 90%;
+            max-width: 800px;
+            width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
         .modal-close {
@@ -427,6 +434,11 @@
             color: var(--text);
             font-size: 20px;
             cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--primary-light);
         }
 
         .modal-title {
@@ -436,6 +448,85 @@
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        /* Premium Form Styles */
+        .premium-form {
+            padding: 20px 0;
+        }
+
+        .premium-form .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .premium-form .form-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .premium-form .form-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .premium-form .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .premium-form .full-width {
+            grid-column: span 2;
+        }
+
+        .premium-form .form-actions {
+            grid-column: span 2;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .premium-form .btn {
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .error-message i {
+            font-size: 16px;
+        }
+
+        .notification {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .notification.error {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #dc3545;
         }
 
         /* Responsive */
@@ -459,6 +550,23 @@
 
             .menu-toggle {
                 display: block;
+            }
+
+            .premium-form .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .premium-form .full-width {
+                grid-column: span 1;
+            }
+
+            .premium-form .form-actions {
+                grid-column: span 1;
+                flex-direction: column;
+            }
+
+            .premium-form .btn {
+                width: 100%;
             }
         }
 
@@ -952,73 +1060,87 @@
 <div class="modal" id="addProductModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('addProductModal')">&times;</button>
-        <h2 class="modal-title">Add New Product</h2>
 
-        <form id="addProductForm">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Product Name</label>
-                    <input type="text" class="form-control" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">SKU</label>
-                    <input type="text" class="form-control" required>
-                </div>
+        <div class="premium-form">
+            <div class="form-header">
+                <h2 class="form-title">Add New Instrument</h2>
+                <p class="form-subtitle">Fill in the details below to add a new instrument to your inventory</p>
             </div>
 
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select class="form-control" required>
-                        <option value="">Select Category</option>
-                        <option value="guitars">Guitars</option>
-                        <option value="drums">Drums & Percussion</option>
-                        <option value="keyboards">Pianos & Keyboards</option>
-                        <option value="audio">Audio Equipment</option>
-                        <option value="accessories">Accessories</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Price ($)</label>
-                    <input type="number" class="form-control" step="0.01" required>
-                </div>
+            <!-- Display error message if exists -->
+            <div class="notification error" style="display: none;" id="errorNotification">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText"></span>
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Description</label>
-                <textarea class="form-control" rows="4" required></textarea>
-            </div>
+            <form id="instrumentForm" action="SaveInstrument" method="post">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name" class="form-label">Name *</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
 
-            <div class="form-group">
-                <label class="form-label">Product Images</label>
-                <div class="image-upload">
-                    <div class="upload-btn">
-                        <i class="fas fa-plus"></i>
+                    <div class="form-group">
+                        <label for="price" class="form-label">Price ($) *</label>
+                        <input type="number" id="price" name="price" class="form-control" step="0.01" min="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brandId" class="form-label">Brand ID</label>
+                        <input type="number" id="brandId" name="brandId" class="form-control" min="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="model" class="form-label">Model</label>
+                        <input type="text" id="model" name="model" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="color" class="form-label">Color</label>
+                        <input type="text" id="color" name="color" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="quantity" class="form-label">Quantity *</label>
+                        <input type="number" id="quantity" name="quantity" class="form-control" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stockLevel" class="form-label">Stock Level</label>
+                        <select id="stockLevel" name="stockLevel" class="form-control">
+                            <option value="In Stock">In Stock</option>
+                            <option value="Low Stock">Low Stock</option>
+                            <option value="Out of Stock">Out of Stock</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="manufacturerId" class="form-label">Manufacturer ID</label>
+                        <input type="number" id="manufacturerId" name="manufacturerId" class="form-control" min="1">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="specifications" class="form-label">Specifications</label>
+                        <textarea id="specifications" name="specifications" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="warranty" class="form-label">Warranty</label>
+                        <input type="text" id="warranty" name="warranty" class="form-control">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addProductModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Instrument</button>
                     </div>
                 </div>
-            </div>
-
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Initial Stock</label>
-                    <input type="number" class="form-control" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Low Stock Alert</label>
-                    <input type="number" class="form-control" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Specifications</label>
-                <textarea class="form-control" rows="3" placeholder="Key features and specifications"></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Add Product</button>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -1074,12 +1196,46 @@
         });
     });
 
-    // Form submission
-    document.getElementById('addProductForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        alert('Product added successfully! (This would connect to backend in a real application)');
-        closeModal('addProductModal');
+    // Form validation
+    document.getElementById('instrumentForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        const name = document.getElementById('name');
+        const price = document.getElementById('price');
+        const quantity = document.getElementById('quantity');
+
+        // Reset previous errors
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+        // Validate name
+        if (!name.value.trim()) {
+            showError(name, 'Instrument name is required');
+            isValid = false;
+        }
+
+        // Validate price
+        if (!price.value || parseFloat(price.value) <= 0) {
+            showError(price, 'Please enter a valid price');
+            isValid = false;
+        }
+
+        // Validate quantity
+        if (!quantity.value || parseInt(quantity.value) < 0) {
+            showError(quantity, 'Please enter a valid quantity');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+        }
     });
+
+    function showError(input, message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        input.parentNode.appendChild(errorDiv);
+        input.focus();
+    }
 
     // Logout function
     function logout() {
@@ -1087,6 +1243,19 @@
             window.location.href = 'index.jsp';
         }
     }
+
+    // Check if there's an error message from the server
+    window.addEventListener('DOMContentLoaded', function() {
+        const errorNotification = document.getElementById('errorNotification');
+        const errorText = document.getElementById('errorText');
+
+        // Simulating server-side error (replace with actual server response handling)
+        const addStatus = ""; // This would come from your JSP
+        if (addStatus) {
+            errorText.textContent = addStatus;
+            errorNotification.style.display = 'flex';
+        }
+    });
 </script>
 </body>
 </html>
