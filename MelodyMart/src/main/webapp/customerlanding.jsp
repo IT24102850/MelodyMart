@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1099,6 +1100,9 @@
             <li><a href="about.jsp">About</a></li>
             <li><a href="content.jsp">Contact</a></li>
         </ul>
+
+
+
 
         <div class="nav-actions">
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
