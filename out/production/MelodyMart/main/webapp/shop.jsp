@@ -169,6 +169,8 @@
                         String imageUrl = rs.getString("ImageURL");
                         if (imageUrl == null || imageUrl.isEmpty()) imageUrl = "https://via.placeholder.com/300x220?text=No+Image";
             %>
+
+
             <div class="product-card bounce-in">
                 <div class="product-img">
                     <img src="<%= imageUrl %>" alt="<%= rs.getString("Name") %>">
@@ -179,6 +181,8 @@
                     <p class="product-desc"><%= rs.getString("Description") != null ? rs.getString("Description") : "No description available" %></p>
                     <div class="product-actions">
                         <button class="cta-btn">Add to Cart</button>
+                        <button class="cta-btn" onclick="window.location.href='order.jsp'">Order Now</button>
+
                         <button><i class="far fa-heart"></i></button>
                     </div>
                 </div>
