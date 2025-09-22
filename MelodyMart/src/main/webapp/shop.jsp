@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <style>
+        /* --- your existing CSS unchanged --- */
         :root {
             --primary: #8a2be2;
             --primary-light: #9b45f0;
@@ -25,11 +26,9 @@
             --glass-bg: rgba(30, 30, 30, 0.7);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Montserrat', sans-serif; background: var(--secondary); color: var(--text); overflow-x: hidden; line-height: 1.6; }
         .container { width: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
-
         header { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; padding: 20px 0; transition: all 0.4s ease; }
         header.scrolled { background: rgba(10, 10, 10, 0.95); padding: 15px 0; backdrop-filter: blur(10px); box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5); }
         .nav-container { display: flex; justify-content: space-between; align-items: center; }
@@ -48,20 +47,16 @@
         .cta-btn:before { content: ''; position: absolute; top: 0; left: 0; width: 0; height: 100%; background: var(--gradient-alt); transition: all 0.4s ease; z-index: -1; }
         .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4); }
         .cta-btn:hover:before { width: 100%; }
-
         .section-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 36px; margin: 80px 0 50px; position: relative; opacity: 0; transform: translateY(30px); transition: opacity 1s ease, transform 1s ease; }
         .section-title.visible { opacity: 1; transform: translateY(0); }
         .section-title:after { content: ''; position: absolute; bottom: -15px; left: 50%; transform: translateX(-50%); width: 80px; height: 3px; background: var(--gradient); }
-
         .glass-card { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 15px; padding: 30px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
-
         .filter-section { display: flex; gap: 20px; margin-bottom: 40px; }
         .filter-card { background: var(--card-bg); padding: 15px; border-radius: 10px; flex: 1; }
         .filter-card h3 { font-size: 18px; margin-bottom: 10px; }
         .filter-card select, .filter-card input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid var(--glass-border); background: var(--secondary); color: var(--text); border-radius: 5px; }
         .filter-card button { background: var(--gradient); border: none; padding: 10px; border-radius: 30px; color: white; width: 100%; cursor: pointer; transition: background 0.3s ease; }
         .filter-card button:hover { background: var(--gradient-alt); }
-
         .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; margin-bottom: 80px; }
         .product-card { background: var(--card-bg); border-radius: 15px; overflow: hidden; transition: all 0.5s ease; position: relative; opacity: 0; transform: translateY(50px); border: 1px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
         .product-card.visible { opacity: 1; transform: translateY(0); }
@@ -77,10 +72,8 @@
         .product-actions .cta-btn { padding: 8px 15px; font-size: 14px; }
         .product-actions button { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 18px; transition: color 0.3s ease; }
         .product-actions button:hover { color: var(--primary-light); }
-
         @keyframes bounceIn { 0% { opacity: 0; transform: scale(0.3); } 50% { opacity: 1; transform: scale(1.05); } 70% { transform: scale(0.9); } 100% { transform: scale(1); } }
         .bounce-in { animation: bounceIn 1s ease-out forwards; }
-
         @media (max-width: 768px) {
             .filter-section { flex-direction: column; }
             .nav-links { display: none; }
@@ -107,7 +100,7 @@
         </ul>
         <div class="nav-actions">
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
-            <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
+            <a href="cart.jsp" class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></a>
             <button class="cta-btn" onclick="window.location.href='shop.jsp'">Shop Now</button>
         </div>
     </div>
@@ -169,6 +162,7 @@
                         String imageUrl = rs.getString("ImageURL");
                         if (imageUrl == null || imageUrl.isEmpty()) imageUrl = "https://via.placeholder.com/300x220?text=No+Image";
             %>
+
             <div class="product-card bounce-in">
                 <div class="product-img">
                     <img src="<%= imageUrl %>" alt="<%= rs.getString("Name") %>">
@@ -178,13 +172,18 @@
                     <div class="product-price">$<%= String.format("%.2f", rs.getDouble("Price")) %></div>
                     <p class="product-desc"><%= rs.getString("Description") != null ? rs.getString("Description") : "No description available" %></p>
                     <div class="product-actions">
-                        <button class="cta-btn">Add to Cart</button>
-                        <button class="cta-btn" onclick="window.location.href='order.jsp'">Order Now</button>
+                        <!-- ✅ Updated Add to Cart button -->
+                        <form action="addToCart.jsp" method="post" style="display:inline;">
+                            <input type="hidden" name="instrumentId" value="<%= rs.getInt("InstrumentID") %>">
+                            <button type="submit" class="cta-btn">Add to Cart</button>
+                        </form>
 
+                        <button class="cta-btn" onclick="window.location.href='order.jsp'">Order Now</button>
                         <button><i class="far fa-heart"></i></button>
                     </div>
                 </div>
             </div>
+
             <%
                     }
                 } catch (Exception e) {

@@ -44,6 +44,65 @@
             padding: 0 20px;
         }
 
+        /* Welcome Message Styles */
+        .welcome-container {
+            position: fixed;
+            top: 90px;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .welcome-message {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 15px 25px;
+            color: var(--text);
+            font-weight: 500;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.5s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .welcome-message.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .welcome-message i {
+            margin-right: 10px;
+            color: var(--primary-light);
+        }
+
+        .welcome-message .customer-name {
+            color: var(--accent);
+            font-weight: 600;
+            margin: 0 5px;
+        }
+
+        .welcome-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            margin-left: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .welcome-close:hover {
+            color: var(--text);
+        }
+
         /* Header & Navigation */
         header {
             position: fixed;
@@ -1001,6 +1060,16 @@
         }
 
         @media (max-width: 768px) {
+            .welcome-container {
+                top: 80px;
+                padding: 0 15px;
+            }
+
+            .welcome-message {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
             .nav-links {
                 display: none;
             }
@@ -1083,6 +1152,17 @@
     </style>
 </head>
 <body>
+<!-- Welcome Message Container -->
+<div class="welcome-container">
+    <div class="welcome-message" id="welcomeMessage">
+        <i class="fas fa-music"></i>
+        Welcome back, <span class="customer-name" id="customerName">Guest</span>! Ready to make some music?
+        <button class="welcome-close" id="closeWelcome" aria-label="Close welcome message">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
 <!-- Header & Navigation -->
 <header>
     <div class="container nav-container">
@@ -1130,9 +1210,6 @@
         </form>
     </div>
 </div>
-
-
-
 
 <!-- Sign Up Modal -->
 <div class="modal" id="signUpModal">
@@ -1541,6 +1618,55 @@
 </footer>
 
 <script>
+    // Welcome message functionality
+    function getCustomerName() {
+        // In a real application, this would come from your authentication system
+        // For demonstration, I'll check if we have a stored name or use a default
+
+        // Check if we have a stored name in localStorage
+        const storedName = localStorage.getItem('customerName');
+        if (storedName) {
+            return storedName;
+        }
+
+        // For demo purposes, I'll use a random name from your database sample
+        // In a real app, this would come from your session or authentication system
+        const sampleNames = ['John Doe', 'Jane Smith', 'Alex Johnson', 'Sarah Lee', 'Mike Rodriguez'];
+        return sampleNames[Math.floor(Math.random() * sampleNames.length)];
+    }
+
+    function showWelcomeMessage() {
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const customerNameElement = document.getElementById('customerName');
+
+        // Get customer name
+        const customerName = getCustomerName();
+
+        // Update the name in the message
+        customerNameElement.textContent = customerName;
+
+        // Show the message with a slight delay for better UX
+        setTimeout(() => {
+            welcomeMessage.classList.add('visible');
+        }, 1000);
+
+        // Set timeout to automatically hide the message after 8 seconds
+        setTimeout(() => {
+            hideWelcomeMessage();
+        }, 8000);
+    }
+
+    function hideWelcomeMessage() {
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        welcomeMessage.classList.remove('visible');
+    }
+
+    // Event listener for close button
+    document.getElementById('closeWelcome').addEventListener('click', hideWelcomeMessage);
+
+    // Show welcome message when page loads
+    window.addEventListener('load', showWelcomeMessage);
+
     // Header scroll effect
     window.addEventListener('scroll', function() {
         const header = document.querySelector('header');

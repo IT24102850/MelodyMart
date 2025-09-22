@@ -899,105 +899,15 @@
             </div>
         </section>
 
-        <!-- Inventory Management Section -->
-        <section id="inventory" class="dashboard-section">
-            <div class="content-card">
-                <div class="card-header">
-                    <h2 class="card-title">Product Inventory</h2>
-                    <div class="card-actions">
-                        <button class="btn btn-primary" onclick="openModal('addProductModal')">
-                            <i class="fas fa-plus"></i> Add New Product
-                        </button>
-                    </div>
-                </div>
 
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>SKU</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center;">
-                                    <img src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 5px; margin-right: 10px;">
-                                    Fender Stratocaster
-                                </div>
-                            </td>
-                            <td>PROD-4872</td>
-                            <td>Guitars</td>
-                            <td>$1,199.99</td>
-                            <td>12</td>
-                            <td><span class="status-badge status-completed">Active</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary">Edit</button>
-                                <button class="btn btn-sm btn-secondary">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center;">
-                                    <img src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 5px; margin-right: 10px;">
-                                    Yamaha HS8 Monitor
-                                </div>
-                            </td>
-                            <td>PROD-5321</td>
-                            <td>Audio</td>
-                            <td>$349.99</td>
-                            <td>8</td>
-                            <td><span class="status-badge status-completed">Active</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary">Edit</button>
-                                <button class="btn btn-sm btn-secondary">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center;">
-                                    <img src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 5px; margin-right: 10px;">
-                                    Ludwig Drum Set
-                                </div>
-                            </td>
-                            <td>PROD-8741</td>
-                            <td>Drums</td>
-                            <td>$2,499.99</td>
-                            <td>5</td>
-                            <td><span class="status-badge status-completed">Active</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary">Edit</button>
-                                <button class="btn btn-sm btn-secondary">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center;">
-                                    <img src="https://via.placeholder.com/40" style="width: 40px; height: 40px; border-radius: 5px; margin-right: 10px;">
-                                    Shure SM58 Microphone
-                                </div>
-                            </td>
-                            <td>PROD-2154</td>
-                            <td>Audio</td>
-                            <td>$99.99</td>
-                            <td>23</td>
-                            <td><span class="status-badge status-completed">Active</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary">Edit</button>
-                                <button class="btn btn-sm btn-secondary">Delete</button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+
+
+
+
+
+
+
+
 
         <!-- Other sections would be defined here (Orders, Deliveries, Stock, Reports, etc.) -->
         <section id="orders" class="dashboard-section">
