@@ -37,9 +37,7 @@ public class LoginServlet extends HttpServlet {
 
         if (email == null || email.isEmpty() || password == null || password.isEmpty()) {
             System.out.println("Validation failed: Email or password missing");
-            String redirectUrl = "sign-in.jsp?error=Email and password are required";
-            System.out.println("Redirecting to: " + redirectUrl);
-            response.sendRedirect(redirectUrl);
+            response.sendRedirect("sign-in.jsp?error=Email and password are required");
             return;
         }
 
@@ -54,13 +52,21 @@ public class LoginServlet extends HttpServlet {
                     int personId = rs.getInt("PersonID");
                     String fullName = rs.getString("FirstName") + " " + rs.getString("LastName");
                     String storedHash = rs.getString("Password");
+
                     if (BCrypt.checkpw(password, storedHash)) {
                         String role = determineRole(con, personId);
+
                         HttpSession session = request.getSession();
                         session.setAttribute("userId", personId);
                         session.setAttribute("userName", fullName);
                         session.setAttribute("userEmail", email.toLowerCase());
                         session.setAttribute("userRole", role);
+
+                        // ✅ also set customerId if role is customer
+                        if ("customer".equalsIgnoreCase(role)) {
+                            session.setAttribute("customerId", personId);
+                        }
+
                         System.out.println("Login successful for " + email + " with role: " + role);
 
                         updateLastLogin(con, personId);
@@ -98,7 +104,7 @@ public class LoginServlet extends HttpServlet {
                 System.err.println("SQL State: " + sqlEx.getSQLState());
                 System.err.println("Error Code: " + sqlEx.getErrorCode());
             }
-            response.sendRedirect("sign-in.jsp?error=Login failed. Please try again. Details: " + e.getMessage());
+            response.sendRedirect("sign-in.jsp?error=Login failed. Please try again.");
         }
     }
 
@@ -133,7 +139,8 @@ public class LoginServlet extends HttpServlet {
     }
 
     private void updateLastLogin(Connection con, int personId) throws SQLException {
-        try (PreparedStatement ps = con.prepareStatement("UPDATE Person SET LastLogin = GETDATE() WHERE PersonID = ?")) {
+        try (PreparedStatement ps = con.prepareStatement(
+                "UPDATE Person SET LastLogin = GETDATE() WHERE PersonID = ?")) {
             ps.setInt(1, personId);
             ps.executeUpdate();
         }
