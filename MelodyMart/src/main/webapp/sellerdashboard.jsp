@@ -529,6 +529,12 @@
             color: #dc3545;
         }
 
+        .notification.success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.5);
+            color: #28a745;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
@@ -899,15 +905,77 @@
             </div>
         </section>
 
+        <!-- Inventory Section -->
+        <section id="inventory" class="dashboard-section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Inventory Management</h2>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="openModal('addProductModal')">
+                            <i class="fas fa-plus"></i> Add New Instrument
+                        </button>
+                    </div>
+                </div>
 
-
-
-
-
-
-
-
-
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><div style="width: 40px; height: 40px; background: var(--gradient); border-radius: 5px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-guitar"></i></div></td>
+                            <td>Fender Stratocaster</td>
+                            <td>Fender</td>
+                            <td>American Professional II</td>
+                            <td>$1,499.99</td>
+                            <td>15</td>
+                            <td><span class="status-badge status-completed">In Stock</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary">Edit</button>
+                                <button class="btn btn-sm btn-secondary">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><div style="width: 40px; height: 40px; background: var(--gradient); border-radius: 5px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-drum"></i></div></td>
+                            <td>Yamaha Stage Custom</td>
+                            <td>Yamaha</td>
+                            <td>Stage Custom Birch</td>
+                            <td>$899.99</td>
+                            <td>8</td>
+                            <td><span class="status-badge status-completed">In Stock</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary">Edit</button>
+                                <button class="btn btn-sm btn-secondary">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><div style="width: 40px; height: 40px; background: var(--gradient); border-radius: 5px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-microphone"></i></div></td>
+                            <td>Shure SM58</td>
+                            <td>Shure</td>
+                            <td>SM58-LC</td>
+                            <td>$99.00</td>
+                            <td>3</td>
+                            <td><span class="status-badge status-pending">Low Stock</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-primary">Edit</button>
+                                <button class="btn btn-sm btn-secondary">Delete</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
 
         <!-- Other sections would be defined here (Orders, Deliveries, Stock, Reports, etc.) -->
         <section id="orders" class="dashboard-section">
@@ -966,18 +1034,6 @@
     </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- Add Product Modal -->
 <div class="modal" id="addProductModal">
     <div class="modal-content">
@@ -996,7 +1052,7 @@
             </div>
 
             <!-- Display success message if exists -->
-            <div class="notification" style="display: none; background: rgba(40, 167, 69, 0.2); border: 1px solid rgba(40, 167, 69, 0.5); color: #28a745;" id="successNotification">
+            <div class="notification success" style="display: none;" id="successNotification">
                 <i class="fas fa-check-circle"></i>
                 <span id="successText"></span>
             </div>
@@ -1246,14 +1302,14 @@
         const preview = document.createElement('div');
         preview.className = 'image-preview';
         preview.innerHTML = `
-        <img src="${src}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
-        <button type="button" class="remove-image" onclick="removeImagePreview()" title="Remove image">
-            <i class="fas fa-times"></i>
-        </button>
-        <div style="position: absolute; bottom: 2px; left: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; padding: 2px; border-radius: 2px; text-align: center;">
-            ${filename.length > 15 ? filename.substring(0, 12) + '...' : filename}
-        </div>
-    `;
+            <img src="${src}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+            <button type="button" class="remove-image" onclick="removeImagePreview()" title="Remove image">
+                <i class="fas fa-times"></i>
+            </button>
+            <div style="position: absolute; bottom: 2px; left: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; padding: 2px; border-radius: 2px; text-align: center;">
+                ${filename.length > 15 ? filename.substring(0, 12) + '...' : filename}
+            </div>
+        `;
 
         // Insert before upload button
         const uploadBtn = uploadContainer.querySelector('.upload-btn');
@@ -1311,6 +1367,10 @@
         document.getElementById(modalId).style.display = 'flex';
     }
 
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
     // Sidebar toggle for mobile
     document.getElementById('menuToggle').addEventListener('click', function() {
         document.getElementById('sidebar').classList.toggle('active');
@@ -1344,15 +1404,6 @@
         }
     });
 
-    // Modal functions
-    function openModal(modalId) {
-        document.getElementById(modalId).style.display = 'flex';
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-
     // Close modal when clicking outside
     window.addEventListener('click', function(e) {
         document.querySelectorAll('.modal').forEach(modal => {
@@ -1361,47 +1412,6 @@
             }
         });
     });
-
-    // Form validation
-    document.getElementById('instrumentForm').addEventListener('submit', function(e) {
-        let isValid = true;
-        const name = document.getElementById('name');
-        const price = document.getElementById('price');
-        const quantity = document.getElementById('quantity');
-
-        // Reset previous errors
-        document.querySelectorAll('.error-message').forEach(el => el.remove());
-
-        // Validate name
-        if (!name.value.trim()) {
-            showError(name, 'Instrument name is required');
-            isValid = false;
-        }
-
-        // Validate price
-        if (!price.value || parseFloat(price.value) <= 0) {
-            showError(price, 'Please enter a valid price');
-            isValid = false;
-        }
-
-        // Validate quantity
-        if (!quantity.value || parseInt(quantity.value) < 0) {
-            showError(quantity, 'Please enter a valid quantity');
-            isValid = false;
-        }
-
-        if (!isValid) {
-            e.preventDefault();
-        }
-    });
-
-    function showError(input, message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-        input.parentNode.appendChild(errorDiv);
-        input.focus();
-    }
 
     // Logout function
     function logout() {
@@ -1414,11 +1424,22 @@
     window.addEventListener('DOMContentLoaded', function() {
         const errorNotification = document.getElementById('errorNotification');
         const errorText = document.getElementById('errorText');
+        const successNotification = document.getElementById('successNotification');
+        const successText = document.getElementById('successText');
 
-        // Simulating server-side error (replace with actual server response handling)
-        const addStatus = ""; // This would come from your JSP
-        if (addStatus) {
-            errorText.textContent = addStatus;
+        // Check URL parameters for success/error messages
+        const urlParams = new URLSearchParams(window.location.search);
+        const addStatus = urlParams.get('addStatus');
+        const message = urlParams.get('message');
+
+        if (addStatus === 'success') {
+            successText.textContent = message || 'Instrument added successfully!';
+            successNotification.style.display = 'flex';
+            // Clear the form if success
+            document.getElementById('instrumentForm').reset();
+            removeImagePreview();
+        } else if (addStatus === 'error') {
+            errorText.textContent = message || 'Error adding instrument. Please try again.';
             errorNotification.style.display = 'flex';
         }
     });
