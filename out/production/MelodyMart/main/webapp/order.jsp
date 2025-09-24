@@ -1,95 +1,174 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*" %>
-<%@ page import="java.util.*" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melody Mart | Order Details</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <title>Your Cart - Melody Mart</title>
     <style>
-        :root {
-            --primary: #8a2be2;
-            --primary-light: #9b45f0;
-            --secondary: #0a0a0a;
-            --accent: #00e5ff;
-            --text: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-bg: #1a1a1a;
-            --glass-bg: rgba(30, 30, 30, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-        body { font-family: 'Montserrat', sans-serif; background: var(--secondary); color: var(--text); padding: 100px 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .glass-card { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 15px; padding: 30px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
-        h2 { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--primary-light); margin-bottom: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--glass-border); }
-        th { background: var(--card-bg); }
-        .cta-btn { background: var(--primary); color: var(--text); border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; transition: background 0.3s ease; }
-        .cta-btn:hover { background: var(--accent); }
+        body { font-family: Arial, sans-serif; background: #0a0a0a; color: #fff; padding: 20px; }
+        h2 { color: #8a2be2; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { padding: 12px; border-bottom: 1px solid #444; text-align: left; }
+        th { background: #1a1a1a; }
+        tr:hover { background: #222; }
+        img { width: 80px; height: 60px; object-fit: cover; border-radius: 8px; }
+        .total { font-weight: bold; font-size: 18px; color: #8a2be2; text-align: right; }
+        .cta-btn { background: linear-gradient(135deg, #8a2be2, #00e5ff); color: white;
+            padding: 12px 25px; border: none; border-radius: 30px; cursor: pointer;
+            font-weight: bold; }
+        .cta-btn:hover { opacity: 0.9; }
+        .error { color: red; text-align: center; }
+        .empty-cart { text-align: center; color: #ccc; }
+        .remove-btn { background: #ff4d4d; color: white; padding: 8px 15px; border: none;
+            border-radius: 20px; cursor: pointer; }
+        .remove-btn:hover { background: #cc0000; }
+        .form-group { margin: 15px 0; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #444; background: #1a1a1a; color: #fff; }
+        .continue-shopping { color: #00e5ff; text-decoration: none; }
+        .continue-shopping:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="glass-card">
-        <h2>Order Details</h2>
-        <table>
-            <tr>
-                <th>Instrument</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th>Action</th>
-            </tr>
-            <%
-                int instrumentId = Integer.parseInt(request.getParameter("instrumentId"));
-                String name = request.getParameter("name");
-                double price = Double.parseDouble(request.getParameter("price"));
-                int quantity = 1; // Default quantity, can be modified later
-                double total = price * quantity;
+<h2>Your Cart Items</h2>
 
-                // Insert into OrderItem (assuming OrderID is managed by a servlet or session)
-                Connection conn = null;
-                PreparedStatement pstmt = null;
-                try {
-                    String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true;";
-                    String dbUser = "Hasiru";
-                    String dbPass = "hasiru2004";
-                    String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-                    Class.forName(driver);
-                    conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+<%
+    // Database connection parameters
+    String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true;";
+    String dbUser = "Hasiru";
+    String dbPass = "hasiru2004";
+    String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
-                    String insertSql = "INSERT INTO OrderItem (OrderID, InstrumentID, Quantity, Price) VALUES (?, ?, ?, ?)";
-                    pstmt = conn.prepareStatement(insertSql);
-                    // Assume OrderID is from session or a new order
-                    int orderId = (int) (Math.random() * 1000); // Temporary, replace with actual OrderID logic
-                    pstmt.setInt(1, orderId);
-                    pstmt.setInt(2, instrumentId);
-                    pstmt.setInt(3, quantity);
-                    pstmt.setDouble(4, price);
-                    pstmt.executeUpdate();
-            %>
-            <tr>
-                <td><%= name %></td>
-                <td>$<%= String.format("%.2f", price) %></td>
-                <td><%= quantity %></td>
-                <td>$<%= String.format("%.2f", total) %></td>
-                <td><form action="CheckoutServlet" method="post"><input type="hidden" name="orderId" value="<%= orderId %>"><button type="submit" class="cta-btn">Checkout</button></form></td>
-            </tr>
-            <%
-                } catch (Exception e) {
-                    out.println("<tr><td colspan='5'>Error processing order: " + e.getMessage() + "</td></tr>");
-                } finally {
-                    if (pstmt != null) pstmt.close();
-                    if (conn != null) conn.close();
-                }
-            %>
-        </table>
-        <a href="shop.jsp" class="cta-btn">Continue Shopping</a>
-    </div>
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    double total = 0.0;
+    boolean hasItems = false;
+    boolean stockError = false;
+
+    try {
+        // Get customer ID from session
+        Integer customerId = (Integer) session.getAttribute("customerId");
+        if (customerId == null) {
+            response.sendRedirect("login.jsp");
+            return;
+        }
+
+        Class.forName(driver);
+        conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+
+        // Query to fetch cart items with instrument details and stock check
+        String sql = "SELECT c.CartID, c.Quantity, i.InstrumentID, i.Name, i.Price, i.Description, i.ImageURL, " +
+                "i.Quantity AS StockQuantity, (i.Price * c.Quantity) AS SubTotal " +
+                "FROM Cart c " +
+                "JOIN Instrument i ON c.InstrumentID = i.InstrumentID " +
+                "WHERE c.CustomerID = ?";
+        pstmt = conn.prepareStatement(sql);
+        pstmt.setInt(1, customerId);
+        rs = pstmt.executeQuery();
+%>
+
+<table>
+    <tr>
+        <th>Image</th>
+        <th>Instrument</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Subtotal</th>
+        <th>Action</th>
+    </tr>
+    <%
+        while (rs.next()) {
+            int cartQuantity = rs.getInt("Quantity");
+            int stockQuantity = rs.getInt("StockQuantity");
+            if (cartQuantity > stockQuantity) {
+                stockError = true;
+                continue; // Skip item if out of stock
+            }
+            hasItems = true;
+            total += rs.getDouble("SubTotal");
+
+            String imageUrl = rs.getString("ImageURL");
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                imageUrl = "https://via.placeholder.com/80x60?text=No+Image";
+            }
+    %>
+    <tr>
+        <td><img src="<%= imageUrl %>" alt="<%= rs.getString("Name") %>"></td>
+        <td><%= rs.getString("Name") %></td>
+        <td><%= rs.getString("Description") != null ? rs.getString("Description") : "No description" %></td>
+        <td>$<%= String.format("%.2f", rs.getDouble("Price")) %></td>
+        <td><%= cartQuantity %></td>
+        <td>$<%= String.format("%.2f", rs.getDouble("SubTotal")) %></td>
+        <td>
+            <form action="removeFromCart.jsp" method="post">
+                <input type="hidden" name="cartId" value="<%= rs.getInt("CartID") %>">
+                <button type="submit" class="remove-btn">Remove</button>
+            </form>
+        </td>
+    </tr>
+    <% } %>
+</table>
+
+<%
+    if (stockError) {
+%>
+<p class="error">Some items are out of stock or unavailable. Please remove them or try again later.</p>
+<%
+} else if (hasItems) {
+%>
+<p class="total">Total: $<%= String.format("%.2f", total) %></p>
+
+<div>
+    <h3>Shipping and Payment Details</h3>
+    <form action="checkout.jsp" method="post">
+        <div class="form-group">
+            <label for="street">Street:</label>
+            <input type="text" id="street" name="street" required>
+        </div>
+        <div class="form-group">
+            <label for="city">City:</label>
+            <input type="text" id="city" name="city" required>
+        </div>
+        <div class="form-group">
+            <label for="paymentMethod">Payment Method:</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+                <option value="card">Card</option>
+                <option value="bankTransferSLIP">Bank Transfer SLIP</option>
+                <option value="cashOnDelivery">Cash on Delivery</option>
+            </select>
+        </div>
+        <button type="submit" class="cta-btn">Place Order</button>
+    </form>
+    <a href="shop.jsp" class="continue-shopping">Continue Shopping</a>
 </div>
+<%
+} else {
+%>
+<p class="empty-cart">Your cart is empty.</p>
+<a href="shop.jsp" class="continue-shopping">Continue Shopping</a>
+<%
+    }
+} catch (ClassNotFoundException e) {
+%>
+<p class="error">Error: Database driver not found. Please contact support.</p>
+<%
+} catch (SQLException e) {
+%>
+<p class="error">Error loading cart: <%= e.getMessage() %></p>
+<%
+} catch (Exception e) {
+%>
+<p class="error">Unexpected error: <%= e.getMessage() %></p>
+<%
+    } finally {
+        if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
+        if (pstmt != null) try { pstmt.close(); } catch (SQLException ignore) {}
+        if (conn != null) try { conn.close(); } catch (SQLException ignore) {}
+    }
+%>
+
 </body>
 </html>
