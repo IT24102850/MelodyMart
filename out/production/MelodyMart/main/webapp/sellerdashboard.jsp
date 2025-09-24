@@ -933,7 +933,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td><div style="width: 40px; height: 40px; background: var(--gradient); border-radius: 5px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-guitar"></i></div></td>
+                            <td><img src="https://example.com/fender.jpg" alt="Fender" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
                             <td>Fender Stratocaster</td>
                             <td>Fender</td>
                             <td>American Professional II</td>
@@ -941,12 +941,12 @@
                             <td>15</td>
                             <td><span class="status-badge status-completed">In Stock</span></td>
                             <td>
-                                <button class="btn btn-sm btn-primary">Edit</button>
-                                <button class="btn btn-sm btn-secondary">Delete</button>
+                                <button class="btn btn-sm btn-primary" onclick="editInstrument(1)">Edit</button>
+                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(1)">Delete</button>
                             </td>
                         </tr>
                         <tr>
-                            <td><div style="width: 40px; height: 40px; background: var(--gradient); border-radius: 5px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-drum"></i></div></td>
+                            <td><img src="https://example.com/yamaha.jpg" alt="Yamaha" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
                             <td>Yamaha Stage Custom</td>
                             <td>Yamaha</td>
                             <td>Stage Custom Birch</td>
@@ -954,12 +954,12 @@
                             <td>8</td>
                             <td><span class="status-badge status-completed">In Stock</span></td>
                             <td>
-                                <button class="btn btn-sm btn-primary">Edit</button>
-                                <button class="btn btn-sm btn-secondary">Delete</button>
+                                <button class="btn btn-sm btn-primary" onclick="editInstrument(2)">Edit</button>
+                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(2)">Delete</button>
                             </td>
                         </tr>
                         <tr>
-                            <td><div style="width: 40px; height: 40px; background: var(--gradient); border-radius: 5px; display: flex; align-items: center; justify-content: center;"><i class="fas fa-microphone"></i></div></td>
+                            <td><img src="https://example.com/shure.jpg" alt="Shure" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
                             <td>Shure SM58</td>
                             <td>Shure</td>
                             <td>SM58-LC</td>
@@ -967,8 +967,8 @@
                             <td>3</td>
                             <td><span class="status-badge status-pending">Low Stock</span></td>
                             <td>
-                                <button class="btn btn-sm btn-primary">Edit</button>
-                                <button class="btn btn-sm btn-secondary">Delete</button>
+                                <button class="btn btn-sm btn-primary" onclick="editInstrument(3)">Edit</button>
+                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(3)">Delete</button>
                             </td>
                         </tr>
                         </tbody>
@@ -1034,7 +1034,7 @@
     </div>
 </div>
 
-<!-- Add Product Modal -->
+<!-- Add/Edit Product Modal -->
 <div class="modal" id="addProductModal">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('addProductModal')">&times;</button>
@@ -1058,6 +1058,8 @@
             </div>
 
             <form id="instrumentForm" action="SaveInstrument" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="instrumentId" name="instrumentId">
+                <input type="hidden" id="actionType" name="actionType" value="add">
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="name" class="form-label">Name *</label>
@@ -1176,7 +1178,7 @@
             // Show loading state
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             submitBtn.disabled = true;
 
             // Submit the form
@@ -1286,6 +1288,8 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 createImagePreview(e.target.result, file.name);
+                // Clear the hidden imageUrl since new file is uploaded
+                document.getElementById('imageUrl').value = '';
             };
             reader.readAsDataURL(file);
         }
@@ -1351,24 +1355,107 @@
         closeModal('addProductModal');
     }
 
-    // Reset form when modal is opened
+    // Reset form when modal is opened for add
     function openModal(modalId) {
         if (modalId === 'addProductModal') {
-            // Reset form state
+            // Reset form state for add
             document.getElementById('instrumentForm').reset();
             removeImagePreview();
             clearAllErrors();
-
-            // Reset submit button
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Instrument';
-            submitBtn.disabled = false;
+            document.getElementById('instrumentId').value = '';
+            document.getElementById('actionType').value = 'add';
+            document.querySelector('.form-title').textContent = 'Add New Instrument';
+            document.querySelector('.form-subtitle').textContent = 'Fill in the details below to add a new instrument to your inventory';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-plus"></i> Add Instrument';
+            document.getElementById('submitBtn').disabled = false;
         }
         document.getElementById(modalId).style.display = 'flex';
     }
 
     function closeModal(modalId) {
         document.getElementById(modalId).style.display = 'none';
+    }
+
+    // Edit instrument function (using sample data; in production, fetch from server or DB)
+    function editInstrument(id) {
+        let data;
+        if (id === 1) {
+            data = {
+                name: 'Fender Stratocaster',
+                description: 'High-quality electric guitar',
+                brandId: 1,
+                model: 'American Professional II',
+                color: 'Sunburst',
+                price: 1499.99,
+                specifications: 'Body: Alder, Neck: Maple',
+                warranty: '2 Years',
+                imageUrl: 'https://example.com/fender.jpg',
+                quantity: 15,
+                stockLevel: 'In Stock',
+                manufacturerId: 1
+            };
+        } else if (id === 2) {
+            data = {
+                name: 'Yamaha Stage Custom',
+                description: 'Complete drum kit',
+                brandId: 2,
+                model: 'Stage Custom Birch',
+                color: 'Natural',
+                price: 899.99,
+                specifications: 'Shells: Birch, Sizes: 22x17, 10x7, 12x8, 16x15, 14x5.5',
+                warranty: '1 Year',
+                imageUrl: 'https://example.com/yamaha.jpg',
+                quantity: 8,
+                stockLevel: 'In Stock',
+                manufacturerId: 2
+            };
+        } else if (id === 3) {
+            data = {
+                name: 'Shure SM58',
+                description: 'Dynamic vocal microphone',
+                brandId: 3,
+                model: 'SM58-LC',
+                color: 'Black',
+                price: 99.00,
+                specifications: 'Frequency response: 50-15,000 Hz',
+                warranty: '2 Years',
+                imageUrl: 'https://example.com/shure.jpg',
+                quantity: 3,
+                stockLevel: 'Low Stock',
+                manufacturerId: 3
+            };
+        }
+
+        if (data) {
+            document.getElementById('instrumentId').value = id;
+            document.getElementById('actionType').value = 'update';
+            document.getElementById('name').value = data.name;
+            document.getElementById('description').value = data.description;
+            document.getElementById('brandId').value = data.brandId || '';
+            document.getElementById('model').value = data.model;
+            document.getElementById('color').value = data.color;
+            document.getElementById('price').value = data.price;
+            document.getElementById('specifications').value = data.specifications;
+            document.getElementById('warranty').value = data.warranty;
+            document.getElementById('quantity').value = data.quantity;
+            document.getElementById('stockLevel').value = data.stockLevel;
+            document.getElementById('manufacturerId').value = data.manufacturerId || '';
+            document.getElementById('imageUrl').value = data.imageUrl;
+            createImagePreview(data.imageUrl, 'Current Image');
+            document.querySelector('.form-title').textContent = 'Edit Instrument';
+            document.querySelector('.form-subtitle').textContent = 'Update the details below to edit the instrument';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save Changes';
+            openModal('addProductModal');
+        } else {
+            alert('Instrument not found.');
+        }
+    }
+
+    // Delete instrument function (redirect to server endpoint)
+    function deleteInstrument(id) {
+        if (confirm('Are you sure you want to delete this instrument? This action cannot be undone.')) {
+            window.location.href = 'DeleteInstrument?id=' + id;
+        }
     }
 
     // Sidebar toggle for mobile
@@ -1433,13 +1520,13 @@
         const message = urlParams.get('message');
 
         if (addStatus === 'success') {
-            successText.textContent = message || 'Instrument added successfully!';
+            successText.textContent = message || 'Instrument added/updated successfully!';
             successNotification.style.display = 'flex';
             // Clear the form if success
             document.getElementById('instrumentForm').reset();
             removeImagePreview();
         } else if (addStatus === 'error') {
-            errorText.textContent = message || 'Error adding instrument. Please try again.';
+            errorText.textContent = message || 'Error adding/updating instrument. Please try again.';
             errorNotification.style.display = 'flex';
         }
     });
