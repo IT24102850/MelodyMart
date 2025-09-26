@@ -1071,7 +1071,7 @@
 
         <!-- Continue with other tab contents for Wishlist, Payments, Deliveries, Repairs, Reviews, Security -->
 
-        <form id="repairRequestForm" method="POST" action="SubmitRepairRequestServlet" enctype="multipart/form-data">
+        <form id="repairRequestForm" method="post" action="SubmitRepairRequestServlet" enctype="multipart/form-data">
             <div class="form-row">
                 <div class="form-group">
                     <label class="form-label">Order ID</label>
@@ -1092,6 +1092,7 @@
             </div>
             <button type="submit" class="btn btn-primary">Submit Request</button>
         </form>
+
 
 
 
