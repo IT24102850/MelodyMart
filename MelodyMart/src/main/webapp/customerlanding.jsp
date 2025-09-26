@@ -1,3 +1,20 @@
+
+<% if(request.getParameter("success") != null) { %>
+<div class="alert alert-success">✅ Repair request submitted successfully!</div>
+<% } %>
+
+<% if(request.getParameter("error") != null) { %>
+<div class="alert alert-danger">❌ Failed to submit repair request.</div>
+<% } %>
+
+<% if(request.getParameter("error") != null && request.getParameter("error").equals("db")) { %>
+<div class="alert alert-warning">⚠️ Database error occurred. Please try again later.</div>
+<% } %>
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1053,96 +1070,29 @@
         </div>
 
         <!-- Continue with other tab contents for Wishlist, Payments, Deliveries, Repairs, Reviews, Security -->
-        <div class="tab-content" id="repairs">
-            <div class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Active Repair Requests</h2>
-                    <a href="#" class="view-all">View All</a>
+
+        <form id="repairRequestForm" method="POST" action="SubmitRepairRequestServlet" enctype="multipart/form-data">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Order ID</label>
+                    <input type="text" class="form-control" name="orderId" placeholder="e.g., 5" required>
                 </div>
                 <div class="form-group">
-                    <h3 class="section-title">Submit Repair Request</h3>
-                    <form id="repairRequestForm">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Instrument</label>
-                                <input type="text" class="form-control" placeholder="e.g., Fender Stratocaster">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Issue</label>
-                                <input type="text" class="form-control" placeholder="e.g., Fret buzz on high E string">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Photos</label>
-                            <input type="file" class="form-control" multiple accept="image/*">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Additional Details</label>
-                            <textarea class="form-control" rows="3" placeholder="Add any extra details..."></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit Request</button>
-                    </form>
-                </div>
-                <div class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title">Repair Status</h2>
-                    </div>
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Instrument</th>
-                            <th>Issue</th>
-                            <th>Submitted</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>#RR-4521</td>
-                            <td>Fender Stratocaster</td>
-                            <td>Fret buzz on high E string</td>
-                            <td>12 Mar 2025</td>
-                            <td><span class="status-badge status-processing">In Progress</span></td>
-                            <td>
-                                <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn" title="Update Request"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn" title="Cancel Request" disabled><i class="fas fa-times"></i></button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="content-section">
-                    <div class="section-header">
-                        <h2 class="section-title">Repair History</h2>
-                    </div>
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>Request ID</th>
-                            <th>Instrument</th>
-                            <th>Issue</th>
-                            <th>Submitted</th>
-                            <th>Status</th>
-                            <th>Completed</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>#RR-4501</td>
-                            <td>Gibson Les Paul</td>
-                            <td>Broken tuning peg</td>
-                            <td>01 Feb 2025</td>
-                            <td><span class="status-badge status-delivered">Completed</span></td>
-                            <td>15 Feb 2025</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <label class="form-label">Issue Description</label>
+                    <input type="text" class="form-control" name="issueDescription" placeholder="e.g., Fret buzz on high E string" required>
                 </div>
             </div>
-        </div>
+            <div class="form-group">
+                <label class="form-label">Photos</label>
+                <input type="file" class="form-control" name="photos" multiple accept="image/*">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Repair Date</label>
+                <input type="date" class="form-control" name="repairDate" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+        </form>
+
 
 
 
