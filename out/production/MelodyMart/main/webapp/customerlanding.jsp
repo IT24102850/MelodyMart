@@ -1,3 +1,20 @@
+
+<% if(request.getParameter("success") != null) { %>
+<div class="alert alert-success">✅ Repair request submitted successfully!</div>
+<% } %>
+
+<% if(request.getParameter("error") != null) { %>
+<div class="alert alert-danger">❌ Failed to submit repair request.</div>
+<% } %>
+
+<% if(request.getParameter("error") != null && request.getParameter("error").equals("db")) { %>
+<div class="alert alert-warning">⚠️ Database error occurred. Please try again later.</div>
+<% } %>
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
