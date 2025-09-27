@@ -995,7 +995,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="data-table">
+                    <table class="data-table" id="inventoryTable">
                         <thead>
                         <tr>
                             <th>Image</th>
@@ -1025,7 +1025,7 @@
                                                     "Low Stock".equalsIgnoreCase(stockLevel) ? "status-pending" :
                                                             "status-cancelled";
                         %>
-                        <tr>
+                        <tr data-status="<%= stockLevel %>">
                             <td>
                                 <%
                                     String img = rs.getString("ImageURL");
@@ -1146,6 +1146,31 @@
             function closeModal(id) {
                 document.getElementById(id).style.display = "none";
             }
+
+            // 🔍 Search and Filter (Improved)
+            function filterTable() {
+                const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+                const statusValue = document.getElementById("statusFilter").value;
+                const rows = document.querySelectorAll("#inventoryTable tbody tr");
+
+                rows.forEach(row => {
+                    const rowText = row.innerText.toLowerCase(); // search across all columns
+                    const rowStatus = row.getAttribute("data-status");
+
+                    const matchesSearch = rowText.includes(searchTerm);
+                    const matchesStatus = !statusValue || rowStatus === statusValue;
+
+                    row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
+                });
+            }
+
+            document.getElementById("searchInput").addEventListener("input", filterTable);
+            document.getElementById("statusFilter").addEventListener("change", filterTable);
+            document.getElementById("resetFilters").addEventListener("click", () => {
+                document.getElementById("searchInput").value = "";
+                document.getElementById("statusFilter").value = "";
+                filterTable();
+            });
         </script>
 
 
@@ -1168,6 +1193,13 @@
                 <p>Order management content goes here...</p>
             </div>
         </section>
+
+
+
+
+
+
+
 
         <section id="deliveries" class="dashboard-section">
             <div class="content-card">
