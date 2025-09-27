@@ -11,22 +11,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import main.java.com.melodymart.util.DBConnection; // Import your DBConnection class
+import main.java.com.melodymart.util.DBConnection;
 
 @WebServlet("/DeleteInstrument")
 public class DeleteInstrumentServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Set response content type
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        // Get the instrument ID from the request
+        // Validate instrument ID
         String idParam = request.getParameter("id");
         if (idParam == null || idParam.trim().isEmpty()) {
-            sendErrorResponse(response, "Invalid or missing instrument ID");
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Invalid or missing instrument ID");
             return;
         }
 
@@ -34,65 +34,47 @@ public class DeleteInstrumentServlet extends HttpServlet {
         try {
             instrumentId = Integer.parseInt(idParam);
         } catch (NumberFormatException e) {
-            sendErrorResponse(response, "Invalid instrument ID format");
+            sendErrorResponse(response, HttpServletResponse.SC_BAD_REQUEST, "Invalid instrument ID format");
             return;
         }
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
+        // Database operation
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement("DELETE FROM Instrument WHERE InstrumentID = ?")) {
 
-        try {
-            // Get database connection using your DBConnection class
-            conn = DBConnection.getConnection();
-
-            // Begin transaction
             conn.setAutoCommit(false);
 
-            // Prepare SQL statement to delete the instrument
-            String sql = "DELETE FROM Instrument WHERE InstrumentID = ?";
-            pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, instrumentId);
-
-            // Execute the delete operation
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
-                // Commit transaction if deletion is successful
                 conn.commit();
-                String jsonResponse = "{\"success\": true, \"message\": \"Instrument deleted successfully\"}";
-                response.getWriter().write(jsonResponse);
+                sendSuccessResponse(response, "Instrument deleted successfully");
             } else {
-                // Roll back if no rows were affected
                 conn.rollback();
-                sendErrorResponse(response, "No instrument found with ID: " + instrumentId);
+                sendErrorResponse(response, HttpServletResponse.SC_NOT_FOUND,
+                        "No instrument found with ID: " + instrumentId);
             }
+
         } catch (SQLException e) {
-            // Roll back transaction on error
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException rollbackEx) {
-                    rollbackEx.printStackTrace();
-                }
-            }
-            sendErrorResponse(response, "Database error: " + e.getMessage());
-        } finally {
-            // Clean up resources
-            try {
-                if (pstmt != null) pstmt.close();
-                if (conn != null) {
-                    conn.setAutoCommit(true); // Reset auto-commit
-                    conn.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Database error: " + e.getMessage());
         }
     }
 
-    private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
-        String jsonResponse = "{\"success\": false, \"message\": \"" + message.replace("\"", "\\\"") + "\"}";
-        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    private void sendSuccessResponse(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
+        String jsonResponse = "{\"success\": true, \"message\": \"" + escapeJson(message) + "\"}";
         response.getWriter().write(jsonResponse);
+    }
+
+    private void sendErrorResponse(HttpServletResponse response, int statusCode, String message) throws IOException {
+        response.setStatus(statusCode);
+        String jsonResponse = "{\"success\": false, \"message\": \"" + escapeJson(message) + "\"}";
+        response.getWriter().write(jsonResponse);
+    }
+
+    private String escapeJson(String message) {
+        return message.replace("\"", "\\\"");
     }
 }

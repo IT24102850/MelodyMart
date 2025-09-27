@@ -906,6 +906,12 @@
         </section>
 
         <!-- Inventory Section -->
+
+
+
+        <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+        <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
             <div class="content-card">
                 <div class="card-header">
@@ -923,59 +929,53 @@
                         <tr>
                             <th>Image</th>
                             <th>Name</th>
-                            <th>Brand</th>
+                            <th>Description</th>
                             <th>Model</th>
                             <th>Price</th>
-                            <th>Stock</th>
+                            <th>Quantity</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td><img src="https://example.com/fender.jpg" alt="Fender" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
-                            <td>Fender Stratocaster</td>
-                            <td>Fender</td>
-                            <td>American Professional II</td>
-                            <td>$1,499.99</td>
-                            <td>15</td>
-                            <td><span class="status-badge status-completed">In Stock</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="editInstrument(1)">Edit</button>
-                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(1)">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://example.com/yamaha.jpg" alt="Yamaha" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
-                            <td>Yamaha Stage Custom</td>
-                            <td>Yamaha</td>
-                            <td>Stage Custom Birch</td>
-                            <td>$899.99</td>
-                            <td>8</td>
-                            <td><span class="status-badge status-completed">In Stock</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="editInstrument(2)">Edit</button>
-                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(2)">Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><img src="https://example.com/shure.jpg" alt="Shure" style="width:40px; height:40px; border-radius:5px; object-fit:cover;"></td>
-                            <td>Shure SM58</td>
-                            <td>Shure</td>
-                            <td>SM58-LC</td>
-                            <td>$99.00</td>
-                            <td>3</td>
-                            <td><span class="status-badge status-pending">Low Stock</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="editInstrument(3)">Edit</button>
-                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(3)">Delete</button>
-                            </td>
-                        </tr>
+                        <c:forEach var="instrument" items="${instruments}">
+                            <tr>
+                                <td>
+                                    <img src="${instrument.imageUrl != null ? instrument.imageUrl : 'default.png'}"
+                                         alt="${instrument.name}"
+                                         style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                                </td>
+                                <td>${instrument.name}</td>
+                                <td>${instrument.description}</td>
+                                <td>${instrument.model}</td>
+                                <td>$${instrument.price}</td>
+                                <td>${instrument.quantity}</td>
+                                <td>
+                            <span class="status-badge
+                                ${instrument.stockLevel eq 'In Stock' ? 'status-completed' :
+                                  instrument.stockLevel eq 'Low Stock' ? 'status-pending' : 'status-cancelled'}">
+                                    ${instrument.stockLevel}
+                            </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary"
+                                            onclick="editInstrument(${instrument.instrumentId})">Edit</button>
+                                    <button class="btn btn-sm btn-secondary"
+                                            onclick="deleteInstrument(${instrument.instrumentId})">Delete</button>
+                                </td>
+                            </tr>
+                        </c:forEach>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
+
+
+
+
+
+
 
         <!-- Other sections would be defined here (Orders, Deliveries, Stock, Reports, etc.) -->
         <section id="orders" class="dashboard-section">
@@ -1531,5 +1531,41 @@
         }
     });
 </script>
+
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="main.java.com.melodymart.util.DBConnection" %>
+<!-- ... (keep existing HTML head and body up to the inventory section) ... -->
+
+<tbody>
+<c:forEach var="instrument" items="${instruments}">
+    <tr>
+        <td>
+            <img src="${instrument.imageUrl}" alt="${instrument.name}"
+                 style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+        </td>
+        <td>${instrument.name}</td>
+        <td>${instrument.description}</td>
+        <td>${instrument.model}</td>
+        <td>$${instrument.price}</td>
+        <td>${instrument.quantity}</td>
+        <td>
+                <span class="status-badge
+                    ${instrument.stockLevel == 'In Stock' ? 'status-completed' :
+                      instrument.stockLevel == 'Low Stock' ? 'status-pending' : 'status-cancelled'}">
+                        ${instrument.stockLevel}
+                </span>
+        </td>
+        <td>
+            <button class="btn btn-sm btn-primary" onclick="editInstrument(${instrument.id})">Edit</button>
+            <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(${instrument.id})">Delete</button>
+        </td>
+    </tr>
+</c:forEach>
+</tbody>
+
+<!-- ... (keep existing sections and modal as is) ... -->
+
 </body>
 </html>
