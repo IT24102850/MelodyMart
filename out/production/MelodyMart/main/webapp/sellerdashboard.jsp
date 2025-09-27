@@ -324,6 +324,16 @@
             background: rgba(138, 43, 226, 0.1);
         }
 
+        .btn-danger {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid rgba(220, 53, 69, 0.5);
+            color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: rgba(220, 53, 69, 0.4);
+        }
+
         .btn-sm {
             padding: 5px 10px;
             font-size: 12px;
@@ -529,6 +539,12 @@
             color: #dc3545;
         }
 
+        .notification.success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.5);
+            color: #28a745;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
@@ -651,6 +667,51 @@
         .upload-btn:hover {
             border-color: var(--primary-light);
             color: var(--primary-light);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Search and filter */
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            padding-left: 40px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .filter-select {
+            min-width: 150px;
         }
     </style>
 </head>
@@ -900,7 +961,29 @@
         </section>
 
         <!-- Inventory Section -->
+
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+        <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
+            <div class="search-filter">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search products...">
+                </div>
+                <select id="statusFilter" class="form-control filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="In Stock">In Stock</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                </select>
+                <button class="btn btn-secondary" id="resetFilters">Reset</button>
+            </div>
+
             <div class="content-card">
                 <div class="card-header">
                     <h2 class="card-title">Inventory Management</h2>
@@ -926,21 +1009,38 @@
                         </tr>
                         </thead>
                         <tbody>
-
-
                         <%
-                            import main.java.com.melodymart.util.DBConnection;
-                            Connection conn = DBConnection.getConnection();
-                            String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL FROM Instrument";
-                            PreparedStatement ps = conn.prepareStatement(sql);
-                            ResultSet rs = ps.executeQuery();
-                            while (rs.next()) {
+                            Connection conn = null;
+                            PreparedStatement ps = null;
+                            ResultSet rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL FROM Instrument";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+                                while (rs.next()) {
+                                    String stockLevel = rs.getString("StockLevel");
+                                    String statusClass =
+                                            "In Stock".equalsIgnoreCase(stockLevel) ? "status-completed" :
+                                                    "Low Stock".equalsIgnoreCase(stockLevel) ? "status-pending" :
+                                                            "status-cancelled";
                         %>
                         <tr>
                             <td>
-                                <img src="<%= rs.getString("ImageURL") != null ? rs.getString("ImageURL") : "default.png" %>"
-                                     alt="<%= rs.getString("Name") %>"
+                                <%
+                                    String img = rs.getString("ImageURL");
+                                    if (img != null && !img.isEmpty()) {
+                                %>
+                                <img src="<%= img %>" alt="<%= rs.getString("Name") %>"
                                      style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                                <%
+                                } else {
+                                %>
+                                <img src="https://via.placeholder.com/40" alt="No image"
+                                     style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                                <%
+                                    }
+                                %>
                             </td>
                             <td><%= rs.getString("Name") %></td>
                             <td><%= rs.getString("Description") %></td>
@@ -948,28 +1048,106 @@
                             <td>$<%= rs.getDouble("Price") %></td>
                             <td><%= rs.getInt("Quantity") %></td>
                             <td>
-                                <span class="status-badge
-                                    <%= rs.getString("StockLevel").equals("In Stock") ? "status-completed" :
-                                        rs.getString("StockLevel").equals("Low Stock") ? "status-pending" : "status-cancelled" %>">
-                                    <%= rs.getString("StockLevel") %>
-                                </span>
+                                <span class="status-badge <%= statusClass %>"><%= stockLevel %></span>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-primary" onclick="editInstrument(<%= rs.getInt("InstrumentID") %>)">Edit</button>
-                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(<%= rs.getInt("InstrumentID") %>)">Delete</button>
+                                <!-- Edit Button -->
+                                <button class="btn btn-sm btn-primary"
+                                        onclick="openEditModal(<%= rs.getInt("InstrumentID") %>, '<%= rs.getString("Name") %>', '<%= rs.getString("Description") %>', '<%= rs.getString("Model") %>', <%= rs.getDouble("Price") %>, <%= rs.getInt("Quantity") %>, '<%= stockLevel %>', '<%= rs.getString("ImageURL") %>')">Edit</button>
+
+                                <!-- Delete Form -->
+                                <form action="${pageContext.request.contextPath}/DeleteInstrumentServlet"
+                                      method="post" style="display:inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete this instrument?');">
+                                    <input type="hidden" name="instrumentId" value="<%= rs.getInt("InstrumentID") %>">
+                                    <button type="submit" class="btn btn-sm btn-secondary">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='8' style='color: red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
                             }
-                            rs.close();
-                            ps.close();
-                            conn.close();
                         %>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
+
+        <!-- Edit Instrument Modal -->
+        <div class="modal" id="editInstrumentModal" style="display:none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal('editInstrumentModal')">&times;</button>
+                <h2>Edit Instrument</h2>
+                <form action="${pageContext.request.contextPath}/UpdateInstrumentServlet" method="post">
+                    <input type="hidden" id="editInstrumentId" name="instrumentId">
+
+                    <label>Name:</label>
+                    <input type="text" id="editName" name="name" required><br>
+
+                    <label>Description:</label>
+                    <input type="text" id="editDescription" name="description"><br>
+
+                    <label>Model:</label>
+                    <input type="text" id="editModel" name="model"><br>
+
+                    <label>Price:</label>
+                    <input type="number" id="editPrice" name="price" step="0.01"><br>
+
+                    <label>Quantity:</label>
+                    <input type="number" id="editQuantity" name="quantity"><br>
+
+                    <label>Stock Level:</label>
+                    <select id="editStockLevel" name="stockLevel">
+                        <option value="In Stock">In Stock</option>
+                        <option value="Low Stock">Low Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select><br>
+
+                    <label>Image URL:</label>
+                    <input type="text" id="editImageUrl" name="imageUrl"><br>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            // Open edit modal with instrument data
+            function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
+                document.getElementById("editInstrumentId").value = id;
+                document.getElementById("editName").value = name;
+                document.getElementById("editDescription").value = description;
+                document.getElementById("editModel").value = model;
+                document.getElementById("editPrice").value = price;
+                document.getElementById("editQuantity").value = quantity;
+                document.getElementById("editStockLevel").value = stockLevel;
+                document.getElementById("editImageUrl").value = imageUrl;
+
+                document.getElementById("editInstrumentModal").style.display = "flex";
+            }
+
+            // Close modal
+            function closeModal(id) {
+                document.getElementById(id).style.display = "none";
+            }
+        </script>
+
+
+
+
+
+
+
+
+
+
 
         <!-- Other sections would be defined here (Orders, Deliveries, Stock, Reports, etc.) -->
         <section id="orders" class="dashboard-section">
@@ -1159,6 +1337,136 @@
     </div>
 </div>
 
+<!-- Edit Instrument Modal -->
+<div class="modal" id="editInstrumentModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('editInstrumentModal')">&times;</button>
+
+        <div class="premium-form">
+            <div class="form-header">
+                <h2 class="form-title">Edit Instrument</h2>
+                <p class="form-subtitle">Update the details of this instrument</p>
+            </div>
+
+            <!-- Display error message if exists -->
+            <div class="notification error" style="display: none;" id="editErrorNotification">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="editErrorText"></span>
+            </div>
+
+            <!-- Display success message if exists -->
+            <div class="notification success" style="display: none;" id="editSuccessNotification">
+                <i class="fas fa-check-circle"></i>
+                <span id="editSuccessText"></span>
+            </div>
+
+            <form id="editInstrumentForm" action="UpdateInstrumentServlet" method="post" enctype="multipart/form-data">
+                <input type="hidden" id="editInstrumentId" name="instrumentId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="editName" class="form-label">Name *</label>
+                        <input type="text" id="editName" name="name" class="form-control" required
+                               placeholder="e.g., Fender Stratocaster">
+                        <div class="error-message" id="editNameError" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPrice" class="form-label">Price ($) *</label>
+                        <input type="number" id="editPrice" name="price" class="form-control"
+                               step="0.01" min="0.01" required placeholder="0.00">
+                        <div class="error-message" id="editPriceError" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editBrandId" class="form-label">Brand ID</label>
+                        <input type="number" id="editBrandId" name="brandId" class="form-control"
+                               min="1" placeholder="Optional">
+                        <small style="color: var(--text-secondary); font-size: 11px;">Leave empty if unknown</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editModel" class="form-label">Model</label>
+                        <input type="text" id="editModel" name="model" class="form-control"
+                               placeholder="e.g., American Professional II">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editColor" class="form-label">Color</label>
+                        <input type="text" id="editColor" name="color" class="form-control"
+                               placeholder="e.g., Sunburst, Black, White">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editQuantity" class="form-label">Quantity *</label>
+                        <input type="number" id="editQuantity" name="quantity" class="form-control"
+                               min="0" required placeholder="0">
+                        <div class="error-message" id="editQuantityError" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editStockLevel" class="form-label">Stock Level</label>
+                        <select id="editStockLevel" name="stockLevel" class="form-control">
+                            <option value="In Stock">In Stock</option>
+                            <option value="Low Stock">Low Stock</option>
+                            <option value="Out of Stock">Out of Stock</option>
+                        </select>
+                        <small style="color: var(--text-secondary); font-size: 11px;">Will auto-update based on quantity</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editManufacturerId" class="form-label">Manufacturer ID</label>
+                        <input type="number" id="editManufacturerId" name="manufacturerId" class="form-control"
+                               min="1" placeholder="Optional">
+                        <small style="color: var(--text-secondary); font-size: 11px;">Leave empty if unknown</small>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea id="editDescription" name="description" class="form-control" rows="3"
+                                  placeholder="Describe the instrument's features, condition, and any special characteristics..."></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="editSpecifications" class="form-label">Specifications</label>
+                        <textarea id="editSpecifications" name="specifications" class="form-control" rows="3"
+                                  placeholder="Technical specifications like dimensions, materials, pickup types, etc..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editWarranty" class="form-label">Warranty</label>
+                        <input type="text" id="editWarranty" name="warranty" class="form-control"
+                               placeholder="e.g., 2 years, Limited lifetime">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="editImageFile" class="form-label">Product Image</label>
+                        <div class="image-upload" id="editImageUpload">
+                            <div class="upload-btn" onclick="document.getElementById('editImageFile').click()">
+                                <i class="fas fa-plus"></i>
+                                <span style="margin-left: 5px; font-size: 12px;">Add Image</span>
+                            </div>
+                        </div>
+                        <input type="file" id="editImageFile" name="imageFile" accept="image/jpeg,image/jpg,image/png,image/gif"
+                               style="display: none;" onchange="handleEditImageUpload(this)">
+                        <input type="hidden" id="editImageUrl" name="imageUrl">
+                        <small style="color: var(--text-secondary); font-size: 12px; margin-top: 5px; display: block;">
+                            Upload a clear product image. Max size: 5MB. Formats: JPG, PNG, GIF
+                        </small>
+                        <div class="error-message" id="editImageError" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editInstrumentModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="editSubmitBtn">
+                            <i class="fas fa-save"></i> Update Instrument
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     // Enhanced form handling and validation
     document.getElementById('instrumentForm').addEventListener('submit', function(e) {
@@ -1172,7 +1480,27 @@
             // Show loading state
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            submitBtn.innerHTML = '<div class="spinner"></div> Saving...';
+            submitBtn.disabled = true;
+
+            // Submit the form
+            this.submit();
+        }
+    });
+
+    // Edit form handling and validation
+    document.getElementById('editInstrumentForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default submission initially
+
+        // Clear previous errors
+        clearEditErrors();
+
+        // Validate form
+        if (validateEditForm()) {
+            // Show loading state
+            const submitBtn = document.getElementById('editSubmitBtn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<div class="spinner"></div> Updating...';
             submitBtn.disabled = true;
 
             // Submit the form
@@ -1223,7 +1551,56 @@
         return isValid;
     }
 
+    function validateEditForm() {
+        let isValid = true;
+
+        // Validate name
+        const name = document.getElementById('editName');
+        if (!name.value.trim()) {
+            showEditFieldError('editNameError', 'Product name is required');
+            name.focus();
+            isValid = false;
+        }
+
+        // Validate price
+        const price = document.getElementById('editPrice');
+        const priceValue = parseFloat(price.value);
+        if (!price.value || priceValue <= 0) {
+            showEditFieldError('editPriceError', 'Price must be greater than 0');
+            if (isValid) price.focus(); // Focus first error
+            isValid = false;
+        } else if (priceValue > 999999.99) {
+            showEditFieldError('editPriceError', 'Price cannot exceed $999,999.99');
+            if (isValid) price.focus();
+            isValid = false;
+        }
+
+        // Validate quantity
+        const quantity = document.getElementById('editQuantity');
+        const quantityValue = parseInt(quantity.value);
+        if (!quantity.value || quantityValue < 0) {
+            showEditFieldError('editQuantityError', 'Quantity must be 0 or greater');
+            if (isValid) quantity.focus();
+            isValid = false;
+        } else if (quantityValue > 10000) {
+            showEditFieldError('editQuantityError', 'Quantity cannot exceed 10,000');
+            if (isValid) quantity.focus();
+            isValid = false;
+        }
+
+        // Auto-update stock level based on quantity
+        updateEditStockLevelFromQuantity();
+
+        return isValid;
+    }
+
     function showFieldError(errorId, message) {
+        const errorElement = document.getElementById(errorId);
+        errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
+        errorElement.style.display = 'flex';
+    }
+
+    function showEditFieldError(errorId, message) {
         const errorElement = document.getElementById(errorId);
         errorElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + message;
         errorElement.style.display = 'flex';
@@ -1231,6 +1608,14 @@
 
     function clearAllErrors() {
         const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(element => {
+            element.style.display = 'none';
+            element.innerHTML = '';
+        });
+    }
+
+    function clearEditErrors() {
+        const errorElements = document.querySelectorAll('#editInstrumentModal .error-message');
         errorElements.forEach(element => {
             element.style.display = 'none';
             element.innerHTML = '';
@@ -1250,8 +1635,22 @@
         }
     }
 
+    function updateEditStockLevelFromQuantity() {
+        const quantity = parseInt(document.getElementById('editQuantity').value) || 0;
+        const stockLevel = document.getElementById('editStockLevel');
+
+        if (quantity === 0) {
+            stockLevel.value = 'Out of Stock';
+        } else if (quantity <= 5) {
+            stockLevel.value = 'Low Stock';
+        } else {
+            stockLevel.value = 'In Stock';
+        }
+    }
+
     // Auto-update stock level when quantity changes
     document.getElementById('quantity').addEventListener('input', updateStockLevelFromQuantity);
+    document.getElementById('editQuantity').addEventListener('input', updateEditStockLevelFromQuantity);
 
     function handleImageUpload(input) {
         const file = input.files[0];
@@ -1289,6 +1688,42 @@
         }
     }
 
+    function handleEditImageUpload(input) {
+        const file = input.files[0];
+        const imageError = document.getElementById('editImageError');
+
+        // Clear previous errors
+        imageError.style.display = 'none';
+
+        if (file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+            if (!validTypes.includes(file.type.toLowerCase())) {
+                showEditFieldError('editImageError', 'Please select a valid image file (JPG, PNG, GIF)');
+                input.value = '';
+                removeEditImagePreview();
+                return;
+            }
+
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showEditFieldError('editImageError', 'Image size must be less than 5MB');
+                input.value = '';
+                removeEditImagePreview();
+                return;
+            }
+
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                createEditImagePreview(e.target.result, file.name);
+                // Clear the hidden imageUrl since new file is uploaded
+                document.getElementById('editImageUrl').value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
     function createImagePreview(src, filename) {
         const uploadContainer = document.getElementById('imageUpload');
 
@@ -1317,11 +1752,56 @@
         uploadBtn.innerHTML = '<i class="fas fa-sync"></i><span style="margin-left: 5px; font-size: 12px;">Change</span>';
     }
 
+    function createEditImagePreview(src, filename) {
+        const uploadContainer = document.getElementById('editImageUpload');
+
+        // Remove existing previews
+        const existingPreviews = uploadContainer.querySelectorAll('.image-preview');
+        existingPreviews.forEach(preview => preview.remove());
+
+        // Create new preview
+        const preview = document.createElement('div');
+        preview.className = 'image-preview';
+        preview.innerHTML = `
+            <img src="${src}" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;">
+            <button type="button" class="remove-image" onclick="removeEditImagePreview()" title="Remove image">
+                <i class="fas fa-times"></i>
+            </button>
+            <div style="position: absolute; bottom: 2px; left: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white; font-size: 10px; padding: 2px; border-radius: 2px; text-align: center;">
+                ${filename.length > 15 ? filename.substring(0, 12) + '...' : filename}
+            </div>
+        `;
+
+        // Insert before upload button
+        const uploadBtn = uploadContainer.querySelector('.upload-btn');
+        uploadContainer.insertBefore(preview, uploadBtn);
+
+        // Update upload button text
+        uploadBtn.innerHTML = '<i class="fas fa-sync"></i><span style="margin-left: 5px; font-size: 12px;">Change</span>';
+    }
+
     function removeImagePreview() {
         const uploadContainer = document.getElementById('imageUpload');
         const preview = uploadContainer.querySelector('.image-preview');
         const imageFile = document.getElementById('imageFile');
         const imageUrl = document.getElementById('imageUrl');
+        const uploadBtn = uploadContainer.querySelector('.upload-btn');
+
+        if (preview) {
+            preview.remove();
+        }
+        imageFile.value = '';
+        imageUrl.value = '';
+
+        // Reset upload button text
+        uploadBtn.innerHTML = '<i class="fas fa-plus"></i><span style="margin-left: 5px; font-size: 12px;">Add Image</span>';
+    }
+
+    function removeEditImagePreview() {
+        const uploadContainer = document.getElementById('editImageUpload');
+        const preview = uploadContainer.querySelector('.image-preview');
+        const imageFile = document.getElementById('editImageFile');
+        const imageUrl = document.getElementById('editImageUrl');
         const uploadBtn = uploadContainer.querySelector('.upload-btn');
 
         if (preview) {
@@ -1417,47 +1897,6 @@
         });
     });
 
-    // Form validation
-    document.getElementById('instrumentForm').addEventListener('submit', function(e) {
-        let isValid = true;
-        const name = document.getElementById('name');
-        const price = document.getElementById('price');
-        const quantity = document.getElementById('quantity');
-
-        // Reset previous errors
-        document.querySelectorAll('.error-message').forEach(el => el.remove());
-
-        // Validate name
-        if (!name.value.trim()) {
-            showError(name, 'Instrument name is required');
-            isValid = false;
-        }
-
-        // Validate price
-        if (!price.value || parseFloat(price.value) <= 0) {
-            showError(price, 'Please enter a valid price');
-            isValid = false;
-        }
-
-        // Validate quantity
-        if (!quantity.value || parseInt(quantity.value) < 0) {
-            showError(quantity, 'Please enter a valid quantity');
-            isValid = false;
-        }
-
-        if (!isValid) {
-            e.preventDefault();
-        }
-    });
-
-    function showError(input, message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-        input.parentNode.appendChild(errorDiv);
-        input.focus();
-    }
-
     // Logout function
     function logout() {
         if (confirm('Are you sure you want to logout?')) {
@@ -1477,6 +1916,120 @@
             errorNotification.style.display = 'flex';
         }
     });
+
+    // Inventory search and filter functionality
+    document.getElementById('searchInput').addEventListener('input', filterInventory);
+    document.getElementById('statusFilter').addEventListener('change', filterInventory);
+    document.getElementById('resetFilters').addEventListener('click', resetFilters);
+
+    function filterInventory() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('#inventoryTableBody tr');
+
+        rows.forEach(row => {
+            const name = row.cells[1].textContent.toLowerCase();
+            const description = row.cells[2].textContent.toLowerCase();
+            const status = row.cells[6].textContent;
+
+            const matchesSearch = name.includes(searchTerm) || description.includes(searchTerm);
+            const matchesStatus = !statusFilter || status === statusFilter;
+
+            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+        });
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = '';
+        filterInventory();
+    }
+
+    // Edit instrument function
+    function openEditModal(id) {
+        // In a real implementation, this would fetch the instrument data from your database
+        // For now, we'll use sample data
+        const sampleData = {
+            1: {
+                name: 'Fender Stratocaster',
+                description: 'Electric Guitar',
+                model: 'American Professional II',
+                price: '1499.99',
+                quantity: '12',
+                stockLevel: 'In Stock',
+                brandId: '1',
+                color: 'Sunburst',
+                manufacturerId: '1',
+                warranty: 'Lifetime',
+                specifications: 'Alder body, Maple neck, Rosewood fingerboard',
+                imageUrl: 'https://via.placeholder.com/40'
+            },
+            2: {
+                name: 'Yamaha HS8',
+                description: 'Studio Monitor',
+                model: 'HS8',
+                price: '349.99',
+                quantity: '3',
+                stockLevel: 'Low Stock',
+                brandId: '2',
+                color: 'Black',
+                manufacturerId: '2',
+                warranty: '2 years',
+                specifications: '8-inch cone woofer, 1-inch dome tweeter',
+                imageUrl: 'https://via.placeholder.com/40'
+            },
+            3: {
+                name: 'Shure SM58',
+                description: 'Dynamic Microphone',
+                model: 'SM58',
+                price: '99.99',
+                quantity: '0',
+                stockLevel: 'Out of Stock',
+                brandId: '3',
+                color: 'Black',
+                manufacturerId: '3',
+                warranty: '2 years',
+                specifications: 'Cardioid polar pattern, 50Hz-15kHz frequency response',
+                imageUrl: 'https://via.placeholder.com/40'
+            }
+        };
+
+        const data = sampleData[id] || sampleData[1];
+
+        // Populate the edit form with data
+        document.getElementById('editInstrumentId').value = id;
+        document.getElementById('editName').value = data.name;
+        document.getElementById('editDescription').value = data.description;
+        document.getElementById('editModel').value = data.model;
+        document.getElementById('editPrice').value = data.price;
+        document.getElementById('editQuantity').value = data.quantity;
+        document.getElementById('editStockLevel').value = data.stockLevel;
+        document.getElementById('editBrandId').value = data.brandId;
+        document.getElementById('editColor').value = data.color;
+        document.getElementById('editManufacturerId').value = data.manufacturerId;
+        document.getElementById('editWarranty').value = data.warranty;
+        document.getElementById('editSpecifications').value = data.specifications;
+        document.getElementById('editImageUrl').value = data.imageUrl;
+
+        // Show the edit modal
+        openModal('editInstrumentModal');
+    }
+
+    // Delete instrument function
+    function deleteInstrument(id) {
+        if (confirm('Are you sure you want to delete this instrument? This action cannot be undone.')) {
+            // In a real implementation, this would send a request to delete the instrument
+            alert('Delete functionality for instrument ID: ' + id + ' would be implemented here');
+
+            // Simulate removing the row from the table
+            const rows = document.querySelectorAll('#inventoryTableBody tr');
+            rows.forEach(row => {
+                if (row.querySelector('button').onclick.toString().includes(id)) {
+                    row.remove();
+                }
+            });
+        }
+    }
 </script>
 </body>
 </html>

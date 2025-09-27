@@ -3,17 +3,16 @@
 <%@ page import="java.sql.PreparedStatement" %>
 <%@ page import="java.sql.ResultSet" %>
 <%@ page import="main.java.com.melodymart.util.DBConnection" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Management | Melody Mart</title>
+    <title>Repair Requests | Melody Mart</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <style>
         :root {
             --primary: #8a2be2;
@@ -255,24 +254,85 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Order Table Container */
-        .table-container {
+        /* Form Styles */
+        .form-container {
             background: var(--card-bg);
             border-radius: 15px;
             padding: 30px;
             margin-bottom: 40px;
             border: 1px solid var(--glass-border);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
         }
 
-        .table-title {
+        .form-title {
             font-size: 24px;
             margin-bottom: 20px;
             color: var(--primary-light);
         }
 
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-control, .form-control-file {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: var(--secondary);
+            color: var(--text);
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-control-file:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+        }
+
+        .form-control-file {
+            padding: 10px;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s ease;
+        }
+
+        .preview-img:hover {
+            transform: scale(1.05);
+        }
+
         /* Table Styles */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -310,29 +370,19 @@
             display: inline-block;
         }
 
-        .status-pending {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
-        }
-
-        .status-processing {
+        .status-new {
             background: rgba(0, 123, 255, 0.2);
             color: #007bff;
         }
 
-        .status-shipped {
-            background: rgba(111, 66, 193, 0.2);
-            color: #6f42c1;
+        .status-in-progress {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
         }
 
-        .status-delivered {
+        .status-completed {
             background: rgba(40, 167, 69, 0.2);
             color: #28a745;
-        }
-
-        .status-cancelled {
-            background: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
         }
 
         /* Action Buttons */
@@ -380,7 +430,7 @@
             background: var(--card-bg);
             border-radius: 15px;
             padding: 30px;
-            max-width: 500px;
+            max-width: 600px;
             width: 90%;
             position: relative;
             border: 1px solid var(--glass-border);
@@ -420,69 +470,26 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Form Styles */
-        .form-group {
-            margin-bottom: 20px;
+        /* Photo Gallery */
+        .photo-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
         }
 
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .form-control, .form-select {
-            width: 100%;
-            padding: 12px 15px;
+        .gallery-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
             border-radius: 8px;
             border: 1px solid var(--glass-border);
-            background: var(--secondary);
-            color: var(--text);
-            font-size: 14px;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
 
-        .form-control:focus, .form-select:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
-        }
-
-        /* Stats Cards */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            border: 1px solid var(--glass-border);
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.2);
-        }
-
-        .stat-number {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 14px;
+        .gallery-img:hover {
+            transform: scale(1.1);
         }
 
         /* Responsive Design */
@@ -508,7 +515,7 @@
                 gap: 15px;
             }
 
-            .table-container {
+            .form-container, .table-container {
                 padding: 20px;
             }
 
@@ -518,10 +525,6 @@
 
             .user-menu:hover .dropdown {
                 display: none;
-            }
-
-            .stats-container {
-                grid-template-columns: 1fr 1fr;
             }
         }
 
@@ -534,17 +537,12 @@
                 font-size: 24px;
             }
 
-            .table-title {
+            .form-title {
                 font-size: 20px;
             }
 
             .data-table th, .data-table td {
                 padding: 10px;
-                font-size: 14px;
-            }
-
-            .stats-container {
-                grid-template-columns: 1fr;
             }
         }
 
@@ -579,8 +577,8 @@
             <li><a href="index.jsp">Home</a></li>
             <li><a href="shop.jsp">Shop</a></li>
             <li><a href="categories.jsp">Categories</a></li>
-            <li><a href="orders.jsp" style="color: var(--primary-light);">Orders</a></li>
-            <li><a href="repair-requests.jsp">Repair Requests</a></li>
+            <li><a href="repair-requests.jsp" style="color: var(--primary-light);">Repair Requests</a></li>
+            <li><a href="orders.jsp">My Orders</a></li>
             <li><a href="profile.jsp">Profile</a></li>
         </ul>
 
@@ -588,12 +586,12 @@
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
             <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
             <div class="user-menu">
-                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> Admin</button>
+                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> Customer</button>
                 <div class="dropdown">
                     <a href="profile.jsp" class="dropdown-item"><i class="fas fa-user-circle"></i> My Profile</a>
-                    <a href="orders.jsp" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Order Management</a>
+                    <a href="orders.jsp" class="dropdown-item"><i class="fas fa-shopping-bag"></i> My Orders</a>
                     <a href="repair-requests.jsp" class="dropdown-item"><i class="fas fa-tools"></i> Repair Requests</a>
-                    <a href="customers.jsp" class="dropdown-item"><i class="fas fa-users"></i> Customer Management</a>
+                    <a href="wishlist.jsp" class="dropdown-item"><i class="fas fa-heart"></i> Wishlist</a>
                     <a href="settings.jsp" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
                     <a href="index.jsp" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
@@ -605,45 +603,54 @@
 <div class="container">
     <!-- Page Header -->
     <div class="page-header">
-        <h1 class="page-title">Order Management</h1>
-        <button class="cta-btn" id="refreshOrdersBtn">
-            <i class="fas fa-sync-alt"></i> Refresh Orders
+        <h1 class="page-title">Repair Requests</h1>
+        <button class="cta-btn" id="newRequestBtn">
+            <i class="fas fa-plus"></i> New Repair Request
         </button>
     </div>
 
-    <!-- Order Statistics -->
-    <div class="stats-container">
-        <div class="stat-card">
-            <div class="stat-number" id="totalOrders">0</div>
-            <div class="stat-label">Total Orders</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="pendingOrders">0</div>
-            <div class="stat-label">Pending Orders</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="processingOrders">0</div>
-            <div class="stat-label">Processing Orders</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="deliveredOrders">0</div>
-            <div class="stat-label">Delivered Orders</div>
-        </div>
+    <!-- New Repair Request Form -->
+    <div class="form-container" id="requestForm">
+        <h2 class="form-title">Submit New Repair Request</h2>
+        <form id="repairRequestForm" method="post" action="${pageContext.request.contextPath}/SubmitRepairRequestServlet" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="form-label">Order ID</label>
+                <input type="text" class="form-control" name="orderId" placeholder="e.g., MM-7892" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Issue Description</label>
+                <textarea class="form-control" name="issueDescription" placeholder="Describe the issue in detail..." rows="3" required></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Upload Photos</label>
+                <input type="file" class="form-control-file" name="photos" multiple accept="image/*" id="photoUpload">
+                <div id="previewContainer" class="preview-container"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Select Repair Date</label>
+                <input type="text" class="form-control" id="repairDatePicker" name="repairDate" required>
+            </div>
+            <button type="submit" class="cta-btn" style="width: 100%;">
+                <i class="fas fa-paper-plane"></i> Submit Request
+            </button>
+        </form>
     </div>
 
-    <!-- Orders Table -->
+    <!-- Repair Requests Table -->
     <div class="table-container">
-        <h2 class="table-title">All Orders</h2>
+        <h2 class="form-title">Your Repair Requests</h2>
         <table class="data-table">
             <thead>
             <tr>
+                <th>Request ID</th>
                 <th>Order ID</th>
-                <th>Customer ID</th>
-                <th>Seller ID</th>
-                <th>Order Date</th>
-                <th>Total Amount</th>
+                <th>Description</th>
+                <th>Photos</th>
                 <th>Status</th>
-                <th>Delivery Address</th>
+                <th>Approved</th>
+                <th>Comment</th>
+                <th>Estimated Cost</th>
+                <th>Repair Date</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -654,69 +661,61 @@
                 ResultSet rs = null;
                 try {
                     conn = DBConnection.getConnection();
-                    String sql = "SELECT OrderID, CustomerID, SellerID, OrderDate, TotalAmount, Status, DeliveryAddressID FROM Orders ORDER BY OrderDate DESC";
+                    String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate FROM RepairRequest";
                     ps = conn.prepareStatement(sql);
                     rs = ps.executeQuery();
-
-                    int totalOrders = 0;
-                    int pendingOrders = 0;
-                    int processingOrders = 0;
-                    int deliveredOrders = 0;
-
                     while (rs.next()) {
-                        totalOrders++;
                         String status = rs.getString("Status");
-                        if ("Pending".equalsIgnoreCase(status)) pendingOrders++;
-                        if ("Processing".equalsIgnoreCase(status)) processingOrders++;
-                        if ("Delivered".equalsIgnoreCase(status)) deliveredOrders++;
+                        boolean canDelete = !status.equalsIgnoreCase("In Progress") && !status.equalsIgnoreCase("Completed");
             %>
             <tr>
-                <td>#<%= rs.getInt("OrderID") %></td>
-                <td>#CUST-<%= rs.getInt("CustomerID") %></td>
-                <td>#SELL-<%= rs.getInt("SellerID") %></td>
-                <td><%= rs.getTimestamp("OrderDate") %></td>
-                <td style="font-weight: 600; color: var(--accent);">$<%= rs.getBigDecimal("TotalAmount") %></td>
-                <td>
-                    <span class="status-badge status-<%= status.toLowerCase() %>"><%= status %></span>
-                </td>
+                <td>#RR-<%= rs.getInt("RepairRequestID") %></td>
+                <td>#MM-<%= rs.getInt("OrderID") %></td>
+                <td><%= rs.getString("IssueDescription") %></td>
                 <td>
                     <%
-                        if (rs.getObject("DeliveryAddressID") != null) {
+                        String photo = rs.getString("Photos");
+                        if (photo != null && !photo.isEmpty()) {
+                            String[] photos = photo.split(";");
                     %>
-                    #ADDR-<%= rs.getInt("DeliveryAddressID") %>
+                    <div class="photo-gallery">
+                        <%
+                            for (String photoPath : photos) {
+                        %>
+                        <img src="<%= photoPath.replace("\\", "/") %>" class="gallery-img" alt="Repair Photo">
+                        <%
+                            }
+                        %>
+                    </div>
                     <%
                     } else {
                     %>
-                    <span style="color: var(--text-secondary); font-style: italic;">Not set</span>
+                    <span style="color: var(--text-secondary); font-style: italic;">No photos</span>
                     <%
                         }
                     %>
                 </td>
+                <td><span class="status-badge status-<%= status.toLowerCase().replace(" ", "-") %>"><%= status %></span></td>
+                <td><span style="color: <%= rs.getBoolean("Approved") ? "#28a745" : "#ff6b6b" %>;"><%= rs.getBoolean("Approved") ? "Yes" : "No" %></span></td>
+                <td><%= rs.getString("Comment") != null ? rs.getString("Comment") : "<span style='color: var(--text-secondary); font-style: italic;'>No comment</span>" %></td>
+                <td style="font-weight: 600; color: var(--accent);">$<%= rs.getBigDecimal("EstimatedCost") != null ? rs.getBigDecimal("EstimatedCost") : "0.00" %></td>
+                <td><%= rs.getDate("RepairDate") %></td>
                 <td>
-                    <button class="action-btn" title="Edit Order" onclick="openEditModal(<%= rs.getInt("OrderID") %>, '<%= status %>')">
+                    <button class="action-btn" title="Update Request"
+                            onclick="openUpdateModal(<%= rs.getInt("RepairRequestID") %>, '<%= rs.getString("IssueDescription").replace("'", "\\'") %>', '<%= rs.getString("Comment") != null ? rs.getString("Comment").replace("'", "\\'") : "" %>', '<%= rs.getDate("RepairDate") %>')">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="action-btn" title="View Details" onclick="viewOrderDetails(<%= rs.getInt("OrderID") %>)">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-btn delete-btn" title="Delete Order" onclick="deleteOrder(<%= rs.getInt("OrderID") %>)">
+                    <% if (canDelete) { %>
+                    <button class="action-btn delete-btn" title="Delete Request" onclick="deleteRepairRequest(<%= rs.getInt("RepairRequestID") %>)">
                         <i class="fas fa-trash"></i>
                     </button>
+                    <% } %>
                 </td>
             </tr>
             <%
                     }
-
-                    // Store counts for JavaScript
-                    out.println("<script>");
-                    out.println("document.getElementById('totalOrders').textContent = '" + totalOrders + "';");
-                    out.println("document.getElementById('pendingOrders').textContent = '" + pendingOrders + "';");
-                    out.println("document.getElementById('processingOrders').textContent = '" + processingOrders + "';");
-                    out.println("document.getElementById('deliveredOrders').textContent = '" + deliveredOrders + "';");
-                    out.println("</script>");
-
                 } catch (Exception e) {
-                    out.println("<tr><td colspan='8' style='color:#ff6b6b; text-align:center; padding:20px;'>Error loading orders: " + e.getMessage() + "</td></tr>");
+                    out.println("<tr><td colspan='10' style='color:#ff6b6b; text-align:center; padding:20px;'>Error loading repair requests: " + e.getMessage() + "</td></tr>");
                 } finally {
                     if (rs != null) try { rs.close(); } catch (Exception ignored) {}
                     if (ps != null) try { ps.close(); } catch (Exception ignored) {}
@@ -728,46 +727,83 @@
     </div>
 </div>
 
-<!-- Edit Order Modal -->
-<div class="modal" id="editOrderModal">
+<!-- Update Repair Request Modal -->
+<div class="modal" id="updateRepairModal">
     <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('editOrderModal')">&times;</button>
-        <h2 class="modal-title">Update Order Status</h2>
-        <form id="editOrderForm" method="post" action="${pageContext.request.contextPath}/UpdateOrderServlet">
-            <input type="hidden" name="orderId" id="editOrderId">
+        <button class="modal-close" onclick="closeModal('updateRepairModal')">&times;</button>
+        <h2 class="modal-title">Update Repair Request</h2>
+        <form id="updateRepairForm" method="post" action="${pageContext.request.contextPath}/UpdateRepairRequestServlet" enctype="multipart/form-data">
+            <input type="hidden" name="repairRequestId" id="updateRepairRequestId">
             <div class="form-group">
-                <label class="form-label">Order Status</label>
-                <select class="form-select" name="status" id="editOrderStatus" required>
-                    <option value="Pending">Pending</option>
-                    <option value="Processing">Processing</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Cancelled">Cancelled</option>
-                </select>
+                <label class="form-label">Issue Description</label>
+                <textarea class="form-control" name="issueDescription" id="updateIssueDescription" rows="3" required></textarea>
             </div>
             <div class="form-group">
-                <label class="form-label">Delivery Address ID (Optional)</label>
-                <input type="text" class="form-control" name="deliveryAddressId" id="editDeliveryAddressId" placeholder="Enter delivery address ID">
+                <label class="form-label">Additional Comments</label>
+                <textarea class="form-control" name="additionalComment" id="updateComment" rows="4" placeholder="Add any additional comments or updates..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Upload Additional Photos</label>
+                <input type="file" class="form-control-file" name="additionalPhotos" multiple accept="image/*" id="updatePhotoUpload">
+                <div id="updatePreviewContainer" class="preview-container"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Select Repair Date</label>
+                <input type="text" class="form-control" id="updateRepairDatePicker" name="repairDate" required>
             </div>
             <button type="submit" class="cta-btn" style="width: 100%;">
-                <i class="fas fa-save"></i> Update Order
+                <i class="fas fa-save"></i> Update Request
             </button>
         </form>
     </div>
 </div>
 
-<!-- Order Details Modal -->
-<div class="modal" id="orderDetailsModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('orderDetailsModal')">&times;</button>
-        <h2 class="modal-title">Order Details</h2>
-        <div id="orderDetailsContent">
-            <!-- Order details will be loaded here -->
-        </div>
-    </div>
-</div>
-
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <script>
+    $(function() {
+        $("#repairDatePicker, #updateRepairDatePicker").datepicker({
+            dateFormat: "yy-mm-dd",
+            minDate: 0,
+            showAnim: "fadeIn"
+        });
+    });
+
+    // Toggle form visibility
+    document.getElementById('newRequestBtn').addEventListener('click', function() {
+        const form = document.getElementById('requestForm');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+            form.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            form.style.display = 'none';
+        }
+    });
+
+    // Image preview functionality
+    function setupPreview(inputId, previewId) {
+        document.getElementById(inputId).addEventListener("change", function(event) {
+            const previewContainer = document.getElementById(previewId);
+            previewContainer.innerHTML = "";
+            Array.from(event.target.files).forEach(file => {
+                if (file.type.startsWith("image/")) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement("img");
+                        img.src = e.target.result;
+                        img.className = "preview-img";
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+    }
+
+    setupPreview("photoUpload", "previewContainer");
+    setupPreview("updatePhotoUpload", "updatePreviewContainer");
+
     // Modal functions
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
@@ -781,31 +817,27 @@
         setTimeout(() => modal.style.display = "none", 300);
     }
 
-    function openEditModal(orderId, currentStatus) {
-        document.getElementById("editOrderId").value = orderId;
-        document.getElementById("editOrderStatus").value = currentStatus;
-        document.getElementById("editDeliveryAddressId").value = "";
-        openModal("editOrderModal");
+    function openUpdateModal(id, issue, comment, date) {
+        document.getElementById("updateRepairRequestId").value = id;
+        document.getElementById("updateIssueDescription").value = issue;
+        document.getElementById("updateComment").value = comment;
+        document.getElementById("updateRepairDatePicker").value = date;
+        document.getElementById("updatePreviewContainer").innerHTML = "";
+        openModal("updateRepairModal");
     }
 
-    function viewOrderDetails(orderId) {
-        // In a real application, you would fetch order details from the server
-        // For now, we'll show a placeholder message
-        document.getElementById("orderDetailsContent").innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-info-circle" style="font-size: 48px; color: var(--primary-light); margin-bottom: 15px;"></i>
-                <p>Order details for order #${orderId} would be displayed here.</p>
-                <p style="color: var(--text-secondary); margin-top: 10px;">This feature would connect to your backend to fetch detailed order information.</p>
-            </div>
-        `;
-        openModal("orderDetailsModal");
-    }
-
-    function deleteOrder(orderId) {
-        if (confirm("Are you sure you want to delete order #" + orderId + "? This action cannot be undone.")) {
-            // In a real application, you would submit a form or make an AJAX request to delete the order
-            alert("Order deletion would be processed here. Order ID: " + orderId);
-            // Example: window.location.href = "DeleteOrderServlet?orderId=" + orderId;
+    function deleteRepairRequest(id) {
+        if (confirm("Are you sure you want to delete this repair request? This action cannot be undone.")) {
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = "${pageContext.request.contextPath}/DeleteRepairRequestServlet";
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "repairRequestId";
+            input.value = id;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
         }
     }
 
@@ -818,56 +850,33 @@
         });
     });
 
-    // Refresh orders button
-    document.getElementById('refreshOrdersBtn').addEventListener('click', function() {
-        const btn = this;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-        btn.disabled = true;
+    // Form submission handlers
+    document.getElementById('repairRequestForm').addEventListener('submit', function(e) {
+        // Add loading state to button
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+        submitBtn.disabled = true;
 
-        // Simulate refresh delay
+        // Reset button after 3 seconds (for demo purposes)
         setTimeout(() => {
-            location.reload();
-        }, 1000);
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
     });
 
-    // Form submission handler
-    document.getElementById('editOrderForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
+    document.getElementById('updateRepairForm').addEventListener('submit', function(e) {
+        // Add loading state to button
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
         submitBtn.disabled = true;
 
-        // Simulate form submission
+        // Reset button after 3 seconds (for demo purposes)
         setTimeout(() => {
-            alert("Order status updated successfully!");
-            closeModal('editOrderModal');
-            location.reload(); // Refresh the page to show updated data
-        }, 1500);
-    });
-
-    // Animate stats counters
-    document.addEventListener('DOMContentLoaded', function() {
-        const statElements = document.querySelectorAll('.stat-number');
-        statElements.forEach(stat => {
-            const target = parseInt(stat.textContent);
-            let current = 0;
-            const increment = target / 50;
-
-            const updateStat = () => {
-                if (current < target) {
-                    current += increment;
-                    stat.textContent = Math.round(current);
-                    setTimeout(updateStat, 30);
-                } else {
-                    stat.textContent = target;
-                }
-            };
-
-            setTimeout(updateStat, 500);
-        });
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
     });
 </script>
 

@@ -1,23 +1,3 @@
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="main.java.com.melodymart.util.DBConnection" %>
-<% if(request.getParameter("success") != null) { %>
-<div class="alert alert-success">✅ Repair request submitted successfully!</div>
-<% } %>
-
-<% if(request.getParameter("error") != null) { %>
-<div class="alert alert-danger">❌ Failed to submit repair request.</div>
-<% } %>
-
-<% if(request.getParameter("error") != null && request.getParameter("error").equals("db")) { %>
-<div class="alert alert-warning">⚠️ Database error occurred. Please try again later.</div>
-<% } %>
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,9 +21,6 @@
             --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
             --glass-bg: rgba(30, 30, 30, 0.7);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --success: #00cc66;
-            --warning: #ffaa00;
-            --danger: #ff4444;
         }
 
         * {
@@ -60,33 +37,40 @@
             line-height: 1.6;
         }
 
-        .dashboard-container {
-            display: flex;
-            min-height: 100vh;
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background: var(--card-bg);
-            padding: 30px 0;
+        /* Header & Navigation */
+        header {
             position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 100;
-            transition: all 0.3s ease;
-            border-right: 1px solid var(--glass-border);
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            transition: all 0.4s ease;
         }
 
-        .sidebar-header {
-            padding: 0 25px 30px;
-            border-bottom: 1px solid var(--glass-border);
-            margin-bottom: 20px;
+        header.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            padding: 15px 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
         }
 
-        .sidebar-logo {
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 800;
             background: var(--gradient);
             -webkit-background-clip: text;
@@ -95,183 +79,220 @@
             align-items: center;
         }
 
-        .sidebar-logo i {
+        .logo i {
             margin-right: 10px;
-            font-size: 28px;
+            font-size: 32px;
         }
 
-        .user-profile {
+        .nav-links {
             display: flex;
-            align-items: center;
-            margin-top: 20px;
-            padding: 15px;
-            background: var(--glass-bg);
-            border-radius: 10px;
-        }
-
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            font-size: 20px;
-        }
-
-        .user-info h3 {
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .user-info p {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .sidebar-menu {
             list-style: none;
-            padding: 0 15px;
         }
 
-        .menu-item {
-            margin-bottom: 5px;
+        .nav-links li {
+            margin: 0 15px;
         }
 
-        .menu-item a {
-            display: flex;
-            align-items: center;
-            padding: 12px 15px;
+        .nav-links a {
             color: var(--text);
             text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .menu-item a:hover, .menu-item a.active {
-            background: var(--glass-bg);
-            color: var(--primary-light);
-        }
-
-        .menu-item a i {
-            margin-right: 10px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-        }
-
-        .menu-item a .badge {
-            margin-left: auto;
-            background: var(--primary);
-            color: white;
-            border-radius: 20px;
-            padding: 2px 8px;
-            font-size: 12px;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 260px;
-            padding: 30px;
-            transition: all 0.3s ease;
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .page-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 32px;
-            font-weight: 700;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .search-bar {
-            display: flex;
-            align-items: center;
-            background: var(--card-bg);
-            border-radius: 30px;
-            padding: 8px 15px;
-            width: 300px;
-        }
-
-        .search-bar input {
-            background: transparent;
-            border: none;
-            color: var(--text);
-            width: 100%;
-            padding: 5px 10px;
-            outline: none;
-        }
-
-        .notification-btn, .mobile-menu-btn {
-            background: var(--card-bg);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text);
-            cursor: pointer;
-            transition: all 0.3s ease;
+            font-weight: 500;
+            transition: color 0.3s ease;
             position: relative;
         }
 
-        .notification-btn:hover, .mobile-menu-btn:hover {
-            background: var(--primary-light);
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width 0.3s ease;
         }
 
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--danger);
+        .nav-links a:hover {
+            color: var(--primary-light);
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-btn, .cart-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 18px;
+            margin-left: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .search-btn:hover, .cart-btn:hover {
+            color: var(--primary-light);
+        }
+
+        .cta-btn {
+            background: var(--gradient);
             color: white;
-            border-radius: 50%;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 20px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cta-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: var(--gradient-alt);
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .cta-btn:hover:before {
+            width: 100%;
+        }
+
+        /* User Dropdown */
+        .user-menu {
+            position: relative;
+            margin-left: 20px;
+        }
+
+        .user-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .user-btn:hover {
+            color: var(--primary-light);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            width: 150px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+            z-index: 1000;
+        }
+
+        .user-menu:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 10px 15px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s ease, color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--card-hover);
+            color: var(--primary-light);
+        }
+
+        /* Dashboard Hero Section */
+        .dashboard-hero {
+            height: 70vh;
+            position: relative;
+            overflow: hidden;
+            padding-top: 120px;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-size: cover;
+            background-position: center;
             display: flex;
             align-items: center;
             justify-content: center;
+            text-align: center;
         }
 
-        .mobile-menu-btn {
-            display: none;
+        .dashboard-hero-content {
+            max-width: 800px;
+            padding: 0 20px;
         }
 
-        /* Dashboard Cards */
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
+        .dashboard-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 60px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .dashboard-hero p {
+            font-size: 20px;
+            color: var(--text-secondary);
             margin-bottom: 30px;
+        }
+
+        .customer-name {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* Dashboard Stats */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 50px 0;
         }
 
         .stat-card {
             background: var(--card-bg);
             border-radius: 15px;
-            padding: 25px;
-            display: flex;
-            align-items: center;
+            padding: 30px;
+            text-align: center;
             transition: all 0.3s ease;
             border: 1px solid var(--glass-border);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .stat-card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .stat-card:hover {
@@ -280,1114 +301,607 @@
         }
 
         .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            font-size: 24px;
+            font-size: 40px;
+            color: var(--primary-light);
+            margin-bottom: 15px;
         }
 
-        .stat-icon.orders {
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+        .stat-number {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .stat-icon.cart {
-            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
-        }
-
-        .stat-icon.wishlist {
-            background: linear-gradient(135deg, #ffecd2, #fcb69f);
-        }
-
-        .stat-icon.repairs {
-            background: linear-gradient(135deg, #84fab0, #8fd3f4);
-        }
-
-        .stat-info h3 {
-            font-size: 28px;
-            margin-bottom: 5px;
-        }
-
-        .stat-info p {
+        .stat-label {
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 16px;
         }
 
-        /* Content Sections */
-        .content-section {
+        /* Section Title */
+        .section-title {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            margin: 80px 0 50px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .section-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--gradient);
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            margin-bottom: 80px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .dashboard-card {
             background: var(--card-bg);
             border-radius: 15px;
             padding: 25px;
-            margin-bottom: 30px;
+            transition: all 0.3s ease;
             border: 1px solid var(--glass-border);
+            opacity: 0;
+            transform: translateY(30px);
         }
 
-        .section-header {
+        .dashboard-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.2);
+        }
+
+        .dashboard-card h3 {
+            font-size: 20px;
+            margin-bottom: 15px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+        }
+
+        .dashboard-card h3 i {
+            margin-right: 10px;
+            color: var(--primary-light);
+        }
+
+        .dashboard-card p {
+            color: var(--text-secondary);
             margin-bottom: 20px;
-            padding-bottom: 15px;
+        }
+
+        .dashboard-card .cta-btn {
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* Recent Orders */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .orders-table th, .orders-table td {
+            padding: 15px;
+            text-align: left;
             border-bottom: 1px solid var(--glass-border);
         }
 
-        .section-title {
-            font-size: 20px;
+        .orders-table th {
+            background: rgba(138, 43, 226, 0.1);
             font-weight: 600;
         }
 
-        .view-all {
-            color: var(--primary-light);
-            text-decoration: none;
-            font-size: 14px;
-            transition: color 0.3s ease;
-        }
-
-        .view-all:hover {
-            color: var(--accent);
-        }
-
-        /* Tables */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .data-table th {
-            text-align: left;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--glass-border);
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .data-table td {
-            padding: 15px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .data-table tr:last-child td {
+        .orders-table tr:last-child td {
             border-bottom: none;
         }
 
-        .data-table tr:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        .status-badge {
-            display: inline-block;
+        .order-status {
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-pending {
-            background: rgba(255, 170, 0, 0.2);
-            color: var(--warning);
-        }
-
-        .status-processing {
-            background: rgba(0, 204, 102, 0.2);
-            color: var(--success);
+            font-weight: 600;
         }
 
         .status-delivered {
-            background: rgba(0, 204, 102, 0.2);
-            color: var(--success);
+            background: rgba(0, 229, 255, 0.2);
+            color: var(--accent);
         }
 
-        .status-cancelled {
-            background: rgba(255, 68, 68, 0.2);
-            color: var(--danger);
+        .status-pending {
+            background: rgba(255, 200, 0, 0.2);
+            color: #ffc800;
         }
 
-        .action-btn {
-            background: none;
-            border: none;
+        .status-shipped {
+            background: rgba(138, 43, 226, 0.2);
+            color: var(--primary-light);
+        }
+
+        /* Footer */
+        footer {
+            background: #0a0a0a;
+            padding: 80px 0 30px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .footer-column h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--gradient);
+        }
+
+        .footer-column p {
             color: var(--text-secondary);
-            cursor: pointer;
-            margin-right: 10px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
             transition: color 0.3s ease;
         }
 
-        .action-btn:hover {
+        .footer-links a:hover {
             color: var(--primary-light);
         }
 
-        /* Forms */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            background: var(--secondary);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text);
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 5px rgba(138, 43, 226, 0.5);
-        }
-
-        .form-row {
+        .social-links {
             display: flex;
-            gap: 20px;
+            gap: 15px;
+            margin-top: 20px;
         }
 
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .btn-primary {
-            background: var(--gradient);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--gradient-alt);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--primary-light);
-            color: var(--primary-light);
-        }
-
-        .btn-outline:hover {
-            background: var(--primary-light);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #ff2222;
-            transform: translateY(-2px);
-        }
-
-        /* Tabs */
-        .tabs {
+        .social-links a {
             display: flex;
-            border-bottom: 1px solid var(--glass-border);
-            margin-bottom: 20px;
-        }
-
-        .tab {
-            padding: 12px 20px;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .tab.active {
-            border-bottom: 2px solid var(--primary-light);
-            color: var(--primary-light);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 2000;
             align-items: center;
             justify-content: center;
-        }
-
-        .modal-content {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            position: relative;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-
-        .modal.active .modal-content {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card-bg);
             color: var(--text);
-            font-size: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
-        .modal-close:hover {
-            color: var(--primary-light);
+        .social-links a:hover {
+            background: var(--gradient);
+            transform: translateY(-3px);
         }
 
-        .modal-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--glass-border);
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #1e1e1e;
+            color: var(--text-secondary);
+            font-size: 14px;
         }
 
-        .modal-title {
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        /* Responsive */
+        /* Responsive Design */
         @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .mobile-menu-btn {
-                display: flex;
-            }
-
-            .search-bar {
-                width: 200px;
+            .dashboard-hero h1 {
+                font-size: 45px;
             }
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                padding: 20px;
+            .nav-links {
+                display: none;
             }
 
-            .dashboard-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
+            .dashboard-hero {
+                padding-top: 100px;
+                height: 60vh;
             }
 
-            .header-actions {
-                width: 100%;
-                justify-content: space-between;
+            .dashboard-hero h1 {
+                font-size: 36px;
             }
 
-            .search-bar {
-                width: 100%;
-                max-width: 300px;
+            .dashboard-hero p {
+                font-size: 18px;
             }
 
-            .stats-cards {
+            .section-title {
+                font-size: 32px;
+            }
+
+            .dashboard-grid {
                 grid-template-columns: 1fr;
             }
 
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .main-content {
-                padding: 15px;
-            }
-
-            .page-title {
-                font-size: 24px;
-            }
-
-            .content-section {
-                padding: 15px;
-            }
-
-            .data-table {
+            .orders-table {
                 display: block;
                 overflow-x: auto;
             }
 
-            .tabs {
-                flex-wrap: wrap;
+            .user-menu:hover .dropdown {
+                display: none;
             }
 
-            .tab {
-                flex: 1;
-                min-width: 120px;
-                text-align: center;
+            .user-btn {
+                font-size: 16px;
+            }
+
+            .dropdown {
+                width: 120px;
+                right: -10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .dashboard-hero h1 {
+                font-size: 32px;
+            }
+
+            .dashboard-hero p {
+                font-size: 16px;
+            }
+
+            .cta-btn {
+                padding: 10px 20px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .stat-card {
+                padding: 20px;
+            }
+
+            .stat-number {
+                font-size: 28px;
             }
         }
     </style>
 </head>
 <body>
-<div class="dashboard-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <i class="fas fa-music"></i>
-                Melody Mart
-            </div>
-            <div class="user-profile">
-                <div class="user-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="user-info">
-                    <h3>Alex Johnson</h3>
-                    <p>Premium Member</p>
-                </div>
-            </div>
+<!-- Header & Navigation -->
+<header>
+    <div class="container nav-container">
+        <div class="logo">
+            <i class="fas fa-music"></i>
+            Melody Mart
         </div>
 
-        <ul class="sidebar-menu">
-            <li class="menu-item">
-                <a href="#" class="active" data-tab="dashboard">
-                    <i class="fas fa-home"></i> Dashboard
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="profile">
-                    <i class="fas fa-user"></i> My Profile
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="orders">
-                    <i class="fas fa-shopping-bag"></i> My Orders <span class="badge">3</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="cart">
-                    <i class="fas fa-shopping-cart"></i> Shopping Cart <span class="badge">2</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="wishlist">
-                    <i class="fas fa-heart"></i> Wishlist <span class="badge">5</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="payments">
-                    <i class="fas fa-credit-card"></i> Payment Methods
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="deliveries">
-                    <i class="fas fa-shipping-fast"></i> Delivery Tracking
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="repairs">
-                    <i class="fas fa-tools"></i> Repair Requests <span class="badge">1</span>
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="reviews">
-                    <i class="fas fa-star"></i> My Reviews
-                </a>
-            </li>
-            <li class="menu-item">
-                <a href="#" data-tab="security">
-                    <i class="fas fa-shield-alt"></i> Security
-                </a>
-            </li>
+        <ul class="nav-links">
+            <li><a href="index.jsp">Home</a></li>
+            <li><a href="shop.jsp">Shop</a></li>
+            <li><a href="customerdashboard.jsp">CustomerLanding</a></li>
+            <li><a href="order.jsp">My Orders</a></li>
+            <li><a href="repair.jsp">My Repair Requests</a></li>
+            <li><a href="wishlist.jsp">Wishlist</a></li>
+            <li><a href="profile.jsp">Profile</a></li>
         </ul>
+
+        <div class="nav-actions">
+            <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+            <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
+            <div class="user-menu">
+                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> John Doe</button>
+                <div class="dropdown">
+                    <a href="profile.jsp" class="dropdown-item">My Profile</a>
+                    <a href="order.jsp" class="dropdown-item">My Orders</a>
+                    <a href="repair.jsp" class="dropdown-item"  >My Repair Requests</a>
+                    <a href="wishlist.jsp" class="dropdown-item">Wishlist</a>
+                    <a href="settings.jsp" class="dropdown-item">Settings</a>
+                    <a href="index.jsp" class="dropdown-item">Logout</a>
+                </div>
+            </div>
+        </div>
     </div>
+</header>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="dashboard-header">
-            <h1 class="page-title">Customer Dashboard</h1>
-            <div class="header-actions">
-                <div class="search-bar">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search dashboard...">
-                </div>
-                <button class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
-                <button class="mobile-menu-btn">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
+<!-- Dashboard Hero Section -->
+<section class="dashboard-hero">
+    <div class="dashboard-hero-content">
+        <h1>Welcome Back, <span class="customer-name">John Doe</span>!</h1>
+        <p>Your musical journey continues with Melody Mart. Explore your dashboard to manage orders, track shipments, and discover new instruments.</p>
+        <div class="slide-btns">
+            <button class="cta-btn" onclick="window.location.href='shop.jsp'">Continue Shopping</button>
+            <button class="cta-btn" style="background: transparent; border: 2px solid var(--primary-light);" onclick="window.location.href='orders.jsp'">View Orders</button>
         </div>
+    </div>
+</section>
 
-        <!-- Dashboard Overview -->
-        <div class="tab-content active" id="dashboard">
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <div class="stat-icon orders">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>12</h3>
-                        <p>Total Orders</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon cart">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>2</h3>
-                        <p>Items in Cart</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon wishlist">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>5</h3>
-                        <p>Wishlisted Items</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon repairs">
-                        <i class="fas fa-tools"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>1</h3>
-                        <p>Active Repairs</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Recent Orders</h2>
-                    <a href="#" class="view-all">View All</a>
-                </div>
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Date</th>
-                        <th>Items</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>#MM-7892</td>
-                        <td>15 Mar 2025</td>
-                        <td>Electric Guitar</td>
-                        <td>$1,299.99</td>
-                        <td><span class="status-badge status-delivered">Delivered</span></td>
-                        <td>
-                            <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn" title="Track Order"><i class="fas fa-shipping-fast"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#MM-7854</td>
-                        <td>10 Mar 2025</td>
-                        <td>Drum Set, Sticks</td>
-                        <td>$2,599.99</td>
-                        <td><span class="status-badge status-processing">Processing</span></td>
-                        <td>
-                            <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn" title="Track Order"><i class="fas fa-shipping-fast"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#MM-7821</td>
-                        <td>05 Mar 2025</td>
-                        <td>Microphone, Stand</td>
-                        <td>$349.99</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td>
-                            <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn" title="Cancel Order"><i class="fas fa-times"></i></button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Active Repair Requests</h2>
-                    <a href="#" class="view-all">View All</a>
-                </div>
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th>Request ID</th>
-                        <th>Instrument</th>
-                        <th>Issue</th>
-                        <th>Submitted</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>#RR-4521</td>
-                        <td>Fender Stratocaster</td>
-                        <td>Fret buzz on high E string</td>
-                        <td>12 Mar 2025</td>
-                        <td><span class="status-badge status-processing">In Progress</span></td>
-                        <td>
-                            <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn" title="Update Request"><i class="fas fa-edit"></i></button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+<!-- Dashboard Stats -->
+<section class="container">
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <i class="fas fa-shopping-bag stat-icon"></i>
+            <div class="stat-number">12</div>
+            <div class="stat-label">Total Orders</div>
         </div>
+        <div class="stat-card">
+            <i class="fas fa-heart stat-icon"></i>
+            <div class="stat-number">8</div>
+            <div class="stat-label">Wishlist Items</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-truck stat-icon"></i>
+            <div class="stat-number">2</div>
+            <div class="stat-label">Pending Deliveries</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-star stat-icon"></i>
+            <div class="stat-number">4.8</div>
+            <div class="stat-label">Average Rating</div>
+        </div>
+    </div>
+</section>
 
-        <!-- Profile Management -->
-        <div class="tab-content" id="profile">
-            <div class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">My Profile</h2>
+<!-- Recent Orders Section -->
+<section class="container dashboard-section">
+    <h2 class="section-title">Recent Orders</h2>
+    <div class="dashboard-card">
+        <table class="orders-table">
+            <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>#MM2025001</td>
+                <td>Professional Electric Guitar</td>
+                <td>Jan 15, 2025</td>
+                <td>$1,299.99</td>
+                <td><span class="order-status status-delivered">Delivered</span></td>
+                <td><a href="#" style="color: var(--primary-light);">View Details</a></td>
+            </tr>
+            <tr>
+                <td>#MM2025002</td>
+                <td>Studio Headphones</td>
+                <td>Jan 18, 2025</td>
+                <td>$249.99</td>
+                <td><span class="order-status status-shipped">Shipped</span></td>
+                <td><a href="#" style="color: var(--primary-light);">Track Order</a></td>
+            </tr>
+            <tr>
+                <td>#MM2025003</td>
+                <td>Guitar Strings Set</td>
+                <td>Jan 20, 2025</td>
+                <td>$29.99</td>
+                <td><span class="order-status status-pending">Processing</span></td>
+                <td><a href="#" style="color: var(--primary-light);">View Details</a></td>
+            </tr>
+            </tbody>
+        </table>
+        <button class="cta-btn" style="margin-top: 20px;" onclick="window.location.href='orders.jsp'">View All Orders</button>
+    </div>
+</section>
+
+<!-- Quick Actions Section -->
+<section class="container dashboard-section">
+    <h2 class="section-title">Quick Actions</h2>
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h3><i class="fas fa-shopping-cart"></i> Continue Shopping</h3>
+            <p>Browse our latest collection of musical instruments and accessories.</p>
+            <button class="cta-btn" onclick="window.location.href='shop.jsp'">Shop Now</button>
+        </div>
+        <div class="dashboard-card">
+            <h3><i class="fas fa-heart"></i> Your Wishlist</h3>
+            <p>View and manage your saved items for future purchases.</p>
+            <button class="cta-btn" onclick="window.location.href='wishlist.jsp'">View Wishlist</button>
+        </div>
+        <div class="dashboard-card">
+            <h3><i class="fas fa-user-edit"></i> Update Profile</h3>
+            <p>Keep your personal information and preferences up to date.</p>
+            <button class="cta-btn" onclick="window.location.href='profile.jsp'">Edit Profile</button>
+        </div>
+        <div class="dashboard-card">
+            <h3><i class="fas fa-headphones"></i> Support Center</h3>
+            <p>Need help? Contact our customer support team for assistance.</p>
+            <button class="cta-btn" onclick="window.location.href='support.jsp'">Get Help</button>
+        </div>
+    </div>
+</section>
+
+<!-- Recommended Products Section -->
+<section class="container dashboard-section">
+    <h2 class="section-title">Recommended For You</h2>
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h3><i class="fas fa-guitar"></i> Guitar Accessories</h3>
+            <p>Based on your recent purchase, you might like these guitar accessories.</p>
+            <button class="cta-btn" onclick="window.location.href='shop.jsp?category=guitar-accessories'">Explore</button>
+        </div>
+        <div class="dashboard-card">
+            <h3><i class="fas fa-drum"></i> Percussion Instruments</h3>
+            <p>Check out our new arrivals in the percussion category.</p>
+            <button class="cta-btn" onclick="window.location.href='shop.jsp?category=percussion'">Discover</button>
+        </div>
+        <div class="dashboard-card">
+            <h3><i class="fas fa-music"></i> Sheet Music</h3>
+            <p>Find the perfect sheet music for your favorite songs and genres.</p>
+            <button class="cta-btn" onclick="window.location.href='shop.jsp?category=sheet-music'">Browse</button>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Melody Mart</h3>
+                <p>Your premier destination for high-quality musical instruments and professional audio equipment.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
                 </div>
-                <form id="profileForm">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label class="form-label">First Name</label>
-                            <input type="text" class="form-control" value="Alex">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Last Name</label>
-                            <input type="text" class="form-control" value="Johnson">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <input type="email" class="form-control" value="alex.johnson@example.com">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Phone</label>
-                        <input type="tel" class="form-control" value="+1 (555) 123-4567">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Address</label>
-                        <textarea class="form-control" rows="3">123 Music Street, Nashville, TN 37203, USA</textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Profile</button>
+            </div>
+
+            <div class="footer-column">
+                <h3>Shop</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Guitars</a></li>
+                    <li><a href="#">Drums & Percussion</a></li>
+                    <li><a href="#">Pianos & Keyboards</a></li>
+                    <li><a href="#">Recording Equipment</a></li>
+                    <li><a href="#">Accessories</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Customer Service</h3>
+                <ul class="footer-links">
+                    <li><a href="#">My Account</a></li>
+                    <li><a href="#">Order Tracking</a></li>
+                    <li><a href="#">Returns & Exchanges</a></li>
+                    <li><a href="#">Shipping Information</a></li>
+                    <li><a href="#">FAQ</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Newsletter</h3>
+                <p>Subscribe to our newsletter for the latest products and exclusive offers.</p>
+                <form>
+                    <input type="email" placeholder="Your Email" style="width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 5px; border: none; background: var(--card-bg); color: var(--text);">
+                    <button class="cta-btn" style="width: 100%;">Subscribe</button>
                 </form>
             </div>
         </div>
 
-        <!-- Orders Management -->
-        <div class="tab-content" id="orders">
-            <div class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Order History</h2>
-                </div>
-                <div class="tabs">
-                    <div class="tab active" data-order-tab="all">All Orders</div>
-                    <div class="tab" data-order-tab="pending">Pending</div>
-                    <div class="tab" data-order-tab="delivered">Delivered</div>
-                    <div class="tab" data-order-tab="cancelled">Cancelled</div>
-                </div>
-
-                <div class="tab-content active" id="all-orders">
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>#MM-7892</td>
-                            <td>15 Mar 2025</td>
-                            <td>Electric Guitar</td>
-                            <td>$1,299.99</td>
-                            <td><span class="status-badge status-delivered">Delivered</span></td>
-                            <td>
-                                <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn" title="Reorder"><i class="fas fa-redo"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#MM-7854</td>
-                            <td>10 Mar 2025</td>
-                            <td>Drum Set, Sticks</td>
-                            <td>$2,599.99</td>
-                            <td><span class="status-badge status-processing">Processing</span></td>
-                            <td>
-                                <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn" title="Track Order"><i class="fas fa-shipping-fast"></i></button>
-                                <button class="action-btn" title="Cancel Order"><i class="fas fa-times"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#MM-7821</td>
-                            <td>05 Mar 2025</td>
-                            <td>Microphone, Stand</td>
-                            <td>$349.99</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>
-                                <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn" title="Cancel Order"><i class="fas fa-times"></i></button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="copyright">
+            &copy; 2025 Melody Mart. All rights reserved.
         </div>
-
-        <!-- Shopping Cart -->
-        <div class="tab-content" id="cart">
-            <div class="content-section">
-                <div class="section-header">
-                    <h2 class="section-title">Shopping Cart</h2>
-                </div>
-                <table class="data-table">
-                    <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Total</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <div style="width: 60px; height: 60px; background: var(--glass-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
-                                    <i class="fas fa-guitar" style="font-size: 24px; color: var(--primary-light);"></i>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600;">Professional Electric Guitar</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">Model: Fender Stratocaster</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>$1,299.99</td>
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <button class="action-btn"><i class="fas fa-minus"></i></button>
-                                <span style="margin: 0 10px;">1</span>
-                                <button class="action-btn"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </td>
-                        <td>$1,299.99</td>
-                        <td>
-                            <button class="action-btn" title="Remove"><i class="fas fa-trash"></i></button>
-                            <button class="action-btn" title="Move to Wishlist"><i class="fas fa-heart"></i></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <div style="width: 60px; height: 60px; background: var(--glass-bg); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
-                                    <i class="fas fa-drum" style="font-size: 24px; color: var(--primary-light);"></i>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600;">Premium Drum Sticks</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">Pair - 5A Wood Tip</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>$24.99</td>
-                        <td>
-                            <div style="display: flex; align-items: center;">
-                                <button class="action-btn"><i class="fas fa-minus"></i></button>
-                                <span style="margin: 0 10px;">2</span>
-                                <button class="action-btn"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </td>
-                        <td>$49.98</td>
-                        <td>
-                            <button class="action-btn" title="Remove"><i class="fas fa-trash"></i></button>
-                            <button class="action-btn" title="Move to Wishlist"><i class="fas fa-heart"></i></button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
-                    <div>
-                        <div style="font-size: 18px; font-weight: 600;">Total: $1,349.97</div>
-                        <div style="font-size: 12px; color: var(--text-secondary);">Shipping calculated at checkout</div>
-                    </div>
-                    <button class="btn btn-primary">Proceed to Checkout</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Continue with other tab contents for Wishlist, Payments, Deliveries, Repairs, Reviews, Security -->
-
-
-        <%@ page import="java.sql.Connection" %>
-        <%@ page import="java.sql.PreparedStatement" %>
-        <%@ page import="java.sql.ResultSet" %>
-        <%@ page import="main.java.com.melodymart.util.DBConnection" %>
-
-        <!-- Submit New Repair Request -->
-        <form id="repairRequestForm" method="post" action="${pageContext.request.contextPath}/SubmitRepairRequestServlet" enctype="multipart/form-data" style="background: var(--card-bg); border: 1px solid var(--glass-border); padding: 20px; border-radius: 15px;">
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Order ID</label>
-                    <input type="text" class="form-control" name="orderId" placeholder="e.g., MM-7892" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Issue Description</label>
-                    <input type="text" class="form-control" name="issueDescription" placeholder="e.g., Fret buzz on high E string" required>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Upload Photos</label>
-                <input type="file" class="form-control-file" name="photos" multiple accept="image/*" id="photoUpload">
-                <div id="previewContainer" class="mt-2 d-flex flex-wrap"></div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Select Repair Date</label>
-                <input type="text" class="form-control" id="repairDatePicker" name="repairDate" placeholder="Choose a date" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit Request</button>
-        </form>
-
-        <!-- Repair Requests Table -->
-        <div class="content-section mt-4">
-            <h4>Repair Requests</h4>
-            <table class="data-table">
-                <thead>
-                <tr>
-                    <th>Request ID</th>
-                    <th>Order ID</th>
-                    <th>Description</th>
-                    <th>Photos</th>
-                    <th>Status</th>
-                    <th>Approved</th>
-                    <th>Comment</th>
-                    <th>Estimated Cost</th>
-                    <th>Repair Date</th>
-                    <th>Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <%
-                    Connection conn = null;
-                    PreparedStatement ps = null;
-                    ResultSet rs = null;
-                    try {
-                        conn = DBConnection.getConnection();
-                        String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate FROM RepairRequest";
-                        ps = conn.prepareStatement(sql);
-                        rs = ps.executeQuery();
-                        while (rs.next()) {
-                            String status = rs.getString("Status");
-                            boolean canDelete = !status.equalsIgnoreCase("In Progress") && !status.equalsIgnoreCase("Completed");
-                %>
-                <tr>
-                    <td>#RR-<%= rs.getInt("RepairRequestID") %></td>
-                    <td>#MM-<%= rs.getInt("OrderID") %></td>
-                    <td><%= rs.getString("IssueDescription") %></td>
-                    <td>
-                        <%
-                            String photo = rs.getString("Photos");
-                            if (photo != null && !photo.isEmpty()) {
-                                String[] photos = photo.split(";");
-                                for (String photoPath : photos) {
-                        %>
-                        <img src="<%= photoPath.replace("\\", "/") %>" class="img-thumbnail m-1"
-                             style="width:80px; height:80px; object-fit:cover;" alt="Repair Photo">
-                        <%
-                            }
-                        } else {
-                        %>
-                        <span class="text-muted">No Photo</span>
-                        <%
-                            }
-                        %>
-                    </td>
-                    <td><span class="status-badge status-<%= status.toLowerCase().replace(" ", "-") %>"><%= status %></span></td>
-                    <td><%= rs.getBoolean("Approved") ? "Yes" : "No" %></td>
-                    <td><%= rs.getString("Comment") != null ? rs.getString("Comment") : "-" %></td>
-                    <td>$<%= rs.getBigDecimal("EstimatedCost") != null ? rs.getBigDecimal("EstimatedCost") : "0.00" %></td>
-                    <td><%= rs.getDate("RepairDate") %></td>
-                    <td>
-                        <button class="action-btn" title="Update Request" onclick="openUpdateModal(<%= rs.getInt("RepairRequestID") %>, '<%= rs.getString("IssueDescription").replace("'", "\\'") %>', '<%= rs.getString("Comment") != null ? rs.getString("Comment").replace("'", "\\'") : "" %>', '<%= rs.getDate("RepairDate") %>')"><i class="fas fa-edit"></i></button>
-                        <% if (canDelete) { %>
-                        <button class="action-btn" title="Delete Request" onclick="deleteRepairRequest(<%= rs.getInt("RepairRequestID") %>)"><i class="fas fa-trash"></i></button>
-                        <% } %>
-                    </td>
-                </tr>
-                <%
-                        }
-                    } catch (Exception e) {
-                        out.println("<tr><td colspan='10' style='color: var(--danger);'>Error: " + e.getMessage() + "</td></tr>");
-                    } finally {
-                        if (rs != null) try { rs.close(); } catch (Exception ignored) {}
-                        if (ps != null) try { ps.close(); } catch (Exception ignored) {}
-                        if (conn != null) try { conn.close(); } catch (Exception ignored) {}
-                    }
-                %>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Update Repair Request Modal -->
-        <div class="modal" id="updateRepairModal">
-            <div class="modal-content">
-                <button class="modal-close">&times;</button>
-                <div class="modal-header">
-                    <h2 class="modal-title">Update Repair Request</h2>
-                </div>
-                <form id="updateRepairForm" method="post" action="${pageContext.request.contextPath}/UpdateRepairRequestServlet" enctype="multipart/form-data">
-                    <input type="hidden" name="repairRequestId" id="updateRepairRequestId">
-                    <div class="form-group">
-                        <label class="form-label">Issue Description</label>
-                        <input type="text" class="form-control" name="issueDescription" id="updateIssueDescription" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Additional Comments</label>
-                        <textarea class="form-control" name="additionalComment" id="updateComment" rows="4" placeholder="Add or update comments..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Upload Additional Photos</label>
-                        <input type="file" class="form-control-file" name="additionalPhotos" multiple accept="image/*" id="updatePhotoUpload">
-                        <div id="updatePreviewContainer" class="mt-2 d-flex flex-wrap"></div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Select Repair Date</label>
-                        <input type="text" class="form-control" id="updateRepairDatePicker" name="repairDate" placeholder="Choose a date" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Update Request</button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Scripts -->
-        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-        <script>
-            // Initialize datepickers
-            $(function() {
-                $("#repairDatePicker, #updateRepairDatePicker").datepicker({
-                    dateFormat: "yy-mm-dd",
-                    minDate: 0,
-                    showAnim: "fadeIn"
-                });
-            });
-
-            // Image preview for both forms
-            function setupPreview(inputId, previewId) {
-                document.getElementById(inputId).addEventListener("change", function(event) {
-                    const previewContainer = document.getElementById(previewId);
-                    previewContainer.innerHTML = "";
-                    Array.from(event.target.files).forEach(file => {
-                        if (file.type.startsWith("image/")) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                const img = document.createElement("img");
-                                img.src = e.target.result;
-                                img.className = "m-1 border rounded";
-                                img.style.width = "100px";
-                                img.style.height = "100px";
-                                img.style.objectFit = "cover";
-                                previewContainer.appendChild(img);
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    });
-                });
-            }
-            setupPreview("photoUpload", "previewContainer");
-            setupPreview("updatePhotoUpload", "updatePreviewContainer");
-
-            // Open update modal with pre-filled data
-            function openUpdateModal(repairRequestId, issueDescription, comment, repairDate) {
-                document.getElementById("updateRepairRequestId").value = repairRequestId;
-                document.getElementById("updateIssueDescription").value = issueDescription;
-                document.getElementById("updateComment").value = comment;
-                document.getElementById("updateRepairDatePicker").value = repairDate;
-                document.getElementById("updatePreviewContainer").innerHTML = "";
-                document.getElementById("updatePhotoUpload").value = "";
-                document.getElementById("updateRepairModal").style.display = "flex";
-                setTimeout(() => {
-                    document.getElementById("updateRepairModal").classList.add("active");
-                }, 10);
-            }
-
-            // Delete repair request
-            function deleteRepairRequest(repairRequestId) {
-                if (confirm("Are you sure you want to delete this repair request? This action cannot be undone.")) {
-                    const form = document.createElement("form");
-                    form.method = "POST";
-                    form.action = "${pageContext.request.contextPath}/DeleteRepairRequestServlet";
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = "repairRequestId";
-                    input.value = repairRequestId;
-                    form.appendChild(input);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            }
-        </script>
-
-
-
-
-
-
-
     </div>
-
-
-
-        <!-- This would follow the same pattern as above sections -->
-
-    </div>
-</div>
-
-<!-- Modals for various actions -->
-<div class="modal" id="editProfileModal">
-    <div class="modal-content">
-        <button class="modal-close">&times;</button>
-        <div class="modal-header">
-            <h2 class="modal-title">Edit Profile</h2>
-        </div>
-        <form>
-            <!-- Form content would go here -->
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
-            </div>
-        </form>
-    </div>
-</div>
+</footer>
 
 <script>
-    // Tab navigation
-    document.querySelectorAll('.sidebar-menu a').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            // Remove active class from all links
-            document.querySelectorAll('.sidebar-menu a').forEach(item => {
-                item.classList.remove('active');
-            });
-
-            // Add active class to clicked link
-            this.classList.add('active');
-
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Show selected tab content
-            const tabId = this.getAttribute('data-tab');
-            document.getElementById(tabId).classList.add('active');
-        });
+    // Header scroll effect
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
     });
 
-    // Order tabs
-    document.querySelectorAll('[data-order-tab]').forEach(tab => {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('[data-order-tab]').forEach(t => {
-                t.classList.remove('active');
-            });
-            this.classList.add('active');
-
-            // Logic to filter orders would go here
-        });
-    });
-
-    // Mobile menu toggle
-    document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
-        document.querySelector('.sidebar').classList.toggle('active');
-    });
-
-    // Modal handling
-    function openModal(modalId) {
-        document.getElementById(modalId).style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById(modalId).classList.add('active');
-        }, 10);
+    // Get customer name from URL parameter or use default
+    function getCustomerName() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('name') || 'John Doe';
     }
 
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('active');
-        setTimeout(() => {
-            document.getElementById(modalId).style.display = 'none';
-        }, 300);
+    // Update customer name in the dashboard
+    function updateCustomerName() {
+        const customerName = getCustomerName();
+        document.querySelectorAll('.customer-name').forEach(el => {
+            el.textContent = customerName;
+        });
+        document.querySelector('.user-btn').innerHTML = `<i class="fas fa-user"></i> ${customerName}`;
     }
 
-    // Close modal when clicking outside content
-    window.addEventListener('click', function(e) {
-        document.querySelectorAll('.modal').forEach(modal => {
-            if (e.target === modal) {
-                closeModal(modal.id);
+    // Intersection Observer for animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
             }
         });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.section-title, .stat-card, .dashboard-card').forEach((el) => {
+        observer.observe(el);
     });
 
-    // Close modals with close buttons
-    document.querySelectorAll('.modal-close').forEach(button => {
-        button.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            closeModal(modal.id);
-        });
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCustomerName();
+
+        // Add sample data for demonstration
+        const stats = document.querySelectorAll('.stat-number');
+        if (stats.length > 0) {
+            // Animate stat numbers
+            stats.forEach(stat => {
+                const target = parseInt(stat.textContent);
+                let current = 0;
+                const increment = target / 50;
+
+                const updateStat = () => {
+                    if (current < target) {
+                        current += increment;
+                        stat.textContent = Math.round(current);
+                        setTimeout(updateStat, 30);
+                    } else {
+                        stat.textContent = target;
+                    }
+                };
+
+                setTimeout(updateStat, 500);
+            });
+        }
     });
 </script>
 </body>

@@ -17,35 +17,35 @@ public class UpdateInstrumentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        try {
-            int instrumentId = Integer.parseInt(request.getParameter("instrumentId"));
-            String name = request.getParameter("name");
-            String description = request.getParameter("description");
-            String model = request.getParameter("model");
-            double price = Double.parseDouble(request.getParameter("price"));
-            int quantity = Integer.parseInt(request.getParameter("quantity"));
-            String stockLevel = request.getParameter("stockLevel");
-            String imageUrl = request.getParameter("imageUrl");
+        int instrumentId = Integer.parseInt(request.getParameter("instrumentId"));
+        String name = request.getParameter("name");
+        String description = request.getParameter("description");
+        String model = request.getParameter("model");
+        double price = Double.parseDouble(request.getParameter("price"));
+        int quantity = Integer.parseInt(request.getParameter("quantity"));
+        String stockLevel = request.getParameter("stockLevel");
+        String imageUrl = request.getParameter("imageUrl");
 
-            try (Connection conn = DatabaseUtil.getConnection()) {
-                String sql = "UPDATE Instrument SET Name=?, Description=?, Model=?, Price=?, Quantity=?, StockLevel=?, ImageURL=? WHERE InstrumentID=?";
-                try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                    ps.setString(1, name);
-                    ps.setString(2, description);
-                    ps.setString(3, model);
-                    ps.setDouble(4, price);
-                    ps.setInt(5, quantity);
-                    ps.setString(6, stockLevel);
-                    ps.setString(7, imageUrl);
-                    ps.setInt(8, instrumentId);
+        try (Connection conn = DatabaseUtil.getConnection()) {
+            String sql = "UPDATE Instrument SET Name=?, Description=?, Model=?, Price=?, Quantity=?, StockLevel=?, ImageURL=? WHERE InstrumentID=?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, name);
+            ps.setString(2, description);
+            ps.setString(3, model);
+            ps.setDouble(4, price);
+            ps.setInt(5, quantity);
+            ps.setString(6, stockLevel);
+            ps.setString(7, imageUrl);
+            ps.setInt(8, instrumentId);
 
-                    ps.executeUpdate();
-                }
-            }
-            response.sendRedirect("seller-dashboard.jsp?success=Instrument+updated");
+            ps.executeUpdate();
+            ps.close();
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("seller-dashboard.jsp?error=" + e.getMessage());
+            request.setAttribute("errorMessage", "Error updating instrument: " + e.getMessage());
         }
+
+        // Redirect back to dashboard
+        response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp");
     }
 }
