@@ -529,6 +529,12 @@
             color: #dc3545;
         }
 
+        .notification.success {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid rgba(40, 167, 69, 0.5);
+            color: #28a745;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
@@ -651,6 +657,51 @@
         .upload-btn:hover {
             border-color: var(--primary-light);
             color: var(--primary-light);
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Search and filter */
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            padding-left: 40px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .filter-select {
+            min-width: 150px;
         }
     </style>
 </head>
@@ -899,8 +950,28 @@
             </div>
         </section>
 
+
+
+
+
+
+
         <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
+            <div class="search-filter">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search products...">
+                </div>
+                <select id="statusFilter" class="form-control filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="In Stock">In Stock</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                </select>
+                <button class="btn btn-secondary" id="resetFilters">Reset</button>
+            </div>
+
             <div class="content-card">
                 <div class="card-header">
                     <h2 class="card-title">Inventory Management</h2>
@@ -912,7 +983,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="data-table">
+                    <table class="data-table" id="inventoryTable">
                         <thead>
                         <tr>
                             <th>Image</th>
@@ -925,51 +996,46 @@
                             <th>Actions</th>
                         </tr>
                         </thead>
-                        <tbody>
-
-
-                        <%
-                            import main.java.com.melodymart.util.DBConnection;
-                            Connection conn = DBConnection.getConnection();
-                            String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL FROM Instrument";
-                            PreparedStatement ps = conn.prepareStatement(sql);
-                            ResultSet rs = ps.executeQuery();
-                            while (rs.next()) {
-                        %>
-                        <tr>
-                            <td>
-                                <img src="<%= rs.getString("ImageURL") != null ? rs.getString("ImageURL") : "default.png" %>"
-                                     alt="<%= rs.getString("Name") %>"
-                                     style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
-                            </td>
-                            <td><%= rs.getString("Name") %></td>
-                            <td><%= rs.getString("Description") %></td>
-                            <td><%= rs.getString("Model") %></td>
-                            <td>$<%= rs.getDouble("Price") %></td>
-                            <td><%= rs.getInt("Quantity") %></td>
-                            <td>
-                                <span class="status-badge
-                                    <%= rs.getString("StockLevel").equals("In Stock") ? "status-completed" :
-                                        rs.getString("StockLevel").equals("Low Stock") ? "status-pending" : "status-cancelled" %>">
-                                    <%= rs.getString("StockLevel") %>
-                                </span>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="editInstrument(<%= rs.getInt("InstrumentID") %>)">Edit</button>
-                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(<%= rs.getInt("InstrumentID") %>)">Delete</button>
-                            </td>
-                        </tr>
-                        <%
-                            }
-                            rs.close();
-                            ps.close();
-                            conn.close();
-                        %>
+                        <tbody id="inventoryTableBody">
+                        <c:forEach var="instrument" items="${instruments}">
+                            <tr>
+                                <td>
+                                    <img src="${instrument.imageUrl != null ? instrument.imageUrl : 'https://via.placeholder.com/40'}"
+                                         alt="${instrument.name}"
+                                         style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                                </td>
+                                <td>${instrument.name}</td>
+                                <td>${instrument.description}</td>
+                                <td>${instrument.model}</td>
+                                <td>$${instrument.price}</td>
+                                <td>${instrument.quantity}</td>
+                                <td>
+                            <span class="status-badge
+                                ${instrument.stockLevel eq 'In Stock' ? 'status-completed' :
+                                  instrument.stockLevel eq 'Low Stock' ? 'status-pending' : 'status-cancelled'}">
+                                    ${instrument.stockLevel}
+                            </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary" onclick="editInstrument(${instrument.instrumentId})">Edit</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(${instrument.instrumentId})">Delete</button>
+                                </td>
+                            </tr>
+                        </c:forEach>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
+
+
+
+
+
+
+
+
+
 
         <!-- Other sections would be defined here (Orders, Deliveries, Stock, Reports, etc.) -->
         <section id="orders" class="dashboard-section">
@@ -1172,7 +1238,7 @@
             // Show loading state
             const submitBtn = document.getElementById('submitBtn');
             const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            submitBtn.innerHTML = '<div class="spinner"></div> Saving...';
             submitBtn.disabled = true;
 
             // Submit the form
@@ -1417,47 +1483,6 @@
         });
     });
 
-    // Form validation
-    document.getElementById('instrumentForm').addEventListener('submit', function(e) {
-        let isValid = true;
-        const name = document.getElementById('name');
-        const price = document.getElementById('price');
-        const quantity = document.getElementById('quantity');
-
-        // Reset previous errors
-        document.querySelectorAll('.error-message').forEach(el => el.remove());
-
-        // Validate name
-        if (!name.value.trim()) {
-            showError(name, 'Instrument name is required');
-            isValid = false;
-        }
-
-        // Validate price
-        if (!price.value || parseFloat(price.value) <= 0) {
-            showError(price, 'Please enter a valid price');
-            isValid = false;
-        }
-
-        // Validate quantity
-        if (!quantity.value || parseInt(quantity.value) < 0) {
-            showError(quantity, 'Please enter a valid quantity');
-            isValid = false;
-        }
-
-        if (!isValid) {
-            e.preventDefault();
-        }
-    });
-
-    function showError(input, message) {
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-        input.parentNode.appendChild(errorDiv);
-        input.focus();
-    }
-
     // Logout function
     function logout() {
         if (confirm('Are you sure you want to logout?')) {
@@ -1477,6 +1502,69 @@
             errorNotification.style.display = 'flex';
         }
     });
+
+    // Inventory search and filter functionality
+    document.getElementById('searchInput').addEventListener('input', filterInventory);
+    document.getElementById('statusFilter').addEventListener('change', filterInventory);
+    document.getElementById('resetFilters').addEventListener('click', resetFilters);
+
+    function filterInventory() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('#inventoryTableBody tr');
+
+        rows.forEach(row => {
+            const name = row.cells[1].textContent.toLowerCase();
+            const description = row.cells[2].textContent.toLowerCase();
+            const status = row.cells[6].textContent;
+
+            const matchesSearch = name.includes(searchTerm) || description.includes(searchTerm);
+            const matchesStatus = !statusFilter || status === statusFilter;
+
+            row.style.display = matchesSearch && matchesStatus ? '' : 'none';
+        });
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = '';
+        filterInventory();
+    }
+
+    // Sample functions for edit and delete (replace with actual implementations)
+    function editInstrument(id) {
+        // In a real implementation, this would fetch the instrument data and populate the form
+        alert('Edit functionality for instrument ID: ' + id + ' would be implemented here');
+
+        // Example of how to populate the form for editing
+        document.getElementById('instrumentId').value = id;
+        document.getElementById('actionType').value = 'edit';
+        document.querySelector('.form-title').textContent = 'Edit Instrument';
+        document.querySelector('.form-subtitle').textContent = 'Update the details of this instrument';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update Instrument';
+
+        // Populate form with existing data (this would come from your database)
+        document.getElementById('name').value = 'Sample Instrument Name';
+        document.getElementById('price').value = '199.99';
+        document.getElementById('quantity').value = '10';
+
+        openModal('addProductModal');
+    }
+
+    function deleteInstrument(id) {
+        if (confirm('Are you sure you want to delete this instrument? This action cannot be undone.')) {
+            // In a real implementation, this would send a request to delete the instrument
+            alert('Delete functionality for instrument ID: ' + id + ' would be implemented here');
+
+            // Simulate removing the row from the table
+            const rows = document.querySelectorAll('#inventoryTableBody tr');
+            rows.forEach(row => {
+                if (row.cells[1].textContent.includes('Sample Instrument')) {
+                    row.remove();
+                }
+            });
+        }
+    }
 </script>
 </body>
 </html>

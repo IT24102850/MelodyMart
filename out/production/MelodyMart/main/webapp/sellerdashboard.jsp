@@ -529,12 +529,6 @@
             color: #dc3545;
         }
 
-        .notification.success {
-            background: rgba(40, 167, 69, 0.2);
-            border: 1px solid rgba(40, 167, 69, 0.5);
-            color: #28a745;
-        }
-
         /* Responsive */
         @media (max-width: 992px) {
             .sidebar {
@@ -906,12 +900,6 @@
         </section>
 
         <!-- Inventory Section -->
-
-
-
-        <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
-        <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
             <div class="content-card">
                 <div class="card-header">
@@ -938,44 +926,50 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <c:forEach var="instrument" items="${instruments}">
-                            <tr>
-                                <td>
-                                    <img src="${instrument.imageUrl != null ? instrument.imageUrl : 'default.png'}"
-                                         alt="${instrument.name}"
-                                         style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
-                                </td>
-                                <td>${instrument.name}</td>
-                                <td>${instrument.description}</td>
-                                <td>${instrument.model}</td>
-                                <td>$${instrument.price}</td>
-                                <td>${instrument.quantity}</td>
-                                <td>
-                            <span class="status-badge
-                                ${instrument.stockLevel eq 'In Stock' ? 'status-completed' :
-                                  instrument.stockLevel eq 'Low Stock' ? 'status-pending' : 'status-cancelled'}">
-                                    ${instrument.stockLevel}
-                            </span>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary"
-                                            onclick="editInstrument(${instrument.instrumentId})">Edit</button>
-                                    <button class="btn btn-sm btn-secondary"
-                                            onclick="deleteInstrument(${instrument.instrumentId})">Delete</button>
-                                </td>
-                            </tr>
-                        </c:forEach>
+
+
+                        <%
+                            import main.java.com.melodymart.util.DBConnection;
+                            Connection conn = DBConnection.getConnection();
+                            String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL FROM Instrument";
+                            PreparedStatement ps = conn.prepareStatement(sql);
+                            ResultSet rs = ps.executeQuery();
+                            while (rs.next()) {
+                        %>
+                        <tr>
+                            <td>
+                                <img src="<%= rs.getString("ImageURL") != null ? rs.getString("ImageURL") : "default.png" %>"
+                                     alt="<%= rs.getString("Name") %>"
+                                     style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                            </td>
+                            <td><%= rs.getString("Name") %></td>
+                            <td><%= rs.getString("Description") %></td>
+                            <td><%= rs.getString("Model") %></td>
+                            <td>$<%= rs.getDouble("Price") %></td>
+                            <td><%= rs.getInt("Quantity") %></td>
+                            <td>
+                                <span class="status-badge
+                                    <%= rs.getString("StockLevel").equals("In Stock") ? "status-completed" :
+                                        rs.getString("StockLevel").equals("Low Stock") ? "status-pending" : "status-cancelled" %>">
+                                    <%= rs.getString("StockLevel") %>
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" onclick="editInstrument(<%= rs.getInt("InstrumentID") %>)">Edit</button>
+                                <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(<%= rs.getInt("InstrumentID") %>)">Delete</button>
+                            </td>
+                        </tr>
+                        <%
+                            }
+                            rs.close();
+                            ps.close();
+                            conn.close();
+                        %>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
-
-
-
-
-
-
 
         <!-- Other sections would be defined here (Orders, Deliveries, Stock, Reports, etc.) -->
         <section id="orders" class="dashboard-section">
@@ -1372,92 +1366,6 @@
         document.getElementById(modalId).style.display = 'flex';
     }
 
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-    }
-
-    // Edit instrument function (using sample data; in production, fetch from server or DB)
-    function editInstrument(id) {
-        let data;
-        if (id === 1) {
-            data = {
-                name: 'Fender Stratocaster',
-                description: 'High-quality electric guitar',
-                brandId: 1,
-                model: 'American Professional II',
-                color: 'Sunburst',
-                price: 1499.99,
-                specifications: 'Body: Alder, Neck: Maple',
-                warranty: '2 Years',
-                imageUrl: 'https://example.com/fender.jpg',
-                quantity: 15,
-                stockLevel: 'In Stock',
-                manufacturerId: 1
-            };
-        } else if (id === 2) {
-            data = {
-                name: 'Yamaha Stage Custom',
-                description: 'Complete drum kit',
-                brandId: 2,
-                model: 'Stage Custom Birch',
-                color: 'Natural',
-                price: 899.99,
-                specifications: 'Shells: Birch, Sizes: 22x17, 10x7, 12x8, 16x15, 14x5.5',
-                warranty: '1 Year',
-                imageUrl: 'https://example.com/yamaha.jpg',
-                quantity: 8,
-                stockLevel: 'In Stock',
-                manufacturerId: 2
-            };
-        } else if (id === 3) {
-            data = {
-                name: 'Shure SM58',
-                description: 'Dynamic vocal microphone',
-                brandId: 3,
-                model: 'SM58-LC',
-                color: 'Black',
-                price: 99.00,
-                specifications: 'Frequency response: 50-15,000 Hz',
-                warranty: '2 Years',
-                imageUrl: 'https://example.com/shure.jpg',
-                quantity: 3,
-                stockLevel: 'Low Stock',
-                manufacturerId: 3
-            };
-        }
-
-        if (data) {
-            document.getElementById('instrumentId').value = id;
-            document.getElementById('actionType').value = 'update';
-            document.getElementById('name').value = data.name;
-            document.getElementById('description').value = data.description;
-            document.getElementById('brandId').value = data.brandId || '';
-            document.getElementById('model').value = data.model;
-            document.getElementById('color').value = data.color;
-            document.getElementById('price').value = data.price;
-            document.getElementById('specifications').value = data.specifications;
-            document.getElementById('warranty').value = data.warranty;
-            document.getElementById('quantity').value = data.quantity;
-            document.getElementById('stockLevel').value = data.stockLevel;
-            document.getElementById('manufacturerId').value = data.manufacturerId || '';
-            document.getElementById('imageUrl').value = data.imageUrl;
-            createImagePreview(data.imageUrl, 'Current Image');
-            document.querySelector('.form-title').textContent = 'Edit Instrument';
-            document.querySelector('.form-subtitle').textContent = 'Update the details below to edit the instrument';
-            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save Changes';
-            openModal('addProductModal');
-        } else {
-            alert('Instrument not found.');
-        }
-    }
-
-    // Delete instrument function (redirect to server endpoint)
-    function deleteInstrument(id) {
-        if (confirm('Are you sure you want to delete this instrument? This action cannot be undone.')) {
-            window.location.href = 'DeleteInstrument?id=' + id;
-        }
-    }
-
     // Sidebar toggle for mobile
     document.getElementById('menuToggle').addEventListener('click', function() {
         document.getElementById('sidebar').classList.toggle('active');
@@ -1491,6 +1399,15 @@
         }
     });
 
+    // Modal functions
+    function openModal(modalId) {
+        document.getElementById(modalId).style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
     // Close modal when clicking outside
     window.addEventListener('click', function(e) {
         document.querySelectorAll('.modal').forEach(modal => {
@@ -1499,6 +1416,47 @@
             }
         });
     });
+
+    // Form validation
+    document.getElementById('instrumentForm').addEventListener('submit', function(e) {
+        let isValid = true;
+        const name = document.getElementById('name');
+        const price = document.getElementById('price');
+        const quantity = document.getElementById('quantity');
+
+        // Reset previous errors
+        document.querySelectorAll('.error-message').forEach(el => el.remove());
+
+        // Validate name
+        if (!name.value.trim()) {
+            showError(name, 'Instrument name is required');
+            isValid = false;
+        }
+
+        // Validate price
+        if (!price.value || parseFloat(price.value) <= 0) {
+            showError(price, 'Please enter a valid price');
+            isValid = false;
+        }
+
+        // Validate quantity
+        if (!quantity.value || parseInt(quantity.value) < 0) {
+            showError(quantity, 'Please enter a valid quantity');
+            isValid = false;
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+        }
+    });
+
+    function showError(input, message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        input.parentNode.appendChild(errorDiv);
+        input.focus();
+    }
 
     // Logout function
     function logout() {
@@ -1511,61 +1469,14 @@
     window.addEventListener('DOMContentLoaded', function() {
         const errorNotification = document.getElementById('errorNotification');
         const errorText = document.getElementById('errorText');
-        const successNotification = document.getElementById('successNotification');
-        const successText = document.getElementById('successText');
 
-        // Check URL parameters for success/error messages
-        const urlParams = new URLSearchParams(window.location.search);
-        const addStatus = urlParams.get('addStatus');
-        const message = urlParams.get('message');
-
-        if (addStatus === 'success') {
-            successText.textContent = message || 'Instrument added/updated successfully!';
-            successNotification.style.display = 'flex';
-            // Clear the form if success
-            document.getElementById('instrumentForm').reset();
-            removeImagePreview();
-        } else if (addStatus === 'error') {
-            errorText.textContent = message || 'Error adding/updating instrument. Please try again.';
+        // Simulating server-side error (replace with actual server response handling)
+        const addStatus = ""; // This would come from your JSP
+        if (addStatus) {
+            errorText.textContent = addStatus;
             errorNotification.style.display = 'flex';
         }
     });
 </script>
-
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="main.java.com.melodymart.util.DBConnection" %>
-<!-- ... (keep existing HTML head and body up to the inventory section) ... -->
-
-<tbody>
-<c:forEach var="instrument" items="${instruments}">
-    <tr>
-        <td>
-            <img src="${instrument.imageUrl}" alt="${instrument.name}"
-                 style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
-        </td>
-        <td>${instrument.name}</td>
-        <td>${instrument.description}</td>
-        <td>${instrument.model}</td>
-        <td>$${instrument.price}</td>
-        <td>${instrument.quantity}</td>
-        <td>
-                <span class="status-badge
-                    ${instrument.stockLevel == 'In Stock' ? 'status-completed' :
-                      instrument.stockLevel == 'Low Stock' ? 'status-pending' : 'status-cancelled'}">
-                        ${instrument.stockLevel}
-                </span>
-        </td>
-        <td>
-            <button class="btn btn-sm btn-primary" onclick="editInstrument(${instrument.id})">Edit</button>
-            <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(${instrument.id})">Delete</button>
-        </td>
-    </tr>
-</c:forEach>
-</tbody>
-
-<!-- ... (keep existing sections and modal as is) ... -->
-
 </body>
 </html>

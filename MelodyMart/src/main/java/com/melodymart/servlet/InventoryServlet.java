@@ -45,7 +45,8 @@ public class InventoryServlet extends HttpServlet {
             request.setAttribute("instruments", instruments);
 
             // ✅ Forward to seller dashboard JSP
-            request.getRequestDispatcher("/seller-dashboard.jsp").forward(request, response);
+            request.getRequestDispatcher("seller-dashboard.jsp").forward(request, response);
+
 
         } catch (SQLException e) {
             e.printStackTrace();
