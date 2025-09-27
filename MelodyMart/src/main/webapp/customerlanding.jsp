@@ -627,7 +627,7 @@
             <li><a href="index.jsp">Home</a></li>
             <li><a href="shop.jsp">Shop</a></li>
             <li><a href="customerdashboard.jsp">CustomerLanding</a></li>
-            <li><a href="orders.jsp">My Orders</a></li>
+            <li><a href="order.jsp">My Orders</a></li>
             <li><a href="repair.jsp">My Repair Requests</a></li>
             <li><a href="wishlist.jsp">Wishlist</a></li>
             <li><a href="profile.jsp">Profile</a></li>
@@ -640,7 +640,7 @@
                 <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> John Doe</button>
                 <div class="dropdown">
                     <a href="profile.jsp" class="dropdown-item">My Profile</a>
-                    <a href="orders.jsp" class="dropdown-item">My Orders</a>
+                    <a href="order.jsp" class="dropdown-item">My Orders</a>
                     <a href="repair.jsp" class="dropdown-item"  >My Repair Requests</a>
                     <a href="wishlist.jsp" class="dropdown-item">Wishlist</a>
                     <a href="settings.jsp" class="dropdown-item">Settings</a>

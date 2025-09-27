@@ -1103,6 +1103,13 @@
                     <input type="text" id="editImageUrl" name="imageUrl"><br>
 
                     <button type="submit" class="btn btn-primary">Save Changes</button>
+
+                    <form action="${pageContext.request.contextPath}/DeleteInstrumentServlet" method="post" style="display:inline;"
+                          onsubmit="return confirm('Are you sure you want to delete this instrument?');">
+                        <input type="hidden" name="instrumentId" value="<%= rs.getInt("InstrumentID") %>">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+
+
                 </form>
             </div>
         </div>
