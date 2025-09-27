@@ -1071,32 +1071,165 @@
 
         <!-- Continue with other tab contents for Wishlist, Payments, Deliveries, Repairs, Reviews, Security -->
 
-        <form id="repairRequestForm" method="post" action="SubmitRepairRequestServlet" enctype="multipart/form-data">
+
+
+
+
+
+        <form id="repairRequestForm" method="post" action="SubmitRepairRequestServlet" enctype="multipart/form-data" class="p-3 shadow-sm rounded bg-light">
             <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Order ID</label>
+                <div class="form-group col-md-6">
+                    <label class="form-label font-weight-bold">Order ID</label>
                     <input type="text" class="form-control" name="orderId" placeholder="e.g., 5" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Issue Description</label>
+                <div class="form-group col-md-6">
+                    <label class="form-label font-weight-bold">Issue Description</label>
                     <input type="text" class="form-control" name="issueDescription" placeholder="e.g., Fret buzz on high E string" required>
                 </div>
             </div>
+
+            <!-- Multiple photo upload with preview -->
             <div class="form-group">
-                <label class="form-label">Photos</label>
-                <input type="file" class="form-control" name="photos" multiple accept="image/*">
+                <label class="form-label font-weight-bold">Upload Photos</label>
+                <input type="file" class="form-control-file" name="photos" multiple accept="image/*" id="photoUpload">
+                <div id="previewContainer" class="mt-2 d-flex flex-wrap"></div>
             </div>
+
+            <!-- Fancy date picker -->
             <div class="form-group">
-                <label class="form-label">Repair Date</label>
-                <input type="date" class="form-control" name="repairDate" required>
+                <label class="form-label font-weight-bold">Select Repair Date</label>
+                <input type="text" class="form-control" id="repairDatePicker" name="repairDate" placeholder="Choose a date" required>
             </div>
-            <button type="submit" class="btn btn-primary">Submit Request</button>
+
+            <button type="submit" class="btn btn-primary btn-block">Submit Request</button>
         </form>
 
+        <!-- Include jQuery + jQuery UI (for datepicker) -->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+        <script>
+            // Datepicker
+            $(function() {
+                $("#repairDatePicker").datepicker({
+                    dateFormat: "yy-mm-dd",
+                    minDate: 0, // prevent past dates
+                    showAnim: "fadeIn"
+                });
+            });
+
+            // Image preview for multiple uploads
+            document.getElementById("photoUpload").addEventListener("change", function(event) {
+                const previewContainer = document.getElementById("previewContainer");
+                previewContainer.innerHTML = ""; // clear previous previews
+
+                Array.from(event.target.files).forEach(file => {
+                    if (file.type.startsWith("image/")) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement("img");
+                            img.src = e.target.result;
+                            img.className = "m-1 border rounded";
+                            img.style.width = "100px";
+                            img.style.height = "100px";
+                            img.style.objectFit = "cover";
+                            previewContainer.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            });
+        </script>
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="main.java.com.melodymart.util.DBConnection" %>
+
+
+        <div class="content-section mt-4">
+            <h4 class="mb-3 text-primary"><i class="fas fa-tools"></i> Repair Requests</h4>
+
+            <div class="table-responsive shadow-sm rounded">
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="bg-dark text-white">
+                    <tr class="text-center">
+                        <th>Request ID</th>
+                        <th>Order ID</th>
+                        <th>Description</th>
+                        <th>Photo</th>
+                        <th>Status</th>
+                        <th>Approved</th>
+                        <th>Comment</th>
+                        <th>Estimated Cost</th>
+                        <th>Repair Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <%
+                        Connection conn = null;
+                        PreparedStatement ps = null;
+                        ResultSet rs = null;
+
+                        try {
+                            conn = DBConnection.getConnection();
+                            String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate FROM RepairRequest";
+                            ps = conn.prepareStatement(sql);
+                            rs = ps.executeQuery();
+
+                            while (rs.next()) {
+                                String status = rs.getString("Status");
+                                String statusClass = "badge-secondary";
+                                if ("Completed".equalsIgnoreCase(status)) statusClass = "badge-success";
+                                else if ("In Progress".equalsIgnoreCase(status)) statusClass = "badge-warning text-dark";
+                                else if ("Pending".equalsIgnoreCase(status)) statusClass = "badge-info";
+                                else if ("Rejected".equalsIgnoreCase(status)) statusClass = "badge-danger";
+                    %>
+                    <tr class="text-center">
+                        <td><span class="fw-bold text-dark">#RR-<%= rs.getInt("RepairRequestID") %></span></td>
+                        <td>#MM-<%= rs.getInt("OrderID") %></td>
+                        <td class="text-left"><%= rs.getString("IssueDescription") %></td>
+                        <td>
+                            <% String photo = rs.getString("Photos"); %>
+                            <% if (photo != null && !photo.isEmpty()) { %>
+                            <a href="<%= photo.replace("\\", "/") %>" target="_blank">
+                                <img src="<%= photo.replace("\\", "/") %>"
+                                     alt="Repair Photo"
+                                     class="img-thumbnail shadow-sm"
+                                     style="width:70px; height:70px; object-fit:cover;">
+                            </a>
+                            <% } else { %>
+                            <span class="text-muted">No Photo</span>
+                            <% } %>
+                        </td>
+                        <td><span class="badge <%= statusClass %>"><%= status %></span></td>
+                        <td><%= rs.getBoolean("Approved") ? "<span class='badge badge-success'>Yes</span>" : "<span class='badge badge-danger'>No</span>" %></td>
+                        <td><%= rs.getString("Comment") != null ? rs.getString("Comment") : "<span class='text-muted'>-</span>" %></td>
+                        <td>$<%= rs.getBigDecimal("EstimatedCost") != null ? rs.getBigDecimal("EstimatedCost") : "0.00" %></td>
+                        <td><%= rs.getDate("RepairDate") %></td>
+                    </tr>
+                    <%
+                            }
+                        } catch (Exception e) {
+                            out.println("<tr><td colspan='9' class='text-danger text-center'>Error: " + e.getMessage() + "</td></tr>");
+                        } finally {
+                            if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                            if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                        }
+                    %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
 
 
 
+
+
+    </div>
 
 
 
