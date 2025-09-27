@@ -1,4 +1,7 @@
-
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="main.java.com.melodymart.util.DBConnection" %>
 <% if(request.getParameter("success") != null) { %>
 <div class="alert alert-success">✅ Repair request submitted successfully!</div>
 <% } %>
@@ -1072,157 +1075,216 @@
         <!-- Continue with other tab contents for Wishlist, Payments, Deliveries, Repairs, Reviews, Security -->
 
 
-
-
-
-
-        <form id="repairRequestForm" method="post" action="SubmitRepairRequestServlet" enctype="multipart/form-data" class="p-3 shadow-sm rounded bg-light">
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <label class="form-label font-weight-bold">Order ID</label>
-                    <input type="text" class="form-control" name="orderId" placeholder="e.g., 5" required>
-                </div>
-                <div class="form-group col-md-6">
-                    <label class="form-label font-weight-bold">Issue Description</label>
-                    <input type="text" class="form-control" name="issueDescription" placeholder="e.g., Fret buzz on high E string" required>
-                </div>
-            </div>
-
-            <!-- Multiple photo upload with preview -->
-            <div class="form-group">
-                <label class="form-label font-weight-bold">Upload Photos</label>
-                <input type="file" class="form-control-file" name="photos" multiple accept="image/*" id="photoUpload">
-                <div id="previewContainer" class="mt-2 d-flex flex-wrap"></div>
-            </div>
-
-            <!-- Fancy date picker -->
-            <div class="form-group">
-                <label class="form-label font-weight-bold">Select Repair Date</label>
-                <input type="text" class="form-control" id="repairDatePicker" name="repairDate" placeholder="Choose a date" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-block">Submit Request</button>
-        </form>
-
-        <!-- Include jQuery + jQuery UI (for datepicker) -->
-        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
-
-        <script>
-            // Datepicker
-            $(function() {
-                $("#repairDatePicker").datepicker({
-                    dateFormat: "yy-mm-dd",
-                    minDate: 0, // prevent past dates
-                    showAnim: "fadeIn"
-                });
-            });
-
-            // Image preview for multiple uploads
-            document.getElementById("photoUpload").addEventListener("change", function(event) {
-                const previewContainer = document.getElementById("previewContainer");
-                previewContainer.innerHTML = ""; // clear previous previews
-
-                Array.from(event.target.files).forEach(file => {
-                    if (file.type.startsWith("image/")) {
-                        const reader = new FileReader();
-                        reader.onload = function(e) {
-                            const img = document.createElement("img");
-                            img.src = e.target.result;
-                            img.className = "m-1 border rounded";
-                            img.style.width = "100px";
-                            img.style.height = "100px";
-                            img.style.objectFit = "cover";
-                            previewContainer.appendChild(img);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
-            });
-        </script>
-
         <%@ page import="java.sql.Connection" %>
         <%@ page import="java.sql.PreparedStatement" %>
         <%@ page import="java.sql.ResultSet" %>
         <%@ page import="main.java.com.melodymart.util.DBConnection" %>
 
+        <!-- Submit New Repair Request -->
+        <form id="repairRequestForm" method="post" action="${pageContext.request.contextPath}/SubmitRepairRequestServlet" enctype="multipart/form-data" style="background: var(--card-bg); border: 1px solid var(--glass-border); padding: 20px; border-radius: 15px;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Order ID</label>
+                    <input type="text" class="form-control" name="orderId" placeholder="e.g., MM-7892" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Issue Description</label>
+                    <input type="text" class="form-control" name="issueDescription" placeholder="e.g., Fret buzz on high E string" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Upload Photos</label>
+                <input type="file" class="form-control-file" name="photos" multiple accept="image/*" id="photoUpload">
+                <div id="previewContainer" class="mt-2 d-flex flex-wrap"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Select Repair Date</label>
+                <input type="text" class="form-control" id="repairDatePicker" name="repairDate" placeholder="Choose a date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+        </form>
 
+        <!-- Repair Requests Table -->
         <div class="content-section mt-4">
-            <h4 class="mb-3 text-primary"><i class="fas fa-tools"></i> Repair Requests</h4>
-
-            <div class="table-responsive shadow-sm rounded">
-                <table class="table table-hover table-bordered align-middle">
-                    <thead class="bg-dark text-white">
-                    <tr class="text-center">
-                        <th>Request ID</th>
-                        <th>Order ID</th>
-                        <th>Description</th>
-                        <th>Photo</th>
-                        <th>Status</th>
-                        <th>Approved</th>
-                        <th>Comment</th>
-                        <th>Estimated Cost</th>
-                        <th>Repair Date</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <%
-                        Connection conn = null;
-                        PreparedStatement ps = null;
-                        ResultSet rs = null;
-
-                        try {
-                            conn = DBConnection.getConnection();
-                            String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate FROM RepairRequest";
-                            ps = conn.prepareStatement(sql);
-                            rs = ps.executeQuery();
-
-                            while (rs.next()) {
-                                String status = rs.getString("Status");
-                                String statusClass = "badge-secondary";
-                                if ("Completed".equalsIgnoreCase(status)) statusClass = "badge-success";
-                                else if ("In Progress".equalsIgnoreCase(status)) statusClass = "badge-warning text-dark";
-                                else if ("Pending".equalsIgnoreCase(status)) statusClass = "badge-info";
-                                else if ("Rejected".equalsIgnoreCase(status)) statusClass = "badge-danger";
-                    %>
-                    <tr class="text-center">
-                        <td><span class="fw-bold text-dark">#RR-<%= rs.getInt("RepairRequestID") %></span></td>
-                        <td>#MM-<%= rs.getInt("OrderID") %></td>
-                        <td class="text-left"><%= rs.getString("IssueDescription") %></td>
-                        <td>
-                            <% String photo = rs.getString("Photos"); %>
-                            <% if (photo != null && !photo.isEmpty()) { %>
-                            <a href="<%= photo.replace("\\", "/") %>" target="_blank">
-                                <img src="<%= photo.replace("\\", "/") %>"
-                                     alt="Repair Photo"
-                                     class="img-thumbnail shadow-sm"
-                                     style="width:70px; height:70px; object-fit:cover;">
-                            </a>
-                            <% } else { %>
-                            <span class="text-muted">No Photo</span>
-                            <% } %>
-                        </td>
-                        <td><span class="badge <%= statusClass %>"><%= status %></span></td>
-                        <td><%= rs.getBoolean("Approved") ? "<span class='badge badge-success'>Yes</span>" : "<span class='badge badge-danger'>No</span>" %></td>
-                        <td><%= rs.getString("Comment") != null ? rs.getString("Comment") : "<span class='text-muted'>-</span>" %></td>
-                        <td>$<%= rs.getBigDecimal("EstimatedCost") != null ? rs.getBigDecimal("EstimatedCost") : "0.00" %></td>
-                        <td><%= rs.getDate("RepairDate") %></td>
-                    </tr>
-                    <%
+            <h4>Repair Requests</h4>
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Order ID</th>
+                    <th>Description</th>
+                    <th>Photos</th>
+                    <th>Status</th>
+                    <th>Approved</th>
+                    <th>Comment</th>
+                    <th>Estimated Cost</th>
+                    <th>Repair Date</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                    Connection conn = null;
+                    PreparedStatement ps = null;
+                    ResultSet rs = null;
+                    try {
+                        conn = DBConnection.getConnection();
+                        String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate FROM RepairRequest";
+                        ps = conn.prepareStatement(sql);
+                        rs = ps.executeQuery();
+                        while (rs.next()) {
+                            String status = rs.getString("Status");
+                            boolean canDelete = !status.equalsIgnoreCase("In Progress") && !status.equalsIgnoreCase("Completed");
+                %>
+                <tr>
+                    <td>#RR-<%= rs.getInt("RepairRequestID") %></td>
+                    <td>#MM-<%= rs.getInt("OrderID") %></td>
+                    <td><%= rs.getString("IssueDescription") %></td>
+                    <td>
+                        <%
+                            String photo = rs.getString("Photos");
+                            if (photo != null && !photo.isEmpty()) {
+                                String[] photos = photo.split(";");
+                                for (String photoPath : photos) {
+                        %>
+                        <img src="<%= photoPath.replace("\\", "/") %>" class="img-thumbnail m-1"
+                             style="width:80px; height:80px; object-fit:cover;" alt="Repair Photo">
+                        <%
                             }
-                        } catch (Exception e) {
-                            out.println("<tr><td colspan='9' class='text-danger text-center'>Error: " + e.getMessage() + "</td></tr>");
-                        } finally {
-                            if (rs != null) try { rs.close(); } catch (Exception ignored) {}
-                            if (ps != null) try { ps.close(); } catch (Exception ignored) {}
-                            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                        } else {
+                        %>
+                        <span class="text-muted">No Photo</span>
+                        <%
+                            }
+                        %>
+                    </td>
+                    <td><span class="status-badge status-<%= status.toLowerCase().replace(" ", "-") %>"><%= status %></span></td>
+                    <td><%= rs.getBoolean("Approved") ? "Yes" : "No" %></td>
+                    <td><%= rs.getString("Comment") != null ? rs.getString("Comment") : "-" %></td>
+                    <td>$<%= rs.getBigDecimal("EstimatedCost") != null ? rs.getBigDecimal("EstimatedCost") : "0.00" %></td>
+                    <td><%= rs.getDate("RepairDate") %></td>
+                    <td>
+                        <button class="action-btn" title="Update Request" onclick="openUpdateModal(<%= rs.getInt("RepairRequestID") %>, '<%= rs.getString("IssueDescription").replace("'", "\\'") %>', '<%= rs.getString("Comment") != null ? rs.getString("Comment").replace("'", "\\'") : "" %>', '<%= rs.getDate("RepairDate") %>')"><i class="fas fa-edit"></i></button>
+                        <% if (canDelete) { %>
+                        <button class="action-btn" title="Delete Request" onclick="deleteRepairRequest(<%= rs.getInt("RepairRequestID") %>)"><i class="fas fa-trash"></i></button>
+                        <% } %>
+                    </td>
+                </tr>
+                <%
                         }
-                    %>
-                    </tbody>
-                </table>
+                    } catch (Exception e) {
+                        out.println("<tr><td colspan='10' style='color: var(--danger);'>Error: " + e.getMessage() + "</td></tr>");
+                    } finally {
+                        if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                        if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                        if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                    }
+                %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Update Repair Request Modal -->
+        <div class="modal" id="updateRepairModal">
+            <div class="modal-content">
+                <button class="modal-close">&times;</button>
+                <div class="modal-header">
+                    <h2 class="modal-title">Update Repair Request</h2>
+                </div>
+                <form id="updateRepairForm" method="post" action="${pageContext.request.contextPath}/UpdateRepairRequestServlet" enctype="multipart/form-data">
+                    <input type="hidden" name="repairRequestId" id="updateRepairRequestId">
+                    <div class="form-group">
+                        <label class="form-label">Issue Description</label>
+                        <input type="text" class="form-control" name="issueDescription" id="updateIssueDescription" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Additional Comments</label>
+                        <textarea class="form-control" name="additionalComment" id="updateComment" rows="4" placeholder="Add or update comments..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Upload Additional Photos</label>
+                        <input type="file" class="form-control-file" name="additionalPhotos" multiple accept="image/*" id="updatePhotoUpload">
+                        <div id="updatePreviewContainer" class="mt-2 d-flex flex-wrap"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Select Repair Date</label>
+                        <input type="text" class="form-control" id="updateRepairDatePicker" name="repairDate" placeholder="Choose a date" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Update Request</button>
+                </form>
             </div>
         </div>
+
+        <!-- Scripts -->
+        <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+        <script>
+            // Initialize datepickers
+            $(function() {
+                $("#repairDatePicker, #updateRepairDatePicker").datepicker({
+                    dateFormat: "yy-mm-dd",
+                    minDate: 0,
+                    showAnim: "fadeIn"
+                });
+            });
+
+            // Image preview for both forms
+            function setupPreview(inputId, previewId) {
+                document.getElementById(inputId).addEventListener("change", function(event) {
+                    const previewContainer = document.getElementById(previewId);
+                    previewContainer.innerHTML = "";
+                    Array.from(event.target.files).forEach(file => {
+                        if (file.type.startsWith("image/")) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const img = document.createElement("img");
+                                img.src = e.target.result;
+                                img.className = "m-1 border rounded";
+                                img.style.width = "100px";
+                                img.style.height = "100px";
+                                img.style.objectFit = "cover";
+                                previewContainer.appendChild(img);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                });
+            }
+            setupPreview("photoUpload", "previewContainer");
+            setupPreview("updatePhotoUpload", "updatePreviewContainer");
+
+            // Open update modal with pre-filled data
+            function openUpdateModal(repairRequestId, issueDescription, comment, repairDate) {
+                document.getElementById("updateRepairRequestId").value = repairRequestId;
+                document.getElementById("updateIssueDescription").value = issueDescription;
+                document.getElementById("updateComment").value = comment;
+                document.getElementById("updateRepairDatePicker").value = repairDate;
+                document.getElementById("updatePreviewContainer").innerHTML = "";
+                document.getElementById("updatePhotoUpload").value = "";
+                document.getElementById("updateRepairModal").style.display = "flex";
+                setTimeout(() => {
+                    document.getElementById("updateRepairModal").classList.add("active");
+                }, 10);
+            }
+
+            // Delete repair request
+            function deleteRepairRequest(repairRequestId) {
+                if (confirm("Are you sure you want to delete this repair request? This action cannot be undone.")) {
+                    const form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = "${pageContext.request.contextPath}/DeleteRepairRequestServlet";
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = "repairRequestId";
+                    input.value = repairRequestId;
+                    form.appendChild(input);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+        </script>
+
 
 
 
