@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <style>
+        /* Your existing CSS styles here */
         :root {
             --primary: #8a2be2;
             --primary-light: #9b45f0;
@@ -27,377 +28,30 @@
             --danger: #dc3545;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* Your existing CSS styles... */
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--secondary);
-            color: var(--text);
-            overflow-x: hidden;
-            line-height: 1.6;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-image: linear-gradient(rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.9)),
-            url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80');
-            background-size: cover;
-            background-position: center;
-        }
-
-        .container {
-            display: flex;
-            max-width: 1200px;
-            width: 100%;
-            gap: 30px;
-        }
-
-        .order-form-container {
-            flex: 1;
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 30px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .order-summary {
-            flex: 0 0 350px;
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 30px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-            height: fit-content;
-            position: sticky;
-            top: 20px;
-        }
-
-        .page-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .page-subtitle {
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-            font-size: 16px;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin: 25px 0 15px;
-            color: var(--primary-light);
-            display: flex;
-            align-items: center;
-        }
-
-        .section-title i {
-            margin-right: 10px;
-            font-size: 18px;
-        }
-
-        .form-group {
+        .error-message {
+            background: rgba(220, 53, 69, 0.2);
+            border: 1px solid var(--danger);
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 8px;
             margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 14px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-            background: var(--secondary);
-            color: var(--text);
-            font-size: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 14px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-            background: var(--secondary);
-            color: var(--text);
-            font-size: 15px;
-            transition: all 0.3s ease;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a2be2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 16px;
-        }
-
-        .form-select:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 20px;
-            margin-top: 10px;
-        }
-
-        .radio-label {
             display: flex;
             align-items: center;
-            cursor: pointer;
-            padding: 12px 20px;
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            flex: 1;
-        }
-
-        .radio-label:hover {
-            border-color: var(--primary-light);
-        }
-
-        .radio-label input[type="radio"] {
-            display: none;
-        }
-
-        .radio-label input[type="radio"]:checked + .radio-custom {
-            background-color: var(--primary-light);
-            border-color: var(--primary-light);
-        }
-
-        .radio-label input[type="radio"]:checked + .radio-custom:after {
-            content: '';
-            display: block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: white;
-            margin: 3px;
-        }
-
-        .radio-label input[type="radio"]:checked ~ .radio-text {
-            color: var(--primary-light);
-        }
-
-        .radio-custom {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            border: 2px solid var(--text-secondary);
-            margin-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .radio-text {
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            background: var(--gradient);
-            color: white;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             gap: 10px;
         }
 
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
-        }
-
-        .submit-btn:active {
-            transform: translateY(-1px);
-        }
-
-        .summary-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-        }
-
-        .product-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .product-image {
-            width: 70px;
-            height: 70px;
+        .success-message {
+            background: rgba(40, 167, 69, 0.2);
+            border: 1px solid var(--success);
+            color: #28a745;
+            padding: 15px;
             border-radius: 8px;
-            background: var(--gradient);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            font-size: 24px;
-            color: white;
-        }
-
-        .product-details {
-            flex: 1;
-        }
-
-        .product-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .product-price {
-            color: var(--primary-light);
-            font-weight: 700;
-        }
-
-        .summary-line {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px 0;
-        }
-
-        .summary-total {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 700;
-            font-size: 18px;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--glass-border);
-            color: var(--accent);
-        }
-
-        .secure-notice {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .secure-notice i {
-            color: var(--success);
-            margin-right: 8px;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            background: var(--success);
-            color: white;
-            font-weight: 500;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transform: translateX(150%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .input-with-icon {
-            position: relative;
-        }
-
-        .input-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .container {
-                flex-direction: column;
-            }
-
-            .order-summary {
-                flex: 1;
-                margin-top: 30px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            body {
-                padding: 10px;
-            }
-
-            .order-form-container, .order-summary {
-                padding: 20px;
-            }
-
-            .page-title {
-                font-size: 28px;
-            }
-
-            .radio-group {
-                flex-direction: column;
-                gap: 10px;
-            }
+            gap: 10px;
         }
     </style>
 </head>
@@ -414,6 +68,25 @@
         <h1 class="page-title">Complete Your Order</h1>
         <p class="page-subtitle">Please provide your delivery information to proceed with payment</p>
 
+        <!-- Error/Success Messages -->
+        <%
+            String error = request.getParameter("error");
+            String success = request.getParameter("success");
+            if (error != null) {
+        %>
+        <div class="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <%= error %>
+        </div>
+        <% } %>
+
+        <% if (success != null && success.equals("true")) { %>
+        <div class="success-message">
+            <i class="fas fa-check-circle"></i>
+            Order placed successfully! Thank you for your purchase.
+        </div>
+        <% } %>
+
         <form id="orderForm" action="${pageContext.request.contextPath}/CreateOrderServlet" method="post">
             <!-- Personal Information -->
             <div class="section-title">
@@ -423,7 +96,8 @@
             <div class="form-group">
                 <label class="form-label" for="customerName">Full Name</label>
                 <div class="input-with-icon">
-                    <input type="text" class="form-control" id="customerName" name="customerName" placeholder="Enter your full name" required>
+                    <input type="text" class="form-control" id="customerName" name="customerName"
+                           placeholder="Enter your full name" value="${param.customerName}" required>
                     <i class="fas fa-user input-icon"></i>
                 </div>
             </div>
@@ -431,7 +105,8 @@
             <div class="form-group">
                 <label class="form-label" for="phoneNumber">Phone Number</label>
                 <div class="input-with-icon">
-                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="Enter your phone number" required>
+                    <input type="text" class="form-control" id="phoneNumber" name="phoneNumber"
+                           placeholder="Enter your phone number" value="${param.phoneNumber}" required>
                     <i class="fas fa-phone input-icon"></i>
                 </div>
             </div>
@@ -445,36 +120,40 @@
                 <label class="form-label" for="province">Province</label>
                 <select class="form-select" id="province" name="province" required>
                     <option value="">Select Province</option>
-                    <option value="Western">Western</option>
-                    <option value="Central">Central</option>
-                    <option value="Southern">Southern</option>
-                    <option value="Northern">Northern</option>
-                    <option value="Eastern">Eastern</option>
-                    <option value="North Western">North Western</option>
-                    <option value="North Central">North Central</option>
-                    <option value="Uva">Uva</option>
-                    <option value="Sabaragamuwa">Sabaragamuwa</option>
+                    <option value="Western" <%= "Western".equals(request.getParameter("province")) ? "selected" : "" %>>Western</option>
+                    <option value="Central" <%= "Central".equals(request.getParameter("province")) ? "selected" : "" %>>Central</option>
+                    <option value="Southern" <%= "Southern".equals(request.getParameter("province")) ? "selected" : "" %>>Southern</option>
+                    <option value="Northern" <%= "Northern".equals(request.getParameter("province")) ? "selected" : "" %>>Northern</option>
+                    <option value="Eastern" <%= "Eastern".equals(request.getParameter("province")) ? "selected" : "" %>>Eastern</option>
+                    <option value="North Western" <%= "North Western".equals(request.getParameter("province")) ? "selected" : "" %>>North Western</option>
+                    <option value="North Central" <%= "North Central".equals(request.getParameter("province")) ? "selected" : "" %>>North Central</option>
+                    <option value="Uva" <%= "Uva".equals(request.getParameter("province")) ? "selected" : "" %>>Uva</option>
+                    <option value="Sabaragamuwa" <%= "Sabaragamuwa".equals(request.getParameter("province")) ? "selected" : "" %>>Sabaragamuwa</option>
                 </select>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="district">District</label>
-                <select class="form-select" id="district" name="district" required disabled>
+                <select class="form-select" id="district" name="district" required>
                     <option value="">Select District</option>
+                    <!-- Districts will be populated dynamically -->
                 </select>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="city">City</label>
-                <select class="form-select" id="city" name="city" required disabled>
+                <select class="form-select" id="city" name="city" required>
                     <option value="">Select City</option>
+                    <!-- Cities will be populated dynamically -->
                 </select>
             </div>
 
             <div class="form-group">
                 <label class="form-label" for="address">Full Address</label>
                 <div class="input-with-icon">
-                    <input type="text" class="form-control" id="address" name="address" placeholder="Enter your full address (street, building, etc.)" required>
+                    <input type="text" class="form-control" id="address" name="address"
+                           placeholder="Enter your full address (street, building, etc.)"
+                           value="${param.address}" required>
                     <i class="fas fa-home input-icon"></i>
                 </div>
             </div>
@@ -484,12 +163,14 @@
                 <label class="form-label">Delivery Label</label>
                 <div class="radio-group">
                     <label class="radio-label">
-                        <input type="radio" name="deliveryLabel" value="HOME" checked>
+                        <input type="radio" name="deliveryLabel" value="HOME"
+                            <%= "HOME".equals(request.getParameter("deliveryLabel")) || request.getParameter("deliveryLabel") == null ? "checked" : "" %>>
                         <span class="radio-custom"></span>
                         <span class="radio-text">Home</span>
                     </label>
                     <label class="radio-label">
-                        <input type="radio" name="deliveryLabel" value="OFFICE">
+                        <input type="radio" name="deliveryLabel" value="OFFICE"
+                            <%= "OFFICE".equals(request.getParameter("deliveryLabel")) ? "checked" : "" %>>
                         <span class="radio-custom"></span>
                         <span class="radio-text">Office</span>
                     </label>
@@ -545,6 +226,7 @@
 </div>
 
 <script>
+    // Your existing JavaScript code with form validation and dynamic dropdowns
     // Province to District mapping
     const provinceDistricts = {
         'Western': ['Colombo', 'Gampaha', 'Kalutara'],
@@ -595,40 +277,71 @@
     const submitBtn = document.getElementById('submitBtn');
     const notification = document.getElementById('notification');
 
+    // Initialize form with previously selected values
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedProvince = '<%= request.getParameter("province") != null ? request.getParameter("province") : "" %>';
+        const savedDistrict = '<%= request.getParameter("district") != null ? request.getParameter("district") : "" %>';
+        const savedCity = '<%= request.getParameter("city") != null ? request.getParameter("city") : "" %>';
+
+        if (savedProvince) {
+            provinceSelect.value = savedProvince;
+            populateDistricts(savedProvince);
+
+            if (savedDistrict) {
+                setTimeout(() => {
+                    districtSelect.value = savedDistrict;
+                    populateCities(savedDistrict);
+
+                    if (savedCity) {
+                        setTimeout(() => {
+                            citySelect.value = savedCity;
+                        }, 100);
+                    }
+                }, 100);
+            }
+        }
+    });
+
     // Province change event
     provinceSelect.addEventListener('change', function() {
         const selectedProvince = this.value;
-
-        // Reset district and city
-        districtSelect.innerHTML = '<option value="">Select District</option>';
-        citySelect.innerHTML = '<option value="">Select City</option>';
-        districtSelect.disabled = true;
-        citySelect.disabled = true;
-
-        if (selectedProvince) {
-            districtSelect.disabled = false;
-            const districts = provinceDistricts[selectedProvince];
-
-            districts.forEach(district => {
-                const option = document.createElement('option');
-                option.value = district;
-                option.textContent = district;
-                districtSelect.appendChild(option);
-            });
-        }
+        populateDistricts(selectedProvince);
     });
 
     // District change event
     districtSelect.addEventListener('change', function() {
         const selectedDistrict = this.value;
+        populateCities(selectedDistrict);
+    });
 
-        // Reset city
+    function populateDistricts(province) {
+        districtSelect.innerHTML = '<option value="">Select District</option>';
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        districtSelect.disabled = true;
+        citySelect.disabled = true;
+
+        if (province) {
+            districtSelect.disabled = false;
+            const districts = provinceDistricts[province];
+
+            if (districts) {
+                districts.forEach(district => {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.textContent = district;
+                    districtSelect.appendChild(option);
+                });
+            }
+        }
+    }
+
+    function populateCities(district) {
         citySelect.innerHTML = '<option value="">Select City</option>';
         citySelect.disabled = true;
 
-        if (selectedDistrict) {
+        if (district) {
             citySelect.disabled = false;
-            const cities = districtCities[selectedDistrict];
+            const cities = districtCities[district];
 
             if (cities) {
                 cities.forEach(city => {
@@ -639,38 +352,18 @@
                 });
             }
         }
-    });
+    }
 
     // Form submission
     orderForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Validate form
         if (!validateForm()) {
+            e.preventDefault();
             return;
         }
 
         // Show loading state
         submitBtn.innerHTML = '<span class="loading"></span> Processing...';
         submitBtn.disabled = true;
-
-        // Simulate form submission (replace with actual submission)
-        setTimeout(() => {
-            // Show success notification
-            notification.classList.add('show');
-
-            // Reset button
-            submitBtn.innerHTML = '<i class="fas fa-lock"></i> Proceed to Pay LKR 27,539';
-            submitBtn.disabled = false;
-
-            // Hide notification after 3 seconds
-            setTimeout(() => {
-                notification.classList.remove('show');
-
-                // Submit the form (in a real scenario)
-                // orderForm.submit();
-            }, 3000);
-        }, 2000);
     });
 
     // Form validation
