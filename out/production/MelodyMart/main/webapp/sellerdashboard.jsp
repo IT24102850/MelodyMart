@@ -995,7 +995,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="data-table">
+                    <table class="data-table" id="inventoryTable">
                         <thead>
                         <tr>
                             <th>Image</th>
@@ -1025,7 +1025,7 @@
                                                     "Low Stock".equalsIgnoreCase(stockLevel) ? "status-pending" :
                                                             "status-cancelled";
                         %>
-                        <tr>
+                        <tr data-status="<%= stockLevel %>">
                             <td>
                                 <%
                                     String img = rs.getString("ImageURL");
@@ -1051,11 +1051,20 @@
                                 <span class="status-badge <%= statusClass %>"><%= stockLevel %></span>
                             </td>
                             <td>
-                                <!-- Edit Button -->
+                                <!-- Edit button -->
                                 <button class="btn btn-sm btn-primary"
-                                        onclick="openEditModal(<%= rs.getInt("InstrumentID") %>, '<%= rs.getString("Name") %>', '<%= rs.getString("Description") %>', '<%= rs.getString("Model") %>', <%= rs.getDouble("Price") %>, <%= rs.getInt("Quantity") %>, '<%= stockLevel %>', '<%= rs.getString("ImageURL") %>')">Edit</button>
+                                        onclick="openEditModal(<%= rs.getInt("InstrumentID") %>,
+                                                '<%= rs.getString("Name") %>',
+                                                '<%= rs.getString("Description") %>',
+                                                '<%= rs.getString("Model") %>',
+                                            <%= rs.getDouble("Price") %>,
+                                            <%= rs.getInt("Quantity") %>,
+                                                '<%= stockLevel %>',
+                                                '<%= rs.getString("ImageURL") %>')">
+                                    Edit
+                                </button>
 
-                                <!-- Delete Form -->
+                                <!-- Delete form -->
                                 <form action="${pageContext.request.contextPath}/DeleteInstrumentServlet"
                                       method="post" style="display:inline;"
                                       onsubmit="return confirm('Are you sure you want to delete this instrument?');">
@@ -1067,7 +1076,7 @@
                         <%
                                 }
                             } catch (Exception e) {
-                                out.println("<tr><td colspan='8' style='color: red;'>Error: " + e.getMessage() + "</td></tr>");
+                                out.println("<tr><td colspan='8' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
                             } finally {
                                 if (rs != null) try { rs.close(); } catch (Exception ignored) {}
                                 if (ps != null) try { ps.close(); } catch (Exception ignored) {}
@@ -1119,7 +1128,7 @@
         </div>
 
         <script>
-            // Open edit modal with instrument data
+            // Open edit modal with data
             function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
                 document.getElementById("editInstrumentId").value = id;
                 document.getElementById("editName").value = name;
@@ -1137,6 +1146,31 @@
             function closeModal(id) {
                 document.getElementById(id).style.display = "none";
             }
+
+            // 🔍 Search and Filter (Improved)
+            function filterTable() {
+                const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+                const statusValue = document.getElementById("statusFilter").value;
+                const rows = document.querySelectorAll("#inventoryTable tbody tr");
+
+                rows.forEach(row => {
+                    const rowText = row.innerText.toLowerCase(); // search across all columns
+                    const rowStatus = row.getAttribute("data-status");
+
+                    const matchesSearch = rowText.includes(searchTerm);
+                    const matchesStatus = !statusValue || rowStatus === statusValue;
+
+                    row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
+                });
+            }
+
+            document.getElementById("searchInput").addEventListener("input", filterTable);
+            document.getElementById("statusFilter").addEventListener("change", filterTable);
+            document.getElementById("resetFilters").addEventListener("click", () => {
+                document.getElementById("searchInput").value = "";
+                document.getElementById("statusFilter").value = "";
+                filterTable();
+            });
         </script>
 
 
@@ -1149,15 +1183,161 @@
 
 
 
+
         <!-- Other sections would be defined here (Orders, Deliveries, Stock, Reports, etc.) -->
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
         <section id="orders" class="dashboard-section">
+            <div class="search-filter">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="orderSearchInput" class="form-control" placeholder="Search orders...">
+                </div>
+                <select id="orderStatusFilter" class="form-control filter-select">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <button class="btn btn-secondary" id="resetOrderFilters">Reset</button>
+            </div>
+
             <div class="content-card">
                 <div class="card-header">
                     <h2 class="card-title">Order Management</h2>
                 </div>
-                <p>Order management content goes here...</p>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="ordersTable">
+                        <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer Name</th>
+                            <th>Phone Number</th>
+                            <th>Province</th>
+                            <th>District</th>
+                            <th>City</th>
+                            <th>Address</th>
+                            <th>Delivery Label</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                             conn = null;
+                            ps = null;
+                             rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT OrderID, CustomerName, PhoneNumber, Province, District, City, Address, DeliveryLabel, TotalAmount, Status, CreatedAt FROM OrderNow";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+                                while (rs.next()) {
+                                    String status = rs.getString("Status");
+                                    String statusClass =
+                                            "Completed".equalsIgnoreCase(status) ? "status-completed" :
+                                                    "Processing".equalsIgnoreCase(status) ? "status-pending" :
+                                                            "status-cancelled";
+                        %>
+                        <tr data-status="<%= status %>" data-customer="<%= rs.getString("CustomerName").toLowerCase() %>" data-city="<%= rs.getString("City").toLowerCase() %>">
+                            <td>#<%= rs.getInt("OrderID") %></td>
+                            <td class="order-customer"><%= rs.getString("CustomerName") %></td>
+                            <td><%= rs.getString("PhoneNumber") %></td>
+                            <td><%= rs.getString("Province") %></td>
+                            <td><%= rs.getString("District") %></td>
+                            <td><%= rs.getString("City") %></td>
+                            <td><%= rs.getString("Address") %></td>
+                            <td><%= rs.getString("DeliveryLabel") %></td>
+                            <td>$<%= rs.getDouble("TotalAmount") %></td>
+                            <td>
+                                <span class="status-badge <%= statusClass %>"><%= status %></span>
+                            </td>
+                            <td><%= rs.getTimestamp("CreatedAt") %></td>
+                            <td>
+                                <!-- Update Status -->
+                                <form action="${pageContext.request.contextPath}/UpdateOrderStatusServlet" method="post" style="display:inline;">
+                                    <input type="hidden" name="orderId" value="<%= rs.getInt("OrderID") %>">
+                                    <select name="status" onchange="this.form.submit()">
+                                        <option value="Pending" <%= "Pending".equalsIgnoreCase(status) ? "selected" : "" %>>Pending</option>
+                                        <option value="Processing" <%= "Processing".equalsIgnoreCase(status) ? "selected" : "" %>>Processing</option>
+                                        <option value="Completed" <%= "Completed".equalsIgnoreCase(status) ? "selected" : "" %>>Completed</option>
+                                        <option value="Cancelled" <%= "Cancelled".equalsIgnoreCase(status) ? "selected" : "" %>>Cancelled</option>
+                                    </select>
+                                </form>
+
+                                <!-- Delete -->
+                                <form action="${pageContext.request.contextPath}/DeleteOrderServlet" method="post" style="display:inline;"
+                                      onsubmit="return confirm('Are you sure you want to delete this order?');">
+                                    <input type="hidden" name="orderId" value="<%= rs.getInt("OrderID") %>">
+                                    <button type="submit" class="btn btn-sm btn-secondary">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='12' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
+
+        <script>
+            // Search & Filter
+            const orderSearchInput = document.getElementById("orderSearchInput");
+            const orderStatusFilter = document.getElementById("orderStatusFilter");
+            const resetOrderFilters = document.getElementById("resetOrderFilters");
+            const orderRows = document.querySelectorAll("#ordersTable tbody tr");
+
+            function filterOrders() {
+                const searchTerm = orderSearchInput.value.toLowerCase();
+                const statusValue = orderStatusFilter.value;
+
+                orderRows.forEach(row => {
+                    const customer = row.getAttribute("data-customer");
+                    const city = row.getAttribute("data-city");
+                    const rowStatus = row.getAttribute("data-status");
+
+                    const matchesSearch = customer.includes(searchTerm) || city.includes(searchTerm);
+                    const matchesStatus = !statusValue || rowStatus === statusValue;
+
+                    row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
+                });
+            }
+
+            orderSearchInput.addEventListener("input", filterOrders);
+            orderStatusFilter.addEventListener("change", filterOrders);
+
+            resetOrderFilters.addEventListener("click", () => {
+                orderSearchInput.value = "";
+                orderStatusFilter.value = "";
+                filterOrders();
+            });
+        </script>
+
+
+
+
+
+
+
+
+
 
         <section id="deliveries" class="dashboard-section">
             <div class="content-card">
