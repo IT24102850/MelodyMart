@@ -1,7 +1,5 @@
-package main.java.com.melodymart.servlet;
-
+package com.example.servlet;
 import main.java.com.melodymart.util.DBConnection;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -19,27 +17,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/UpdateRepairRequestServlet")
-@MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
-        maxFileSize = 1024 * 1024 * 10,      // 10MB
-        maxRequestSize = 1024 * 1024 * 50    // 50MB
-)
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, maxFileSize = 1024 * 1024 * 10, maxRequestSize = 1024 * 1024 * 50)
 public class UpdateRepairRequestServlet extends HttpServlet {
-    private static final String UPLOAD_DIR = "images/repairrequest";
+    private static final String UPLOAD_DIR = "uploads";
+    private static final String BASE_PATH = "/path/to/your/upload/directory/"; // Update this path
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String repairRequestId = request.getParameter("repairRequestId");
         String issueDescription = request.getParameter("issueDescription");
         String additionalComment = request.getParameter("additionalComment");
         String repairDate = request.getParameter("repairDate");
 
-        // Validate required fields
         if (repairRequestId == null || issueDescription == null || repairDate == null) {
             request.getSession().setAttribute("errorMessage", "Missing required fields.");
-            response.sendRedirect("customerlanding.jsp");
+            response.sendRedirect("dashboard.jsp");
             return;
         }
 
@@ -50,63 +42,42 @@ public class UpdateRepairRequestServlet extends HttpServlet {
 
         try {
             conn = DBConnection.getConnection();
-
-            // Build upload path inside webapp
             String applicationPath = getServletContext().getRealPath("");
             String uploadPath = applicationPath + File.separator + UPLOAD_DIR;
             File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
-            }
+            if (!uploadDir.exists()) uploadDir.mkdirs();
 
-            // Handle uploaded files
+            // Handle file uploads
             for (Part part : request.getParts()) {
-                if ("additionalPhotos".equals(part.getName()) && part.getSize() > 0) {
-                    String fileName = getFileName(part);
-                    if (fileName != null && !fileName.isEmpty()) {
-                        String filePath = uploadPath + File.separator + fileName;
-                        part.write(filePath);
-                        // Save relative path in DB
-                        newPhotoPaths.add(UPLOAD_DIR + "/" + fileName);
-                    }
+                String fileName = getFileName(part);
+                if (fileName != null && !fileName.isEmpty()) {
+                    String filePath = uploadPath + File.separator + fileName;
+                    part.write(filePath);
+                    newPhotoPaths.add(BASE_PATH + UPLOAD_DIR + "/" + fileName);
                 }
             }
 
-            // Retrieve existing photos and comments
+            // Get existing photos
             String existingPhotos = "";
-            String existingComment = "";
-            String sqlSelect = "SELECT Photos, Comment FROM RepairRequest WHERE RepairRequestID = ?";
+            String sqlSelect = "SELECT Photos FROM RepairRequest WHERE RepairRequestID = ?";
             ps = conn.prepareStatement(sqlSelect);
             ps.setInt(1, Integer.parseInt(repairRequestId));
             rs = ps.executeQuery();
-            if (rs.next()) {
-                existingPhotos = rs.getString("Photos") != null ? rs.getString("Photos") : "";
-                existingComment = rs.getString("Comment") != null ? rs.getString("Comment") : "";
-            }
-            rs.close();
-            ps.close();
+            if (rs.next()) existingPhotos = rs.getString("Photos") != null ? rs.getString("Photos") : "";
+            rs.close(); ps.close();
 
             // Append new photos
             String updatedPhotos = existingPhotos;
             if (!newPhotoPaths.isEmpty()) {
-                updatedPhotos = existingPhotos.isEmpty()
-                        ? String.join(";", newPhotoPaths)
+                updatedPhotos = existingPhotos.isEmpty() ? String.join(";", newPhotoPaths)
                         : existingPhotos + ";" + String.join(";", newPhotoPaths);
             }
 
-            // Append new comments
-            String updatedComment = existingComment;
-            if (additionalComment != null && !additionalComment.trim().isEmpty()) {
-                updatedComment = existingComment.isEmpty()
-                        ? additionalComment
-                        : existingComment + "\n" + additionalComment;
-            }
-
-            // Update record
+            // Update database
             String sqlUpdate = "UPDATE RepairRequest SET IssueDescription = ?, Comment = ?, Photos = ?, RepairDate = ? WHERE RepairRequestID = ?";
             ps = conn.prepareStatement(sqlUpdate);
             ps.setString(1, issueDescription);
-            ps.setString(2, updatedComment);
+            ps.setString(2, additionalComment.isEmpty() ? null : additionalComment);
             ps.setString(3, updatedPhotos);
             ps.setString(4, repairDate);
             ps.setInt(5, Integer.parseInt(repairRequestId));
@@ -115,9 +86,8 @@ public class UpdateRepairRequestServlet extends HttpServlet {
             if (rowsAffected > 0) {
                 request.getSession().setAttribute("successMessage", "Repair request updated successfully.");
             } else {
-                request.getSession().setAttribute("errorMessage", "Failed to update repair request.");
+                request.getSession().setAttribute("errorMessage", "No changes made or invalid request ID.");
             }
-
         } catch (SQLException e) {
             request.getSession().setAttribute("errorMessage", "Database error: " + e.getMessage());
             e.printStackTrace();
@@ -130,19 +100,15 @@ public class UpdateRepairRequestServlet extends HttpServlet {
             if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
         }
 
-        // Redirect back to customer landing page
-        response.sendRedirect("customerlanding.jsp");
+        response.sendRedirect("dashboard.jsp?refresh=true");
     }
 
-    // Utility: extract filename from Part
     private String getFileName(Part part) {
         String contentDisposition = part.getHeader("content-disposition");
         if (contentDisposition != null) {
             for (String cd : contentDisposition.split(";")) {
                 if (cd.trim().startsWith("filename")) {
-                    String fileName = cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
-                    return fileName.substring(fileName.lastIndexOf('/') + 1)
-                            .substring(fileName.lastIndexOf('\\') + 1);
+                    return cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
                 }
             }
         }
