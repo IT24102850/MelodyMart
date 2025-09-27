@@ -956,6 +956,11 @@
 
 
 
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
         <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
             <div class="search-filter">
@@ -983,7 +988,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="data-table" id="inventoryTable">
+                    <table class="data-table">
                         <thead>
                         <tr>
                             <th>Image</th>
@@ -996,37 +1001,131 @@
                             <th>Actions</th>
                         </tr>
                         </thead>
-                        <tbody id="inventoryTableBody">
-                        <c:forEach var="instrument" items="${instruments}">
-                            <tr>
-                                <td>
-                                    <img src="${instrument.imageUrl != null ? instrument.imageUrl : 'https://via.placeholder.com/40'}"
-                                         alt="${instrument.name}"
-                                         style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
-                                </td>
-                                <td>${instrument.name}</td>
-                                <td>${instrument.description}</td>
-                                <td>${instrument.model}</td>
-                                <td>$${instrument.price}</td>
-                                <td>${instrument.quantity}</td>
-                                <td>
-                            <span class="status-badge
-                                ${instrument.stockLevel eq 'In Stock' ? 'status-completed' :
-                                  instrument.stockLevel eq 'Low Stock' ? 'status-pending' : 'status-cancelled'}">
-                                    ${instrument.stockLevel}
-                            </span>
-                                </td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary" onclick="editInstrument(${instrument.instrumentId})">Edit</button>
-                                    <button class="btn btn-sm btn-secondary" onclick="deleteInstrument(${instrument.instrumentId})">Delete</button>
-                                </td>
-                            </tr>
-                        </c:forEach>
+                        <tbody>
+                        <%
+                            Connection conn = null;
+                            PreparedStatement ps = null;
+                            ResultSet rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL FROM Instrument";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+                                while (rs.next()) {
+                                    String stockLevel = rs.getString("StockLevel");
+                                    String statusClass =
+                                            "In Stock".equalsIgnoreCase(stockLevel) ? "status-completed" :
+                                                    "Low Stock".equalsIgnoreCase(stockLevel) ? "status-pending" :
+                                                            "status-cancelled";
+                        %>
+                        <tr>
+                            <td>
+                                <%
+                                    String img = rs.getString("ImageURL");
+                                    if (img != null && !img.isEmpty()) {
+                                %>
+                                <img src="<%= img %>" alt="<%= rs.getString("Name") %>"
+                                     style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                                <%
+                                } else {
+                                %>
+                                <img src="https://via.placeholder.com/40" alt="No image"
+                                     style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                                <%
+                                    }
+                                %>
+                            </td>
+                            <td><%= rs.getString("Name") %></td>
+                            <td><%= rs.getString("Description") %></td>
+                            <td><%= rs.getString("Model") %></td>
+                            <td>$<%= rs.getDouble("Price") %></td>
+                            <td><%= rs.getInt("Quantity") %></td>
+                            <td>
+                                <span class="status-badge <%= statusClass %>"><%= stockLevel %></span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary"
+                                        onclick="openEditModal(<%= rs.getInt("InstrumentID") %>, '<%= rs.getString("Name") %>', '<%= rs.getString("Description") %>', '<%= rs.getString("Model") %>', <%= rs.getDouble("Price") %>, <%= rs.getInt("Quantity") %>, '<%= stockLevel %>', '<%= rs.getString("ImageURL") %>')">Edit</button>
+
+                                <form action="${pageContext.request.contextPath}/DeleteInstrumentServlet" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this instrument?');">
+                                    <input type="hidden" name="instrumentId" value="<%= rs.getInt("InstrumentID") %>">
+                                    <button type="submit" class="btn btn-sm btn-secondary">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='8' style='color: red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
+
+        <!-- Edit Instrument Modal -->
+        <div class="modal" id="editInstrumentModal" style="display:none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal('editInstrumentModal')">&times;</button>
+                <h2>Edit Instrument</h2>
+                <form action="${pageContext.request.contextPath}/UpdateInstrumentServlet" method="post">
+                    <input type="hidden" id="editInstrumentId" name="instrumentId">
+
+                    <label>Name:</label>
+                    <input type="text" id="editName" name="name" required><br>
+
+                    <label>Description:</label>
+                    <input type="text" id="editDescription" name="description"><br>
+
+                    <label>Model:</label>
+                    <input type="text" id="editModel" name="model"><br>
+
+                    <label>Price:</label>
+                    <input type="number" id="editPrice" name="price" step="0.01"><br>
+
+                    <label>Quantity:</label>
+                    <input type="number" id="editQuantity" name="quantity"><br>
+
+                    <label>Stock Level:</label>
+                    <select id="editStockLevel" name="stockLevel">
+                        <option value="In Stock">In Stock</option>
+                        <option value="Low Stock">Low Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select><br>
+
+                    <label>Image URL:</label>
+                    <input type="text" id="editImageUrl" name="imageUrl"><br>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
+                document.getElementById("editInstrumentId").value = id;
+                document.getElementById("editName").value = name;
+                document.getElementById("editDescription").value = description;
+                document.getElementById("editModel").value = model;
+                document.getElementById("editPrice").value = price;
+                document.getElementById("editQuantity").value = quantity;
+                document.getElementById("editStockLevel").value = stockLevel;
+                document.getElementById("editImageUrl").value = imageUrl;
+
+                document.getElementById("editInstrumentModal").style.display = "flex";
+            }
+
+            function closeModal(id) {
+                document.getElementById(id).style.display = "none";
+            }
+        </script>
+
 
 
 
