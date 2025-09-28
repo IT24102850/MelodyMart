@@ -10,8 +10,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
-@WebServlet("/UpdatePaymentServlet")
-public class UpdatePaymentServlet extends HttpServlet {
+@WebServlet("/DeletePaymentServlet")
+public class DeletePaymentServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -19,30 +19,28 @@ public class UpdatePaymentServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String paymentIdStr = request.getParameter("paymentId");
-        String status = request.getParameter("status");
 
-        if (paymentIdStr == null || status == null || paymentIdStr.isEmpty() || status.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required fields");
+        if (paymentIdStr == null || paymentIdStr.isEmpty()) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing paymentId");
             return;
         }
 
         int paymentId = Integer.parseInt(paymentIdStr);
 
         try (Connection conn = DatabaseUtil.getConnection()) {
-            String sql = "UPDATE Payment SET Status = ? WHERE PaymentID = ?";
+            String sql = "DELETE FROM Payment WHERE PaymentID = ?";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, status);
-                ps.setInt(2, paymentId);
+                ps.setInt(1, paymentId);
 
                 int rows = ps.executeUpdate();
                 if (rows > 0) {
-                    System.out.println("✅ Payment updated successfully: ID " + paymentId + " → " + status);
+                    System.out.println("🗑 Payment reversed/deleted successfully: ID " + paymentId);
                 } else {
                     System.out.println("⚠ No payment found with ID: " + paymentId);
                 }
             }
         } catch (Exception e) {
-            throw new ServletException("Error updating payment status", e);
+            throw new ServletException("Error deleting payment", e);
         }
 
         // Redirect back to dashboard
