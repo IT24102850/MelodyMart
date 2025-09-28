@@ -417,6 +417,10 @@
         <h1 class="page-title animate-in">Secure Checkout</h1>
 
         <div class="checkout-container">
+
+
+
+
             <!-- Payment Method Section -->
             <div class="payment-card animate-in delay-1">
                 <div class="card-header">
@@ -427,50 +431,62 @@
                 </div>
 
                 <div class="payment-methods">
-                    <div class="payment-method active">
+                    <label class="payment-method active">
+                        <input type="radio" name="paymentMethod" value="Visa" checked hidden>
                         <i class="fab fa-cc-visa"></i>
                         <div>Visa</div>
-                    </div>
-                    <div class="payment-method">
+                    </label>
+                    <label class="payment-method">
+                        <input type="radio" name="paymentMethod" value="Mastercard" hidden>
                         <i class="fab fa-cc-mastercard"></i>
                         <div>Mastercard</div>
-                    </div>
-                    <div class="payment-method">
+                    </label>
+                    <label class="payment-method">
+                        <input type="radio" name="paymentMethod" value="Amex" hidden>
                         <i class="fab fa-cc-amex"></i>
                         <div>Amex</div>
-                    </div>
-                    <div class="payment-method">
+                    </label>
+                    <label class="payment-method">
+                        <input type="radio" name="paymentMethod" value="PayPal" hidden>
                         <i class="fab fa-paypal"></i>
                         <div>PayPal</div>
-                    </div>
+                    </label>
                 </div>
 
-                <form id="payment-form">
+                <!-- ✅ Payment Form -->
+                <form id="payment-form" action="${pageContext.request.contextPath}/PaymentServlet" method="post">
+                    <input type="hidden" name="orderId" value="1"><!-- Example, dynamically replace with real OrderID -->
+                    <input type="hidden" name="amount" value="99.99"><!-- Example, replace with real total amount -->
+
                     <div class="form-group">
                         <label for="cardNumber">Card Number</label>
-                        <input type="text" id="cardNumber" class="form-control" placeholder="1234 5678 9012 3456" required>
+                        <input type="text" id="cardNumber" name="transactionId"
+                               class="form-control" placeholder="1234 5678 9012 3456" required>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
                             <label for="expiryDate">Expiry Date</label>
-                            <input type="text" id="expiryDate" class="form-control" placeholder="MM/YY" required>
+                            <input type="text" id="expiryDate" name="expiryDate"
+                                   class="form-control" placeholder="MM/YY" required>
                         </div>
 
                         <div class="form-group">
                             <label for="cvv">CVV</label>
-                            <input type="text" id="cvv" class="form-control" placeholder="123" required>
+                            <input type="text" id="cvv" name="cvv"
+                                   class="form-control" placeholder="123" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label for="cardName">Name on Card</label>
-                        <input type="text" id="cardName" class="form-control" placeholder="John Doe" required>
+                        <input type="text" id="cardName" name="cardName"
+                               class="form-control" placeholder="John Doe" required>
                     </div>
 
                     <div class="form-group">
                         <label for="country">Country</label>
-                        <select id="country" class="form-control" required>
+                        <select id="country" name="country" class="form-control" required>
                             <option value="">Select Country</option>
                             <option value="US">United States</option>
                             <option value="CA">Canada</option>
@@ -484,15 +500,25 @@
 
                     <div class="form-group">
                         <label for="zipCode">ZIP / Postal Code</label>
-                        <input type="text" id="zipCode" class="form-control" placeholder="12345" required>
+                        <input type="text" id="zipCode" name="zipCode"
+                               class="form-control" placeholder="12345" required>
                     </div>
+
+                    <input type="hidden" name="paymentMethod" value="Visa">
 
                     <div class="security-badge">
                         <i class="fas fa-lock"></i>
                         <span>Your payment details are securely encrypted</span>
                     </div>
+
+                    <button type="submit" class="btn btn-primary">Pay Now</button>
                 </form>
+
             </div>
+
+
+
+
 
             <!-- Order Summary Section -->
             <div class="order-summary animate-in delay-2">

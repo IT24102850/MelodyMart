@@ -739,6 +739,8 @@
                 <i class="fas fa-box"></i>
                 <span>Inventory</span>
             </a>
+
+
             <a href="#" class="menu-item" data-section="orders">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Orders</span>
@@ -746,6 +748,11 @@
             <a href="#" class="menu-item" data-section="deliveries">
                 <i class="fas fa-truck"></i>
                 <span>Deliveries</span>
+            </a>
+
+            <a href="#" class="menu-item" data-section="payment">
+                <i class="fas fa-truck"></i>
+                <span>Payments</span>
             </a>
             <a href="#" class="menu-item" data-section="stock">
                 <i class="fas fa-cubes"></i>
@@ -1347,6 +1354,97 @@
                 <p>Delivery coordination content goes here...</p>
             </div>
         </section>
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+        <section id="payment" class="dashboard-section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Payment Management</h2>
+                    <!-- Create (Seller support role) -->
+                    <button class="btn btn-primary" onclick="alert('Forward order to Payment Gateway initiated!')">
+                        Forward Order to Payment Gateway
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Payment ID</th>
+                            <th>Order ID</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Transaction ID</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                             conn = null;
+                             ps = null;
+                             rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT PaymentID, OrderID, Amount, PaymentMethod, TransactionID, Status FROM Payment";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+
+                                while (rs.next()) {
+                                    String status = rs.getString("Status");
+                        %>
+                        <tr>
+                            <td><%= rs.getInt("PaymentID") %></td>
+                            <td>#<%= rs.getInt("OrderID") %></td>
+                            <td>$<%= rs.getDouble("Amount") %></td>
+                            <td><%= rs.getString("PaymentMethod") %></td>
+                            <td><%= rs.getString("TransactionID") %></td>
+                            <td>
+                                <!-- Read status -->
+                                <span class="status-badge"><%= status %></span>
+                            </td>
+                            <td>
+                                <!-- Update (Seller can change status) -->
+                                <form action="${pageContext.request.contextPath}/UpdatePaymentServlet" method="post" style="display:inline;">
+                                    <input type="hidden" name="paymentId" value="<%= rs.getInt("PaymentID") %>">
+                                    <select name="status" onchange="this.form.submit()">
+                                        <option value="Paid" <%= "Paid".equalsIgnoreCase(status) ? "selected" : "" %>>Paid</option>
+                                        <option value="Failed" <%= "Failed".equalsIgnoreCase(status) ? "selected" : "" %>>Failed</option>
+                                        <option value="Pending" <%= "Pending".equalsIgnoreCase(status) ? "selected" : "" %>>Pending</option>
+                                    </select>
+                                </form>
+
+                                <!-- Delete (Void/Reverse payment) -->
+                                <form action="${pageContext.request.contextPath}/DeletePaymentServlet" method="post"
+                                      style="display:inline;" onsubmit="return confirm('Are you sure you want to reverse this payment?');">
+                                    <input type="hidden" name="paymentId" value="<%= rs.getInt("PaymentID") %>">
+                                    <button type="submit" class="btn btn-sm btn-danger">Reverse</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='7' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+
+
 
         <section id="stock" class="dashboard-section">
             <div class="content-card">
