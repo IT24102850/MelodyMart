@@ -932,29 +932,109 @@
             </div>
         </section>
 
-        <!-- Stock Management Tools -->
+
+
+
+
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+        <!-- ⭐ Improved Stock Management Tools -->
         <section id="stock-management" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-boxes"></i> Stock Management Tools</h3>
+            <div class="card-header flex items-center justify-between">
+                <h3 class="flex items-center gap-2 text-lg font-semibold">
+                    <i class="fas fa-boxes"></i> Stock Management Tools
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="refreshStockStatus()">
+                    <i class="fas fa-sync-alt"></i> Refresh Status
+                </button>
             </div>
+
             <div class="card-body">
-                <p>Interfaces to view and manually update stock levels, coordinate availability, and handle overselling alerts.</p>
-                <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p class="text-muted mb-3">
+                    Quickly update instrument stock levels, track availability, and get real-time alerts for low or oversold items.
+                </p>
+
+                <!-- Update Stock Form -->
+                <form id="stockUpdateForm" method="post" action="${pageContext.request.contextPath}/UpdateStockServlet"
+                      class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+
+                    <!-- Instrument ID -->
                     <div class="form-group">
-                        <label for="instrumentId" class="form-label">Instrument ID</label>
-                        <input type="text" class="form-control" id="instrumentId" placeholder="Enter ID">
+                        <label for="instrumentId" class="form-label font-weight-bold">Instrument ID</label>
+                        <input type="text" class="form-control" id="instrumentId" name="instrumentId" placeholder="Enter ID" required>
                     </div>
+
+                    <!-- Quantity -->
                     <div class="form-group">
-                        <label for="stockQuantity" class="form-label">Update Stock Quantity</label>
-                        <input type="number" class="form-control" id="stockQuantity" placeholder="New Quantity">
+                        <label for="stockQuantity" class="form-label font-weight-bold">New Quantity</label>
+                        <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" placeholder="e.g. 20" min="0" required>
                     </div>
-                    <button type="submit" class="btn btn-primary hover-lift"><i class="fas fa-sync"></i> Update Stock</button>
+
+                    <!-- Submit -->
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary hover-lift w-full">
+                            <i class="fas fa-save"></i> Update Stock
+                        </button>
+                    </div>
                 </form>
-                <div class="alert alert-warning mt-4">
-                    <i class="fas fa-exclamation-triangle"></i> Alert: Item ID 123 is low on stock!
+
+                <!-- 🔔 Stock Alerts (Dynamic from DB) -->
+                <div id="stockAlerts" class="mt-5">
+                    <h5 class="mb-2"><i class="fas fa-bell text-warning"></i> Stock Alerts</h5>
+                    <ul class="list-group">
+                        <%
+                            Connection conn = null;
+                            PreparedStatement ps = null;
+                            ResultSet rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT InstrumentID, Name, StockLevel FROM Instrument WHERE StockLevel IN ('Low Stock', 'Out of Stock')";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+                                while (rs.next()) {
+                                    String level = rs.getString("StockLevel");
+                                    String icon = "Low Stock".equalsIgnoreCase(level)
+                                            ? "<i class='fas fa-exclamation-triangle text-warning'></i>"
+                                            : "<i class='fas fa-times-circle text-danger'></i>";
+                        %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><%= icon %> Item ID <%= rs.getInt("InstrumentID") %> (<%= rs.getString("Name") %>) is <b><%= level %></b></span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="quickRestock(<%= rs.getInt("InstrumentID") %>)">Restock</button>
+                        </li>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<li class='list-group-item text-danger'>Error: " + e.getMessage() + "</li>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                    </ul>
                 </div>
             </div>
         </section>
+
+        <script>
+            // Simulate stock refresh
+            function refreshStockStatus() {
+                location.reload(); // simple page reload to update alerts
+            }
+
+            // Quick restock helper
+            function quickRestock(id) {
+                document.getElementById("instrumentId").value = id;
+                document.getElementById("stockQuantity").focus();
+            }
+        </script>
+
+
+
 
         <!-- Item Review Queue -->
         <section id="item-review" class="section-card">
