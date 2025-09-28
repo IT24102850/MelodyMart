@@ -4,6 +4,8 @@ GO
 
 USE MelodyMartDB;
 GO
+USE MelodyMartDB;
+GO
 
 -- Person table (central entity for users)
 CREATE TABLE Person (
