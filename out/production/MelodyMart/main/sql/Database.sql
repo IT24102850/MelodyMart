@@ -451,3 +451,48 @@ CREATE TABLE Instrument (
 );
 
 SELECT * FROM Instrument;
+
+-- Insert new instrument from manufacturer with brand and category
+INSERT INTO Instrument
+(Name, Description, BrandID, Model, Color, Price, Specifications, Warranty, ImageURL, Quantity, StockLevel, ManufacturerID)
+VALUES
+(N'Yamaha FG800 Acoustic Guitar', 
+ N'Solid spruce top with nato/okume back and sides', 
+ 2,                               -- BrandID (Yamaha)
+ N'FG800', 
+ N'Natural', 
+ 299.99, 
+ N'Top: Spruce, Back: Nato, Fretboard: Rosewood', 
+ N'1 Year', 
+ N'https://example.com/yamaha_fg800.jpg', 
+ 25, 
+ N'In Stock', 
+ 2);                              -- ManufacturerID (Yamaha)
+
+-- Link the instrument to a category (e.g., Guitars)
+INSERT INTO InstrumentCategory (InstrumentID, CategoryID)
+VALUES (SCOPE_IDENTITY(), 1);     -- CategoryID = 1 (Guitars)
+
+
+-- Read stock levels with brand and manufacturer info
+SELECT i.InstrumentID, i.Name, i.Quantity, i.StockLevel,
+       b.Name AS BrandName, m.Name AS ManufacturerName, 
+       c.Name AS CategoryName
+FROM Instrument i
+LEFT JOIN Brand b ON i.BrandID = b.BrandID
+LEFT JOIN Manufacturer m ON i.ManufacturerID = m.ManufacturerID
+LEFT JOIN InstrumentCategory ic ON i.InstrumentID = ic.InstrumentID
+LEFT JOIN Category c ON ic.CategoryID = c.CategoryID
+ORDER BY i.Quantity DESC;
+
+
+select * from Category
+
+CREATE TABLE StockCorrections (
+    CorrectionID INT PRIMARY KEY IDENTITY(1,1),
+    InstrumentID INT NOT NULL,
+    CorrectedQuantity INT NOT NULL,
+    Reason NVARCHAR(255) NOT NULL,
+    CorrectionDate DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (InstrumentID) REFERENCES Instrument(InstrumentID)
+);
