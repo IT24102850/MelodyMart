@@ -739,6 +739,8 @@
                 <i class="fas fa-box"></i>
                 <span>Inventory</span>
             </a>
+
+
             <a href="#" class="menu-item" data-section="orders">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Orders</span>
@@ -746,6 +748,11 @@
             <a href="#" class="menu-item" data-section="deliveries">
                 <i class="fas fa-truck"></i>
                 <span>Deliveries</span>
+            </a>
+
+            <a href="#" class="menu-item" data-section="payment">
+                <i class="fas fa-truck"></i>
+                <span>Payments</span>
             </a>
             <a href="#" class="menu-item" data-section="stock">
                 <i class="fas fa-cubes"></i>
@@ -1339,14 +1346,221 @@
 
 
 
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
         <section id="deliveries" class="dashboard-section">
             <div class="content-card">
                 <div class="card-header">
                     <h2 class="card-title">Delivery Coordination</h2>
+                    <div class="card-actions">
+                        <button class="btn btn-primary" onclick="openModal('addDeliveryModal')">
+                            <i class="fas fa-plus"></i> Add Delivery
+                        </button>
+                    </div>
                 </div>
-                <p>Delivery coordination content goes here...</p>
+
+                <!-- Deliveries Table -->
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Order ID</th>
+                            <th>Status</th>
+                            <th>Update Date</th>
+                            <th>Notes</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                             conn = null;
+                             ps = null;
+                             rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT id, order_id, status, update_date, notes FROM DeliveryStatuses ORDER BY update_date DESC";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+                                while (rs.next()) {
+                                    String status = rs.getString("status");
+                                    String statusClass =
+                                            "Delivered".equalsIgnoreCase(status) ? "status-completed" :
+                                                    "Shipped".equalsIgnoreCase(status) ? "status-pending" :
+                                                            "Cancelled".equalsIgnoreCase(status) ? "status-cancelled" : "status-pending";
+                        %>
+                        <tr>
+                            <td><%= rs.getInt("id") %></td>
+                            <td>#<%= rs.getInt("order_id") %></td>
+                            <td><span class="status-badge <%= statusClass %>"><%= status %></span></td>
+                            <td><%= rs.getTimestamp("update_date") %></td>
+                            <td><%= rs.getString("notes") %></td>
+                            <td>
+                                <!-- Update Status -->
+                                <form action="${pageContext.request.contextPath}/UpdateDeliveryServlet" method="post" style="display:inline;">
+                                    <input type="hidden" name="deliveryId" value="<%= rs.getInt("id") %>">
+                                    <select name="status" onchange="this.form.submit()">
+                                        <option value="Pending" <%= "Pending".equalsIgnoreCase(status) ? "selected" : "" %>>Pending</option>
+                                        <option value="Shipped" <%= "Shipped".equalsIgnoreCase(status) ? "selected" : "" %>>Shipped</option>
+                                        <option value="Delivered" <%= "Delivered".equalsIgnoreCase(status) ? "selected" : "" %>>Delivered</option>
+                                        <option value="Cancelled" <%= "Cancelled".equalsIgnoreCase(status) ? "selected" : "" %>>Cancelled</option>
+                                    </select>
+                                </form>
+
+                                <!-- Delete Delivery -->
+                                <form action="${pageContext.request.contextPath}/DeleteDeliveryServlet" method="post" style="display:inline;"
+                                      onsubmit="return confirm('Are you sure you want to cancel this delivery?');">
+                                    <input type="hidden" name="deliveryId" value="<%= rs.getInt("id") %>">
+                                    <button type="submit" class="btn btn-sm btn-secondary">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='6' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
+
+        <!-- Add Delivery Modal -->
+        <div class="modal" id="addDeliveryModal" style="display:none;">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal('addDeliveryModal')">&times;</button>
+                <h2>Add Delivery</h2>
+                <form action="${pageContext.request.contextPath}/AddDeliveryServlet" method="post">
+                    <label>Order ID:</label>
+                    <input type="number" name="orderId" required><br>
+
+                    <label>Status:</label>
+                    <select name="status" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select><br>
+
+                    <label>Notes:</label>
+                    <textarea name="notes"></textarea><br>
+
+                    <button type="submit" class="btn btn-primary">Save Delivery</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function openModal(id) {
+                document.getElementById(id).style.display = "flex";
+            }
+            function closeModal(id) {
+                document.getElementById(id).style.display = "none";
+            }
+        </script>
+
+
+
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+        <section id="payment" class="dashboard-section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">Payment Management</h2>
+                    <!-- Create (Seller support role) -->
+                    <button class="btn btn-primary" onclick="alert('Forward order to Payment Gateway initiated!')">
+                        Forward Order to Payment Gateway
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Payment ID</th>
+                            <th>Order ID</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Transaction ID</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                             conn = null;
+                             ps = null;
+                             rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT PaymentID, OrderID, Amount, PaymentMethod, TransactionID, Status FROM Payment";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+
+                                while (rs.next()) {
+                                    String status = rs.getString("Status");
+                        %>
+                        <tr>
+                            <td><%= rs.getInt("PaymentID") %></td>
+                            <td>#<%= rs.getInt("OrderID") %></td>
+                            <td>$<%= rs.getDouble("Amount") %></td>
+                            <td><%= rs.getString("PaymentMethod") %></td>
+                            <td><%= rs.getString("TransactionID") %></td>
+                            <td>
+                                <!-- Read status -->
+                                <span class="status-badge"><%= status %></span>
+                            </td>
+                            <td>
+                                <!-- Update (Seller can change status) -->
+                                <form action="${pageContext.request.contextPath}/UpdatePaymentServlet" method="post" style="display:inline;">
+                                    <input type="hidden" name="paymentId" value="<%= rs.getInt("PaymentID") %>">
+                                    <select name="status" onchange="this.form.submit()">
+                                        <option value="Paid" <%= "Paid".equalsIgnoreCase(status) ? "selected" : "" %>>Paid</option>
+                                        <option value="Failed" <%= "Failed".equalsIgnoreCase(status) ? "selected" : "" %>>Failed</option>
+                                        <option value="Pending" <%= "Pending".equalsIgnoreCase(status) ? "selected" : "" %>>Pending</option>
+                                    </select>
+                                </form>
+
+                                <!-- Delete (Void/Reverse payment) -->
+                                <form action="${pageContext.request.contextPath}/DeletePaymentServlet" method="post"
+                                      style="display:inline;" onsubmit="return confirm('Are you sure you want to reverse this payment?');">
+                                    <input type="hidden" name="paymentId" value="<%= rs.getInt("PaymentID") %>">
+                                    <button type="submit" class="btn btn-sm btn-danger">Reverse</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='7' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+
+
 
         <section id="stock" class="dashboard-section">
             <div class="content-card">

@@ -454,32 +454,65 @@
                 </div>
 
                 <!-- ✅ Payment Form -->
-                <form action="${pageContext.request.contextPath}/PaymentServlet" method="post">
-                    <input type="hidden" name="orderId" value="${orderId}">
-                    <input type="hidden" name="amount" value="${totalAmount}">
+                <form id="payment-form" action="${pageContext.request.contextPath}/PaymentServlet" method="post">
+                    <input type="hidden" name="orderId" value="1"><!-- Example, dynamically replace with real OrderID -->
+                    <input type="hidden" name="amount" value="99.99"><!-- Example, replace with real total amount -->
 
                     <div class="form-group">
-                        <label for="paymentMethod">Payment Method</label>
-                        <select name="paymentMethod" required>
-                            <option value="Visa">Visa</option>
-                            <option value="Mastercard">Mastercard</option>
-                            <option value="PayPal">PayPal</option>
+                        <label for="cardNumber">Card Number</label>
+                        <input type="text" id="cardNumber" name="transactionId"
+                               class="form-control" placeholder="1234 5678 9012 3456" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiryDate">Expiry Date</label>
+                            <input type="text" id="expiryDate" name="expiryDate"
+                                   class="form-control" placeholder="MM/YY" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cvv">CVV</label>
+                            <input type="text" id="cvv" name="cvv"
+                                   class="form-control" placeholder="123" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cardName">Name on Card</label>
+                        <input type="text" id="cardName" name="cardName"
+                               class="form-control" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <select id="country" name="country" class="form-control" required>
+                            <option value="">Select Country</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="SL">Sri Lanka</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="transactionId">Transaction ID</label>
-                        <input type="text" name="transactionId" required>
+                        <label for="zipCode">ZIP / Postal Code</label>
+                        <input type="text" id="zipCode" name="zipCode"
+                               class="form-control" placeholder="12345" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="cvv">CVV</label>
-                        <input type="text" name="cvv" required>
+                    <input type="hidden" name="paymentMethod" value="Visa">
+
+                    <div class="security-badge">
+                        <i class="fas fa-lock"></i>
+                        <span>Your payment details are securely encrypted</span>
                     </div>
 
-                    <button type="submit">Pay Now</button>
+                    <button type="submit" class="btn btn-primary">Pay Now</button>
                 </form>
-
 
             </div>
 
