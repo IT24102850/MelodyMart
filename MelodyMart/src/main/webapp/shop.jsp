@@ -178,7 +178,7 @@
                             <button type="submit" class="cta-btn">Add to Cart</button>
                         </form>
 
-                        <button class="cta-btn" onclick="window.location.href='order.jsp'">Order Now</button>
+                        <button class="cta-btn" onclick="window.location.href='order-now.jsp'">Order Now</button>
                         <button><i class="far fa-heart"></i></button>
                     </div>
                 </div>
