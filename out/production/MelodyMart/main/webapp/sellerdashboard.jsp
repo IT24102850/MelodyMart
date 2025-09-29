@@ -1098,41 +1098,107 @@
 
         <!-- Edit Instrument Modal -->
         <div class="modal" id="editInstrumentModal" style="display:none;">
-            <div class="modal-content">
+            <div class="modal-content premium-card">
                 <button class="modal-close" onclick="closeModal('editInstrumentModal')">&times;</button>
-                <h2>Edit Instrument</h2>
-                <form action="${pageContext.request.contextPath}/UpdateInstrumentServlet" method="post">
+                <h2 class="modal-title">🎵 Edit Instrument</h2>
+
+                <!-- enctype required for file upload -->
+                <form action="${pageContext.request.contextPath}/UpdateInstrumentServlet"
+                      method="post" enctype="multipart/form-data" class="form-grid">
+
                     <input type="hidden" id="editInstrumentId" name="instrumentId">
 
-                    <label>Name:</label>
-                    <input type="text" id="editName" name="name" required><br>
+                    <div class="form-group">
+                        <label for="editName">Name</label>
+                        <input type="text" id="editName" name="name" class="form-control" required>
+                    </div>
 
-                    <label>Description:</label>
-                    <input type="text" id="editDescription" name="description"><br>
+                    <div class="form-group">
+                        <label for="editDescription">Description</label>
+                        <textarea id="editDescription" name="description" class="form-control"></textarea>
+                    </div>
 
-                    <label>Model:</label>
-                    <input type="text" id="editModel" name="model"><br>
+                    <div class="form-group">
+                        <label for="editModel">Model</label>
+                        <input type="text" id="editModel" name="model" class="form-control">
+                    </div>
 
-                    <label>Price:</label>
-                    <input type="number" id="editPrice" name="price" step="0.01"><br>
+                    <div class="form-group">
+                        <label for="editPrice">Price</label>
+                        <input type="number" id="editPrice" name="price" class="form-control" step="0.01">
+                    </div>
 
-                    <label>Quantity:</label>
-                    <input type="number" id="editQuantity" name="quantity"><br>
+                    <div class="form-group">
+                        <label for="editQuantity">Quantity</label>
+                        <input type="number" id="editQuantity" name="quantity" class="form-control">
+                    </div>
 
-                    <label>Stock Level:</label>
-                    <select id="editStockLevel" name="stockLevel">
-                        <option value="In Stock">In Stock</option>
-                        <option value="Low Stock">Low Stock</option>
-                        <option value="Out of Stock">Out of Stock</option>
-                    </select><br>
+                    <div class="form-group">
+                        <label for="editStockLevel">Stock Level</label>
+                        <select id="editStockLevel" name="stockLevel" class="form-control">
+                            <option value="In Stock">In Stock</option>
+                            <option value="Low Stock">Low Stock</option>
+                            <option value="Out of Stock">Out of Stock</option>
+                        </select>
+                    </div>
 
-                    <label>Image URL:</label>
-                    <input type="text" id="editImageUrl" name="imageUrl"><br>
+                    <!-- ✅ Image Upload -->
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="editImageFile">Upload Image</label>
+                        <input type="file" id="editImageFile" name="imageFile" accept="image/*" class="form-control">
+                        <small>Leave empty if you don’t want to change the image.</small>
+                        <br>
+                        <!-- Image preview -->
+                        <img id="imagePreview" src="" alt="Preview" style="max-width:150px; margin-top:10px; display:none; border-radius:8px;">
+                    </div>
 
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editInstrumentModal')">Cancel</button>
+                    </div>
                 </form>
             </div>
         </div>
+
+        <script>
+            // Open edit modal with existing data
+            function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
+                document.getElementById("editInstrumentId").value = id;
+                document.getElementById("editName").value = name;
+                document.getElementById("editDescription").value = description;
+                document.getElementById("editModel").value = model;
+                document.getElementById("editPrice").value = price;
+                document.getElementById("editQuantity").value = quantity;
+                document.getElementById("editStockLevel").value = stockLevel;
+
+                // Show current image preview
+                const preview = document.getElementById("imagePreview");
+                preview.src = imageUrl;
+                preview.style.display = "block";
+
+                document.getElementById("editInstrumentModal").style.display = "flex";
+            }
+
+            // Preview newly selected file
+            document.getElementById("editImageFile").addEventListener("change", function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById("imagePreview");
+                        preview.src = e.target.result;
+                        preview.style.display = "block";
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Close modal
+            function closeModal(id) {
+                document.getElementById(id).style.display = "none";
+            }
+        </script>
+
 
         <script>
             // Open edit modal with data

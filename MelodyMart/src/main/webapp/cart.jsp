@@ -1,595 +1,373 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melody Mart - Elevate Your Sound Experience</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #8a2be2;
-            --primary-light: #9b45f0;
-            --secondary: #0a0a0a;
-            --accent: #00e5ff;
-            --text: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-bg: #1a1a1a;
-            --card-hover: #2a2a2a;
-            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
-            --glass-bg: rgba(30, 30, 30, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
+<%@ page import="java.sql.*, com.melodymart.util.DatabaseUtil" %>
+<%@ page session="true" %>
+
+<%
+    // Assume logged-in customer (set in session)
+    Integer customerId = (Integer) session.getAttribute("customerId");
+    if (customerId == null) {
+        response.sendRedirect("sign-in.jsp");
+        return;
+    }
+%>
+
+<style>
+    :root {
+        --primary: #8a2be2;
+        --primary-light: #9b45f0;
+        --secondary: #0a0a0a;
+        --accent: #00e5ff;
+        --text: #ffffff;
+        --text-secondary: #b3b3b3;
+        --card-bg: #1a1a1a;
+        --card-hover: #2a2a2a;
+        --glass-bg: rgba(30, 30, 30, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --gradient: linear-gradient(135deg, var(--primary), var(--accent));
+    }
+
+    .content-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .content-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .table-dark th {
+        background: var(--glass-bg);
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--card-hover);
+        transition: background-color 0.3s ease;
+    }
+
+    .img-thumbnail {
+        border: none;
+        background: transparent;
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .quantity-btn {
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--glass-border);
+        background: var(--card-bg);
+        color: var(--text);
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .quantity-btn:hover {
+        background: rgba(138, 43, 226, 0.1);
+        color: var(--primary-light);
+    }
+
+    .btn-custom {
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: var(--gradient);
+        color: var(--text);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--accent-alt), var(--primary));
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+    }
+
+    .btn-outline-secondary {
+        border-color: var(--primary-light);
+        color: var(--primary-light);
+    }
+
+    .btn-outline-secondary:hover {
+        background: rgba(138, 43, 226, 0.1);
+        color: var(--primary-light);
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: var(--text);
+    }
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+    }
+
+    .cart-summary {
+        background: var(--glass-bg);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid var(--glass-border);
+    }
+
+    .cart-summary .text-success {
+        color: #28a745 !important;
+    }
+
+    .notification {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .notification.success {
+        background: rgba(40, 167, 69, 0.2);
+        border: 1px solid rgba(40, 167, 69, 0.5);
+        color: #28a745;
+    }
+
+    .notification.error {
+        background: rgba(220, 53, 69, 0.2);
+        border: 1px solid rgba(220, 53, 69, 0.5);
+        color: #dc3545;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .table {
+            min-width: 600px;
         }
 
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--secondary);
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
+        .table td, .table th {
+            white-space: nowrap;
         }
 
-        .navbar {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            transition: all 0.3s ease;
+        .quantity-control {
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-        }
-
-        .navbar-nav .nav-link {
-            color: var(--text);
-            font-weight: 500;
-            margin-left: 1.5rem;
-            transition: color 0.3s ease;
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: var(--primary-light);
-        }
-
-        .search-bar {
-            max-width: 300px;
-            margin-left: 1rem;
-        }
-
-        .btn-primary {
-            background: var(--gradient);
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(135deg, var(--accent), var(--primary));
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
-        }
-
-        .hero {
-            height: 100vh;
-            background: url('https://via.placeholder.com/1920x1080?text=Hero+Image') no-repeat center center/cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .btn-lg {
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1;
+            margin-top: 10px;
         }
+    }
+</style>
 
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            color: var(--text);
-        }
+<head>
+    <div class="content-card shadow p-4 rounded">
+        <div class="card-header d-flex justify-content-between align-items-center mb-3">
+            <h2 class="card-title mb-0" style="font-family: 'Playfair Display', serif; font-size: 24px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                <i class="fas fa-shopping-cart"></i> My Cart
+            </h2>
+            <a href="shop.jsp" class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Back to Shop">
+                <i class="fas fa-store"></i> Continue Shopping
+            </a>
+        </div>
 
-        .hero-content h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            animation: fadeIn 1s ease-in;
-        }
+        <!-- Notifications -->
+        <div class="notification success" id="successNotification"></div>
+        <div class="notification error" id="errorNotification"></div>
 
-        .hero-content p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            color: var(--text-secondary);
-        }
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                <tr>
+                    <th>Instrument</th>
+                    <th style="width:120px;">Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th style="width:150px;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                    Connection conn = null;
+                    PreparedStatement ps = null;
+                    ResultSet rs = null;
 
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+                    double grandTotal = 0.0;
 
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-        }
+                    try {
+                        conn = DatabaseUtil.getConnection();
+                        String sql = "SELECT c.CartID, c.Quantity, i.Name, i.Price, i.InstrumentID, i.ImageURL " +
+                                "FROM Cart c JOIN Instrument i ON c.InstrumentID = i.InstrumentID " +
+                                "WHERE c.CustomerID = ?";
+                        ps = conn.prepareStatement(sql);
+                        ps.setInt(1, customerId);
+                        rs = ps.executeQuery();
 
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
-        }
+                        if (!rs.isBeforeFirst()) {
+                            out.println("<tr><td colspan='5' class='text-center text-secondary'>Your cart is empty.</td></tr>");
+                        } else {
+                            while (rs.next()) {
+                                int cartId = rs.getInt("CartID");
+                                int instrumentId = rs.getInt("InstrumentID");
+                                int qty = rs.getInt("Quantity");
+                                double price = rs.getDouble("Price");
+                                double total = qty * price;
+                                grandTotal += total;
+                %>
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="<%= rs.getString("ImageURL") != null ? rs.getString("ImageURL") : "https://via.placeholder.com/60" %>"
+                                 alt="<%= rs.getString("Name") %>"
+                                 class="img-thumbnail me-2" style="width:60px; height:60px; object-fit:cover;">
+                            <span style="font-size: 16px; color: var(--text);"><%= rs.getString("Name") %></span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="quantity-control">
+                            <form action="UpdateCartServlet" method="post" class="d-flex align-items-center" id="updateForm_<%= cartId %>">
+                                <input type="hidden" name="cartId" value="<%= cartId %>">
+                                <input type="hidden" name="instrumentId" value="<%= instrumentId %>">
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('<%= cartId %>', -1)">-</button>
+                                <input type="number" name="quantity" value="<%= qty %>" min="1" class="form-control form-control-sm text-center" style="width:70px;" id="quantity_<%= cartId %>">
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('<%= cartId %>', 1)">+</button>
+                                <button type="submit" class="btn btn-sm btn-success ms-2" id="updateBtn_<%= cartId %>" data-bs-toggle="tooltip" title="Update Quantity">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                    <td style="font-size: 16px; color: var(--text);">$<%= String.format("%.2f", price) %></td>
+                    <td class="fw-bold" style="font-size: 16px; color: var(--text);">$<%= String.format("%.2f", total) %></td>
+                    <td>
+                        <form action="RemoveFromCartServlet" method="post" style="display:inline;" id="removeForm_<%= cartId %>">
+                            <input type="hidden" name="cartId" value="<%= cartId %>">
+                            <input type="hidden" name="instrumentId" value="<%= instrumentId %>">
+                            <input type="hidden" name="quantity" value="<%= qty %>">
+                            <button type="submit" class="btn btn-sm btn-danger" id="removeBtn_<%= cartId %>" data-bs-toggle="tooltip" title="Remove Item">
+                                <i class="fas fa-trash-alt"></i> Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                <%
+                            }
+                        }
+                    } catch (Exception e) {
+                        out.println("<tr><td colspan='5' class='text-danger text-center'>Error: " + e.getMessage() + "</td></tr>");
+                    } finally {
+                        if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                        if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                        if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                    }
+                %>
+                </tbody>
+            </table>
+        </div>
 
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .card-text {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .btn-outline-secondary {
-            border-color: var(--primary-light);
-            color: var(--primary-light);
-        }
-
-        .btn-outline-secondary:hover {
-            background: rgba(138, 43, 226, 0.1);
-            color: var(--primary-light);
-        }
-
-        .accordion-button {
-            background: var(--card-bg);
-            color: var(--text);
-            border: 1px solid var(--glass-border);
-        }
-
-        .accordion-button:not(.collapsed) {
-            background: var(--glass-bg);
-            color: var(--primary-light);
-        }
-
-        .testimonial {
-            background: var(--glass-bg);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .testimonial .rating {
-            color: #ffc107;
-            margin-top: 0.5rem;
-        }
-
-        .contact-form {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 15px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .form-check-label {
-            color: var(--text);
-        }
-
-        .footer {
-            background: var(--glass-bg);
-            padding: 2rem 0;
-            border-top: 1px solid var(--glass-border);
-        }
-
-        .footer a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer a:hover {
-            color: var(--primary-light);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @media (max-width: 992px) {
-            .navbar-nav {
-                background: var(--card-bg);
-                padding: 1rem;
-                border-radius: 10px;
-                margin-top: 1rem;
-            }
-
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-
-            .hero-content p {
-                font-size: 1rem;
-            }
-
-            .card {
-                margin-bottom: 1.5rem;
-            }
-        }
-    </style>
+        <!-- Cart Summary -->
+        <div class="cart-summary mt-4 text-end">
+            <h4 class="fw-bold" style="font-size: 20px; color: var(--text);">Grand Total: <span class="text-success">$<%= String.format("%.2f", grandTotal) %></span></h4>
+            <div class="actions mt-3">
+                <a href="checkout.jsp" class="btn btn-lg btn-primary" <%= grandTotal == 0.0 ? "disabled" : "" %> data-bs-toggle="tooltip" title="Proceed to Payment">
+                    <i class="fas fa-credit-card"></i> Proceed to Checkout
+                </a>
+            </div>
+        </div>
+    </div>
 </head>
-<body>
-<!-- Navigation -->
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Melody Mart</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#shop">Shop</a></li>
-                <li class="nav-item"><a class="nav-link" href="#categories">Categories</a></li>
-                <li class="nav-item"><a class="nav-link" href="#brands">Brands</a></li>
-                <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-            </ul>
-            <form class="d-flex search-bar">
-                <input class="form-control me-2" type="search" placeholder="Search instruments..." aria-label="Search">
-                <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
-            </form>
-            <div class="d-flex ms-3">
-                <a href="sign-in.jsp" class="btn btn-outline-secondary me-2">Sign In</a>
-                <a href="sign-up.jsp" class="btn btn-primary">Sign Up</a>
-            </div>
-        </div>
-    </div>
-</nav>
 
-<!-- Hero Section -->
-<section id="home" class="hero">
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-        <h1>Elevate Your Sound Experience</h1>
-        <p>Discover the world's finest musical instruments crafted for professionals and enthusiasts alike.</p>
-        <a href="#shop" class="btn btn-primary btn-lg">Explore Collection</a>
-        <a href="#about" class="btn btn-outline-secondary btn-lg ms-3">Learn More</a>
-    </div>
-</section>
-
-<!-- Featured Categories -->
-<section id="categories" class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-4" style="font-family: 'Playfair Display', serif; font-size: 2rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Featured Categories</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x200?text=Guitars" class="card-img-top" alt="Guitars">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Premium Guitars</h5>
-                        <p class="card-text">From classics to modern electrics.</p>
-                        <a href="#shop" class="btn btn-outline-secondary">View Guitars</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x200?text=Drums" class="card-img-top" alt="Drums">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Drums & Percussion</h5>
-                        <p class="card-text">Perfect for studio and stage.</p>
-                        <a href="#shop" class="btn btn-outline-secondary">Explore Drums</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x200?text=Pianos" class="card-img-top" alt="Pianos">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Pianos & Keyboards</h5>
-                        <p class="card-text">Inspire your creativity.</p>
-                        <a href="#shop" class="btn btn-outline-secondary">View Pianos</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Why Choose Melody Mart -->
-<section id="about" class="py-5 bg-dark">
-    <div class="container">
-        <h2 class="text-center mb-4" style="font-family: 'Playfair Display', serif; font-size: 2rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Why Choose Melody Mart</h2>
-        <div class="accordion" id="whyChooseAccordion">
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Premium Quality
-                    </button>
-                </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#whyChooseAccordion">
-                    <div class="accordion-body">Hand-selected instruments from top brands for exceptional performance.</div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        Expert Support
-                    </button>
-                </h2>
-                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#whyChooseAccordion">
-                    <div class="accordion-body">Dedicated team for personalized advice and after-sales service.</div>
-                </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        Fast Shipping
-                    </button>
-                </h2>
-                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#whyChooseAccordion">
-                    <div class="accordion-body">Worldwide delivery with secure packaging for your instruments.</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Featured Instruments -->
-<section id="shop" class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-4" style="font-family: 'Playfair Display', serif; font-size: 2rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Featured Instruments</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x200?text=Electric+Guitar" class="card-img-top" alt="Electric Guitar">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Professional Electric Guitar</h5>
-                        <p class="card-text">$1,299.99</p>
-                        <p class="card-text">Premium crafted guitar with exceptional tone.</p>
-                        <button class="btn btn-primary" onclick="addToCart(1)">Add to Cart</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x200?text=Drum+Set" class="card-img-top" alt="Drum Set">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Premium Drum Set</h5>
-                        <p class="card-text">$2,499.99</p>
-                        <p class="card-text">7-piece kit for studio and stage.</p>
-                        <button class="btn btn-primary" onclick="addToCart(2)">Add to Cart</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x200?text=Digital+Piano" class="card-img-top" alt="Digital Piano">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Digital Grand Piano</h5>
-                        <p class="card-text">$3,799.99</p>
-                        <p class="card-text">Concert-grade with weighted keys.</p>
-                        <button class="btn btn-primary" onclick="addToCart(3)">Add to Cart</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials -->
-<section id="testimonials" class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-4" style="font-family: 'Playfair Display', serif; font-size: 2rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">What Our Customers Say</h2>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="testimonial">
-                    <p>"The quality of instruments at Melody Mart is unmatched. My new guitar sounds incredible."</p>
-                    <p class="fw-bold">Alex Johnson</p>
-                    <p class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="testimonial">
-                    <p>"Excellent customer service and a fantastic selection. The piano exceeded my expectations."</p>
-                    <p class="fw-bold">Sarah Lee</p>
-                    <p class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="testimonial">
-                    <p>"Fast shipping and great prices. My go-to for all drumming needs."</p>
-                    <p class="fw-bold">Mike Rodriguez</p>
-                    <p class="rating"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Newsletter -->
-<section id="newsletter" class="py-5 bg-dark">
-    <div class="container text-center">
-        <h2 class="mb-4" style="font-family: 'Playfair Display', serif; font-size: 2rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Stay in Tune with Melody Mart</h2>
-        <p class="mb-3">Subscribe to our newsletter for exclusive offers, new arrivals, and expert tips.</p>
-        <form class="d-flex justify-content-center">
-            <input type="email" class="form-control me-2" placeholder="Enter your email" required>
-            <button type="submit" class="btn btn-primary">Subscribe</button>
-        </form>
-    </div>
-</section>
-
-<!-- Contact -->
-<section id="contact" class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-4" style="font-family: 'Playfair Display', serif; font-size: 2rem; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Get in Touch</h2>
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="contact-form">
-                    <form>
-                        <div class="mb-3">
-                            <input type="text" class="form-control" placeholder="Name" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="email" class="form-control" placeholder="Email" required>
-                        </div>
-                        <div class="mb-3">
-                            <textarea class="form-control" rows="3" placeholder="Message" required></textarea>
-                        </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="terms" required>
-                            <label class="form-check-label" for="terms">I have read the terms and conditions *</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Contact Us</button>
-                    </form>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="accordion" id="contactAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#contactOne" aria-expanded="true" aria-controls="contactOne">
-                                Netherlands
-                            </button>
-                        </h2>
-                        <div id="contactOne" class="accordion-collapse collapse show" data-bs-parent="#contactAccordion">
-                            <div class="accordion-body">HQ Beta, High Tech Campus 9, 5656 AE, Eindhoven</div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contactTwo" aria-expanded="false" aria-controls="contactTwo">
-                                UAE
-                            </button>
-                        </h2>
-                        <div id="contactTwo" class="accordion-collapse collapse" data-bs-parent="#contactAccordion">
-                            <div class="accordion-body">1008, Iris Bay Tower, Business Bay, 41018, Dubai, UAE</div>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#contactThree" aria-expanded="false" aria-controls="contactThree">
-                                USA
-                            </button>
-                        </h2>
-                        <div id="contactThree" class="accordion-collapse collapse" data-bs-parent="#contactAccordion">
-                            <div class="accordion-body">Coming Soon</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <h5>Melody Mart</h5>
-                <p>Your premier destination for high-quality musical instruments.</p>
-                <div class="social-icons">
-                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <h5>Shop</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#shop">Guitars</a></li>
-                    <li><a href="#shop">Drums & Percussion</a></li>
-                    <li><a href="#shop">Pianos & Keyboards</a></li>
-                    <li><a href="#shop">Recording Equipment</a></li>
-                    <li><a href="#shop">Accessories</a></li>
-                </ul>
-            </div>
-            <div class="col-md-4">
-                <h5>Company</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#about">About Us</a></li>
-                    <li><a href="#contact">Contact Us</a></li>
-                    <li><a href="#">Careers</a></li>
-                    <li><a href="#">Shipping & Returns</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                </ul>
-            </div>
-        </div>
-        <hr class="bg-light">
-        <p class="text-center mt-3">© 2025 Melody Mart. All rights reserved.</p>
-    </div>
-</footer>
-
-<!-- Modal for Add to Cart -->
-<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content bg-dark text-light">
-            <div class="modal-header">
-                <h5 class="modal-title" id="cartModalLabel">Added to Cart</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p id="modalMessage">Item has been added to your cart!</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continue Shopping</button>
-                <a href="cart.jsp" class="btn btn-primary">View Cart</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.querySelectorAll('.nav-link').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+    // Enable Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
+
+        // Check for URL parameters for feedback
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        const message = urlParams.get('message');
+        if (status === 'success') {
+            showNotification('successNotification', message || 'Cart updated successfully!');
+        } else if (status === 'error') {
+            showNotification('errorNotification', message || 'Error updating cart. Please try again.');
+        }
     });
 
-    function addToCart(instrumentId) {
-        // Simulate adding to cart (replace with actual API call)
-        fetch(`AddToCartServlet?id=${instrumentId}`, { method: 'POST' })
+    function updateQuantity(cartId, change) {
+        const quantityInput = document.getElementById(`quantity_${cartId}`);
+        let qty = parseInt(quantityInput.value);
+        qty = Math.max(1, qty + change); // Ensure quantity doesn't go below 1
+        quantityInput.value = qty;
+        submitForm(`updateForm_${cartId}`, cartId, 'update');
+    }
+
+    function submitForm(formId, cartId, action) {
+        const form = document.getElementById(formId);
+        const button = document.getElementById(`${action}Btn_${cartId}`);
+        const originalText = button.innerHTML;
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        button.disabled = true;
+
+        fetch(form.action, {
+            method: form.method,
+            body: new FormData(form)
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    const modal = new bootstrap.Modal(document.getElementById('cartModal'));
-                    document.getElementById('modalMessage').textContent = data.message;
-                    modal.show();
+                    showNotification('successNotification', data.message);
+                    if (action === 'update') {
+                        location.reload(); // Reload to reflect updated total
+                    } else if (action === 'remove') {
+                        document.querySelector(`#${formId}`).closest('tr').remove();
+                        updateGrandTotal(data.grandTotal);
+                    }
                 } else {
-                    alert(data.message);
+                    showNotification('errorNotification', data.message);
                 }
             })
-            .catch(error => alert('Error: ' + error.message));
+            .catch(error => {
+                showNotification('errorNotification', `Error: ${error.message}`);
+            })
+            .finally(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+    }
+
+    function showNotification(notificationId, message) {
+        const notification = document.getElementById(notificationId);
+        notification.textContent = message;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    function updateGrandTotal(newTotal) {
+        const grandTotalElement = document.querySelector('.cart-summary .text-success');
+        grandTotalElement.textContent = `$${parseFloat(newTotal).toFixed(2)}`;
+        if (newTotal === 0.0) {
+            document.querySelector('.btn-primary').disabled = true;
+        }
     }
 </script>
-</body>
-</html>

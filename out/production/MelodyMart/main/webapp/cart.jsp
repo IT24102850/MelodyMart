@@ -176,7 +176,7 @@
     }
 </style>
 
-<section id="cart" class="dashboard-section container mt-4">
+<head>
     <div class="content-card shadow p-4 rounded">
         <div class="card-header d-flex justify-content-between align-items-center mb-3">
             <h2 class="card-title mb-0" style="font-family: 'Playfair Display', serif; font-size: 24px; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
@@ -291,7 +291,7 @@
             </div>
         </div>
     </div>
-</section>
+</head>
 
 <script>
     // Enable Bootstrap tooltips
