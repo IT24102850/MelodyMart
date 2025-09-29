@@ -31,7 +31,7 @@ public class UpdateRepairRequestServlet extends HttpServlet {
 
         if (repairRequestId == null || issueDescription == null || repairDate == null) {
             request.getSession().setAttribute("errorMessage", "Missing required fields.");
-            response.sendRedirect("dashboard.jsp");
+            response.sendRedirect("repair.jsp");
             return;
         }
 
@@ -100,7 +100,7 @@ public class UpdateRepairRequestServlet extends HttpServlet {
             if (conn != null) try { conn.close(); } catch (SQLException ignored) {}
         }
 
-        response.sendRedirect("dashboard.jsp?refresh=true");
+        response.sendRedirect("repair.jsp?refresh=true");
     }
 
     private String getFileName(Part part) {
