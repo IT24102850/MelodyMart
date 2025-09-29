@@ -932,29 +932,268 @@
             </div>
         </section>
 
-        <!-- Stock Management Tools -->
+
+
+
+
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+        <!-- ⭐ Improved Stock Management Tools -->
         <section id="stock-management" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-boxes"></i> Stock Management Tools</h3>
+            <div class="card-header flex items-center justify-between">
+                <h3 class="flex items-center gap-2 text-lg font-semibold">
+                    <i class="fas fa-boxes"></i> Stock Management Tools
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="refreshStockStatus()">
+                    <i class="fas fa-sync-alt"></i> Refresh Status
+                </button>
             </div>
+
             <div class="card-body">
-                <p>Interfaces to view and manually update stock levels, coordinate availability, and handle overselling alerts.</p>
-                <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p class="text-muted mb-3">
+                    Quickly update instrument stock levels, track availability, and get real-time alerts for low or oversold items.
+                </p>
+
+                <!-- Update Stock Form -->
+                <form id="stockUpdateForm" method="post" action="${pageContext.request.contextPath}/UpdateStockServlet"
+                      class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+
+                    <!-- Instrument ID -->
                     <div class="form-group">
-                        <label for="instrumentId" class="form-label">Instrument ID</label>
-                        <input type="text" class="form-control" id="instrumentId" placeholder="Enter ID">
+                        <label for="instrumentId" class="form-label font-weight-bold">Instrument ID</label>
+                        <input type="text" class="form-control" id="instrumentId" name="instrumentId" placeholder="Enter ID" required>
                     </div>
+
+                    <!-- Quantity -->
                     <div class="form-group">
-                        <label for="stockQuantity" class="form-label">Update Stock Quantity</label>
-                        <input type="number" class="form-control" id="stockQuantity" placeholder="New Quantity">
+                        <label for="stockQuantity" class="form-label font-weight-bold">New Quantity</label>
+                        <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" placeholder="e.g. 20" min="0" required>
                     </div>
-                    <button type="submit" class="btn btn-primary hover-lift"><i class="fas fa-sync"></i> Update Stock</button>
+
+                    <!-- Submit -->
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary hover-lift w-full">
+                            <i class="fas fa-save"></i> Update Stock
+                        </button>
+                    </div>
                 </form>
-                <div class="alert alert-warning mt-4">
-                    <i class="fas fa-exclamation-triangle"></i> Alert: Item ID 123 is low on stock!
+
+                <!-- 🔔 Stock Alerts (Dynamic from DB) -->
+                <div id="stockAlerts" class="mt-5">
+                    <h5 class="mb-2"><i class="fas fa-bell text-warning"></i> Stock Alerts</h5>
+                    <ul class="list-group">
+                        <%
+                            Connection conn = null;
+                            PreparedStatement ps = null;
+                            ResultSet rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT InstrumentID, Name, StockLevel FROM Instrument WHERE StockLevel IN ('Low Stock', 'Out of Stock')";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+                                while (rs.next()) {
+                                    String level = rs.getString("StockLevel");
+                                    String icon = "Low Stock".equalsIgnoreCase(level)
+                                            ? "<i class='fas fa-exclamation-triangle text-warning'></i>"
+                                            : "<i class='fas fa-times-circle text-danger'></i>";
+                        %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><%= icon %> Item ID <%= rs.getInt("InstrumentID") %> (<%= rs.getString("Name") %>) is <b><%= level %></b></span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="quickRestock(<%= rs.getInt("InstrumentID") %>)">Restock</button>
+                        </li>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<li class='list-group-item text-danger'>Error: " + e.getMessage() + "</li>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                    </ul>
                 </div>
             </div>
+
+            <%@ page import="java.sql.Connection" %>
+            <%@ page import="java.sql.PreparedStatement" %>
+            <%@ page import="java.sql.ResultSet" %>
+            <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+            <!-- 📊 Stock Reports / Audit Section -->
+            <section id="stock-reports" class="section-card mt-4">
+                <div class="card-header flex items-center justify-between">
+                    <h3 class="flex items-center gap-2 text-lg font-semibold">
+                        <i class="fas fa-chart-line"></i> Stock Reports & Audits
+                    </h3>
+                    <div class="d-flex gap-2">
+                        <!-- Export Report -->
+                        <form method="post" action="${pageContext.request.contextPath}/ExportStockReportServlet" style="display:inline;">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-file-download"></i> Export Report (CSV)
+                            </button>
+                        </form>
+
+                        <!-- Remove Instrument (Global) -->
+                        <form action="${pageContext.request.contextPath}/RemoveInstrumentServlet"
+                              method="post" class="d-flex align-items-center"
+                              onsubmit="return confirm('Are you sure you want to remove this instrument from sale?');">
+                            <input type="text" name="instrumentId" class="form-control form-control-sm mr-2"
+                                   placeholder="Instrument ID" required>
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-ban"></i> Remove from Sale
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <p class="text-muted mb-3">Review stock health across all instruments. Export full reports or remove discontinued/policy-restricted items from sale.</p>
+
+                    <!-- Optional summary cards or stock audit table could go here -->
+                </div>
+            </section>
+
+            <div class="card-body">
+                    <p class="text-muted mb-3">Review stock health across all instruments for audits and decision-making.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <%
+                             conn = null;
+                            ps = null;
+                           rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+
+                                // Total Instruments
+                                ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument");
+                                rs = ps.executeQuery();
+                                rs.next();
+                                int totalInstruments = rs.getInt(1);
+                                rs.close(); ps.close();
+
+                                // In Stock
+                                ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='In Stock'");
+                                rs = ps.executeQuery();
+                                rs.next();
+                                int inStock = rs.getInt(1);
+                                rs.close(); ps.close();
+
+                                // Low Stock
+                                ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='Low Stock'");
+                                rs = ps.executeQuery();
+                                rs.next();
+                                int lowStock = rs.getInt(1);
+                                rs.close(); ps.close();
+
+                                // Out of Stock
+                                ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='Out of Stock'");
+                                rs = ps.executeQuery();
+                                rs.next();
+                                int outOfStock = rs.getInt(1);
+                                rs.close(); ps.close();
+                        %>
+
+                        <!-- KPI Cards -->
+                        <div class="stat-card bg-light shadow-sm p-3 rounded">
+                            <h4>Total Instruments</h4>
+                            <p class="font-weight-bold text-primary"><%= totalInstruments %></p>
+                        </div>
+
+                        <div class="stat-card bg-light shadow-sm p-3 rounded">
+                            <h4>In Stock</h4>
+                            <p class="font-weight-bold text-success"><%= inStock %></p>
+                        </div>
+
+                        <div class="stat-card bg-light shadow-sm p-3 rounded">
+                            <h4>Low Stock</h4>
+                            <p class="font-weight-bold text-warning"><%= lowStock %></p>
+                        </div>
+
+                        <div class="stat-card bg-light shadow-sm p-3 rounded">
+                            <h4>Out of Stock</h4>
+                            <p class="font-weight-bold text-danger"><%= outOfStock %></p>
+                        </div>
+
+                        <%
+                            } catch (Exception e) {
+                                out.println("<p class='text-danger'>Error loading report: " + e.getMessage() + "</p>");
+                            } finally {
+                                try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+                                try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+                                try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 🛠 Stock Override / Correction -->
+            <section id="stock-override" class="section-card mt-4">
+                <div class="card-header">
+                    <h3><i class="fas fa-edit"></i> Stock Corrections / Disputes</h3>
+                </div>
+
+                <div class="card-body">
+                    <p class="text-muted mb-3">
+                        Use this tool to override stock levels for audit corrections or dispute resolutions.
+                    </p>
+
+                    <form method="post" action="${pageContext.request.contextPath}/StockCorrectionServlet" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+
+                        <!-- Instrument ID -->
+                        <div class="form-group">
+                            <label for="correctionInstrumentId" class="form-label">Instrument ID</label>
+                            <input type="text" class="form-control" id="correctionInstrumentId" name="instrumentId" placeholder="Enter ID" required>
+                        </div>
+
+                        <!-- Corrected Quantity -->
+                        <div class="form-group">
+                            <label for="correctedQuantity" class="form-label">Corrected Quantity</label>
+                            <input type="number" class="form-control" id="correctedQuantity" name="correctedQuantity" min="0" required>
+                        </div>
+
+                        <!-- Reason -->
+                        <div class="form-group">
+                            <label for="correctionReason" class="form-label">Reason</label>
+                            <input type="text" class="form-control" id="correctionReason" name="reason" placeholder="e.g., Damaged item removed, Audit correction" required>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-warning hover-lift w-full">
+                                <i class="fas fa-save"></i> Apply Correction
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+
+
+
         </section>
+
+        <script>
+            // Simulate stock refresh
+            function refreshStockStatus() {
+                location.reload(); // simple page reload to update alerts
+            }
+
+            // Quick restock helper
+            function quickRestock(id) {
+                document.getElementById("instrumentId").value = id;
+                document.getElementById("stockQuantity").focus();
+            }
+        </script>
+
+
+
 
         <!-- Item Review Queue -->
         <section id="item-review" class="section-card">
