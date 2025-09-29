@@ -977,7 +977,7 @@
         <%@ page import="java.sql.ResultSet" %>
         <%@ page import="com.melodymart.util.DatabaseUtil" %>
 
-        
+
 
         <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
