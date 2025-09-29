@@ -4,120 +4,208 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Melody Mart | Premium Musical Instruments</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --dark-bg: #0d0d0d;
-            --dark-card: #1a1a1a;
-            --dark-accent: #2a2a2a;
-            --black-accent: #333333;
-            --golden-yellow: #ffd700;
-            --vibrant-orange: #ff6b35;
-            --white: #ffffff;
-            --light-gray: #e0e0e0;
+            --primary: #8a2be2;
+            --primary-light: #9b45f0;
+            --secondary: #0a0a0a;
+            --accent: #00e5ff;
+            --accent-alt: #ff00c8;
+            --text: #ffffff;
+            --text-secondary: #b3b3b3;
+            --card-bg: #1a1a1a;
+            --card-hover: #2a2a2a;
+            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
+            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
+            --glass-bg: rgba(30, 30, 30, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Montserrat', sans-serif;
         }
 
         body {
-            background: linear-gradient(135deg, var(--dark-accent) 0%, var(--dark-bg) 100%);
-            color: var(--white);
+            background-color: var(--secondary);
+            color: var(--text);
             overflow-x: hidden;
-            min-height: 100vh;
+            line-height: 1.6;
         }
 
-        nav {
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
             position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
+            z-index: 1000;
+            padding: 20px 0;
+            transition: all 0.4s ease;
+        }
+
+        header.scrolled {
+            background: rgba(10, 10, 10, 0.95);
+            padding: 15px 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1.5rem 5%;
-            background: rgba(13, 13, 13, 0.9);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--white);
         }
 
         .logo i {
-            color: var(--golden-yellow);
-            margin-right: 0.5rem;
-            font-size: 2rem;
+            margin-right: 10px;
+            font-size: 32px;
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin: 0 15px;
         }
 
         .nav-links a {
-            color: var(--light-gray);
+            color: var(--text);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient);
+            transition: width 0.3s ease;
         }
 
         .nav-links a:hover {
-            color: var(--golden-yellow);
+            color: var(--primary-light);
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
         }
 
         .nav-actions {
             display: flex;
-            gap: 1.5rem;
             align-items: center;
         }
 
-        .nav-actions i {
-            font-size: 1.5rem;
-            color: var(--light-gray);
+        .search-btn, .cart-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 18px;
+            margin-left: 20px;
             cursor: pointer;
-            transition: color 0.3s ease, transform 0.3s ease;
+            transition: color 0.3s ease;
         }
 
-        .nav-actions i:hover {
-            color: var(--golden-yellow);
-            transform: scale(1.2);
+        .search-btn:hover, .cart-btn:hover {
+            color: var(--primary-light);
         }
 
+        .cta-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 20px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cta-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: var(--gradient-alt);
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
+        }
+
+        .cta-btn:hover:before {
+            width: 100%;
+        }
+
+        /* Page Header */
         .page-header {
-            margin-top: 100px;
+            margin-top: 120px;
             padding: 3rem 5%;
             text-align: center;
         }
 
         .page-title {
+            font-family: 'Playfair Display', serif;
             font-size: 3.5rem;
             margin-bottom: 1rem;
-            background: linear-gradient(90deg, var(--black-accent), var(--vibrant-orange));
+            background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .page-subtitle {
             font-size: 1.2rem;
-            color: var(--light-gray);
+            color: var(--text-secondary);
             max-width: 700px;
             margin: 0 auto 2rem;
         }
 
+        /* Filters Section */
         .filters-section {
             padding: 1rem 5%;
-            background: var(--dark-card);
-            margin-bottom: 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            margin: 2rem 5%;
         }
 
         .filters-container {
@@ -131,24 +219,30 @@
         .search-bar {
             display: flex;
             align-items: center;
-            background: var(--dark-accent);
+            background: var(--card-bg);
             border-radius: 50px;
             padding: 0.5rem 1rem;
             width: 300px;
+            border: 1px solid var(--glass-border);
         }
 
         .search-bar input {
             background: transparent;
             border: none;
-            color: var(--white);
+            color: var(--text);
             padding: 0.5rem;
             width: 100%;
             outline: none;
         }
 
         .search-bar i {
-            color: var(--light-gray);
+            color: var(--text-secondary);
             cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .search-bar i:hover {
+            color: var(--primary-light);
         }
 
         .filter-options {
@@ -162,21 +256,24 @@
         }
 
         .filter-btn {
-            background: var(--dark-accent);
-            color: var(--white);
-            border: none;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
             padding: 0.7rem 1.5rem;
             border-radius: 50px;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            transition: all 0.3s ease;
         }
 
         .filter-btn:hover {
-            background: var(--black-accent);
+            background: var(--card-hover);
+            border-color: var(--primary-light);
         }
 
+        /* Instruments Grid */
         .instruments-grid {
             padding: 0 5% 5rem;
             display: grid;
@@ -185,16 +282,25 @@
         }
 
         .instrument-card {
-            background: var(--dark-card);
+            background: var(--card-bg);
             border-radius: 15px;
             overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.5s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateY(50px);
+            border: 1px solid var(--glass-border);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .instrument-card.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .instrument-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 15px 30px rgba(138, 43, 226, 0.2);
         }
 
         .instrument-image {
@@ -221,8 +327,8 @@
             position: absolute;
             top: 1rem;
             right: 1rem;
-            background: var(--vibrant-orange);
-            color: var(--white);
+            background: var(--gradient);
+            color: var(--text);
             padding: 0.3rem 0.8rem;
             border-radius: 50px;
             font-size: 0.8rem;
@@ -236,11 +342,11 @@
         .instrument-info h3 {
             font-size: 1.5rem;
             margin-bottom: 0.5rem;
-            color: var(--white);
+            color: var(--text);
         }
 
         .instrument-info p {
-            color: var(--light-gray);
+            color: var(--text-secondary);
             margin-bottom: 1rem;
             font-size: 0.9rem;
             line-height: 1.5;
@@ -249,7 +355,9 @@
         .instrument-price {
             font-size: 1.8rem;
             font-weight: 700;
-            color: var(--golden-yellow);
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 1rem;
         }
 
@@ -261,7 +369,7 @@
         }
 
         .instrument-rating i {
-            color: var(--golden-yellow);
+            color: var(--accent);
             font-size: 0.9rem;
         }
 
@@ -271,27 +379,45 @@
         }
 
         .add-to-cart {
-            background: var(--black-accent);
-            color: var(--white);
+            background: var(--gradient);
+            color: var(--text);
             border: none;
             padding: 0.8rem 1.5rem;
             border-radius: 50px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s ease, transform 0.3s ease;
+            transition: all 0.3s ease;
             flex: 1;
             margin-right: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .add-to-cart:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: var(--gradient-alt);
+            transition: all 0.4s ease;
+            z-index: -1;
         }
 
         .add-to-cart:hover {
-            background: #444444;
             transform: scale(1.05);
+        }
+
+        .add-to-cart:hover:before {
+            width: 100%;
         }
 
         .details-btn {
             background: transparent;
-            color: var(--light-gray);
-            border: 1px solid var(--light-gray);
+            color: var(--text-secondary);
+            border: 1px solid var(--glass-border);
             padding: 0.8rem 1.5rem;
             border-radius: 50px;
             font-weight: 600;
@@ -302,8 +428,9 @@
         }
 
         .details-btn:hover {
-            background: var(--light-gray);
-            color: var(--dark-bg);
+            background: var(--primary-light);
+            color: var(--text);
+            border-color: var(--primary-light);
             transform: scale(1.05);
         }
 
@@ -316,9 +443,9 @@
         }
 
         .pagination-btn {
-            background: var(--dark-card);
-            color: var(--white);
-            border: none;
+            background: var(--card-bg);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -330,77 +457,97 @@
         }
 
         .pagination-btn:hover, .pagination-btn.active {
-            background: var(--vibrant-orange);
+            background: var(--gradient);
             transform: scale(1.1);
+            border-color: transparent;
         }
 
+        /* Footer */
         footer {
-            background: var(--dark-bg);
-            padding: 3rem 5%;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: #0a0a0a;
+            padding: 80px 0 30px;
+            border-top: 1px solid var(--glass-border);
         }
 
         .footer-content {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
+            gap: 40px;
+            margin-bottom: 50px;
         }
 
         .footer-column h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--white);
+            font-size: 18px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
         }
 
-        .footer-column ul {
+        .footer-column h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--gradient);
+        }
+
+        .footer-column p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
             list-style: none;
         }
 
-        .footer-column ul li {
-            margin-bottom: 0.8rem;
+        .footer-links li {
+            margin-bottom: 12px;
         }
 
-        .footer-column ul li a {
-            color: var(--light-gray);
+        .footer-links a {
+            color: var(--text-secondary);
             text-decoration: none;
             transition: color 0.3s ease;
         }
 
-        .footer-column ul li a:hover {
-            color: var(--golden-yellow);
+        .footer-links a:hover {
+            color: var(--primary-light);
         }
 
-        .social-icons {
+        .social-links {
             display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
+            gap: 15px;
+            margin-top: 20px;
         }
 
-        .social-icons a {
+        .social-links a {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--dark-card);
-            color: var(--white);
-            transition: all 0.3s ease, transform 0.3s ease;
+            background: var(--card-bg);
+            color: var(--text);
+            transition: all 0.3s ease;
         }
 
-        .social-icons a:hover {
-            background: var(--golden-yellow);
-            transform: translateY(-5px);
+        .social-links a:hover {
+            background: var(--gradient);
+            transform: translateY(-3px);
         }
 
         .copyright {
             text-align: center;
-            margin-top: 3rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--light-gray);
+            padding-top: 30px;
+            border-top: 1px solid #1e1e1e;
+            color: var(--text-secondary);
+            font-size: 14px;
         }
 
+        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -410,6 +557,7 @@
             animation: fadeIn 0.5s ease-out;
         }
 
+        /* Responsive Design */
         @media (max-width: 1200px) {
             .instruments-grid {
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -475,25 +623,30 @@
     </style>
 </head>
 <body>
-<nav>
-    <div class="logo">
-        <i class="fas fa-music"></i>
-        <span>Melody Mart</span>
+<!-- Header & Navigation -->
+<header>
+    <div class="container nav-container">
+        <div class="logo">
+            <i class="fas fa-music"></i>
+            Melody Mart
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="index.jsp">Home</a></li>
+            <li><a href="instruments.jsp" class="active">Instruments</a></li>
+            <li><a href="categories.jsp">Categories</a></li>
+            <li><a href="brands.jsp">Brands</a></li>
+            <li><a href="deals.jsp">Deals</a></li>
+            <li><a href="contact.jsp">Contact</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+            <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
+            <button class="cta-btn" onclick="window.location.href='instruments.jsp'">Shop Now</button>
+        </div>
     </div>
-    <div class="nav-links">
-        <a href="${pageContext.request.contextPath}/">Home</a>
-        <a href="${pageContext.request.contextPath}/instruments.jsp" class="active">Instruments</a>
-        <a href="${pageContext.request.contextPath}/brands.jsp">Brands</a>
-        <a href="${pageContext.request.contextPath}/deals.jsp">Deals</a>
-        <a href="${pageContext.request.contextPath}/studio">Studio</a>
-        <a href="${pageContext.request.contextPath}/contact">Contact</a>
-    </div>
-    <div class="nav-actions">
-        <i class="fas fa-search"></i>
-        <i class="fas fa-shopping-cart"></i>
-        <i class="fas fa-user"></i>
-    </div>
-</nav>
+</header>
 
 <section class="page-header">
     <h1 class="page-title">Premium Musical Instruments</h1>
@@ -747,58 +900,68 @@
 </div>
 
 <footer>
-    <div class="footer-content">
-        <div class="footer-column">
-            <h3>Harmony Instruments</h3>
-            <p>Your premier destination for quality musical instruments since 1995.</p>
-            <div class="social-icons">
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Melody Mart</h3>
+                <p>Your premier destination for high-quality musical instruments and professional audio equipment.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-column">
+                <h3>Shop</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Guitars</a></li>
+                    <li><a href="#">Keyboards</a></li>
+                    <li><a href="#">Drums</a></li>
+                    <li><a href="#">Brass Instruments</a></li>
+                    <li><a href="#">Woodwinds</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Support</h3>
+                <ul class="footer-links">
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Shipping & Returns</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Warranty</a></li>
+                    <li><a href="#">Repair Services</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Newsletter</h3>
+                <p>Subscribe to get updates on new products, special offers, and exclusive deals.</p>
+                <form>
+                    <input type="email" placeholder="Your email address" style="width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--glass-border); background: var(--card-bg); color: var(--text);">
+                    <button class="cta-btn" style="width: 100%;">Subscribe</button>
+                </form>
             </div>
         </div>
 
-        <div class="footer-column">
-            <h3>Shop</h3>
-            <ul>
-                <li><a href="#">Guitars</a></li>
-                <li><a href="#">Keyboards</a></li>
-                <li><a href="#">Drums</a></li>
-                <li><a href="#">Brass Instruments</a></li>
-                <li><a href="#">Woodwinds</a></li>
-            </ul>
+        <div class="copyright">
+            <p>&copy; 2023 Melody Mart. All rights reserved.</p>
         </div>
-
-        <div class="footer-column">
-            <h3>Support</h3>
-            <ul>
-                <li><a href="#">Contact Us</a></li>
-                <li><a href="#">Shipping & Returns</a></li>
-                <li><a href="#">FAQ</a></li>
-                <li><a href="#">Warranty</a></li>
-                <li><a href="#">Repair Services</a></li>
-            </ul>
-        </div>
-
-        <div class="footer-column">
-            <h3>Newsletter</h3>
-            <p>Subscribe to get special offers, free giveaways, and new product notifications.</p>
-            <form>
-                <div class="search-bar">
-                    <input type="email" placeholder="Your email address">
-                    <i class="fas fa-paper-plane"></i>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div class="copyright">
-        <p>&copy; 2023 Harmony Instruments. All rights reserved.</p>
     </div>
 </footer>
 
 <script>
+    // Header scroll effect
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+
     // Search functionality
     document.getElementById('searchInput').addEventListener('input', function() {
         const searchTerm = this.value.toLowerCase();
@@ -834,6 +997,19 @@
                 this.innerHTML = 'Add to Cart';
             }, 2000);
         });
+    });
+
+    // Intersection Observer for animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.instrument-card').forEach((el) => {
+        observer.observe(el);
     });
 </script>
 </body>
