@@ -17,40 +17,34 @@ public class AddDeliveryServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String orderIdStr = request.getParameter("orderId");
+        String orderId = request.getParameter("orderId");
         String status = request.getParameter("status");
-        String notes = request.getParameter("notes");
+        String trackingNumber = request.getParameter("trackingNumber");
+        String currentLocation = request.getParameter("currentLocation");
+        String estimatedDeliveryDate = request.getParameter("estimatedDeliveryDate");
+        String estimatedCost = request.getParameter("estimatedCost");
+        String deliveryCase = request.getParameter("deliveryCase");
 
-        Connection conn = null;
-        PreparedStatement ps = null;
+        try (Connection conn = DatabaseUtil.getConnection()) {
+            String sql = "INSERT INTO Delivery (OrderID, DeliveryStatus, TrackingNumber, " +
+                    "CurrentLocation, EstimatedDeliveryDate, EstimatedCost, DeliveryCase, DeliveryDate) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())";
 
-        try {
-            int orderId = Integer.parseInt(orderIdStr);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, Integer.parseInt(orderId));
+                ps.setString(2, status);
+                ps.setString(3, trackingNumber);
+                ps.setString(4, currentLocation);
+                ps.setString(5, estimatedDeliveryDate != null && !estimatedDeliveryDate.isEmpty() ? estimatedDeliveryDate : null);
+                ps.setBigDecimal(6, estimatedCost != null && !estimatedCost.isEmpty() ? new java.math.BigDecimal(estimatedCost) : null);
+                ps.setString(7, deliveryCase);
 
-            conn = DatabaseUtil.getConnection();
-            String sql = "INSERT INTO DeliveryStatuses (order_id, status, update_date, notes) " +
-                    "VALUES (?, ?, GETDATE(), ?)";
-
-            ps = conn.prepareStatement(sql);
-            ps.setInt(1, orderId);
-            ps.setString(2, status);
-            ps.setString(3, notes);
-
-            int rows = ps.executeUpdate();
-
-            if (rows > 0) {
-                response.sendRedirect("sellerdashboard.jsp?success=DeliveryAdded");
-            } else {
-                response.sendRedirect("sellerdashboard.jsp?error=DeliveryInsertFailed");
+                ps.executeUpdate();
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
-            response.sendRedirect("sellerdashboard.jsp?error=DeliveryInsertFailed&msg=" + e.getMessage());
-        } finally {
-            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
-            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+            throw new ServletException("Error adding delivery", e);
         }
+
+        response.sendRedirect("sellerdashboard.jsp#deliveries");
     }
 }

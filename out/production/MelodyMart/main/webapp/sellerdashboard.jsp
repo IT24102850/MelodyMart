@@ -1346,6 +1346,8 @@
 
 
 
+
+
         <%@ page import="java.sql.Connection" %>
         <%@ page import="java.sql.PreparedStatement" %>
         <%@ page import="java.sql.ResultSet" %>
@@ -1367,41 +1369,51 @@
                     <table class="data-table">
                         <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Delivery ID</th>
                             <th>Order ID</th>
                             <th>Status</th>
-                            <th>Update Date</th>
-                            <th>Notes</th>
+                            <th>Tracking Number</th>
+                            <th>Current Location</th>
+                            <th>Estimated Date</th>
+                            <th>Actual Date</th>
+                            <th>Cost</th>
+                            <th>Case</th>
                             <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
                         <%
-                             conn = null;
+                            conn = null;
                              ps = null;
-                             rs = null;
+                            rs = null;
                             try {
                                 conn = DatabaseUtil.getConnection();
-                                String sql = "SELECT id, order_id, status, update_date, notes FROM DeliveryStatuses ORDER BY update_date DESC";
+                                String sql = "SELECT DeliveryID, OrderID, DeliveryStatus, TrackingNumber, CurrentLocation, " +
+                                        "EstimatedDeliveryDate, ActualDeliveryDate, EstimatedCost, DeliveryCase " +
+                                        "FROM Delivery ORDER BY DeliveryDate DESC";
                                 ps = conn.prepareStatement(sql);
                                 rs = ps.executeQuery();
                                 while (rs.next()) {
-                                    String status = rs.getString("status");
+                                    String status = rs.getString("DeliveryStatus");
                                     String statusClass =
                                             "Delivered".equalsIgnoreCase(status) ? "status-completed" :
                                                     "Shipped".equalsIgnoreCase(status) ? "status-pending" :
                                                             "Cancelled".equalsIgnoreCase(status) ? "status-cancelled" : "status-pending";
                         %>
                         <tr>
-                            <td><%= rs.getInt("id") %></td>
-                            <td>#<%= rs.getInt("order_id") %></td>
+                            <td><%= rs.getInt("DeliveryID") %></td>
+                            <td>#<%= rs.getInt("OrderID") %></td>
                             <td><span class="status-badge <%= statusClass %>"><%= status %></span></td>
-                            <td><%= rs.getTimestamp("update_date") %></td>
-                            <td><%= rs.getString("notes") %></td>
+                            <td><%= rs.getString("TrackingNumber") %></td>
+                            <td><%= rs.getString("CurrentLocation") %></td>
+                            <td><%= rs.getDate("EstimatedDeliveryDate") %></td>
+                            <td><%= rs.getDate("ActualDeliveryDate") %></td>
+                            <td>$<%= rs.getBigDecimal("EstimatedCost") %></td>
+                            <td><%= rs.getString("DeliveryCase") %></td>
                             <td>
                                 <!-- Update Status -->
                                 <form action="${pageContext.request.contextPath}/UpdateDeliveryServlet" method="post" style="display:inline;">
-                                    <input type="hidden" name="deliveryId" value="<%= rs.getInt("id") %>">
+                                    <input type="hidden" name="deliveryId" value="<%= rs.getInt("DeliveryID") %>">
                                     <select name="status" onchange="this.form.submit()">
                                         <option value="Pending" <%= "Pending".equalsIgnoreCase(status) ? "selected" : "" %>>Pending</option>
                                         <option value="Shipped" <%= "Shipped".equalsIgnoreCase(status) ? "selected" : "" %>>Shipped</option>
@@ -1413,15 +1425,15 @@
                                 <!-- Delete Delivery -->
                                 <form action="${pageContext.request.contextPath}/DeleteDeliveryServlet" method="post" style="display:inline;"
                                       onsubmit="return confirm('Are you sure you want to cancel this delivery?');">
-                                    <input type="hidden" name="deliveryId" value="<%= rs.getInt("id") %>">
-                                    <button type="submit" class="btn btn-sm btn-secondary">Delete</button>
+                                    <input type="hidden" name="deliveryId" value="<%= rs.getInt("DeliveryID") %>">
+                                    <button type="submit" class="btn btn-sm btn-secondary">Cancel</button>
                                 </form>
                             </td>
                         </tr>
                         <%
                                 }
                             } catch (Exception e) {
-                                out.println("<tr><td colspan='6' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
+                                out.println("<tr><td colspan='10' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
                             } finally {
                                 if (rs != null) try { rs.close(); } catch (Exception ignored) {}
                                 if (ps != null) try { ps.close(); } catch (Exception ignored) {}
@@ -1451,8 +1463,20 @@
                         <option value="Cancelled">Cancelled</option>
                     </select><br>
 
-                    <label>Notes:</label>
-                    <textarea name="notes"></textarea><br>
+                    <label>Tracking Number:</label>
+                    <input type="text" name="trackingNumber" required><br>
+
+                    <label>Current Location:</label>
+                    <input type="text" name="currentLocation" required><br>
+
+                    <label>Estimated Delivery Date:</label>
+                    <input type="date" name="estimatedDeliveryDate"><br>
+
+                    <label>Estimated Cost:</label>
+                    <input type="number" step="0.01" name="estimatedCost"><br>
+
+                    <label>Delivery Case:</label>
+                    <input type="text" name="deliveryCase"><br>
 
                     <button type="submit" class="btn btn-primary">Save Delivery</button>
                 </form>
@@ -1467,6 +1491,8 @@
                 document.getElementById(id).style.display = "none";
             }
         </script>
+
+
 
 
 
