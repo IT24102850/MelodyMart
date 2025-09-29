@@ -101,7 +101,7 @@
         <div class="nav-actions">
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
             <a href="cart.jsp" class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></a>
-            <button class="cta-btn" onclick="window.location.href='shop.jsp'">Shop Now</button>
+            <button class="cta-btn" onclick="window.location.href='cart.jsp'">Shop Now</button>
         </div>
     </div>
 </header>
