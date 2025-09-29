@@ -967,6 +967,8 @@
             </div>
         </section>
 
+
+
         <!-- Inventory Section -->
 
 
@@ -974,6 +976,8 @@
         <%@ page import="java.sql.PreparedStatement" %>
         <%@ page import="java.sql.ResultSet" %>
         <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+        
 
         <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
@@ -1099,8 +1103,8 @@
         <!-- Edit Instrument Modal -->
         <div class="modal" id="editInstrumentModal" style="display:none;">
             <div class="modal-content premium-card">
-                <button class="modal-close" onclick="closeModal('editInstrumentModal')">&times;</button>
-                <h2 class="modal-title">🎵 Edit Instrument</h2>
+                <button class="modal-close" onclick="closeModal('editInstrumentModal')"></button>
+                <h2 class="modal-title"> Edit Instrument</h2>
 
                 <!-- enctype required for file upload -->
                 <form action="${pageContext.request.contextPath}/UpdateInstrumentServlet"
@@ -1146,14 +1150,14 @@
                     <div class="form-group" style="grid-column: span 2;">
                         <label for="editImageFile">Upload Image</label>
                         <input type="file" id="editImageFile" name="imageFile" accept="image/*" class="form-control">
-                        <small>Leave empty if you don’t want to change the image.</small>
+
                         <br>
                         <!-- Image preview -->
                         <img id="imagePreview" src="" alt="Preview" style="max-width:150px; margin-top:10px; display:none; border-radius:8px;">
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                        <button type="submit" class="btn btn-primary"> Save Changes</button>
                         <button type="button" class="btn btn-secondary" onclick="closeModal('editInstrumentModal')">Cancel</button>
                     </div>
                 </form>
