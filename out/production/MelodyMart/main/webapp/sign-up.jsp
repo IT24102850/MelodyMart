@@ -360,7 +360,6 @@
                     <option value="">Select your role</option>
                     <option value="customer" ${param.role == 'customer' ? 'selected' : ''}>Customer</option>
                     <option value="seller" ${param.role == 'seller' ? 'selected' : ''}>Seller</option>
-                    <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin</option>
                 </select>
                 <p id="role-error" class="error-message">Please select your role.</p>
             </div>
