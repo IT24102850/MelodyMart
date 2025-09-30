@@ -969,17 +969,13 @@
 
 
 
+
         <!-- Inventory Section -->
-
-
         <%@ page import="java.sql.Connection" %>
         <%@ page import="java.sql.PreparedStatement" %>
         <%@ page import="java.sql.ResultSet" %>
         <%@ page import="com.melodymart.util.DatabaseUtil" %>
 
-
-
-        <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
             <div class="search-filter">
                 <div class="search-box">
@@ -1026,7 +1022,9 @@
                             ResultSet rs = null;
                             try {
                                 conn = DatabaseUtil.getConnection();
-                                String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL FROM Instrument";
+                                // ✅ Prioritize newly added instruments first
+                                String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL " +
+                                        "FROM Instrument ORDER BY InstrumentID DESC";
                                 ps = conn.prepareStatement(sql);
                                 rs = ps.executeQuery();
                                 while (rs.next()) {
@@ -1099,158 +1097,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Edit Instrument Modal -->
-        <div class="modal" id="editInstrumentModal" style="display:none;">
-            <div class="modal-content premium-card">
-                <button class="modal-close" onclick="closeModal('editInstrumentModal')"></button>
-                <h2 class="modal-title"> Edit Instrument</h2>
-
-                <!-- enctype required for file upload -->
-                <form action="${pageContext.request.contextPath}/UpdateInstrumentServlet"
-                      method="post" enctype="multipart/form-data" class="form-grid">
-
-                    <input type="hidden" id="editInstrumentId" name="instrumentId">
-
-                    <div class="form-group">
-                        <label for="editName">Name</label>
-                        <input type="text" id="editName" name="name" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editDescription">Description</label>
-                        <textarea id="editDescription" name="description" class="form-control"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editModel">Model</label>
-                        <input type="text" id="editModel" name="model" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editPrice">Price</label>
-                        <input type="number" id="editPrice" name="price" class="form-control" step="0.01">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editQuantity">Quantity</label>
-                        <input type="number" id="editQuantity" name="quantity" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editStockLevel">Stock Level</label>
-                        <select id="editStockLevel" name="stockLevel" class="form-control">
-                            <option value="In Stock">In Stock</option>
-                            <option value="Low Stock">Low Stock</option>
-                            <option value="Out of Stock">Out of Stock</option>
-                        </select>
-                    </div>
-
-                    <!-- ✅ Image Upload -->
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label for="editImageFile">Upload Image</label>
-                        <input type="file" id="editImageFile" name="imageFile" accept="image/*" class="form-control">
-
-                        <br>
-                        <!-- Image preview -->
-                        <img id="imagePreview" src="" alt="Preview" style="max-width:150px; margin-top:10px; display:none; border-radius:8px;">
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary"> Save Changes</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('editInstrumentModal')">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <script>
-            // Open edit modal with existing data
-            function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
-                document.getElementById("editInstrumentId").value = id;
-                document.getElementById("editName").value = name;
-                document.getElementById("editDescription").value = description;
-                document.getElementById("editModel").value = model;
-                document.getElementById("editPrice").value = price;
-                document.getElementById("editQuantity").value = quantity;
-                document.getElementById("editStockLevel").value = stockLevel;
-
-                // Show current image preview
-                const preview = document.getElementById("imagePreview");
-                preview.src = imageUrl;
-                preview.style.display = "block";
-
-                document.getElementById("editInstrumentModal").style.display = "flex";
-            }
-
-            // Preview newly selected file
-            document.getElementById("editImageFile").addEventListener("change", function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const preview = document.getElementById("imagePreview");
-                        preview.src = e.target.result;
-                        preview.style.display = "block";
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Close modal
-            function closeModal(id) {
-                document.getElementById(id).style.display = "none";
-            }
-        </script>
-
-
-        <script>
-            // Open edit modal with data
-            function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
-                document.getElementById("editInstrumentId").value = id;
-                document.getElementById("editName").value = name;
-                document.getElementById("editDescription").value = description;
-                document.getElementById("editModel").value = model;
-                document.getElementById("editPrice").value = price;
-                document.getElementById("editQuantity").value = quantity;
-                document.getElementById("editStockLevel").value = stockLevel;
-                document.getElementById("editImageUrl").value = imageUrl;
-
-                document.getElementById("editInstrumentModal").style.display = "flex";
-            }
-
-            // Close modal
-            function closeModal(id) {
-                document.getElementById(id).style.display = "none";
-            }
-
-            // 🔍 Search and Filter (Improved)
-            function filterTable() {
-                const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-                const statusValue = document.getElementById("statusFilter").value;
-                const rows = document.querySelectorAll("#inventoryTable tbody tr");
-
-                rows.forEach(row => {
-                    const rowText = row.innerText.toLowerCase(); // search across all columns
-                    const rowStatus = row.getAttribute("data-status");
-
-                    const matchesSearch = rowText.includes(searchTerm);
-                    const matchesStatus = !statusValue || rowStatus === statusValue;
-
-                    row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
-                });
-            }
-
-            document.getElementById("searchInput").addEventListener("input", filterTable);
-            document.getElementById("statusFilter").addEventListener("change", filterTable);
-            document.getElementById("resetFilters").addEventListener("click", () => {
-                document.getElementById("searchInput").value = "";
-                document.getElementById("statusFilter").value = "";
-                filterTable();
-            });
-        </script>
-
-
 
 
 
