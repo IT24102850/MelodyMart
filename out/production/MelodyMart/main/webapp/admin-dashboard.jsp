@@ -1,5 +1,10 @@
+
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*" %>
+<%@ page import="java.sql.Connection" %>
+<%@ page import="java.sql.PreparedStatement" %>
+<%@ page import="java.sql.ResultSet" %>
+<%@ page import="com.melodymart.util.DatabaseUtil" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -517,9 +522,30 @@
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
 
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+
         .btn-sm {
             padding: 6px 12px;
             font-size: 14px;
+        }
+
+        .btn-outline-primary {
+            border: 1px solid var(--primary-light);
+            color: var(--primary-light);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-light);
+            color: white;
         }
 
         /* Forms */
@@ -657,6 +683,62 @@
             font-size: 20px;
             color: rgba(138, 43, 226, 0.1);
             animation: float 6s ease-in-out infinite;
+        }
+
+        /* Login Form */
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 30px;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .login-container h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .login-container .form-group {
+            margin-bottom: 20px;
+        }
+
+        .login-container .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        .login-container .form-control:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.3);
+        }
+
+        .login-container .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: var(--gradient);
+            color: white;
+            font-weight: 600;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+            animation: fadeIn 0.3s ease-out;
         }
 
         /* Footer */
@@ -817,12 +899,15 @@
     </a>
     <div class="nav-actions">
         <a href="index.jsp" class="nav-link"><i class="fas fa-home"></i> Home</a>
-        <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <% if (session.getAttribute("adminUser") != null) { %>
+        <a href="${pageContext.request.contextPath}/AdminLogoutServlet" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        <% } %>
     </div>
 </nav>
 
 <div class="main-wrapper">
-    <!-- Sidebar -->
+    <!-- Sidebar (only shown if logged in) -->
+    <% if (session.getAttribute("adminUser") != null) { %>
     <div class="sidebar">
         <div class="sidebar-header">
             <h4>Admin Dashboard</h4>
@@ -840,12 +925,34 @@
             <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications & Alerts</a></li>
         </ul>
     </div>
+    <% } %>
 
     <!-- Main Content -->
     <div class="main-content">
+        <% if (session.getAttribute("adminUser") == null) { %>
+        <!-- Login Form -->
+        <div class="login-container">
+            <h3>Admin Login</h3>
+            <form method="post" action="${pageContext.request.contextPath}/AdminLoginServlet">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                </div>
+                <% if (request.getAttribute("errorMessage") != null) { %>
+                <div class="error-message"><%= request.getAttribute("errorMessage") %></div>
+                <% } %>
+                <button type="submit" class="btn btn-primary hover-lift"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </form>
+        </div>
+        <% } else { %>
+        <!-- Dashboard Content -->
         <div class="dashboard-header">
             <h2>Admin Dashboard</h2>
-            <p>As of 11:07 AM +0530 on September 18, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
+            <p>Welcome, <%= session.getAttribute("adminUser") %>! As of 08:48 PM +0530 on September 30, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
         </div>
 
         <!-- Stats Overview -->
@@ -932,17 +1039,7 @@
             </div>
         </section>
 
-
-
-
-
-
-        <%@ page import="java.sql.Connection" %>
-        <%@ page import="java.sql.PreparedStatement" %>
-        <%@ page import="java.sql.ResultSet" %>
-        <%@ page import="com.melodymart.util.DatabaseUtil" %>
-
-        <!-- ⭐ Improved Stock Management Tools -->
+        <!-- Stock Management Section -->
         <section id="stock-management" class="section-card">
             <div class="card-header flex items-center justify-between">
                 <h3 class="flex items-center gap-2 text-lg font-semibold">
@@ -952,37 +1049,26 @@
                     <i class="fas fa-sync-alt"></i> Refresh Status
                 </button>
             </div>
-
             <div class="card-body">
                 <p class="text-muted mb-3">
                     Quickly update instrument stock levels, track availability, and get real-time alerts for low or oversold items.
                 </p>
-
-                <!-- Update Stock Form -->
                 <form id="stockUpdateForm" method="post" action="${pageContext.request.contextPath}/UpdateStockServlet"
                       class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-
-                    <!-- Instrument ID -->
                     <div class="form-group">
                         <label for="instrumentId" class="form-label font-weight-bold">Instrument ID</label>
                         <input type="text" class="form-control" id="instrumentId" name="instrumentId" placeholder="Enter ID" required>
                     </div>
-
-                    <!-- Quantity -->
                     <div class="form-group">
                         <label for="stockQuantity" class="form-label font-weight-bold">New Quantity</label>
                         <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" placeholder="e.g. 20" min="0" required>
                     </div>
-
-                    <!-- Submit -->
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary hover-lift w-full">
                             <i class="fas fa-save"></i> Update Stock
                         </button>
                     </div>
                 </form>
-
-                <!-- 🔔 Stock Alerts (Dynamic from DB) -->
                 <div id="stockAlerts" class="mt-5">
                     <h5 class="mb-2"><i class="fas fa-bell text-warning"></i> Stock Alerts</h5>
                     <ul class="list-group">
@@ -1018,27 +1104,18 @@
                     </ul>
                 </div>
             </div>
-
-            <%@ page import="java.sql.Connection" %>
-            <%@ page import="java.sql.PreparedStatement" %>
-            <%@ page import="java.sql.ResultSet" %>
-            <%@ page import="com.melodymart.util.DatabaseUtil" %>
-
-            <!-- 📊 Stock Reports / Audit Section -->
+            <!-- Stock Reports / Audit Section -->
             <section id="stock-reports" class="section-card mt-4">
                 <div class="card-header flex items-center justify-between">
                     <h3 class="flex items-center gap-2 text-lg font-semibold">
                         <i class="fas fa-chart-line"></i> Stock Reports & Audits
                     </h3>
                     <div class="d-flex gap-2">
-                        <!-- Export Report -->
                         <form method="post" action="${pageContext.request.contextPath}/ExportStockReportServlet" style="display:inline;">
                             <button type="submit" class="btn btn-secondary">
                                 <i class="fas fa-file-download"></i> Export Report (CSV)
                             </button>
                         </form>
-
-                        <!-- Remove Instrument (Global) -->
                         <form action="${pageContext.request.contextPath}/RemoveInstrumentServlet"
                               method="post" class="d-flex align-items-center"
                               onsubmit="return confirm('Are you sure you want to remove this instrument from sale?');">
@@ -1050,121 +1127,93 @@
                         </form>
                     </div>
                 </div>
-
                 <div class="card-body">
-                    <p class="text-muted mb-3">Review stock health across all instruments. Export full reports or remove discontinued/policy-restricted items from sale.</p>
-
-                    <!-- Optional summary cards or stock audit table could go here -->
-                </div>
-            </section>
-
-            <div class="card-body">
                     <p class="text-muted mb-3">Review stock health across all instruments for audits and decision-making.</p>
-
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                         <%
-                             conn = null;
+                            conn = null;
                             ps = null;
-                           rs = null;
+                            rs = null;
                             try {
                                 conn = DatabaseUtil.getConnection();
-
-                                // Total Instruments
                                 ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument");
                                 rs = ps.executeQuery();
                                 rs.next();
                                 int totalInstruments = rs.getInt(1);
-                                rs.close(); ps.close();
+                                rs.close();
+                                ps.close();
 
-                                // In Stock
                                 ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='In Stock'");
                                 rs = ps.executeQuery();
                                 rs.next();
                                 int inStock = rs.getInt(1);
-                                rs.close(); ps.close();
+                                rs.close();
+                                ps.close();
 
-                                // Low Stock
                                 ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='Low Stock'");
                                 rs = ps.executeQuery();
                                 rs.next();
                                 int lowStock = rs.getInt(1);
-                                rs.close(); ps.close();
+                                rs.close();
+                                ps.close();
 
-                                // Out of Stock
                                 ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='Out of Stock'");
                                 rs = ps.executeQuery();
                                 rs.next();
                                 int outOfStock = rs.getInt(1);
-                                rs.close(); ps.close();
+                                rs.close();
+                                ps.close();
                         %>
-
-                        <!-- KPI Cards -->
                         <div class="stat-card bg-light shadow-sm p-3 rounded">
                             <h4>Total Instruments</h4>
                             <p class="font-weight-bold text-primary"><%= totalInstruments %></p>
                         </div>
-
                         <div class="stat-card bg-light shadow-sm p-3 rounded">
                             <h4>In Stock</h4>
                             <p class="font-weight-bold text-success"><%= inStock %></p>
                         </div>
-
                         <div class="stat-card bg-light shadow-sm p-3 rounded">
                             <h4>Low Stock</h4>
                             <p class="font-weight-bold text-warning"><%= lowStock %></p>
                         </div>
-
                         <div class="stat-card bg-light shadow-sm p-3 rounded">
                             <h4>Out of Stock</h4>
                             <p class="font-weight-bold text-danger"><%= outOfStock %></p>
                         </div>
-
                         <%
                             } catch (Exception e) {
                                 out.println("<p class='text-danger'>Error loading report: " + e.getMessage() + "</p>");
                             } finally {
-                                try { if (rs != null) rs.close(); } catch (Exception ignored) {}
-                                try { if (ps != null) ps.close(); } catch (Exception ignored) {}
-                                try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
                             }
                         %>
                     </div>
                 </div>
             </section>
-
-
-            <!-- 🛠 Stock Override / Correction -->
+            <!-- Stock Corrections / Disputes -->
             <section id="stock-override" class="section-card mt-4">
                 <div class="card-header">
                     <h3><i class="fas fa-edit"></i> Stock Corrections / Disputes</h3>
                 </div>
-
                 <div class="card-body">
                     <p class="text-muted mb-3">
                         Use this tool to override stock levels for audit corrections or dispute resolutions.
                     </p>
-
                     <form method="post" action="${pageContext.request.contextPath}/StockCorrectionServlet" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-
-                        <!-- Instrument ID -->
                         <div class="form-group">
                             <label for="correctionInstrumentId" class="form-label">Instrument ID</label>
                             <input type="text" class="form-control" id="correctionInstrumentId" name="instrumentId" placeholder="Enter ID" required>
                         </div>
-
-                        <!-- Corrected Quantity -->
                         <div class="form-group">
                             <label for="correctedQuantity" class="form-label">Corrected Quantity</label>
                             <input type="number" class="form-control" id="correctedQuantity" name="correctedQuantity" min="0" required>
                         </div>
-
-                        <!-- Reason -->
                         <div class="form-group">
                             <label for="correctionReason" class="form-label">Reason</label>
                             <input type="text" class="form-control" id="correctionReason" name="reason" placeholder="e.g., Damaged item removed, Audit correction" required>
                         </div>
-
-                        <!-- Submit -->
                         <div class="form-group">
                             <button type="submit" class="btn btn-warning hover-lift w-full">
                                 <i class="fas fa-save"></i> Apply Correction
@@ -1173,27 +1222,7 @@
                     </form>
                 </div>
             </section>
-
-
-
-
         </section>
-
-        <script>
-            // Simulate stock refresh
-            function refreshStockStatus() {
-                location.reload(); // simple page reload to update alerts
-            }
-
-            // Quick restock helper
-            function quickRestock(id) {
-                document.getElementById("instrumentId").value = id;
-                document.getElementById("stockQuantity").focus();
-            }
-        </script>
-
-
-
 
         <!-- Item Review Queue -->
         <section id="item-review" class="section-card">
@@ -1387,6 +1416,7 @@
                 </div>
             </div>
         </section>
+        <% } %>
     </div>
 </div>
 
@@ -1397,103 +1427,117 @@
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Simulate stock refresh
+    function refreshStockStatus() {
+        location.reload();
+    }
+
+    // Quick restock helper
+    function quickRestock(id) {
+        document.getElementById("instrumentId").value = id;
+        document.getElementById("stockQuantity").focus();
+    }
+
     // Initialize charts
     document.addEventListener('DOMContentLoaded', function() {
         // Sales Chart
-        const salesCtx = document.getElementById('salesChart').getContext('2d');
-        const salesChart = new Chart(salesCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                datasets: [{
-                    label: 'Sales ($)',
-                    data: [12500, 19000, 18000, 22000, 21000, 25000, 28000, 30000, 32000],
-                    borderColor: '#8a2be2',
-                    backgroundColor: 'rgba(138, 43, 226, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#ffffff'
-                        }
-                    }
+        const salesCtx = document.getElementById('salesChart')?.getContext('2d');
+        if (salesCtx) {
+            const salesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    datasets: [{
+                        label: 'Sales ($)',
+                        data: [12500, 19000, 18000, 22000, 21000, 25000, 28000, 30000, 32000],
+                        borderColor: '#8a2be2',
+                        backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#b3b3b3'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
                         }
                     },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#b3b3b3'
+                            }
                         },
-                        ticks: {
-                            color: '#b3b3b3'
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#b3b3b3'
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // Activity Chart
-        const activityCtx = document.getElementById('activityChart').getContext('2d');
-        const activityChart = new Chart(activityCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'User Activity',
-                    data: [120, 190, 140, 180, 160, 140, 180],
-                    backgroundColor: 'rgba(0, 229, 255, 0.5)',
-                    borderColor: '#00e5ff',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#ffffff'
-                        }
-                    }
+        const activityCtx = document.getElementById('activityChart')?.getContext('2d');
+        if (activityCtx) {
+            const activityChart = new Chart(activityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'User Activity',
+                        data: [120, 190, 140, 180, 160, 140, 180],
+                        backgroundColor: 'rgba(0, 229, 255, 0.5)',
+                        borderColor: '#00e5ff',
+                        borderWidth: 1
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#b3b3b3'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
                         }
                     },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#b3b3b3'
+                            }
                         },
-                        ticks: {
-                            color: '#b3b3b3'
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#b3b3b3'
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
         // Simple script to handle sidebar navigation
         document.querySelectorAll('.sidebar-menu a').forEach(link => {
