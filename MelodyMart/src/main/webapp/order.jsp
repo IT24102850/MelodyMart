@@ -361,6 +361,14 @@
             background: rgba(255, 107, 107, 0.1);
         }
 
+        .action-btn.cancel-btn {
+            color: #ffa500;
+        }
+
+        .action-btn.cancel-btn:hover {
+            background: rgba(255, 165, 0, 0.1);
+        }
+
         /* Modal Styles */
         .modal {
             display: none;
@@ -483,6 +491,34 @@
         .stat-label {
             color: var(--text-secondary);
             font-size: 14px;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            color: var(--text);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--primary);
+            z-index: 3000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left-color: #28a745;
+        }
+
+        .toast.error {
+            border-left-color: #dc3545;
         }
 
         /* Responsive Design */
@@ -629,6 +665,10 @@
             <div class="stat-number" id="deliveredOrders">0</div>
             <div class="stat-label">Delivered Orders</div>
         </div>
+        <div class="stat-card">
+            <div class="stat-number" id="cancelledOrders">0</div>
+            <div class="stat-label">Cancelled Orders</div>
+        </div>
     </div>
 
     <!-- Orders Table -->
@@ -662,6 +702,7 @@
                     int pendingOrders = 0;
                     int processingOrders = 0;
                     int deliveredOrders = 0;
+                    int cancelledOrders = 0;
 
                     while (rs.next()) {
                         totalOrders++;
@@ -669,6 +710,7 @@
                         if ("Pending".equalsIgnoreCase(status)) pendingOrders++;
                         if ("Processing".equalsIgnoreCase(status)) processingOrders++;
                         if ("Delivered".equalsIgnoreCase(status)) deliveredOrders++;
+                        if ("Cancelled".equalsIgnoreCase(status)) cancelledOrders++;
             %>
             <tr>
                 <td>#<%= rs.getInt("OrderID") %></td>
@@ -699,6 +741,15 @@
                     <button class="action-btn" title="View Details" onclick="viewOrderDetails(<%= rs.getInt("OrderID") %>)">
                         <i class="fas fa-eye"></i>
                     </button>
+                    <%
+                        if (!"Cancelled".equalsIgnoreCase(status) && !"Delivered".equalsIgnoreCase(status)) {
+                    %>
+                    <button class="action-btn cancel-btn" title="Cancel Order" onclick="cancelOrder(<%= rs.getInt("OrderID") %>)">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                    <%
+                        }
+                    %>
                     <button class="action-btn delete-btn" title="Delete Order" onclick="deleteOrder(<%= rs.getInt("OrderID") %>)">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -713,6 +764,7 @@
                     out.println("document.getElementById('pendingOrders').textContent = '" + pendingOrders + "';");
                     out.println("document.getElementById('processingOrders').textContent = '" + processingOrders + "';");
                     out.println("document.getElementById('deliveredOrders').textContent = '" + deliveredOrders + "';");
+                    out.println("document.getElementById('cancelledOrders').textContent = '" + cancelledOrders + "';");
                     out.println("</script>");
 
                 } catch (Exception e) {
@@ -767,6 +819,29 @@
     </div>
 </div>
 
+<!-- Cancel Order Modal -->
+<div class="modal" id="cancelOrderModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('cancelOrderModal')">&times;</button>
+        <h2 class="modal-title">Cancel Order</h2>
+        <div class="form-group">
+            <p>Are you sure you want to cancel order #<span id="cancelOrderId"></span>?</p>
+            <p style="color: var(--text-secondary); margin-top: 10px;">This action cannot be undone.</p>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Cancellation Reason (Optional)</label>
+            <textarea class="form-control" id="cancelReason" placeholder="Enter reason for cancellation" rows="3"></textarea>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="cta-btn" style="flex: 1; background: var(--secondary);" onclick="closeModal('cancelOrderModal')">No, Keep Order</button>
+            <button class="cta-btn" style="flex: 1; background: linear-gradient(135deg, #ff6b6b, #ff8e53);" id="confirmCancelBtn">Yes, Cancel Order</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
+
 <script>
     // Modal functions
     function openModal(modalId) {
@@ -801,12 +876,59 @@
         openModal("orderDetailsModal");
     }
 
+    function cancelOrder(orderId) {
+        document.getElementById("cancelOrderId").textContent = orderId;
+        document.getElementById("cancelReason").value = "";
+
+        // Set up the confirm button
+        const confirmBtn = document.getElementById("confirmCancelBtn");
+        confirmBtn.onclick = function() {
+            processOrderCancellation(orderId);
+        };
+
+        openModal("cancelOrderModal");
+    }
+
+    function processOrderCancellation(orderId) {
+        const reason = document.getElementById("cancelReason").value;
+        const btn = document.getElementById("confirmCancelBtn");
+        const originalText = btn.innerHTML;
+
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+        btn.disabled = true;
+
+        // In a real application, you would make an AJAX request to cancel the order
+        // For now, we'll simulate the process
+        setTimeout(() => {
+            showToast("Order #" + orderId + " has been cancelled successfully!", "success");
+            closeModal('cancelOrderModal');
+
+            // In a real application, you would update the order status in the database
+            // For now, we'll just reload the page to show the updated status
+            setTimeout(() => {
+                location.reload();
+            }, 1500);
+        }, 1500);
+    }
+
     function deleteOrder(orderId) {
         if (confirm("Are you sure you want to delete order #" + orderId + "? This action cannot be undone.")) {
             // In a real application, you would submit a form or make an AJAX request to delete the order
-            alert("Order deletion would be processed here. Order ID: " + orderId);
+            showToast("Order #" + orderId + " deletion request sent.", "success");
             // Example: window.location.href = "DeleteOrderServlet?orderId=" + orderId;
         }
+    }
+
+    // Toast notification function
+    function showToast(message, type) {
+        const toast = document.getElementById("toast");
+        toast.textContent = message;
+        toast.className = "toast " + type;
+        toast.classList.add("show");
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3000);
     }
 
     // Close modal when clicking outside
@@ -842,7 +964,7 @@
 
         // Simulate form submission
         setTimeout(() => {
-            alert("Order status updated successfully!");
+            showToast("Order status updated successfully!", "success");
             closeModal('editOrderModal');
             location.reload(); // Refresh the page to show updated data
         }, 1500);
