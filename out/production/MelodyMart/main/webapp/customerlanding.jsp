@@ -637,7 +637,7 @@
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
             <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
             <div class="user-menu">
-                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> John Doe</button>
+                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> Customer</button>
                 <div class="dropdown">
                     <a href="profile.jsp" class="dropdown-item">My Profile</a>
                     <a href="order.jsp" class="dropdown-item">My Orders</a>
@@ -654,7 +654,7 @@
 <!-- Dashboard Hero Section -->
 <section class="dashboard-hero">
     <div class="dashboard-hero-content">
-        <h1>Welcome Back, <span class="customer-name">John Doe</span>!</h1>
+        <h1>Welcome Back, <span class="customer-name">Customer</span>!</h1>
         <p>Your musical journey continues with Melody Mart. Explore your dashboard to manage orders, track shipments, and discover new instruments.</p>
         <div class="slide-btns">
             <button class="cta-btn" onclick="window.location.href='shop.jsp'">Continue Shopping</button>
@@ -851,7 +851,7 @@
     // Get customer name from URL parameter or use default
     function getCustomerName() {
         const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get('name') || 'John Doe';
+        return urlParams.get('name') || 'Customer';
     }
 
     // Update customer name in the dashboard
