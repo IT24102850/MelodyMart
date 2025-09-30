@@ -750,6 +750,13 @@
                 <span>Deliveries</span>
             </a>
 
+
+            <a href="#" class="menu-item" data-section="repairs">
+                <i class="fas fa-truck"></i>
+                <span>Repair Request</span>
+            </a>
+
+
             <a href="#" class="menu-item" data-section="payment">
                 <i class="fas fa-truck"></i>
                 <span>Payments</span>
@@ -1264,6 +1271,9 @@
 
 
 
+
+
+
         <%@ page import="java.sql.Connection" %>
         <%@ page import="java.sql.PreparedStatement" %>
         <%@ page import="java.sql.ResultSet" %>
@@ -1407,6 +1417,149 @@
                 document.getElementById(id).style.display = "none";
             }
         </script>
+
+
+
+
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="main.java.com.melodymart.util.DBConnection" %>
+
+        <section id="repairs" class="dashboard-section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-tools"></i> Repair Requests (Seller Dashboard)
+                    </h2>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Order ID</th>
+                            <th>Description</th>
+                            <th>Photos</th>
+                            <th>Status</th>
+                            <th>Approved</th>
+                            <th>Comment</th>
+                            <th>Estimated Cost</th>
+                            <th>Repair Date</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                            conn = null;
+                            ps = null;
+                            rs = null;
+                            try {
+                                conn = DBConnection.getConnection();
+                                String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate " +
+                                        "FROM RepairRequest ORDER BY RepairRequestID DESC";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+
+                                while (rs.next()) {
+                                    int requestId = rs.getInt("RepairRequestID");
+                                    int orderId = rs.getInt("OrderID");
+                                    String description = rs.getString("IssueDescription");
+                                    String status = rs.getString("Status");
+                                    boolean approved = rs.getBoolean("Approved");
+                                    String comment = rs.getString("Comment");
+                                    String photos = rs.getString("Photos");
+                                    String repairDate = (rs.getDate("RepairDate") != null) ? rs.getDate("RepairDate").toString() : "-";
+                                    String cost = (rs.getBigDecimal("EstimatedCost") != null) ? "$" + rs.getBigDecimal("EstimatedCost") : "$0.00";
+                        %>
+                        <tr>
+                            <td>#RR-<%= requestId %></td>
+                            <td>#MM-<%= orderId %></td>
+                            <td><%= description %></td>
+                            <td>
+                                <%
+                                    if (photos != null && !photos.isEmpty()) {
+                                        String[] photoArr = photos.split(";");
+                                        for (String photoPath : photoArr) {
+                                %>
+                                <img src="<%= photoPath.replace("\\", "/") %>" class="img-thumbnail m-1 shadow-sm"
+                                     style="width:70px; height:70px; object-fit:cover; border-radius:8px;" alt="Repair Photo">
+                                <%
+                                    }
+                                } else {
+                                %>
+                                <span class="text-muted">No Photo</span>
+                                <%
+                                    }
+                                %>
+                            </td>
+                            <td><span class="status-badge status-<%= status.toLowerCase().replace(" ", "-") %>"><%= status %></span></td>
+                            <td><%= approved ? "✅ Yes" : "❌ No" %></td>
+                            <td><%= (comment != null && !comment.isEmpty()) ? comment : "-" %></td>
+                            <td><%= cost %></td>
+                            <td><%= repairDate %></td>
+                            <td>
+                                <!-- Approve -->
+                                <% if (!approved) { %>
+                                <form action="${pageContext.request.contextPath}/ApproveRepairRequestServlet" method="post" style="display:inline;">
+                                    <input type="hidden" name="repairRequestId" value="<%= requestId %>">
+                                    <button type="submit" class="btn btn-sm btn-success action-btn" title="Approve Request">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                </form>
+                                <% } %>
+
+                                <!-- Cancel -->
+                                <% if (!status.equalsIgnoreCase("Cancelled") && !status.equalsIgnoreCase("Completed")) { %>
+                                <form action="${pageContext.request.contextPath}/CancelRepairRequestServlet" method="post"
+                                      style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this repair request?');">
+                                    <input type="hidden" name="repairRequestId" value="<%= requestId %>">
+                                    <button type="submit" class="btn btn-sm btn-warning action-btn" title="Cancel Request">
+                                        <i class="fas fa-times-circle"></i>
+                                    </button>
+                                </form>
+                                <% } %>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='10' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <script>
+                // Sidebar navigation
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const sectionId = this.getAttribute('data-section');
+
+                        document.querySelectorAll('.dashboard-section').forEach(sec => {
+                            sec.style.display = 'none';
+                        });
+
+                        const target = document.getElementById(sectionId);
+                        if (target) {
+                            target.style.display = 'block';
+                        }
+                    });
+                });
+            </script>
+        </section>
+
+
+
 
 
 
