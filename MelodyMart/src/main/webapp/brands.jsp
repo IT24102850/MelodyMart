@@ -835,7 +835,7 @@
             <div class="footer-column">
                 <h3>Support</h3>
                 <ul class="footer-links">
-                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="contact.jsp">Contact Us</a></li>
                     <li><a href="#">Shipping & Returns</a></li>
                     <li><a href="#">FAQ</a></li>
                     <li><a href="#">Warranty</a></li>
