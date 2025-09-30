@@ -154,7 +154,7 @@
     </div>
 
     <div class="action-buttons">
-        <a href="payment.jsp" class="btn btn-primary">Continue Shopping</a>
+        <a href="payment-gateway.jsp" class="btn btn-primary">Continue Shopping</a>
         <a href="orders.jsp" class="btn btn-secondary">View Orders</a>
     </div>
 </div>

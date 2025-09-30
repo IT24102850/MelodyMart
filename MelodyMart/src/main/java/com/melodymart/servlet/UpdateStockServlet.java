@@ -71,7 +71,7 @@ public class UpdateStockServlet extends HttpServlet {
                 request.getSession().setAttribute("error", "Instrument not found.");
             }
 
-            // ✅ Redirect back to admin dashboard instead of dashboard.jsp
+            // Redirect back to inventory/stock management page
             response.sendRedirect(request.getContextPath() + "/admin-dashboard.jsp#stock-management");
 
         } catch (Exception e) {

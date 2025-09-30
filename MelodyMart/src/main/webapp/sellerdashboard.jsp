@@ -750,6 +750,13 @@
                 <span>Deliveries</span>
             </a>
 
+
+            <a href="#" class="menu-item" data-section="repairs">
+                <i class="fas fa-truck"></i>
+                <span>Repair Request</span>
+            </a>
+
+
             <a href="#" class="menu-item" data-section="payment">
                 <i class="fas fa-truck"></i>
                 <span>Payments</span>
@@ -967,15 +974,15 @@
             </div>
         </section>
 
+
+
+
         <!-- Inventory Section -->
-
-
         <%@ page import="java.sql.Connection" %>
         <%@ page import="java.sql.PreparedStatement" %>
         <%@ page import="java.sql.ResultSet" %>
         <%@ page import="com.melodymart.util.DatabaseUtil" %>
 
-        <!-- Inventory Section -->
         <section id="inventory" class="dashboard-section">
             <div class="search-filter">
                 <div class="search-box">
@@ -1022,7 +1029,9 @@
                             ResultSet rs = null;
                             try {
                                 conn = DatabaseUtil.getConnection();
-                                String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL FROM Instrument";
+                                // ✅ Prioritize newly added instruments first
+                                String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL " +
+                                        "FROM Instrument ORDER BY InstrumentID DESC";
                                 ps = conn.prepareStatement(sql);
                                 rs = ps.executeQuery();
                                 while (rs.next()) {
@@ -1095,158 +1104,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Edit Instrument Modal -->
-        <div class="modal" id="editInstrumentModal" style="display:none;">
-            <div class="modal-content premium-card">
-                <button class="modal-close" onclick="closeModal('editInstrumentModal')">&times;</button>
-                <h2 class="modal-title">🎵 Edit Instrument</h2>
-
-                <!-- enctype required for file upload -->
-                <form action="${pageContext.request.contextPath}/UpdateInstrumentServlet"
-                      method="post" enctype="multipart/form-data" class="form-grid">
-
-                    <input type="hidden" id="editInstrumentId" name="instrumentId">
-
-                    <div class="form-group">
-                        <label for="editName">Name</label>
-                        <input type="text" id="editName" name="name" class="form-control" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editDescription">Description</label>
-                        <textarea id="editDescription" name="description" class="form-control"></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editModel">Model</label>
-                        <input type="text" id="editModel" name="model" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editPrice">Price</label>
-                        <input type="number" id="editPrice" name="price" class="form-control" step="0.01">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editQuantity">Quantity</label>
-                        <input type="number" id="editQuantity" name="quantity" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="editStockLevel">Stock Level</label>
-                        <select id="editStockLevel" name="stockLevel" class="form-control">
-                            <option value="In Stock">In Stock</option>
-                            <option value="Low Stock">Low Stock</option>
-                            <option value="Out of Stock">Out of Stock</option>
-                        </select>
-                    </div>
-
-                    <!-- ✅ Image Upload -->
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label for="editImageFile">Upload Image</label>
-                        <input type="file" id="editImageFile" name="imageFile" accept="image/*" class="form-control">
-                        <small>Leave empty if you don’t want to change the image.</small>
-                        <br>
-                        <!-- Image preview -->
-                        <img id="imagePreview" src="" alt="Preview" style="max-width:150px; margin-top:10px; display:none; border-radius:8px;">
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('editInstrumentModal')">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <script>
-            // Open edit modal with existing data
-            function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
-                document.getElementById("editInstrumentId").value = id;
-                document.getElementById("editName").value = name;
-                document.getElementById("editDescription").value = description;
-                document.getElementById("editModel").value = model;
-                document.getElementById("editPrice").value = price;
-                document.getElementById("editQuantity").value = quantity;
-                document.getElementById("editStockLevel").value = stockLevel;
-
-                // Show current image preview
-                const preview = document.getElementById("imagePreview");
-                preview.src = imageUrl;
-                preview.style.display = "block";
-
-                document.getElementById("editInstrumentModal").style.display = "flex";
-            }
-
-            // Preview newly selected file
-            document.getElementById("editImageFile").addEventListener("change", function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const preview = document.getElementById("imagePreview");
-                        preview.src = e.target.result;
-                        preview.style.display = "block";
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Close modal
-            function closeModal(id) {
-                document.getElementById(id).style.display = "none";
-            }
-        </script>
-
-
-        <script>
-            // Open edit modal with data
-            function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
-                document.getElementById("editInstrumentId").value = id;
-                document.getElementById("editName").value = name;
-                document.getElementById("editDescription").value = description;
-                document.getElementById("editModel").value = model;
-                document.getElementById("editPrice").value = price;
-                document.getElementById("editQuantity").value = quantity;
-                document.getElementById("editStockLevel").value = stockLevel;
-                document.getElementById("editImageUrl").value = imageUrl;
-
-                document.getElementById("editInstrumentModal").style.display = "flex";
-            }
-
-            // Close modal
-            function closeModal(id) {
-                document.getElementById(id).style.display = "none";
-            }
-
-            // 🔍 Search and Filter (Improved)
-            function filterTable() {
-                const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-                const statusValue = document.getElementById("statusFilter").value;
-                const rows = document.querySelectorAll("#inventoryTable tbody tr");
-
-                rows.forEach(row => {
-                    const rowText = row.innerText.toLowerCase(); // search across all columns
-                    const rowStatus = row.getAttribute("data-status");
-
-                    const matchesSearch = rowText.includes(searchTerm);
-                    const matchesStatus = !statusValue || rowStatus === statusValue;
-
-                    row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
-                });
-            }
-
-            document.getElementById("searchInput").addEventListener("input", filterTable);
-            document.getElementById("statusFilter").addEventListener("change", filterTable);
-            document.getElementById("resetFilters").addEventListener("click", () => {
-                document.getElementById("searchInput").value = "";
-                document.getElementById("statusFilter").value = "";
-                filterTable();
-            });
-        </script>
-
-
 
 
 
@@ -1414,6 +1271,9 @@
 
 
 
+
+
+
         <%@ page import="java.sql.Connection" %>
         <%@ page import="java.sql.PreparedStatement" %>
         <%@ page import="java.sql.ResultSet" %>
@@ -1557,6 +1417,149 @@
                 document.getElementById(id).style.display = "none";
             }
         </script>
+
+
+
+
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="main.java.com.melodymart.util.DBConnection" %>
+
+        <section id="repairs" class="dashboard-section">
+            <div class="content-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-tools"></i> Repair Requests (Seller Dashboard)
+                    </h2>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Order ID</th>
+                            <th>Description</th>
+                            <th>Photos</th>
+                            <th>Status</th>
+                            <th>Approved</th>
+                            <th>Comment</th>
+                            <th>Estimated Cost</th>
+                            <th>Repair Date</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <%
+                            conn = null;
+                            ps = null;
+                            rs = null;
+                            try {
+                                conn = DBConnection.getConnection();
+                                String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate " +
+                                        "FROM RepairRequest ORDER BY RepairRequestID DESC";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+
+                                while (rs.next()) {
+                                    int requestId = rs.getInt("RepairRequestID");
+                                    int orderId = rs.getInt("OrderID");
+                                    String description = rs.getString("IssueDescription");
+                                    String status = rs.getString("Status");
+                                    boolean approved = rs.getBoolean("Approved");
+                                    String comment = rs.getString("Comment");
+                                    String photos = rs.getString("Photos");
+                                    String repairDate = (rs.getDate("RepairDate") != null) ? rs.getDate("RepairDate").toString() : "-";
+                                    String cost = (rs.getBigDecimal("EstimatedCost") != null) ? "$" + rs.getBigDecimal("EstimatedCost") : "$0.00";
+                        %>
+                        <tr>
+                            <td>#RR-<%= requestId %></td>
+                            <td>#MM-<%= orderId %></td>
+                            <td><%= description %></td>
+                            <td>
+                                <%
+                                    if (photos != null && !photos.isEmpty()) {
+                                        String[] photoArr = photos.split(";");
+                                        for (String photoPath : photoArr) {
+                                %>
+                                <img src="<%= photoPath.replace("\\", "/") %>" class="img-thumbnail m-1 shadow-sm"
+                                     style="width:70px; height:70px; object-fit:cover; border-radius:8px;" alt="Repair Photo">
+                                <%
+                                    }
+                                } else {
+                                %>
+                                <span class="text-muted">No Photo</span>
+                                <%
+                                    }
+                                %>
+                            </td>
+                            <td><span class="status-badge status-<%= status.toLowerCase().replace(" ", "-") %>"><%= status %></span></td>
+                            <td><%= approved ? "✅ Yes" : "❌ No" %></td>
+                            <td><%= (comment != null && !comment.isEmpty()) ? comment : "-" %></td>
+                            <td><%= cost %></td>
+                            <td><%= repairDate %></td>
+                            <td>
+                                <!-- Approve -->
+                                <% if (!approved) { %>
+                                <form action="${pageContext.request.contextPath}/ApproveRepairRequestServlet" method="post" style="display:inline;">
+                                    <input type="hidden" name="repairRequestId" value="<%= requestId %>">
+                                    <button type="submit" class="btn btn-sm btn-success action-btn" title="Approve Request">
+                                        <i class="fas fa-check-circle"></i>
+                                    </button>
+                                </form>
+                                <% } %>
+
+                                <!-- Cancel -->
+                                <% if (!status.equalsIgnoreCase("Cancelled") && !status.equalsIgnoreCase("Completed")) { %>
+                                <form action="${pageContext.request.contextPath}/CancelRepairRequestServlet" method="post"
+                                      style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this repair request?');">
+                                    <input type="hidden" name="repairRequestId" value="<%= requestId %>">
+                                    <button type="submit" class="btn btn-sm btn-warning action-btn" title="Cancel Request">
+                                        <i class="fas fa-times-circle"></i>
+                                    </button>
+                                </form>
+                                <% } %>
+                            </td>
+                        </tr>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='10' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <script>
+                // Sidebar navigation
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const sectionId = this.getAttribute('data-section');
+
+                        document.querySelectorAll('.dashboard-section').forEach(sec => {
+                            sec.style.display = 'none';
+                        });
+
+                        const target = document.getElementById(sectionId);
+                        if (target) {
+                            target.style.display = 'block';
+                        }
+                    });
+                });
+            </script>
+        </section>
+
+
+
 
 
 
