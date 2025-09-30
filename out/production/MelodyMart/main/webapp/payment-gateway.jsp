@@ -1,11 +1,10 @@
 <%@ page import="java.sql.*" %>
+<%@ page import="java.util.*" %>
 <%@ page import="main.java.com.melodymart.util.DBConnection" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="en">
+
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Gateway | Melody Mart</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
@@ -26,7 +25,6 @@
             --glass-border: rgba(255, 255, 255, 0.1);
             --success: #00cc66;
             --error: #ff3366;
-            --warning: #ffaa00;
         }
 
         * {
@@ -45,11 +43,14 @@
             justify-content: center;
             padding: 20px;
             line-height: 1.6;
+            background-image:
+                    radial-gradient(circle at 20% 80%, rgba(138, 43, 226, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(0, 229, 255, 0.1) 0%, transparent 50%);
         }
 
         .payment-container {
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             margin: 0 auto;
         }
 
@@ -58,8 +59,8 @@
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            padding: 40px 35px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             position: relative;
             overflow: hidden;
         }
@@ -70,13 +71,13 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 5px;
+            height: 4px;
             background: var(--gradient);
         }
 
         .payment-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
 
         .payment-header h2 {
@@ -86,95 +87,62 @@
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .payment-header p {
             color: var(--text-secondary);
             font-size: 14px;
+            font-weight: 500;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            position: relative;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
+            margin-bottom: 10px;
+            font-weight: 600;
             color: var(--text);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .form-control {
+        .form-control, .form-select {
             width: 100%;
-            padding: 15px;
+            padding: 16px 18px;
             border: 1px solid var(--glass-border);
-            background: var(--secondary);
+            background: rgba(10, 10, 10, 0.8);
             color: var(--text);
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             transition: all 0.3s ease;
+            font-weight: 500;
         }
 
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
+            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.2);
+            background: rgba(10, 10, 10, 0.9);
+            transform: translateY(-2px);
         }
 
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .payment-methods {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .payment-method {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--card-bg);
-        }
-
-        .payment-method:hover {
-            background: var(--card-hover);
-        }
-
-        .payment-method.active {
-            border-color: var(--primary-light);
-            background: rgba(138, 43, 226, 0.1);
-        }
-
-        .payment-method i {
-            font-size: 24px;
-            margin-bottom: 5px;
+        .form-control::placeholder {
             color: var(--text-secondary);
+            opacity: 0.7;
         }
 
-        .payment-method.active i {
-            color: var(--primary-light);
-        }
-
-        .payment-method span {
-            display: block;
-            font-size: 12px;
+        .input-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--text-secondary);
-        }
-
-        .payment-method.active span {
-            color: var(--primary-light);
+            font-size: 16px;
         }
 
         .btn-pay {
@@ -182,9 +150,9 @@
             background: var(--gradient);
             color: white;
             border: none;
-            padding: 16px;
+            padding: 18px;
             border-radius: 12px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -192,6 +160,8 @@
             overflow: hidden;
             z-index: 1;
             margin-top: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .btn-pay:before {
@@ -208,7 +178,7 @@
 
         .btn-pay:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
+            box-shadow: 0 12px 25px rgba(138, 43, 226, 0.4);
         }
 
         .btn-pay:hover:before {
@@ -224,59 +194,77 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 25px;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 13px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
         }
 
         .security-notice i {
             color: var(--accent);
+            font-size: 16px;
         }
 
         .message {
             margin-top: 20px;
-            padding: 15px;
-            border-radius: 10px;
+            padding: 18px;
+            border-radius: 12px;
             text-align: center;
-            font-weight: 500;
+            font-weight: 600;
             display: none;
+            animation: slideIn 0.5s ease-out;
         }
 
         .success-msg {
-            background: rgba(0, 204, 102, 0.1);
+            background: rgba(0, 204, 102, 0.15);
             border: 1px solid var(--success);
             color: var(--success);
         }
 
         .error-msg {
-            background: rgba(255, 51, 102, 0.1);
+            background: rgba(255, 51, 102, 0.15);
             border: 1px solid var(--error);
             color: var(--error);
         }
 
-        .warning-msg {
-            background: rgba(255, 170, 0, 0.1);
-            border: 1px solid var(--warning);
-            color: var(--warning);
-        }
-
-        .transaction-details {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(138, 43, 226, 0.1);
-            border-radius: 10px;
-            border: 1px solid var(--primary-light);
-            display: none;
-        }
-
-        .transaction-details h4 {
-            margin-bottom: 10px;
+        .redirect-msg {
+            background: rgba(138, 43, 226, 0.15);
+            border: 1px solid var(--primary);
             color: var(--primary-light);
         }
 
-        .transaction-details p {
-            margin-bottom: 5px;
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .payment-method {
+            padding: 14px;
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(10, 10, 10, 0.6);
+            font-weight: 600;
             font-size: 14px;
+        }
+
+        .payment-method:hover {
+            border-color: var(--primary-light);
+            background: rgba(138, 43, 226, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary-light);
+            background: rgba(138, 43, 226, 0.15);
+            color: var(--primary-light);
         }
 
         .floating-icons {
@@ -292,36 +280,59 @@
 
         .floating-icon {
             position: absolute;
-            font-size: 20px;
-            color: rgba(138, 43, 226, 0.1);
-            animation: float 6s ease-in-out infinite;
+            font-size: 18px;
+            color: rgba(138, 43, 226, 0.08);
+            animation: float 8s ease-in-out infinite;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(5deg); }
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         @media (max-width: 576px) {
             .payment-card {
-                padding: 20px;
+                padding: 30px 25px;
             }
 
             .payment-header h2 {
                 font-size: 28px;
             }
 
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-
             .payment-methods {
-                flex-wrap: wrap;
-            }
-
-            .payment-method {
-                flex: 0 0 calc(50% - 5px);
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -334,67 +345,43 @@
             <p>Complete your purchase securely</p>
         </div>
 
-        <form id="paymentForm" method="post" action="PaymentServlet">
+        <!-- Payment Form -->
+        <form id="paymentForm" action="payment-gateway.jsp" method="post">
             <div class="form-group">
-                <label class="form-label" for="orderId">Order ID</label>
-                <input type="number" class="form-control" id="orderId" name="orderId" required>
+                <label class="form-label">Order ID</label>
+                <input type="number" class="form-control" name="orderId" placeholder="Enter Order ID" required>
+                <i class="fas fa-receipt input-icon"></i>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="amount">Amount ($)</label>
-                <input type="text" class="form-control" id="amount" name="amount" required>
+                <label class="form-label">Amount ($)</label>
+                <input type="text" class="form-control" name="amount" placeholder="0.00" required>
+                <i class="fas fa-dollar-sign input-icon"></i>
             </div>
 
             <div class="form-group">
                 <label class="form-label">Payment Method</label>
                 <div class="payment-methods">
-                    <div class="payment-method" data-value="Visa">
-                        <i class="fab fa-cc-visa"></i>
-                        <span>Visa</span>
-                    </div>
-                    <div class="payment-method" data-value="MasterCard">
-                        <i class="fab fa-cc-mastercard"></i>
-                        <span>MasterCard</span>
-                    </div>
-                    <div class="payment-method" data-value="Amex">
-                        <i class="fab fa-cc-amex"></i>
-                        <span>Amex</span>
-                    </div>
-                    <div class="payment-method" data-value="PayPal">
-                        <i class="fab fa-cc-paypal"></i>
-                        <span>PayPal</span>
-                    </div>
+                    <div class="payment-method" data-value="Visa">Visa</div>
+                    <div class="payment-method" data-value="MasterCard">MasterCard</div>
+                    <div class="payment-method" data-value="Amex">Amex</div>
+                    <div class="payment-method" data-value="PayPal">PayPal</div>
                 </div>
-                <input type="hidden" id="paymentMethod" name="paymentMethod" required>
+                <select class="form-select" name="paymentMethod" required style="display: none;">
+                    <option value="Visa">Visa</option>
+                    <option value="MasterCard">MasterCard</option>
+                    <option value="Amex">Amex</option>
+                    <option value="PayPal">PayPal</option>
+                </select>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="cardNumber">Card Number</label>
-                    <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="cvv">CVV</label>
-                    <input type="text" class="form-control" id="cvv" name="cvv" maxlength="3" required>
-                </div>
+            <div class="form-group">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-control" name="cvv" placeholder="123" maxlength="3" required>
+                <i class="fas fa-lock input-icon"></i>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label" for="expiryDate">Expiry Date</label>
-                    <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY" maxlength="5" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="cardName">Name on Card</label>
-                    <input type="text" class="form-control" id="cardName" placeholder="John Doe" required>
-                </div>
-            </div>
-
-            <!-- Hidden fields for servlet -->
-            <input type="hidden" id="transactionId" name="transactionId">
-            <input type="hidden" id="status" name="status" value="Pending">
-
-            <button type="submit" class="btn-pay">
+            <button type="submit" class="btn-pay" id="submitBtn">
                 <i class="fas fa-lock"></i> Pay Now
             </button>
 
@@ -404,41 +391,90 @@
             </div>
         </form>
 
-        <!-- Server Response Messages -->
         <%
-            String message = (String) request.getAttribute("message");
-            if (message != null) {
-                boolean isSuccess = message.contains("✅") || message.contains("successfully");
-        %>
-        <div class="message <%= isSuccess ? "success-msg" : "error-msg" %>" style="display: block;">
-            <i class="fas <%= isSuccess ? "fa-check-circle" : "fa-exclamation-circle" %>"></i>
-            <%= message %>
-        </div>
-        <%
+            // Handle form submission
+            String orderId = request.getParameter("orderId");
+            String amount = request.getParameter("amount");
+            String paymentMethod = request.getParameter("paymentMethod");
+            String cvv = request.getParameter("cvv");
+
+            if(orderId != null && amount != null && paymentMethod != null && cvv != null){
+                Connection conn = null;
+                PreparedStatement ps = null;
+
+                try {
+                    conn = DBConnection.getConnection();
+
+                    // Generate unique transaction ID
+                    String txnId = "TXN" + (new java.util.Random().nextInt(9000) + 1000);
+
+                    String sql = "INSERT INTO Payment (OrderID, PaymentDate, Amount, PaymentMethod, TransactionID, CVV, Status) VALUES (?,?,?,?,?,?,?)";
+                    ps = conn.prepareStatement(sql);
+                    ps.setInt(1, Integer.parseInt(orderId));
+                    ps.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
+                    ps.setDouble(3, Double.parseDouble(amount));
+                    ps.setString(4, paymentMethod);
+                    ps.setString(5, txnId);
+                    ps.setInt(6, Integer.parseInt(cvv));
+                    ps.setString(7, "Paid"); // Set status as Paid for successful payment
+
+                    int rows = ps.executeUpdate();
+                    if(rows > 0){
+                        // Show success message
+                        out.println("<div class='success-msg' style='display: block;'>");
+                        out.println("<i class='fas fa-check-circle'></i> Payment Successful!<br>");
+                        out.println("<small>Transaction ID: " + txnId + "</small>");
+                        out.println("</div>");
+
+                        // Show redirect message
+                        out.println("<div class='redirect-msg' style='display: block; margin-top: 15px;'>");
+                        out.println("<i class='fas fa-redo'></i> Redirecting to dashboard...");
+                        out.println("</div>");
+
+                        // JavaScript redirect after 3 seconds
+                        out.println("<script>");
+                        out.println("setTimeout(function() {");
+                        out.println("   window.location.href = 'customerlanding.jsp';");
+                        out.println("}, 3000);");
+                        out.println("</script>");
+                    } else {
+                        out.println("<div class='error-msg' style='display: block;'>");
+                        out.println("<i class='fas fa-exclamation-circle'></i> Payment failed. Please try again.");
+                        out.println("</div>");
+                    }
+                } catch (Exception e) {
+                    out.println("<div class='error-msg' style='display: block;'>");
+                    out.println("<i class='fas fa-exclamation-triangle'></i> Error: " + e.getMessage());
+                    out.println("</div>");
+                } finally {
+                    if(ps != null) try { ps.close(); } catch (Exception ignored) {}
+                    if(conn != null) try { conn.close(); } catch (Exception ignored) {}
+                }
             }
         %>
 
         <div class="floating-icons">
-            <i class="floating-icon" style="top: 10%; left: 5%; animation-delay: 0s;">🎵</i>
-            <i class="floating-icon" style="top: 20%; right: 10%; animation-delay: 1s;">🎸</i>
-            <i class="floating-icon" style="top: 70%; left: 10%; animation-delay: 2s;">🎹</i>
-            <i class="floating-icon" style="top: 60%; right: 5%; animation-delay: 3s;">🎶</i>
-            <i class="floating-icon" style="top: 40%; left: 15%; animation-delay: 4s;">🎼</i>
+            <i class="floating-icon" style="top: 15%; left: 8%; animation-delay: 0s;">💳</i>
+            <i class="floating-icon" style="top: 25%; right: 12%; animation-delay: 2s;">💰</i>
+            <i class="floating-icon" style="top: 75%; left: 12%; animation-delay: 4s;">🔒</i>
+            <i class="floating-icon" style="top: 65%; right: 8%; animation-delay: 6s;">⚡</i>
         </div>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Payment method selection
         const paymentMethods = document.querySelectorAll('.payment-method');
-        const paymentMethodInput = document.getElementById('paymentMethod');
+        const paymentSelect = document.querySelector('select[name="paymentMethod"]');
+        const form = document.getElementById('paymentForm');
+        const submitBtn = document.getElementById('submitBtn');
 
+        // Payment method selection
         paymentMethods.forEach(method => {
             method.addEventListener('click', function() {
-                paymentMethods.forEach(m => m.classList.remove('active'));
-                this.classList.add('active');
-                paymentMethodInput.value = this.getAttribute('data-value');
+                paymentMethods.forEach(m => m.classList.remove('selected'));
+                this.classList.add('selected');
+                paymentSelect.value = this.getAttribute('data-value');
             });
         });
 
@@ -447,157 +483,55 @@
             paymentMethods[0].click();
         }
 
-        // Format card number input
-        const cardNumberInput = document.getElementById('cardNumber');
-        cardNumberInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-            let formattedValue = '';
+        // Form submission loading state
+        form.addEventListener('submit', function() {
+            submitBtn.innerHTML = '<span class="loading"></span> Processing...';
+            submitBtn.disabled = true;
 
-            for (let i = 0; i < value.length; i++) {
-                if (i > 0 && i % 4 === 0) {
-                    formattedValue += ' ';
-                }
-                formattedValue += value[i];
-            }
-
-            e.target.value = formattedValue;
+            // Add success animation to the button
+            submitBtn.style.animation = 'successPulse 0.6s ease-in-out';
         });
 
-        // Format expiry date input
-        const expiryDateInput = document.getElementById('expiryDate');
-        expiryDateInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-
-            if (value.length >= 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        // Amount input formatting
+        const amountInput = document.querySelector('input[name="amount"]');
+        amountInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d.]/g, '');
+            if ((value.match(/\./g) || []).length > 1) {
+                value = value.substring(0, value.lastIndexOf('.'));
             }
-
             e.target.value = value;
         });
 
-        // Form validation and submission
-        const paymentForm = document.getElementById('paymentForm');
-        const transactionIdInput = document.getElementById('transactionId');
-        const statusInput = document.getElementById('status');
-
-        paymentForm.addEventListener('submit', function(e) {
-            // Generate transaction ID
-            const txnId = "TXN" + (Math.floor(Math.random() * 9000) + 1000);
-            transactionIdInput.value = txnId;
-
-            // Determine payment status (simulate 80% success rate)
-            const isSuccess = Math.random() > 0.2;
-            statusInput.value = isSuccess ? "Paid" : "Failed";
-
-            // Validate card number (simple Luhn algorithm check)
-            const cardNumber = cardNumberInput.value.replace(/\s/g, '');
-            if (!isValidCardNumber(cardNumber)) {
-                e.preventDefault();
-                showValidationError('Please enter a valid card number');
-                return;
-            }
-
-            // Validate expiry date
-            const expiryDate = expiryDateInput.value;
-            if (!isValidExpiryDate(expiryDate)) {
-                e.preventDefault();
-                showValidationError('Please enter a valid expiry date (MM/YY)');
-                return;
-            }
-
-            // Validate CVV
-            const cvv = document.getElementById('cvv').value;
-            if (!/^\d{3,4}$/.test(cvv)) {
-                e.preventDefault();
-                showValidationError('Please enter a valid CVV (3-4 digits)');
-                return;
-            }
-
-            // If all validations pass, show loading state
-            const submitBtn = paymentForm.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
-            submitBtn.disabled = true;
+        // CVV input restriction
+        const cvvInput = document.querySelector('input[name="cvv"]');
+        cvvInput.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
         });
 
-        // Card number validation using Luhn algorithm
-        function isValidCardNumber(cardNumber) {
-            if (!/^\d+$/.test(cardNumber)) return false;
-
-            let sum = 0;
-            let isEven = false;
-
-            for (let i = cardNumber.length - 1; i >= 0; i--) {
-                let digit = parseInt(cardNumber.charAt(i), 10);
-
-                if (isEven) {
-                    digit *= 2;
-                    if (digit > 9) {
-                        digit -= 9;
-                    }
-                }
-
-                sum += digit;
-                isEven = !isEven;
-            }
-
-            return (sum % 10) === 0;
-        }
-
-        // Expiry date validation
-        function isValidExpiryDate(expiryDate) {
-            if (!/^\d{2}\/\d{2}$/.test(expiryDate)) return false;
-
-            const [month, year] = expiryDate.split('/').map(Number);
-            const currentDate = new Date();
-            const currentYear = currentDate.getFullYear() % 100;
-            const currentMonth = currentDate.getMonth() + 1;
-
-            if (month < 1 || month > 12) return false;
-            if (year < currentYear || (year === currentYear && month < currentMonth)) return false;
-
-            return true;
-        }
-
-        // Show validation error
-        function showValidationError(message) {
-            // Remove any existing validation message
-            const existingError = document.querySelector('.warning-msg');
-            if (existingError) {
-                existingError.remove();
-            }
-
-            // Create and show new validation message
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'message warning-msg';
-            errorDiv.style.display = 'block';
-            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
-
-            paymentForm.insertBefore(errorDiv, paymentForm.querySelector('.security-notice'));
-
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                errorDiv.remove();
-            }, 5000);
-        }
-
-        // Add floating icons dynamically
+        // Add floating icons
         function addFloatingIcons() {
-            const icons = ['🎵', '🎸', '🎹', '🎶', '🎼', '🥁', '🎷', '🎺', '🎻', '📯'];
+            const icons = ['💳', '💰', '🔒', '⚡', '🎵', '💎', '🌟', '📊'];
             const container = document.querySelector('.floating-icons');
 
-            for (let i = 0; i < 10; i++) {
+            for (let i = 0; i < 12; i++) {
                 const icon = document.createElement('div');
                 icon.className = 'floating-icon';
                 icon.textContent = icons[Math.floor(Math.random() * icons.length)];
                 icon.style.left = Math.random() * 100 + '%';
                 icon.style.top = Math.random() * 100 + '%';
-                icon.style.animationDelay = Math.random() * 5 + 's';
-                icon.style.fontSize = (Math.random() * 15 + 12) + 'px';
+                icon.style.animationDelay = Math.random() * 8 + 's';
+                icon.style.fontSize = (Math.random() * 12 + 14) + 'px';
                 container.appendChild(icon);
             }
         }
 
         addFloatingIcons();
+
+        // Check if we have a success message and animate it
+        const successMsg = document.querySelector('.success-msg');
+        if (successMsg && successMsg.style.display === 'block') {
+            successMsg.style.animation = 'successPulse 2s ease-in-out infinite';
+        }
     });
 </script>
 </body>
