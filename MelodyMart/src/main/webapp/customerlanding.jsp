@@ -654,7 +654,7 @@
 <!-- Dashboard Hero Section -->
 <section class="dashboard-hero">
     <div class="dashboard-hero-content">
-        <h1>Welcome Back, <span class="customer-name">John Doe</span>!</h1>
+        <h1>Welcome Back, <span class="customer-name">Customer</span>!</h1>
         <p>Your musical journey continues with Melody Mart. Explore your dashboard to manage orders, track shipments, and discover new instruments.</p>
         <div class="slide-btns">
             <button class="cta-btn" onclick="window.location.href='shop.jsp'">Continue Shopping</button>
