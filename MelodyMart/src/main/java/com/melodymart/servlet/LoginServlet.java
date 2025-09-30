@@ -80,7 +80,7 @@ public class LoginServlet extends HttpServlet {
                                 redirectUrl = "sellerdashboard.jsp";
                                 break;
                             case "admin":
-                                redirectUrl = "admindashboard.jsp";
+                                redirectUrl = "admin-dashboard.jsp";
                                 break;
                             default:
                                 redirectUrl = "sign-in.jsp?error=Unknown role or page not found";

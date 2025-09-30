@@ -1,4 +1,3 @@
-
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*" %>
 <!DOCTYPE html>
@@ -35,7 +34,7 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, rgba(10, 10, 10, 0.95), rgba(20, 20, 20, 0.95)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1740&q=80');
+            background: linear-gradient(135deg, rgba(10, 10, 10, 0.95), rgba(20, 20, 20, 0.95)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
             background-size: cover;
             background-attachment: fixed;
             color: var(--text);
@@ -518,40 +517,9 @@
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
 
-        .btn-info {
-            background: linear-gradient(135deg, #17a2b8, #138496);
-            color: white;
-        }
-
-        .btn-info:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #6c757d, #5a6268);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
-        }
-
         .btn-sm {
             padding: 6px 12px;
             font-size: 14px;
-        }
-
-        .btn-outline-primary {
-            border: 1px solid var(--primary-light);
-            color: var(--primary-light);
-            background: transparent;
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--primary-light);
-            color: white;
         }
 
         /* Forms */
@@ -689,62 +657,6 @@
             font-size: 20px;
             color: rgba(138, 43, 226, 0.1);
             animation: float 6s ease-in-out infinite;
-        }
-
-        /* Login Form */
-        .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            padding: 30px;
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        .login-container h3 {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .login-container .form-group {
-            margin-bottom: 20px;
-        }
-
-        .login-container .form-control {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--text);
-            padding: 12px;
-            border-radius: 8px;
-            width: 100%;
-        }
-
-        .login-container .form-control:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.3);
-        }
-
-        .login-container .btn-primary {
-            width: 100%;
-            padding: 12px;
-            background: var(--gradient);
-            color: white;
-            font-weight: 600;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 14px;
-            text-align: center;
-            margin-top: 10px;
-            animation: fadeIn 0.3s ease-out;
         }
 
         /* Footer */
@@ -905,15 +817,12 @@
     </a>
     <div class="nav-actions">
         <a href="index.jsp" class="nav-link"><i class="fas fa-home"></i> Home</a>
-        <% if (session.getAttribute("adminUser") != null) { %>
-        <a href="AdminDashboard.jsp?action=logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        <% } %>
+        <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
 </nav>
 
 <div class="main-wrapper">
-    <!-- Sidebar (only shown if logged in) -->
-    <% if (session.getAttribute("adminUser") != null) { %>
+    <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
             <h4>Admin Dashboard</h4>
@@ -931,40 +840,12 @@
             <li><a href="#notifications"><i class="fas fa-bell"></i> Notifications & Alerts</a></li>
         </ul>
     </div>
-    <% } %>
 
     <!-- Main Content -->
     <div class="main-content">
-        <%
-            String action = request.getParameter("action");
-            if ("logout".equals(action)) {
-                session.invalidate();
-                response.sendRedirect("AdminDashboard.jsp");
-                return;
-            }
-        %>
-        <% if (session.getAttribute("adminUser") == null) { %>
-        <!-- Login Form -->
-        <div class="login-container">
-            <h3>Admin Login</h3>
-            <form id="loginForm" onsubmit="return validateLogin(event)">
-                <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
-                </div>
-                <div id="error-message" class="error-message" style="display: none;"></div>
-                <button type="submit" class="btn btn-primary hover-lift"><i class="fas fa-sign-in-alt"></i> Login</button>
-            </form>
-        </div>
-        <% } else { %>
-        <!-- Dashboard Content -->
         <div class="dashboard-header">
             <h2>Admin Dashboard</h2>
-            <p>Welcome, <%= session.getAttribute("adminUser") %>! As of 09:42 PM +0530 on September 30, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
+            <p>As of 11:07 AM +0530 on September 18, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
         </div>
 
         <!-- Stats Overview -->
@@ -996,8 +877,8 @@
             <div class="card-header">
                 <h3><i class="fas fa-users"></i> User Management Section</h3>
                 <div class="card-header-actions">
-                    <button class="btn btn-sm btn-primary hover-lift" onclick="alert('Exporting user data (simulated).')"><i class="fas fa-download"></i> Export</button>
-                    <button class="btn btn-sm btn-success hover-lift" onclick="alert('Add new user (simulated).')"><i class="fas fa-plus"></i> Add New</button>
+                    <button class="btn btn-sm btn-primary hover-lift"><i class="fas fa-download"></i> Export</button>
+                    <button class="btn btn-sm btn-success hover-lift"><i class="fas fa-plus"></i> Add New</button>
                 </div>
             </div>
             <div class="card-body">
@@ -1020,9 +901,9 @@
                             <td>Customer</td>
                             <td><span class="badge bg-success">Active</span></td>
                             <td>
-                                <button class="btn btn-primary btn-sm hover-lift" onclick="alert('Editing user 1001 (simulated).')"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-warning btn-sm hover-lift" onclick="alert('Suspending user 1001 (simulated).')"><i class="fas fa-ban"></i> Suspend</button>
-                                <button class="btn btn-danger btn-sm hover-lift" onclick="alert('Deleting user 1001 (simulated).')"><i class="fas fa-trash"></i> Delete</button>
+                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-warning btn-sm hover-lift"><i class="fas fa-ban"></i> Suspend</button>
+                                <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
                             </td>
                         </tr>
                         <tr>
@@ -1031,8 +912,8 @@
                             <td>Seller</td>
                             <td><span class="badge bg-warning">Pending</span></td>
                             <td>
-                                <button class="btn btn-primary btn-sm hover-lift" onclick="alert('Approving user 1002 (simulated).')"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn btn-danger btn-sm hover-lift" onclick="alert('Rejecting user 1002 (simulated).')"><i class="fas fa-times"></i> Reject</button>
+                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-check"></i> Approve</button>
+                                <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-times"></i> Reject</button>
                             </td>
                         </tr>
                         <tr>
@@ -1041,8 +922,8 @@
                             <td>Admin</td>
                             <td><span class="badge bg-success">Active</span></td>
                             <td>
-                                <button class="btn btn-primary btn-sm hover-lift" onclick="alert('Editing user 1003 (simulated).')"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-warning btn-sm hover-lift" onclick="alert('Suspending user 1003 (simulated).')"><i class="fas fa-ban"></i> Suspend</button>
+                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-warning btn-sm hover-lift"><i class="fas fa-ban"></i> Suspend</button>
                             </td>
                         </tr>
                         </tbody>
@@ -1051,102 +932,268 @@
             </div>
         </section>
 
-        <!-- Stock Management Section -->
+
+
+
+
+
+        <%@ page import="java.sql.Connection" %>
+        <%@ page import="java.sql.PreparedStatement" %>
+        <%@ page import="java.sql.ResultSet" %>
+        <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+        <!-- ⭐ Improved Stock Management Tools -->
         <section id="stock-management" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-boxes"></i> Stock Management Tools</h3>
-                <button class="btn btn-secondary hover-lift" onclick="refreshStockStatus()"><i class="fas fa-sync-alt"></i> Refresh Status</button>
+            <div class="card-header flex items-center justify-between">
+                <h3 class="flex items-center gap-2 text-lg font-semibold">
+                    <i class="fas fa-boxes"></i> Stock Management Tools
+                </h3>
+                <button type="button" class="btn btn-secondary" onclick="refreshStockStatus()">
+                    <i class="fas fa-sync-alt"></i> Refresh Status
+                </button>
             </div>
+
             <div class="card-body">
-                <p>Quickly update instrument stock levels, track availability, and get real-time alerts for low or oversold items.</p>
-                <form id="stockUpdateForm" onsubmit="return updateStock(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <p class="text-muted mb-3">
+                    Quickly update instrument stock levels, track availability, and get real-time alerts for low or oversold items.
+                </p>
+
+                <!-- Update Stock Form -->
+                <form id="stockUpdateForm" method="post" action="${pageContext.request.contextPath}/UpdateStockServlet"
+                      class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+
+                    <!-- Instrument ID -->
                     <div class="form-group">
-                        <label for="instrumentId" class="form-label">Instrument ID</label>
+                        <label for="instrumentId" class="form-label font-weight-bold">Instrument ID</label>
                         <input type="text" class="form-control" id="instrumentId" name="instrumentId" placeholder="Enter ID" required>
                     </div>
+
+                    <!-- Quantity -->
                     <div class="form-group">
-                        <label for="stockQuantity" class="form-label">New Quantity</label>
+                        <label for="stockQuantity" class="form-label font-weight-bold">New Quantity</label>
                         <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" placeholder="e.g. 20" min="0" required>
                     </div>
+
+                    <!-- Submit -->
                     <div class="form-group">
-                        <button type="submit" class="btn btn-primary hover-lift w-full"><i class="fas fa-save"></i> Update Stock</button>
+                        <button type="submit" class="btn btn-primary hover-lift w-full">
+                            <i class="fas fa-save"></i> Update Stock
+                        </button>
                     </div>
                 </form>
+
+                <!-- 🔔 Stock Alerts (Dynamic from DB) -->
                 <div id="stockAlerts" class="mt-5">
                     <h5 class="mb-2"><i class="fas fa-bell text-warning"></i> Stock Alerts</h5>
                     <ul class="list-group">
+                        <%
+                            Connection conn = null;
+                            PreparedStatement ps = null;
+                            ResultSet rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+                                String sql = "SELECT InstrumentID, Name, StockLevel FROM Instrument WHERE StockLevel IN ('Low Stock', 'Out of Stock')";
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+                                while (rs.next()) {
+                                    String level = rs.getString("StockLevel");
+                                    String icon = "Low Stock".equalsIgnoreCase(level)
+                                            ? "<i class='fas fa-exclamation-triangle text-warning'></i>"
+                                            : "<i class='fas fa-times-circle text-danger'></i>";
+                        %>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-exclamation-triangle text-warning"></i> Item ID 101 (Guitar XYZ) is <b>Low Stock</b></span>
-                            <button class="btn btn-sm btn-outline-primary" onclick="quickRestock(101)">Restock</button>
+                            <span><%= icon %> Item ID <%= rs.getInt("InstrumentID") %> (<%= rs.getString("Name") %>) is <b><%= level %></b></span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="quickRestock(<%= rs.getInt("InstrumentID") %>)">Restock</button>
                         </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-times-circle text-danger"></i> Item ID 102 (Drum Set) is <b>Out of Stock</b></span>
-                            <button class="btn btn-sm btn-outline-primary" onclick="quickRestock(102)">Restock</button>
-                        </li>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<li class='list-group-item text-danger'>Error: " + e.getMessage() + "</li>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
                     </ul>
                 </div>
             </div>
-            <!-- Stock Reports / Audit Section -->
+
+            <%@ page import="java.sql.Connection" %>
+            <%@ page import="java.sql.PreparedStatement" %>
+            <%@ page import="java.sql.ResultSet" %>
+            <%@ page import="com.melodymart.util.DatabaseUtil" %>
+
+            <!-- 📊 Stock Reports / Audit Section -->
             <section id="stock-reports" class="section-card mt-4">
-                <div class="card-header">
-                    <h3><i class="fas fa-chart-line"></i> Stock Reports & Audits</h3>
-                    <div class="card-header-actions">
-                        <button class="btn btn-secondary hover-lift" onclick="alert('Exporting stock report (simulated).')"><i class="fas fa-file-download"></i> Export Report (CSV)</button>
-                        <form id="removeInstrumentForm" onsubmit="return removeInstrument(event)" class="d-flex align-items-center">
-                            <input type="text" name="instrumentId" class="form-control form-control-sm mr-2" placeholder="Instrument ID" required>
-                            <button type="submit" class="btn btn-sm btn-danger hover-lift"><i class="fas fa-ban"></i> Remove from Sale</button>
+                <div class="card-header flex items-center justify-between">
+                    <h3 class="flex items-center gap-2 text-lg font-semibold">
+                        <i class="fas fa-chart-line"></i> Stock Reports & Audits
+                    </h3>
+                    <div class="d-flex gap-2">
+                        <!-- Export Report -->
+                        <form method="post" action="${pageContext.request.contextPath}/ExportStockReportServlet" style="display:inline;">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-file-download"></i> Export Report (CSV)
+                            </button>
+                        </form>
+
+                        <!-- Remove Instrument (Global) -->
+                        <form action="${pageContext.request.contextPath}/RemoveInstrumentServlet"
+                              method="post" class="d-flex align-items-center"
+                              onsubmit="return confirm('Are you sure you want to remove this instrument from sale?');">
+                            <input type="text" name="instrumentId" class="form-control form-control-sm mr-2"
+                                   placeholder="Instrument ID" required>
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fas fa-ban"></i> Remove from Sale
+                            </button>
                         </form>
                     </div>
                 </div>
+
                 <div class="card-body">
-                    <p>Review stock health across all instruments for audits and decision-making.</p>
+                    <p class="text-muted mb-3">Review stock health across all instruments. Export full reports or remove discontinued/policy-restricted items from sale.</p>
+
+                    <!-- Optional summary cards or stock audit table could go here -->
+                </div>
+            </section>
+
+            <div class="card-body">
+                    <p class="text-muted mb-3">Review stock health across all instruments for audits and decision-making.</p>
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                        <div class="stat-card">
+                        <%
+                             conn = null;
+                            ps = null;
+                           rs = null;
+                            try {
+                                conn = DatabaseUtil.getConnection();
+
+                                // Total Instruments
+                                ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument");
+                                rs = ps.executeQuery();
+                                rs.next();
+                                int totalInstruments = rs.getInt(1);
+                                rs.close(); ps.close();
+
+                                // In Stock
+                                ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='In Stock'");
+                                rs = ps.executeQuery();
+                                rs.next();
+                                int inStock = rs.getInt(1);
+                                rs.close(); ps.close();
+
+                                // Low Stock
+                                ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='Low Stock'");
+                                rs = ps.executeQuery();
+                                rs.next();
+                                int lowStock = rs.getInt(1);
+                                rs.close(); ps.close();
+
+                                // Out of Stock
+                                ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='Out of Stock'");
+                                rs = ps.executeQuery();
+                                rs.next();
+                                int outOfStock = rs.getInt(1);
+                                rs.close(); ps.close();
+                        %>
+
+                        <!-- KPI Cards -->
+                        <div class="stat-card bg-light shadow-sm p-3 rounded">
                             <h4>Total Instruments</h4>
-                            <p class="stat-value">150</p>
+                            <p class="font-weight-bold text-primary"><%= totalInstruments %></p>
                         </div>
-                        <div class="stat-card">
+
+                        <div class="stat-card bg-light shadow-sm p-3 rounded">
                             <h4>In Stock</h4>
-                            <p class="stat-value text-success">120</p>
+                            <p class="font-weight-bold text-success"><%= inStock %></p>
                         </div>
-                        <div class="stat-card">
+
+                        <div class="stat-card bg-light shadow-sm p-3 rounded">
                             <h4>Low Stock</h4>
-                            <p class="stat-value text-warning">25</p>
+                            <p class="font-weight-bold text-warning"><%= lowStock %></p>
                         </div>
-                        <div class="stat-card">
+
+                        <div class="stat-card bg-light shadow-sm p-3 rounded">
                             <h4>Out of Stock</h4>
-                            <p class="stat-value text-danger">5</p>
+                            <p class="font-weight-bold text-danger"><%= outOfStock %></p>
                         </div>
+
+                        <%
+                            } catch (Exception e) {
+                                out.println("<p class='text-danger'>Error loading report: " + e.getMessage() + "</p>");
+                            } finally {
+                                try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+                                try { if (ps != null) ps.close(); } catch (Exception ignored) {}
+                                try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
                     </div>
                 </div>
             </section>
-            <!-- Stock Corrections / Disputes -->
+
+
+            <!-- 🛠 Stock Override / Correction -->
             <section id="stock-override" class="section-card mt-4">
                 <div class="card-header">
                     <h3><i class="fas fa-edit"></i> Stock Corrections / Disputes</h3>
                 </div>
+
                 <div class="card-body">
-                    <p>Use this tool to override stock levels for audit corrections or dispute resolutions.</p>
-                    <form id="stockCorrectionForm" onsubmit="return applyCorrection(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <p class="text-muted mb-3">
+                        Use this tool to override stock levels for audit corrections or dispute resolutions.
+                    </p>
+
+                    <form method="post" action="${pageContext.request.contextPath}/StockCorrectionServlet" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+
+                        <!-- Instrument ID -->
                         <div class="form-group">
                             <label for="correctionInstrumentId" class="form-label">Instrument ID</label>
                             <input type="text" class="form-control" id="correctionInstrumentId" name="instrumentId" placeholder="Enter ID" required>
                         </div>
+
+                        <!-- Corrected Quantity -->
                         <div class="form-group">
                             <label for="correctedQuantity" class="form-label">Corrected Quantity</label>
                             <input type="number" class="form-control" id="correctedQuantity" name="correctedQuantity" min="0" required>
                         </div>
+
+                        <!-- Reason -->
                         <div class="form-group">
                             <label for="correctionReason" class="form-label">Reason</label>
                             <input type="text" class="form-control" id="correctionReason" name="reason" placeholder="e.g., Damaged item removed, Audit correction" required>
                         </div>
+
+                        <!-- Submit -->
                         <div class="form-group">
-                            <button type="submit" class="btn btn-warning hover-lift w-full"><i class="fas fa-save"></i> Apply Correction</button>
+                            <button type="submit" class="btn btn-warning hover-lift w-full">
+                                <i class="fas fa-save"></i> Apply Correction
+                            </button>
                         </div>
                     </form>
                 </div>
             </section>
+
+
+
+
         </section>
+
+        <script>
+            // Simulate stock refresh
+            function refreshStockStatus() {
+                location.reload(); // simple page reload to update alerts
+            }
+
+            // Quick restock helper
+            function quickRestock(id) {
+                document.getElementById("instrumentId").value = id;
+                document.getElementById("stockQuantity").focus();
+            }
+        </script>
+
+
+
 
         <!-- Item Review Queue -->
         <section id="item-review" class="section-card">
@@ -1161,21 +1208,21 @@
                             <strong>Guitar XYZ</strong>
                             <div class="text-muted">Flagged for: Guideline Violation</div>
                         </div>
-                        <button class="btn btn-info btn-sm hover-lift" onclick="alert('Reviewing Guitar XYZ (simulated).')"><i class="fas fa-eye"></i> Review</button>
+                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
                     </li>
                     <li class="list-group-item">
                         <div>
                             <strong>Drum Set Pro</strong>
                             <div class="text-muted">Flagged for: Suspected Counterfeit</div>
                         </div>
-                        <button class="btn btn-info btn-sm hover-lift" onclick="alert('Reviewing Drum Set Pro (simulated).')"><i class="fas fa-eye"></i> Review</button>
+                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
                     </li>
                     <li class="list-group-item">
                         <div>
                             <strong>Microphone Studio</strong>
                             <div class="text-muted">Flagged for: Inaccurate Description</div>
                         </div>
-                        <button class="btn btn-info btn-sm hover-lift" onclick="alert('Reviewing Microphone Studio (simulated).')"><i class="fas fa-eye"></i> Review</button>
+                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
                     </li>
                 </ul>
             </div>
@@ -1189,14 +1236,14 @@
             <div class="card-body">
                 <p>Options to generate system reports on site activity, sales, or user metrics.</p>
                 <div class="form-group">
-                    <select class="form-select" onchange="alert('Selected report type: ' + this.value + ' (simulated).')">
+                    <select class="form-select">
                         <option>Select Report Type</option>
                         <option>Sales Report</option>
                         <option>User Activity</option>
                         <option>System Performance</option>
                     </select>
                 </div>
-                <button class="btn btn-primary hover-lift" onclick="alert('Generating report (simulated).')"><i class="fas fa-file-export"></i> Generate Report</button>
+                <button class="btn btn-primary hover-lift"><i class="fas fa-file-export"></i> Generate Report</button>
                 <div class="chart-container">
                     <canvas id="salesChart"></canvas>
                 </div>
@@ -1213,7 +1260,7 @@
                 <div class="form-group">
                     <textarea class="form-control" rows="6" placeholder="Update Policy Text Here..."></textarea>
                 </div>
-                <button class="btn btn-primary hover-lift" onclick="alert('Policy saved (simulated).')"><i class="fas fa-save"></i> Save Policy</button>
+                <button class="btn btn-primary hover-lift"><i class="fas fa-save"></i> Save Policy</button>
             </div>
         </section>
 
@@ -1239,18 +1286,18 @@
                             <td>001</td>
                             <td>Admin User</td>
                             <td>admin@melodymart.com</td>
-                            <td><button class="btn btn-danger btn-sm hover-lift" onclick="alert('Removing admin 001 (simulated).')"><i class="fas fa-trash"></i> Remove</button></td>
+                            <td><button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Remove</button></td>
                         </tr>
                         <tr>
                             <td>002</td>
                             <td>Site Manager</td>
                             <td>manager@melodymart.com</td>
-                            <td><button class="btn btn-danger btn-sm hover-lift" onclick="alert('Removing admin 002 (simulated).')"><i class="fas fa-trash"></i> Remove</button></td>
+                            <td><button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Remove</button></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
-                <button class="btn btn-success mt-3 hover-lift" onclick="alert('Adding new admin (simulated).')"><i class="fas fa-plus"></i> Add New Admin</button>
+                <button class="btn btn-success mt-3 hover-lift"><i class="fas fa-plus"></i> Add New Admin</button>
             </div>
         </section>
 
@@ -1267,21 +1314,21 @@
                             <strong>Great service!</strong>
                             <div class="text-muted">Rating: 5/5 • Posted by: John D.</div>
                         </div>
-                        <button class="btn btn-danger btn-sm hover-lift" onclick="alert('Deleting feedback from John D. (simulated).')"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
                     </li>
                     <li class="list-group-item">
                         <div>
                             <strong>Product arrived damaged</strong>
                             <div class="text-muted">Rating: 2/5 • Posted by: Sarah M.</div>
                         </div>
-                        <button class="btn btn-danger btn-sm hover-lift" onclick="alert('Deleting feedback from Sarah M. (simulated).')"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
                     </li>
                     <li class="list-group-item">
                         <div>
                             <strong>Fast shipping, great quality</strong>
                             <div class="text-muted">Rating: 5/5 • Posted by: Mike R.</div>
                         </div>
-                        <button class="btn btn-danger btn-sm hover-lift" onclick="alert('Deleting feedback from Mike R. (simulated).')"><i class="fas fa-trash"></i> Delete</button>
+                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
                     </li>
                 </ul>
             </div>
@@ -1340,7 +1387,6 @@
                 </div>
             </div>
         </section>
-        <% } %>
     </div>
 </div>
 
@@ -1351,185 +1397,112 @@
     </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Hardcoded credentials for validation
-    const VALID_USERNAME = 'ravini';
-    const VALID_PASSWORD = 'ravini2004';
-
-    // Login validation function
-    function validateLogin(event) {
-        event.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const errorMessage = document.getElementById('error-message');
-
-        if (username === VALID_USERNAME && password === VALID_PASSWORD) {
-            // Submit form to set session attribute
-            fetch('Admin-dashboard.jsp', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'action=login&username=' + encodeURIComponent(username)
-            }).then(response => {
-                if (response.ok) {
-                    window.location.reload(); // Reload to show dashboard
-                } else {
-                    errorMessage.textContent = 'Login failed. Please try again.';
-                    errorMessage.style.display = 'block';
-                }
-            }).catch(error => {
-                errorMessage.textContent = 'Error: ' + error.message;
-                errorMessage.style.display = 'block';
-            });
-        } else {
-            errorMessage.textContent = 'Invalid username or password';
-            errorMessage.style.display = 'block';
-        }
-        return false;
-    }
-
-    // Handle login action
-    <% if ("login".equals(request.getParameter("action"))) { %>
-    <% session.setAttribute("adminUser", request.getParameter("username")); %>
-    <% session.setMaxInactiveInterval(1800); // 30 minutes session timeout %>
-    <% } %>
-
-    // Simulate stock update (client-side only, no backend)
-    function updateStock(event) {
-        event.preventDefault();
-        const instrumentId = document.getElementById('instrumentId').value;
-        const stockQuantity = document.getElementById('stockQuantity').value;
-        alert(`Stock updated for Instrument ID ${instrumentId} to ${stockQuantity} units (simulated).`);
-        document.getElementById('stockUpdateForm').reset();
-        return false;
-    }
-
-    // Simulate stock correction (client-side only, no backend)
-    function applyCorrection(event) {
-        event.preventDefault();
-        const instrumentId = document.getElementById('correctionInstrumentId').value;
-        const quantity = document.getElementById('correctedQuantity').value;
-        const reason = document.getElementById('correctionReason').value;
-        alert(`Stock correction applied for Instrument ID ${instrumentId}: ${quantity} units, Reason: ${reason} (simulated).`);
-        document.getElementById('stockCorrectionForm').reset();
-        return false;
-    }
-
-    // Simulate instrument removal (client-side only, no backend)
-    function removeInstrument(event) {
-        event.preventDefault();
-        const instrumentId = document.querySelector('#removeInstrumentForm input[name="instrumentId"]').value;
-        if (confirm(`Are you sure you want to remove Instrument ID ${instrumentId} from sale?`)) {
-            alert(`Instrument ID ${instrumentId} removed from sale (simulated).`);
-            document.getElementById('removeInstrumentForm').reset();
-        }
-        return false;
-    }
-
-    // Simulate stock refresh
-    function refreshStockStatus() {
-        alert('Stock status refreshed (simulated).');
-        location.reload();
-    }
-
-    // Quick restock helper
-    function quickRestock(id) {
-        document.getElementById('instrumentId').value = id;
-        document.getElementById('stockQuantity').focus();
-    }
-
     // Initialize charts
     document.addEventListener('DOMContentLoaded', function() {
         // Sales Chart
-        const salesCtx = document.getElementById('salesChart')?.getContext('2d');
-        if (salesCtx) {
-            new Chart(salesCtx, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                    datasets: [{
-                        label: 'Sales ($)',
-                        data: [12500, 19000, 18000, 22000, 21000, 25000, 28000, 30000, 32000],
-                        borderColor: '#8a2be2',
-                        backgroundColor: 'rgba(138, 43, 226, 0.1)',
-                        borderWidth: 2,
-                        tension: 0.4,
-                        fill: true
-                    }]
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const salesChart = new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                datasets: [{
+                    label: 'Sales ($)',
+                    data: [12500, 19000, 18000, 22000, 21000, 25000, 28000, 30000, 32000],
+                    borderColor: '#8a2be2',
+                    backgroundColor: 'rgba(138, 43, 226, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#ffffff'
-                            }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#b3b3b3'
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#b3b3b3' }
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
                         },
-                        x: {
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#b3b3b3' }
+                        ticks: {
+                            color: '#b3b3b3'
                         }
                     }
                 }
-            });
-        }
+            }
+        });
 
         // Activity Chart
-        const activityCtx = document.getElementById('activityChart')?.getContext('2d');
-        if (activityCtx) {
-            new Chart(activityCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'User Activity',
-                        data: [120, 190, 140, 180, 160, 140, 180],
-                        backgroundColor: 'rgba(0, 229, 255, 0.5)',
-                        borderColor: '#00e5ff',
-                        borderWidth: 1
-                    }]
+        const activityCtx = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(activityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'User Activity',
+                    data: [120, 190, 140, 180, 160, 140, 180],
+                    backgroundColor: 'rgba(0, 229, 255, 0.5)',
+                    borderColor: '#00e5ff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff'
+                        }
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#ffffff'
-                            }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#b3b3b3'
                         }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#b3b3b3' }
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
                         },
-                        x: {
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#b3b3b3' }
+                        ticks: {
+                            color: '#b3b3b3'
                         }
                     }
                 }
-            });
-        }
+            }
+        });
 
-        // Sidebar navigation
+        // Simple script to handle sidebar navigation
         document.querySelectorAll('.sidebar-menu a').forEach(link => {
             link.addEventListener('click', function(e) {
                 document.querySelectorAll('.sidebar-menu a').forEach(item => {
                     item.classList.remove('active');
                 });
                 this.classList.add('active');
+
                 const targetId = this.getAttribute('href');
                 const targetSection = document.querySelector(targetId);
                 if (targetSection) {
@@ -1545,6 +1518,7 @@
                 this.style.transform = 'translateY(-5px)';
                 this.style.boxShadow = '0 10px 20px rgba(138, 43, 226, 0.2)';
             });
+
             card.addEventListener('mouseleave', function() {
                 this.style.transform = 'translateY(0)';
                 this.style.boxShadow = 'none';
@@ -1556,6 +1530,7 @@
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
         };
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1564,6 +1539,7 @@
                 }
             });
         }, observerOptions);
+
         document.querySelectorAll('.stat-card, .section-card').forEach(card => {
             card.style.opacity = 0;
             card.style.transform = 'translateY(20px)';
