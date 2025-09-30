@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 
@@ -34,34 +33,35 @@ public class UpdateInstrumentServlet extends HttpServlet {
         int quantity = Integer.parseInt(request.getParameter("quantity"));
         String stockLevel = request.getParameter("stockLevel");
 
-        String imageUrl = null;
+        // Old image path from hidden field
+        String imageUrl = request.getParameter("imageUrl");
 
         try {
-            // ✅ Handle uploaded file
             Part filePart = request.getPart("imageFile");
             if (filePart != null && filePart.getSize() > 0) {
-                // Get original file name
-                String fileName = Paths.get(filePart.getName()).getFileName().toString();
+                // ✅ Generate unique filename
+                String extension = ".jpg"; // default extension
+                String submittedName = filePart.getName();
+                if (submittedName != null && submittedName.contains(".")) {
+                    extension = submittedName.substring(submittedName.lastIndexOf("."));
+                }
+                String uniqueFileName = "instrument_" + System.currentTimeMillis() + extension;
 
-                // ✅ Save into your project webapp/images/instruments folder
+                // ✅ Save into your project folder
                 String uploadPath = "C:\\Users\\hasir\\OneDrive\\Documents\\Git Hub\\MelodyMart\\MelodyMart\\src\\main\\webapp\\images\\instruments";
                 File uploadDir = new File(uploadPath);
                 if (!uploadDir.exists()) {
                     uploadDir.mkdirs();
                 }
 
-                // Save file to disk
-                String filePath = uploadPath + File.separator + fileName;
+                String filePath = uploadPath + File.separator + uniqueFileName;
                 filePart.write(filePath);
 
-                // ✅ Save relative path in DB
-                imageUrl = "images/instruments/" + fileName;
-            } else {
-                // No new file uploaded → keep existing value
-                imageUrl = request.getParameter("imageUrl");
+                // ✅ Update DB with relative path
+                imageUrl = "images/instruments/" + uniqueFileName;
             }
 
-            // ✅ Update DB
+            // ✅ Update DB record
             try (Connection conn = DatabaseUtil.getConnection()) {
                 String sql = "UPDATE Instrument SET Name=?, Description=?, Model=?, Price=?, Quantity=?, StockLevel=?, ImageURL=? WHERE InstrumentID=?";
                 PreparedStatement ps = conn.prepareStatement(sql);
@@ -83,7 +83,6 @@ public class UpdateInstrumentServlet extends HttpServlet {
             request.setAttribute("errorMessage", "Error updating instrument: " + e.getMessage());
         }
 
-        // ✅ Redirect back to dashboard (Inventory tab)
         response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp#inventory");
     }
 }

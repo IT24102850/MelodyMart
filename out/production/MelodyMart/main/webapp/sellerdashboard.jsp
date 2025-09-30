@@ -941,15 +941,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td>Fender Stratocaster Electric Guitar</td>
-                            <td>PROD-4872</td>
-                            <td>3</td>
-                            <td>5</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary">Restock</button>
-                            </td>
-                        </tr>
+
                         <tr>
                             <td>Yamaha HS8 Studio Monitor</td>
                             <td>PROD-5321</td>
@@ -977,13 +969,13 @@
 
 
 
-        <!-- Inventory Section -->
         <%@ page import="java.sql.Connection" %>
         <%@ page import="java.sql.PreparedStatement" %>
         <%@ page import="java.sql.ResultSet" %>
         <%@ page import="com.melodymart.util.DatabaseUtil" %>
 
         <section id="inventory" class="dashboard-section">
+            <!-- 🔍 Search + Filter -->
             <div class="search-filter">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
@@ -1000,7 +992,7 @@
 
             <div class="content-card">
                 <div class="card-header">
-                    <h2 class="card-title">Inventory Management</h2>
+                    <h2 class="card-title"><i class="fas fa-boxes"></i> Inventory Management</h2>
                     <div class="card-actions">
                         <button class="btn btn-primary" onclick="openModal('addProductModal')">
                             <i class="fas fa-plus"></i> Add New Instrument
@@ -1008,6 +1000,7 @@
                     </div>
                 </div>
 
+                <!-- 📋 Inventory Table -->
                 <div class="table-responsive">
                     <table class="data-table" id="inventoryTable">
                         <thead>
@@ -1029,7 +1022,7 @@
                             ResultSet rs = null;
                             try {
                                 conn = DatabaseUtil.getConnection();
-                                // ✅ Prioritize newly added instruments first
+                                // ✅ Newest instruments first
                                 String sql = "SELECT InstrumentID, Name, Description, Model, Price, Quantity, StockLevel, ImageURL " +
                                         "FROM Instrument ORDER BY InstrumentID DESC";
                                 ps = conn.prepareStatement(sql);
@@ -1067,25 +1060,29 @@
                                 <span class="status-badge <%= statusClass %>"><%= stockLevel %></span>
                             </td>
                             <td>
-                                <!-- Edit button -->
+                                <!-- ✏️ Edit -->
                                 <button class="btn btn-sm btn-primary"
-                                        onclick="openEditModal(<%= rs.getInt("InstrumentID") %>,
-                                                '<%= rs.getString("Name") %>',
-                                                '<%= rs.getString("Description") %>',
-                                                '<%= rs.getString("Model") %>',
+                                        onclick="openEditModal(
+                                            <%= rs.getInt("InstrumentID") %>,
+                                                '<%= rs.getString("Name").replace("'", "\\'") %>',
+                                                '<%= rs.getString("Description").replace("'", "\\'") %>',
+                                                '<%= rs.getString("Model").replace("'", "\\'") %>',
                                             <%= rs.getDouble("Price") %>,
                                             <%= rs.getInt("Quantity") %>,
                                                 '<%= stockLevel %>',
-                                                '<%= rs.getString("ImageURL") %>')">
-                                    Edit
+                                                '<%= rs.getString("ImageURL") %>'
+                                                )">
+                                    <i class="fas fa-edit"></i> Edit
                                 </button>
 
-                                <!-- Delete form -->
+                                <!-- 🗑 Delete -->
                                 <form action="${pageContext.request.contextPath}/DeleteInstrumentServlet"
                                       method="post" style="display:inline;"
                                       onsubmit="return confirm('Are you sure you want to delete this instrument?');">
                                     <input type="hidden" name="instrumentId" value="<%= rs.getInt("InstrumentID") %>">
-                                    <button type="submit" class="btn btn-sm btn-secondary">Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
                                 </form>
                             </td>
                         </tr>
@@ -1104,6 +1101,131 @@
                 </div>
             </div>
         </section>
+
+        <!-- ✏️ Edit Instrument Modal -->
+        <div class="modal" id="editInstrumentModal" style="display:none;">
+            <div class="modal-content premium-card">
+                <button class="modal-close" onclick="closeModal('editInstrumentModal')">&times;</button>
+                <h2 class="modal-title">Edit Instrument</h2>
+
+                <form action="${pageContext.request.contextPath}/UpdateInstrumentServlet"
+                      method="post" enctype="multipart/form-data" class="form-grid">
+
+                    <input type="hidden" id="editInstrumentId" name="instrumentId">
+                    <input type="hidden" id="editImageUrl" name="imageUrl">
+
+                    <div class="form-group">
+                        <label for="editName">Name</label>
+                        <input type="text" id="editName" name="name" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editDescription">Description</label>
+                        <textarea id="editDescription" name="description" class="form-control"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editModel">Model</label>
+                        <input type="text" id="editModel" name="model" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editPrice">Price</label>
+                        <input type="number" id="editPrice" name="price" class="form-control" step="0.01">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editQuantity">Quantity</label>
+                        <input type="number" id="editQuantity" name="quantity" class="form-control">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="editStockLevel">Stock Level</label>
+                        <select id="editStockLevel" name="stockLevel" class="form-control">
+                            <option value="In Stock">In Stock</option>
+                            <option value="Low Stock">Low Stock</option>
+                            <option value="Out of Stock">Out of Stock</option>
+                        </select>
+                    </div>
+
+                    <!-- 📷 Image Upload -->
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="editImageFile">Upload Image</label>
+                        <input type="file" id="editImageFile" name="imageFile" accept="image/*" class="form-control">
+                        <br>
+                        <img id="imagePreview" src="" alt="Preview"
+                             style="max-width:150px; margin-top:10px; display:none; border-radius:8px;">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('editInstrumentModal')">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ✅ Scripts -->
+        <script>
+            function openEditModal(id, name, description, model, price, quantity, stockLevel, imageUrl) {
+                document.getElementById("editInstrumentId").value = id;
+                document.getElementById("editName").value = name;
+                document.getElementById("editDescription").value = description;
+                document.getElementById("editModel").value = model;
+                document.getElementById("editPrice").value = price;
+                document.getElementById("editQuantity").value = quantity;
+                document.getElementById("editStockLevel").value = stockLevel;
+                document.getElementById("editImageUrl").value = imageUrl;
+
+                const preview = document.getElementById("imagePreview");
+                preview.src = imageUrl ? imageUrl : "https://via.placeholder.com/150";
+                preview.style.display = "block";
+
+                document.getElementById("editInstrumentModal").style.display = "flex";
+            }
+
+            document.getElementById("editImageFile").addEventListener("change", function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById("imagePreview");
+                        preview.src = e.target.result;
+                        preview.style.display = "block";
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            function closeModal(id) {
+                document.getElementById(id).style.display = "none";
+            }
+
+            // 🔍 Search + Filter
+            function filterTable() {
+                const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+                const statusValue = document.getElementById("statusFilter").value;
+                const rows = document.querySelectorAll("#inventoryTable tbody tr");
+
+                rows.forEach(row => {
+                    const rowText = row.innerText.toLowerCase();
+                    const rowStatus = row.getAttribute("data-status");
+
+                    const matchesSearch = rowText.includes(searchTerm);
+                    const matchesStatus = !statusValue || rowStatus === statusValue;
+
+                    row.style.display = (matchesSearch && matchesStatus) ? "" : "none";
+                });
+            }
+
+            document.getElementById("searchInput").addEventListener("input", filterTable);
+            document.getElementById("statusFilter").addEventListener("change", filterTable);
+            document.getElementById("resetFilters").addEventListener("click", () => {
+                document.getElementById("searchInput").value = "";
+                document.getElementById("statusFilter").value = "";
+                filterTable();
+            });
+        </script>
 
 
 
@@ -2435,74 +2557,36 @@
     }
 
     // Edit instrument function
-    function openEditModal(id) {
-        // In a real implementation, this would fetch the instrument data from your database
-        // For now, we'll use sample data
-        const sampleData = {
-            1: {
-                name: 'Fender Stratocaster',
-                description: 'Electric Guitar',
-                model: 'American Professional II',
-                price: '1499.99',
-                quantity: '12',
-                stockLevel: 'In Stock',
-                brandId: '1',
-                color: 'Sunburst',
-                manufacturerId: '1',
-                warranty: 'Lifetime',
-                specifications: 'Alder body, Maple neck, Rosewood fingerboard',
-                imageUrl: 'https://via.placeholder.com/40'
-            },
-            2: {
-                name: 'Yamaha HS8',
-                description: 'Studio Monitor',
-                model: 'HS8',
-                price: '349.99',
-                quantity: '3',
-                stockLevel: 'Low Stock',
-                brandId: '2',
-                color: 'Black',
-                manufacturerId: '2',
-                warranty: '2 years',
-                specifications: '8-inch cone woofer, 1-inch dome tweeter',
-                imageUrl: 'https://via.placeholder.com/40'
-            },
-            3: {
-                name: 'Shure SM58',
-                description: 'Dynamic Microphone',
-                model: 'SM58',
-                price: '99.99',
-                quantity: '0',
-                stockLevel: 'Out of Stock',
-                brandId: '3',
-                color: 'Black',
-                manufacturerId: '3',
-                warranty: '2 years',
-                specifications: 'Cardioid polar pattern, 50Hz-15kHz frequency response',
-                imageUrl: 'https://via.placeholder.com/40'
-            }
-        };
 
-        const data = sampleData[id] || sampleData[1];
 
-        // Populate the edit form with data
-        document.getElementById('editInstrumentId').value = id;
-        document.getElementById('editName').value = data.name;
-        document.getElementById('editDescription').value = data.description;
-        document.getElementById('editModel').value = data.model;
-        document.getElementById('editPrice').value = data.price;
-        document.getElementById('editQuantity').value = data.quantity;
-        document.getElementById('editStockLevel').value = data.stockLevel;
-        document.getElementById('editBrandId').value = data.brandId;
-        document.getElementById('editColor').value = data.color;
-        document.getElementById('editManufacturerId').value = data.manufacturerId;
-        document.getElementById('editWarranty').value = data.warranty;
-        document.getElementById('editSpecifications').value = data.specifications;
-        document.getElementById('editImageUrl').value = data.imageUrl;
+        function openEditModal(id, name, description, model, price, quantity, stockLevel, brandId, color, manufacturerId, warranty, specifications, imageUrl) {
+        // Fill form fields with actual values
+        document.getElementById("editInstrumentId").value = id;
+        document.getElementById("editName").value = name;
+        document.getElementById("editDescription").value = description;
+        document.getElementById("editModel").value = model;
+        document.getElementById("editPrice").value = price;
+        document.getElementById("editQuantity").value = quantity;
+        document.getElementById("editStockLevel").value = stockLevel;
+        document.getElementById("editBrandId").value = brandId;
+        document.getElementById("editColor").value = color;
+        document.getElementById("editManufacturerId").value = manufacturerId;
+        document.getElementById("editWarranty").value = warranty;
+        document.getElementById("editSpecifications").value = specifications;
 
-        // Show the edit modal
-        openModal('editInstrumentModal');
+        // Save current image URL in hidden field (to keep old image if none uploaded)
+        document.getElementById("editImageUrl").value = imageUrl;
+
+        // Show current image preview
+        const preview = document.getElementById("imagePreview");
+        preview.src = imageUrl ? imageUrl : "https://via.placeholder.com/150";
+        preview.style.display = "block";
+
+        // Open modal
+        document.getElementById("editInstrumentModal").style.display = "flex";
     }
+
+
 
     // Delete instrument function
     function deleteInstrument(id) {
