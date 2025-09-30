@@ -5,7 +5,7 @@
     // Ensure user is logged in
     Integer customerId = (Integer) session.getAttribute("customerId");
     if (customerId == null) {
-        response.sendRedirect("login.jsp");
+        response.sendRedirect("sign-in.jsp");
         return;
     }
 %>

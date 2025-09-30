@@ -40,26 +40,28 @@ public class UpdateInstrumentServlet extends HttpServlet {
             // ✅ Handle uploaded file
             Part filePart = request.getPart("imageFile");
             if (filePart != null && filePart.getSize() > 0) {
+                // Get original file name
                 String fileName = Paths.get(filePart.getName()).getFileName().toString();
 
-                // Folder inside your webapp (adjust if needed)
-                String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
+                // ✅ Save into your project webapp/images/instruments folder
+                String uploadPath = "C:\\Users\\hasir\\OneDrive\\Documents\\Git Hub\\MelodyMart\\MelodyMart\\src\\main\\webapp\\images\\instruments";
                 File uploadDir = new File(uploadPath);
                 if (!uploadDir.exists()) {
-                    uploadDir.mkdir();
+                    uploadDir.mkdirs();
                 }
 
-                // Save file
+                // Save file to disk
                 String filePath = uploadPath + File.separator + fileName;
                 filePart.write(filePath);
 
-                // Store relative path for DB (so it works when deployed)
-                imageUrl = "uploads/" + fileName;
+                // ✅ Save relative path in DB
+                imageUrl = "images/instruments/" + fileName;
             } else {
                 // No new file uploaded → keep existing value
                 imageUrl = request.getParameter("imageUrl");
             }
 
+            // ✅ Update DB
             try (Connection conn = DatabaseUtil.getConnection()) {
                 String sql = "UPDATE Instrument SET Name=?, Description=?, Model=?, Price=?, Quantity=?, StockLevel=?, ImageURL=? WHERE InstrumentID=?";
                 PreparedStatement ps = conn.prepareStatement(sql);
@@ -81,7 +83,7 @@ public class UpdateInstrumentServlet extends HttpServlet {
             request.setAttribute("errorMessage", "Error updating instrument: " + e.getMessage());
         }
 
-        // Redirect back to dashboard
-        response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp#Inventory");
+        // ✅ Redirect back to dashboard (Inventory tab)
+        response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp#inventory");
     }
 }
