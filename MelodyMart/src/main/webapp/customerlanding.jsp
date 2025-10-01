@@ -626,7 +626,7 @@
         <ul class="nav-links">
             <li><a href="index.jsp">Home</a></li>
             <li><a href="shop.jsp">Shop</a></li>
-            <li><a href="customerdashboard.jsp">CustomerLanding</a></li>
+            <li><a href="customerdashboard.jsp">Customer Dashboard</a></li>
             <li><a href="order.jsp">My Orders</a></li>
             <li><a href="repair.jsp">My Repair Requests</a></li>
             <li><a href="wishlist.jsp">Wishlist</a></li>
