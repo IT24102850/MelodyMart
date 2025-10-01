@@ -924,6 +924,14 @@
             </div>
         </div>
 
+
+
+
+
+
+        <%@ page import="java.sql.*" %>
+        <%@ page import="main.java.com.melodymart.util.DBConnection" %>
+
         <!-- Orders Management -->
         <div class="tab-content" id="orders">
             <div class="content-section">
@@ -950,45 +958,72 @@
                         </tr>
                         </thead>
                         <tbody>
+                        <%
+                            Connection conn = null;
+                            PreparedStatement ps = null;
+                            ResultSet rs = null;
+                            try {
+                                conn = DBConnection.getConnection();
+
+                                // Query orders + join items + instruments
+                                String sql = "SELECT o.OrderID, o.OrderDate, o.TotalAmount, o.Status, " +
+                                        "       STUFF(( " +
+                                        "           SELECT ', ' + i.Name " +
+                                        "           FROM OrderItem oi " +
+                                        "           JOIN Instrument i ON oi.InstrumentID = i.InstrumentID " +
+                                        "           WHERE oi.OrderID = o.OrderID " +
+                                        "           FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS Items " +
+                                        "FROM Orders o " +
+                                        "ORDER BY o.OrderDate DESC";
+
+                                ps = conn.prepareStatement(sql);
+                                rs = ps.executeQuery();
+
+                                while (rs.next()) {
+                                    int orderId = rs.getInt("OrderID");
+                                    String status = rs.getString("Status");
+                                    String items = rs.getString("Items");
+                        %>
                         <tr>
-                            <td>#MM-7892</td>
-                            <td>15 Mar 2025</td>
-                            <td>Electric Guitar</td>
-                            <td>$1,299.99</td>
-                            <td><span class="status-badge status-delivered">Delivered</span></td>
+                            <td>#MM-<%= orderId %></td>
+                            <td><%= rs.getTimestamp("OrderDate") %></td>
+                            <td><%= items %></td>
+                            <td>$<%= rs.getBigDecimal("TotalAmount") %></td>
+                            <td>
+                                <span class="status-badge status-<%= status.toLowerCase() %>"><%= status %></span>
+                            </td>
                             <td>
                                 <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                                <% if ("Pending".equalsIgnoreCase(status) || "Processing".equalsIgnoreCase(status)) { %>
+                                <form action="CancelOrderServlet" method="post" style="display:inline;">
+                                    <input type="hidden" name="orderId" value="<%= orderId %>">
+                                    <button type="submit" class="action-btn" title="Cancel Order"><i class="fas fa-times"></i></button>
+                                </form>
+                                <% } else if ("Delivered".equalsIgnoreCase(status)) { %>
                                 <button class="action-btn" title="Reorder"><i class="fas fa-redo"></i></button>
+                                <% } %>
                             </td>
                         </tr>
-                        <tr>
-                            <td>#MM-7854</td>
-                            <td>10 Mar 2025</td>
-                            <td>Drum Set, Sticks</td>
-                            <td>$2,599.99</td>
-                            <td><span class="status-badge status-processing">Processing</span></td>
-                            <td>
-                                <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn" title="Track Order"><i class="fas fa-shipping-fast"></i></button>
-                                <button class="action-btn" title="Cancel Order"><i class="fas fa-times"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>#MM-7821</td>
-                            <td>05 Mar 2025</td>
-                            <td>Microphone, Stand</td>
-                            <td>$349.99</td>
-                            <td><span class="status-badge status-pending">Pending</span></td>
-                            <td>
-                                <button class="action-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn" title="Cancel Order"><i class="fas fa-times"></i></button>
-                            </td>
-                        </tr>
+                        <%
+                                }
+                            } catch (Exception e) {
+                                out.println("<tr><td colspan='6' style='color:red;'>Error: " + e.getMessage() + "</td></tr>");
+                            } finally {
+                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                            }
+                        %>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+
+
+
+
+
 
         <!-- Shopping Cart -->
         <div class="tab-content" id="cart">
@@ -1124,9 +1159,9 @@
                 </thead>
                 <tbody>
                 <%
-                    Connection conn = null;
-                    PreparedStatement ps = null;
-                    ResultSet rs = null;
+                     conn = null;
+                   ps = null;
+                    rs = null;
                     try {
                         conn = DBConnection.getConnection();
                         String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate FROM RepairRequest";
