@@ -84,7 +84,7 @@
             transition: all 0.4s ease;
             backdrop-filter: blur(10px);
 
-            
+
         }
 
         header.scrolled {

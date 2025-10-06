@@ -682,7 +682,14 @@
             <li><a href="shop.jsp">Shop</a></li>
             <li><a href="customerdashboard.jsp">Customer Dashboard</a></li>
             <li><a href="order.jsp">My Orders</a></li>
-            <li><a href="repair.jsp">My Repair Requests</a></li>
+
+
+
+
+            <li><a href="repair.jsp" class="btn btn-primary">
+                <i class="fas fa-wrench"></i> Repair Requests
+            </a>
+            </li>
             <li><a href="wishlist.jsp">Wishlist</a></li>
             <li><a href="profile.jsp">Profile</a></li>
         </ul>

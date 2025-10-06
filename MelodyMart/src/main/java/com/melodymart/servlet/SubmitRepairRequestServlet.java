@@ -8,6 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import java.io.*;
 import java.sql.Connection;
@@ -16,11 +17,9 @@ import java.sql.SQLException;
 import java.util.logging.Logger;
 
 @WebServlet("/SubmitRepairRequestServlet")
-@MultipartConfig(maxFileSize = 5 * 1024 * 1024) // 5MB max file size
+@MultipartConfig(maxFileSize = 5 * 1024 * 1024) // 5MB
 public class SubmitRepairRequestServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(SubmitRepairRequestServlet.class.getName());
-
-    // Upload folder relative to your webapp
     private static final String UPLOAD_DIR = "images" + File.separator + "repairrequest";
 
     @Override
@@ -33,24 +32,35 @@ public class SubmitRepairRequestServlet extends HttpServlet {
 
         LOGGER.info("Received POST request to SubmitRepairRequestServlet");
 
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userID") == null) {
+            LOGGER.warning("Unauthorized access: user not logged in");
+            response.sendRedirect("sign-in.jsp?error=unauthorized");
+            return;
+        }
+
+        // 🧑‍💼 Get logged-in user ID from session
+        String userID = (String) session.getAttribute("userID");
+
         // Get form inputs
         String orderIdStr = request.getParameter("orderId");
         String issueDescription = request.getParameter("issueDescription");
         String repairDate = request.getParameter("repairDate");
 
-        if (orderIdStr == null || issueDescription == null || repairDate == null) {
-            LOGGER.warning("Validation failed: Missing required fields");
-            response.sendRedirect("customerlanding.jsp?error=missingFields");
+        if (issueDescription == null || issueDescription.trim().isEmpty()) {
+            response.sendRedirect("customerlanding.jsp?error=missingDescription");
             return;
         }
 
-        int orderId;
-        try {
-            orderId = Integer.parseInt(orderIdStr);
-        } catch (NumberFormatException e) {
-            LOGGER.warning("Invalid Order ID: " + orderIdStr);
-            response.sendRedirect("customerlanding.jsp?error=invalidOrderId");
-            return;
+        Integer orderId = null;
+        if (orderIdStr != null && !orderIdStr.trim().isEmpty()) {
+            try {
+                orderId = Integer.parseInt(orderIdStr);
+            } catch (NumberFormatException e) {
+                LOGGER.warning("Invalid Order ID: " + orderIdStr);
+                response.sendRedirect("customerlanding.jsp?error=invalidOrderId");
+                return;
+            }
         }
 
         // Handle uploaded file
@@ -58,54 +68,40 @@ public class SubmitRepairRequestServlet extends HttpServlet {
         try {
             Part filePart = request.getPart("photos");
             if (filePart != null && filePart.getSize() > 0) {
-                LOGGER.info("Processing uploaded file, size=" + filePart.getSize());
-
-                // Validate file type
                 String contentType = filePart.getContentType();
                 if (contentType == null ||
                         (!contentType.startsWith("image/jpeg") &&
                                 !contentType.startsWith("image/png") &&
                                 !contentType.startsWith("image/gif"))) {
-                    LOGGER.warning("Invalid file type: " + contentType);
                     response.sendRedirect("customerlanding.jsp?error=invalidFileType");
                     return;
                 }
 
-                // Extract original file name manually
+                // Generate unique filename
                 String originalFileName = extractFileName(filePart);
                 String extension = "";
                 if (originalFileName != null && originalFileName.contains(".")) {
                     extension = originalFileName.substring(originalFileName.lastIndexOf("."));
                 }
-
-                // Generate unique file name
                 String fileName = "repair_" + System.currentTimeMillis() + extension;
 
-                // Absolute upload path inside webapp
+                // Build upload path
                 String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
                 File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    boolean created = uploadDir.mkdirs();
-                    LOGGER.info("Upload directory created: " + created + " at " + uploadPath);
-                }
+                if (!uploadDir.exists()) uploadDir.mkdirs();
 
                 String filePath = uploadPath + File.separator + fileName;
-                LOGGER.info("Saving uploaded file to: " + filePath);
 
-                try (InputStream inputStream = filePart.getInputStream();
-                     FileOutputStream outputStream = new FileOutputStream(filePath)) {
+                try (InputStream input = filePart.getInputStream();
+                     OutputStream output = new FileOutputStream(filePath)) {
                     byte[] buffer = new byte[1024];
                     int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
+                    while ((bytesRead = input.read(buffer)) != -1) {
+                        output.write(buffer, 0, bytesRead);
                     }
                 }
 
-                // Store relative path in DB
                 photoPath = UPLOAD_DIR + "/" + fileName;
-                LOGGER.info("File uploaded successfully: " + photoPath);
-            } else {
-                LOGGER.info("No photo uploaded for repair request");
             }
         } catch (Exception e) {
             LOGGER.severe("Error during file upload: " + e.getMessage());
@@ -113,19 +109,25 @@ public class SubmitRepairRequestServlet extends HttpServlet {
             return;
         }
 
-        // Insert into DB
+        // ✅ Insert data into database
         try (Connection conn = DBConnection.getConnection()) {
-            String sql = "INSERT INTO RepairRequest (OrderID, IssueDescription, Photos, RepairDate) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO RepairRequest (UserID, OrderID, IssueDescription, Photos, RepairDate) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, orderId);
-            stmt.setString(2, issueDescription);
-            stmt.setString(3, photoPath);
-            stmt.setString(4, repairDate);
+            stmt.setString(1, userID);
+
+            if (orderId != null)
+                stmt.setInt(2, orderId);
+            else
+                stmt.setNull(2, java.sql.Types.INTEGER);
+
+            stmt.setString(3, issueDescription);
+            stmt.setString(4, photoPath);
+            stmt.setString(5, repairDate);
 
             int rows = stmt.executeUpdate();
             if (rows > 0) {
                 LOGGER.info("Repair request saved successfully");
-                response.sendRedirect("customerlanding.jsp?success=1");
+                response.sendRedirect("repair.jsp?success=1");
             } else {
                 LOGGER.warning("Repair request insert failed");
                 response.sendRedirect("customerlanding.jsp?error=dbInsertFailed");
@@ -137,13 +139,13 @@ public class SubmitRepairRequestServlet extends HttpServlet {
         }
     }
 
-    // Helper method to extract file name from Part header (for older Servlet APIs)
+    // Helper: Extract filename from header
     private String extractFileName(Part part) {
         String contentDisp = part.getHeader("content-disposition");
         if (contentDisp != null) {
             for (String token : contentDisp.split(";")) {
                 if (token.trim().startsWith("filename")) {
-                    return token.substring(token.indexOf("=") + 2, token.length() - 1);
+                    return token.substring(token.indexOf('=') + 2, token.length() - 1);
                 }
             }
         }
