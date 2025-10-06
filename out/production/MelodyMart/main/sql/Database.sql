@@ -603,9 +603,9 @@ VALUES
 ('Thammattama (Traditional Drum)', 'Played with sticks in processions, often in ensembles', NULL, 'Standard', 'Brown', 150.00, 'Pair of twin drums. Wooden body. Cowhide drumheads', '6 months', 'images/instruments/instrument_1759090662906.jpg', 15, 'In Stock', 3);
 
 select * from Orders
-
-
 select * from Payment
+
+select * from Person
 
 
 select * FROM Instrument
@@ -650,3 +650,42 @@ CREATE TABLE OrderNow (
     FOREIGN KEY (SellerID) REFERENCES Seller(SellerID),
     FOREIGN KEY (InstrumentID) REFERENCES Instrument(InstrumentID)
 );
+
+
+-- Add new columns to Payment table
+ALTER TABLE Payment 
+ADD CardNumber VARCHAR(20),
+    ExpiryDate VARCHAR(7),
+    CardName VARCHAR(100);
+
+-- Or if you need to create a new table:
+CREATE TABLE Payment (
+    PaymentID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderID INT NOT NULL,
+    PaymentDate DATETIME DEFAULT GETDATE(),
+    Amount DECIMAL(10,2) NOT NULL,
+    PaymentMethod VARCHAR(20) NOT NULL,
+    TransactionID VARCHAR(50) NOT NULL,
+    CVV VARCHAR(4) NOT NULL,
+    Status VARCHAR(20) NOT NULL,
+    CardNumber VARCHAR(20) NOT NULL,
+    ExpiryDate VARCHAR(7) NOT NULL,
+    CardName VARCHAR(100) NOT NULL,
+    FOREIGN KEY (OrderID) REFERENCES OrderNow(OrderID) -- Adjust based on your order table
+);
+
+use MelodyMartDB
+
+
+select * from Person
+select * from Orders
+select * from Payment
+select * from Cart
+select * from Person
+select * from RepairRequest
+select * from OrderItem
+select * from Delivery
+
+select * FROM Instrument
+select * from stockcorrections
+
