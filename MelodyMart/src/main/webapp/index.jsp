@@ -64,10 +64,6 @@
             color: var(--text);
             overflow-x: hidden;
             line-height: 1.6;
-            background-image:
-                    radial-gradient(circle at 15% 50%, rgba(219, 234, 254, 0.4) 0%, transparent 20%),
-                    radial-gradient(circle at 85% 30%, rgba(224, 242, 254, 0.4) 0%, transparent 20%),
-                    radial-gradient(circle at 50% 80%, rgba(240, 249, 255, 0.3) 0%, transparent 20%);
         }
 
         .container {
@@ -87,10 +83,12 @@
             padding: 20px 0;
             transition: all 0.4s ease;
             backdrop-filter: blur(10px);
+            background: var(--header-bg);
         }
 
         header.scrolled {
             padding: 15px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
 
         .nav-container {
@@ -215,198 +213,6 @@
             width: 100%;
         }
 
-        /* User Dropdown */
-        .user-menu {
-            position: relative;
-            margin-left: 20px;
-        }
-
-        .user-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .user-btn:hover {
-            color: var(--primary-light);
-            background: var(--primary-soft);
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--border-radius);
-            width: 180px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
-            z-index: 1000;
-            box-shadow: var(--shadow-hover);
-            padding: 10px 0;
-        }
-
-        .user-menu:hover .dropdown {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-item {
-            display: block;
-            padding: 12px 20px;
-            color: var(--text);
-            text-decoration: none;
-            font-size: 14px;
-            transition: background 0.3s ease, color 0.3s ease;
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover {
-            background: var(--primary-soft);
-            color: var(--primary);
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-
-        .modal-content {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--border-radius);
-            padding: 40px;
-            max-width: 450px;
-            width: 90%;
-            position: relative;
-            opacity: 0;
-            transform: scale(0.8) translateY(20px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-            box-shadow: var(--shadow-hover);
-        }
-
-        .modal.active .modal-content {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-close:hover {
-            color: var(--primary-light);
-            background: var(--primary-soft);
-        }
-
-        .modal h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 32px;
-            margin-bottom: 25px;
-            text-align: center;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .modal form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .modal input, .modal select {
-            padding: 15px;
-            border: 1px solid var(--glass-border);
-            background: var(--secondary);
-            color: var(--text);
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .modal input:focus, .modal select:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .modal button[type="submit"] {
-            background: var(--gradient);
-            padding: 15px;
-            border: none;
-            border-radius: 30px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
-        }
-
-        .modal button[type="submit"]:hover {
-            background: var(--gradient-alt);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(30, 64, 175, 0.4);
-        }
-
-        .modal .switch-form {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .modal .switch-form a {
-            color: var(--primary-light);
-            text-decoration: none;
-            transition: color 0.3s ease;
-            font-weight: 600;
-        }
-
-        .modal .switch-form a:hover {
-            color: var(--accent);
-        }
-
         /* Hero Section with Slideshow */
         .hero {
             height: 100vh;
@@ -442,19 +248,19 @@
         }
 
         .slide-1 {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-image: url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
         }
         .slide-2 {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1511735111819-9a3f7709049c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1674&q=80');
+            background-image: url('https://images.unsplash.com/photo-1511735111819-9a3f7709049c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1674&q=80');
         }
         .slide-3 {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-image: url('https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
         }
         .slide-4 {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-image: url('https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
         }
         .slide-5 {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('https://images.unsplash.com/photo-1571974599782-87624638275f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1742&q=80');
+            background-image: url('https://images.unsplash.com/photo-1571974599782-87624638275f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1742&q=80');
         }
 
         .slide-content {
@@ -463,6 +269,10 @@
             opacity: 0;
             transform: translateY(50px);
             transition: opacity 1s ease, transform 1s ease;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            margin-left: 5%;
         }
 
         .slide.active .slide-content {
@@ -548,13 +358,6 @@
             border-radius: 2px;
         }
 
-        /* Section Backgrounds */
-        .section-bg {
-            background: var(--section-bg);
-            padding: 100px 0;
-            margin: 80px 0;
-        }
-
         /* Featured Products */
         .products {
             display: grid;
@@ -602,31 +405,15 @@
             transform: scale(1.05);
         }
 
-        .product-img:after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
+        .product-img img {
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.1));
-            transition: opacity 0.3s ease;
+            object-fit: cover;
+            transition: transform 0.5s ease;
         }
 
-        .product-card:hover .product-img:after {
-            opacity: 0.8;
-        }
-
-        .product-img i {
-            font-size: 80px;
-            color: var(--primary);
-            opacity: 0.8;
-            z-index: 2;
-            transition: color 0.3s ease;
-        }
-
-        .product-card:hover .product-img i {
-            color: var(--accent);
+        .product-card:hover .product-img img {
+            transform: scale(1.1);
         }
 
         .product-info {
@@ -713,7 +500,7 @@
             font-size: 20px;
         }
 
-        /* Why Choose Us (Inspired by SolaaX features) */
+        /* Why Choose Us */
         .why-choose {
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
@@ -722,6 +509,7 @@
             padding: 80px 0;
             margin: 80px 0;
             box-shadow: var(--shadow);
+            width: 100%;
         }
 
         .features-grid {
@@ -843,83 +631,6 @@
         .testimonial-role {
             color: var(--text-secondary);
             font-size: 15px;
-        }
-
-        /* Contact Section (Inspired by SolaaX) */
-        .contact {
-            padding: 100px 0;
-            background: var(--card-bg);
-            border-top: 1px solid var(--glass-border);
-        }
-
-        .contact-form {
-            max-width: 700px;
-            margin: 0 auto;
-            background: var(--glass-bg);
-            padding: 40px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-        }
-
-        .contact-form input, .contact-form textarea {
-            width: 100%;
-            padding: 18px;
-            margin-bottom: 20px;
-            border: 1px solid var(--glass-border);
-            background: var(--secondary);
-            color: var(--text);
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .contact-form input:focus, .contact-form textarea:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-        }
-
-        .contact-form button {
-            width: 100%;
-            padding: 18px;
-        }
-
-        .locations {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 60px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .location {
-            text-align: center;
-            padding: 30px 20px;
-            background: var(--glass-bg);
-            border-radius: var(--border-radius);
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 1s ease, transform 1s ease;
-            box-shadow: var(--shadow);
-            flex: 1;
-            min-width: 250px;
-            max-width: 300px;
-        }
-
-        .location.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .location h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
-
-        .location p {
-            color: var(--text-secondary);
-            line-height: 1.6;
         }
 
         /* Newsletter */
@@ -1105,37 +816,8 @@
             50% { transform: translateY(-15px); }
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        @keyframes rotateIn {
-            from { transform: rotate(-10deg) scale(0.8); opacity: 0; }
-            to { transform: rotate(0) scale(1); opacity: 1; }
-        }
-
-        @keyframes bounceIn {
-            0% { opacity: 0; transform: scale(0.3); }
-            50% { opacity: 1; transform: scale(1.05); }
-            70% { transform: scale(0.9); }
-            100% { transform: scale(1); }
-        }
-
         .float-animation {
             animation: float 5s ease-in-out infinite;
-        }
-
-        .pulse-animation {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .rotate-in {
-            animation: rotateIn 1s ease-out forwards;
-        }
-
-        .bounce-in {
-            animation: bounceIn 1s ease-out forwards;
         }
 
         .floating-icons {
@@ -1230,28 +912,6 @@
                 padding: 18px;
             }
 
-            .locations {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .user-menu:hover .dropdown {
-                display: none;
-            }
-
-            .user-btn {
-                font-size: 16px;
-            }
-
-            .dropdown {
-                width: 150px;
-                right: -10px;
-            }
-
-            .modal-content {
-                padding: 30px;
-            }
-
             .features-grid {
                 grid-template-columns: 1fr;
             }
@@ -1273,11 +933,6 @@
 
             .section-title {
                 font-size: 28px;
-            }
-
-            .modal-content {
-                width: 95%;
-                padding: 25px;
             }
 
             .footer-content {
@@ -1310,71 +965,10 @@
             <button class="theme-toggle" aria-label="Toggle Theme" id="themeToggle">
                 <i class="fas fa-moon"></i>
             </button>
-            <div class="user-menu">
-                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
-                <div class="dropdown">
-                    <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
-                    <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
-                </div>
-            </div>
             <button class="cta-btn" onclick="window.location.href='shop.jsp'">Shop Now</button>
-
         </div>
     </div>
 </header>
-
-<!-- Sign In Modal -->
-<div class="modal" id="signInModal">
-    <div class="modal-content">
-        <button class="modal-close" aria-label="Close Sign In Modal">&times;</button>
-        <h2>Sign In</h2>
-        <form id="signInForm">
-            <input type="email" placeholder="Email *" required aria-label="Email">
-            <input type="password" placeholder="Password *" required aria-label="Password">
-            <button type="submit">Sign In</button>
-            <div class="switch-form">
-                Don't have an account? <a href="#" onclick="switchModal('signUpModal')">Sign Up</a>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Sign Up Modal -->
-<div class="modal" id="signUpModal">
-    <div class="modal-content">
-        <button class="modal-close" aria-label="Close Sign Up Modal">&times;</button>
-        <h2>Sign Up</h2>
-        <form id="signUpForm" action="sign-up.jsp" method="post" class="space-y-4">
-            <input type="text" name="fullName" placeholder="Full Name *" required aria-label="Full Name">
-            <input type="email" name="email" placeholder="Email *" required aria-label="Email">
-            <input type="password" name="password" placeholder="Password *" required minlength="8" aria-label="Password">
-            <select name="role" required aria-label="Role">
-                <option value="" disabled selected>Select Role</option>
-                <option value="customer">Customer</option>
-                <option value="seller">Seller</option>
-                <option value="admin">Admin</option>
-            </select>
-            <select name="country" required aria-label="Country">
-                <option value="" disabled selected>Select Country</option>
-                <option value="US">United States</option>
-                <option value="CA">Canada</option>
-                <option value="UK">United Kingdom</option>
-                <option value="AU">Australia</option>
-                <option value="IN">India</option>
-                <option value="DE">Germany</option>
-                <option value="FR">France</option>
-                <option value="JP">Japan</option>
-                <option value="CN">China</option>
-                <option value="BR">Brazil</option>
-                <option value="SL">Sri Lanka</option>
-            </select>
-            <button type="submit">Sign Up</button>
-            <div class="switch-form">
-                Already have an account? <a href="#" onclick="switchModal('signInModal')">Sign In</a>
-            </div>
-        </form>
-    </div>
-</div>
 
 <!-- Hero Section with Slideshow -->
 <section class="hero">
@@ -1454,38 +1048,40 @@
 </section>
 
 <!-- Why Choose Us Section -->
-<section class="container why-choose glass-card">
-    <h2 class="section-title">Why Choose Melody Mart</h2>
-    <div class="features-grid">
-        <div class="feature-item">
-            <i class="fas fa-star feature-icon"></i>
-            <h3 class="feature-title">Premium Quality</h3>
-            <p class="feature-desc">Hand-selected instruments from top brands for exceptional performance.</p>
-        </div>
-        <div class="feature-item">
-            <i class="fas fa-shield-alt feature-icon"></i>
-            <h3 class="feature-title">Expert Support</h3>
-            <p class="feature-desc">Dedicated team for personalized advice and after-sales service.</p>
-        </div>
-        <div class="feature-item">
-            <i class="fas fa-rocket feature-icon"></i>
-            <h3 class="feature-title">Fast Shipping</h3>
-            <p class="feature-desc">Worldwide delivery with secure packaging for your instruments.</p>
-        </div>
-        <div class="feature-item">
-            <i class="fas fa-sync-alt feature-icon"></i>
-            <h3 class="feature-title">Easy Returns</h3>
-            <p class="feature-desc">Hassle-free returns and exchanges within 30 days.</p>
-        </div>
-        <div class="feature-item">
-            <i class="fas fa-users feature-icon"></i>
-            <h3 class="feature-title">Community Focus</h3>
-            <p class="feature-desc">Join our musician community for tips, events, and more.</p>
-        </div>
-        <div class="feature-item">
-            <i class="fas fa-chart-line feature-icon"></i>
-            <h3 class="feature-title">Data-Driven Recommendations</h3>
-            <p class="feature-desc">Personalized suggestions based on your preferences and trends.</p>
+<section class="container">
+    <div class="why-choose glass-card">
+        <h2 class="section-title">Why Choose Melody Mart</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="fas fa-star feature-icon"></i>
+                <h3 class="feature-title">Premium Quality</h3>
+                <p class="feature-desc">Hand-selected instruments from top brands for exceptional performance.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h3 class="feature-title">Expert Support</h3>
+                <p class="feature-desc">Dedicated team for personalized advice and after-sales service.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-rocket feature-icon"></i>
+                <h3 class="feature-title">Fast Shipping</h3>
+                <p class="feature-desc">Worldwide delivery with secure packaging for your instruments.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-sync-alt feature-icon"></i>
+                <h3 class="feature-title">Easy Returns</h3>
+                <p class="feature-desc">Hassle-free returns and exchanges within 30 days.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-users feature-icon"></i>
+                <h3 class="feature-title">Community Focus</h3>
+                <p class="feature-desc">Join our musician community for tips, events, and more.</p>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-chart-line feature-icon"></i>
+                <h3 class="feature-title">Data-Driven Recommendations</h3>
+                <p class="feature-desc">Personalized suggestions based on your preferences and trends.</p>
+            </div>
         </div>
     </div>
 </section>
@@ -1496,7 +1092,7 @@
     <div class="products">
         <div class="product-card">
             <div class="product-img">
-                <i class="fas fa-guitar"></i>
+                <img src="https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Professional Electric Guitar">
             </div>
             <div class="product-info">
                 <h3 class="product-title">Professional Electric Guitar</h3>
@@ -1513,7 +1109,7 @@
 
         <div class="product-card">
             <div class="product-img">
-                <i class="fas fa-drum"></i>
+                <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Premium Drum Set">
             </div>
             <div class="product-info">
                 <h3 class="product-title">Premium Drum Set</h3>
@@ -1530,7 +1126,7 @@
 
         <div class="product-card">
             <div class="product-img">
-                <i class="fas fa-piano"></i>
+                <img src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Digital Grand Piano">
             </div>
             <div class="product-info">
                 <h3 class="product-title">Digital Grand Piano</h3>
@@ -1547,55 +1143,6 @@
     </div>
 </section>
 
-<!-- Categories -->
-<section class="section-bg">
-    <div class="container">
-        <h2 class="section-title">Shop By Category</h2>
-        <div class="categories">
-            <div class="category-card">
-                <i class="fas fa-guitar"></i>
-                <h3>Guitars</h3>
-            </div>
-            <div class="category-card">
-                <i class="fas fa-drum"></i>
-                <h3>Drums & Percussion</h3>
-            </div>
-            <div class="category-card">
-                <i class="fas fa-piano"></i>
-                <h3>Pianos & Keyboards</h3>
-            </div>
-            <div class="category-card">
-                <i class="fas fa-microphone"></i>
-                <h3>Recording Equipment</h3>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonials -->
-<section class="testimonials">
-    <div class="container">
-        <h2 class="section-title">What Our Customers Say</h2>
-        <div class="testimonial-container">
-            <div class="testimonial active">
-                <p class="testimonial-text">The quality of instruments at Melody Mart is unmatched. My new guitar sounds incredible and was delivered perfectly set up and ready to play.</p>
-                <div class="testimonial-author">Alex Johnson</div>
-                <div class="testimonial-role">Professional Musician</div>
-            </div>
-            <div class="testimonial">
-                <p class="testimonial-text">Excellent customer service and a fantastic selection. The piano I purchased exceeded my expectations in every way.</p>
-                <div class="testimonial-author">Sarah Lee</div>
-                <div class="testimonial-role">Music Teacher</div>
-            </div>
-            <div class="testimonial">
-                <p class="testimonial-text">Fast shipping and great prices. Melody Mart is my go-to for all drumming needs.</p>
-                <div class="testimonial-author">Mike Rodriguez</div>
-                <div class="testimonial-role">Studio Drummer</div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- Newsletter -->
 <section class="container">
     <div class="newsletter glass-card">
@@ -1605,39 +1152,6 @@
             <input type="email" class="newsletter-input" placeholder="Your Email Address">
             <button type="submit" class="newsletter-btn">Subscribe</button>
         </form>
-    </div>
-</section>
-
-<!-- Contact Section -->
-<section class="contact">
-    <div class="container">
-        <h2 class="section-title">Get in Touch</h2>
-        <p style="text-align: center; margin-bottom: 40px; color: var(--text-secondary); max-width: 700px; margin-left: auto; margin-right: auto;">Have questions or ready to explore our collection? Fill out the form below, and our team will get back to you shortly.</p>
-        <form class="contact-form">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <input type="text" placeholder="First Name *" required>
-                <input type="text" placeholder="Last Name *" required>
-            </div>
-            <input type="email" placeholder="Email *" required>
-            <input type="tel" placeholder="Phone">
-            <textarea placeholder="Comment" rows="5"></textarea>
-            <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: var(--text-secondary);"><input type="checkbox" required> I have read the terms and conditions *</label>
-            <button type="submit" class="cta-btn">Contact Us</button>
-        </form>
-        <div class="locations">
-            <div class="location">
-                <h3>Netherlands</h3>
-                <p>HQ Beta<br>High Tech Campus 9<br>5656 AE, Eindhoven</p>
-            </div>
-            <div class="location">
-                <h3>UAE</h3>
-                <p>1008, Iris Bay Tower<br>Business Bay,<br>41018, Dubai, UAE</p>
-            </div>
-            <div class="location">
-                <h3>USA</h3>
-                <p>Coming Soon</p>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -1731,56 +1245,6 @@
         }
     });
 
-    // Modal handling
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('active'), 10); // Allow animation
-    }
-
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.remove('active');
-        setTimeout(() => modal.style.display = 'none', 300); // Match animation duration
-    }
-
-    function switchModal(modalId) {
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 300);
-        });
-        openModal(modalId);
-    }
-
-    // Close modal on clicking outside
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal(modal.id);
-            }
-        });
-    });
-
-    // Close modal on clicking close button
-    document.querySelectorAll('.modal-close').forEach(btn => {
-        btn.addEventListener('click', () => {
-            closeModal(btn.closest('.modal').id);
-        });
-    });
-
-    // Form submission (placeholder)
-    document.getElementById('signInForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        alert('Sign In submitted! (Placeholder)');
-        closeModal('signInModal');
-    });
-
-    document.getElementById('signUpForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        alert('Sign Up submitted! (Placeholder)');
-        closeModal('signUpModal');
-    });
-
     // Slideshow handling
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
@@ -1815,41 +1279,16 @@
 
     showSlide(currentSlide);
 
-    // Testimonials carousel
-    const testimonialContainer = document.querySelector('.testimonial-container');
-    const testimonials = document.querySelectorAll('.testimonial');
-    let currentTestimonial = 0;
-
-    function showTestimonial(n) {
-        testimonials.forEach(t => t.classList.remove('active'));
-        currentTestimonial = (n + testimonials.length) % testimonials.length;
-        testimonialContainer.style.transform = `translateX(-${currentTestimonial * 100}%)`;
-        testimonials[currentTestimonial].classList.add('active');
-    }
-
-    function nextTestimonial() {
-        showTestimonial(currentTestimonial + 1);
-    }
-
-    setInterval(nextTestimonial, 5000);
-
-    showTestimonial(0);
-
     // Intersection Observer for animations
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                if (entry.target.classList.contains('feature-item')) {
-                    entry.target.classList.add('bounce-in');
-                } else if (entry.target.classList.contains('category-card')) {
-                    entry.target.classList.add('rotate-in');
-                }
             }
         });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.section-title, .product-card, .category-card, .feature-item, .location').forEach((el) => {
+    document.querySelectorAll('.section-title, .product-card, .category-card, .feature-item').forEach((el) => {
         observer.observe(el);
     });
 
@@ -1866,9 +1305,6 @@
             icon.style.top = Math.random() * 100 + '%';
             icon.style.animationDelay = Math.random() * 5 + 's';
             icon.style.fontSize = (Math.random() * 20 + 16) + 'px';
-            if (Math.random() > 0.5) {
-                icon.classList.add('pulse-animation');
-            }
             container.appendChild(icon);
         }
     }
