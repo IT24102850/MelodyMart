@@ -14,7 +14,7 @@
             --secondary: #ffffff;
             --accent: #06b6d4;
             --accent-alt: #ef4444;
-            --text: #1e293b;
+            --text: #1e40af;
             --text-secondary: #475569;
             --text-soft: #64748b;
             --card-bg: #f8fafc;
@@ -24,8 +24,8 @@
             --gradient-soft: linear-gradient(135deg, var(--primary-soft), #e0f2fe);
             --glass-bg: rgba(255, 255, 255, 0.9);
             --glass-border: rgba(255, 255, 255, 0.3);
-            --shadow: 0 5px 20px rgba(30, 64, 175, 0.1);
-            --shadow-hover: 0 10px 30px rgba(30, 64, 175, 0.2);
+            --shadow: 0 5px 20px rgb(30, 64, 175);
+            --shadow-hover: 0 10px 30px rgb(30, 64, 175);
             --header-bg: rgba(255, 255, 255, 0.95);
             --section-bg: #f1f5f9;
             --border-radius: 16px;
@@ -35,7 +35,7 @@
             --primary: #3b82f6;
             --primary-light: #60a5fa;
             --primary-soft: #1e3a8a;
-            --secondary: #0f172a;
+            --secondary: #1e40af;
             --accent: #22d3ee;
             --accent-alt: #f87171;
             --text: #f1f5f9;
@@ -43,12 +43,12 @@
             --text-soft: #94a3b8;
             --card-bg: #1e293b;
             --card-hover: #334155;
-            --glass-bg: rgba(30, 41, 59, 0.9);
+            --glass-bg: rgb(30, 64, 175);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-            --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.4);
-            --header-bg: rgba(15, 23, 42, 0.95);
-            --section-bg: #0f172a;
+            --shadow: 0 5px 20px rgb(30, 64, 175);
+            --shadow-hover: 0 10px 30px rgb(30, 64, 175);
+            --header-bg: rgb(30, 64, 175);
+            --section-bg: #1e40af;
         }
 
         * {
@@ -73,7 +73,7 @@
             padding: 0 20px;
         }
 
-        /* Header & Navigation */
+        /* Header & Navigation - Enhanced Colors */
         header {
             position: fixed;
             top: 0;
@@ -84,11 +84,13 @@
             transition: all 0.4s ease;
             backdrop-filter: blur(10px);
 
+            
         }
 
         header.scrolled {
             padding: 15px 0;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            background-color: var(--header-bg);
         }
 
         .nav-container {
@@ -155,9 +157,25 @@
             align-items: center;
         }
 
+        .nav-actions button {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-
-
+        .nav-actions button:hover {
+            color: var(--primary-light);
+            background: var(--primary-soft);
+        }
 
         .cta-btn {
             background: var(--gradient);
