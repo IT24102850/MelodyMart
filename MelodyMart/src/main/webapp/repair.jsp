@@ -15,25 +15,54 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <style>
         :root {
-            --primary: #8a2be2;
-            --primary-light: #9b45f0;
-            --secondary: #0a0a0a;
-            --accent: #00e5ff;
-            --accent-alt: #ff00c8;
-            --text: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-bg: #1a1a1a;
-            --card-hover: #2a2a2a;
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-soft: #dbeafe;
+            --secondary: #ffffff;
+            --accent: #06b6d4;
+            --accent-alt: #ef4444;
+            --text: #1e293b;
+            --text-secondary: #475569;
+            --text-soft: #64748b;
+            --card-bg: #f8fafc;
+            --card-hover: #ffffff;
             --gradient: linear-gradient(135deg, var(--primary), var(--accent));
             --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
-            --glass-bg: rgba(30, 30, 30, 0.7);
+            --gradient-soft: linear-gradient(135deg, var(--primary-soft), #e0f2fe);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow: 0 5px 20px rgba(30, 64, 175, 0.1);
+            --shadow-hover: 0 10px 30px rgba(30, 64, 175, 0.2);
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --section-bg: #f1f5f9;
+            --border-radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --primary-soft: #1e3a8a;
+            --secondary: #0f172a;
+            --accent: #22d3ee;
+            --accent-alt: #f87171;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-soft: #94a3b8;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --glass-bg: rgba(30, 41, 59, 0.9);
             --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --header-bg: rgba(15, 23, 42, 0.95);
+            --section-bg: #0f172a;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
         body {
@@ -61,9 +90,13 @@
             z-index: 1000;
             padding: 20px 0;
             transition: all 0.4s ease;
-            background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(10px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            background: var(--header-bg);
+        }
+
+        header.scrolled {
+            padding: 15px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         }
 
         .nav-container {
@@ -103,12 +136,13 @@
             font-weight: 500;
             transition: color 0.3s ease;
             position: relative;
+            padding: 8px 0;
         }
 
         .nav-links a:after {
             content: '';
             position: absolute;
-            bottom: -5px;
+            bottom: 0;
             left: 0;
             width: 0;
             height: 2px;
@@ -129,18 +163,25 @@
             align-items: center;
         }
 
-        .search-btn, .cart-btn {
+        .search-btn, .cart-btn, .theme-toggle {
             background: none;
             border: none;
             color: var(--text);
             font-size: 18px;
             margin-left: 20px;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .search-btn:hover, .cart-btn:hover {
+        .search-btn:hover, .cart-btn:hover, .theme-toggle:hover {
             color: var(--primary-light);
+            background: var(--primary-soft);
         }
 
         .cta-btn {
@@ -156,6 +197,7 @@
             position: relative;
             overflow: hidden;
             z-index: 1;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
         }
 
         .cta-btn:before {
@@ -172,7 +214,7 @@
 
         .cta-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
+            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.4);
         }
 
         .cta-btn:hover:before {
@@ -192,10 +234,17 @@
             font-size: 18px;
             cursor: pointer;
             transition: color 0.3s ease;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .user-btn:hover {
             color: var(--primary-light);
+            background: var(--primary-soft);
         }
 
         .dropdown {
@@ -205,13 +254,15 @@
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            width: 200px;
+            border-radius: var(--border-radius);
+            width: 180px;
             opacity: 0;
             visibility: hidden;
             transform: translateY(10px);
             transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
             z-index: 1000;
+            box-shadow: var(--shadow-hover);
+            padding: 10px 0;
         }
 
         .user-menu:hover .dropdown {
@@ -222,7 +273,7 @@
 
         .dropdown-item {
             display: block;
-            padding: 10px 15px;
+            padding: 12px 20px;
             color: var(--text);
             text-decoration: none;
             font-size: 14px;
@@ -231,8 +282,8 @@
         }
 
         .dropdown-item:hover {
-            background: var(--card-hover);
-            color: var(--primary-light);
+            background: var(--primary-soft);
+            color: var(--primary);
         }
 
         /* Page Header */
@@ -252,22 +303,56 @@
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease, transform 1s ease;
+        }
+
+        .page-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            width: 100px;
+            height: 4px;
+            background: var(--gradient);
+            border-radius: 2px;
         }
 
         /* Form Styles */
         .form-container {
             background: var(--card-bg);
-            border-radius: 15px;
+            border-radius: var(--border-radius);
             padding: 30px;
             margin-bottom: 40px;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow);
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .form-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-container:hover {
+            box-shadow: var(--shadow-hover);
+            background: var(--card-hover);
         }
 
         .form-title {
             font-size: 24px;
             margin-bottom: 20px;
-            color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
         }
 
         .form-group {
@@ -284,7 +369,7 @@
         .form-control, .form-control-file {
             width: 100%;
             padding: 12px 15px;
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid var(--glass-border);
             background: var(--secondary);
             color: var(--text);
@@ -295,7 +380,7 @@
         .form-control:focus, .form-control-file:focus {
             outline: none;
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
         .form-control-file {
@@ -316,6 +401,7 @@
             border-radius: 8px;
             border: 1px solid var(--glass-border);
             transition: transform 0.3s ease;
+            box-shadow: var(--shadow);
         }
 
         .preview-img:hover {
@@ -325,12 +411,25 @@
         /* Table Styles */
         .table-container {
             background: var(--card-bg);
-            border-radius: 15px;
+            border-radius: var(--border-radius);
             padding: 20px;
             margin-top: 30px;
             border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow);
             overflow: hidden;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .table-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .table-container:hover {
+            box-shadow: var(--shadow-hover);
+            background: var(--card-hover);
         }
 
         .data-table {
@@ -340,11 +439,11 @@
         }
 
         .data-table th {
-            background: rgba(138, 43, 226, 0.1);
+            background: rgba(59, 130, 246, 0.1);
             padding: 15px;
             text-align: left;
             font-weight: 600;
-            color: var(--primary-light);
+            color: var(--primary);
             border-bottom: 1px solid var(--glass-border);
         }
 
@@ -358,7 +457,7 @@
         }
 
         .data-table tr:hover {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(59, 130, 246, 0.05);
         }
 
         /* Status Badges */
@@ -389,26 +488,31 @@
         .action-btn {
             background: none;
             border: none;
-            color: var(--primary-light);
+            color: var(--primary);
             cursor: pointer;
             font-size: 16px;
             margin-right: 10px;
             transition: all 0.3s ease;
             padding: 8px;
             border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .action-btn:hover {
-            background: rgba(138, 43, 226, 0.1);
+            background: var(--primary-soft);
             transform: scale(1.1);
         }
 
         .action-btn.delete-btn {
-            color: #ff6b6b;
+            color: #ef4444;
         }
 
         .action-btn.delete-btn:hover {
-            background: rgba(255, 107, 107, 0.1);
+            background: rgba(239, 68, 68, 0.1);
         }
 
         /* Modal Styles */
@@ -419,7 +523,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 2000;
             align-items: center;
             justify-content: center;
@@ -427,22 +531,23 @@
         }
 
         .modal-content {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 40px;
             max-width: 600px;
             width: 90%;
             position: relative;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
             opacity: 0;
-            transform: scale(0.9);
-            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: scale(0.8) translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            box-shadow: var(--shadow-hover);
         }
 
         .modal.active .modal-content {
             opacity: 1;
-            transform: scale(1);
+            transform: scale(1) translateY(0);
         }
 
         .modal-close {
@@ -452,13 +557,20 @@
             background: none;
             border: none;
             color: var(--text);
-            font-size: 24px;
+            font-size: 20px;
             cursor: pointer;
             transition: color 0.3s ease;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .modal-close:hover {
             color: var(--primary-light);
+            background: var(--primary-soft);
         }
 
         .modal-title {
@@ -486,10 +598,73 @@
             border: 1px solid var(--glass-border);
             cursor: pointer;
             transition: transform 0.3s ease;
+            box-shadow: var(--shadow);
         }
 
         .gallery-img:hover {
             transform: scale(1.1);
+        }
+
+        /* Hero Section */
+        .repair-hero {
+            background: var(--gradient-soft);
+            padding: 80px 0;
+            margin-bottom: 60px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .repair-hero:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path fill="rgba(59, 130, 246, 0.1)" d="M500,250c138.07,0,250,111.93,250,250s-111.93,250-250,250s-250-111.93-250-250S361.93,250,500,250z"/></svg>') no-repeat center;
+            background-size: cover;
+            opacity: 0.2;
+        }
+
+        .repair-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .repair-hero p {
+            max-width: 600px;
+            margin: 0 auto;
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        /* Floating Icons */
+        .floating-icons {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 24px;
+            color: rgba(59, 130, 246, 0.15);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
         }
 
         /* Responsive Design */
@@ -526,6 +701,10 @@
             .user-menu:hover .dropdown {
                 display: none;
             }
+
+            .repair-hero h1 {
+                font-size: 36px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -543,6 +722,14 @@
 
             .data-table th, .data-table td {
                 padding: 10px;
+            }
+
+            .repair-hero {
+                padding: 60px 20px;
+            }
+
+            .repair-hero h1 {
+                font-size: 32px;
             }
         }
 
@@ -578,13 +765,16 @@
             <li><a href="shop.jsp">Shop</a></li>
             <li><a href="categories.jsp">Categories</a></li>
             <li><a href="repair-requests.jsp" style="color: var(--primary-light);">Repair Requests</a></li>
-            <li><a href="orders.jsp">My Orders</a></li>
+            <li><a href="order.jsp">My Orders</a></li>
             <li><a href="profile.jsp">Profile</a></li>
         </ul>
 
         <div class="nav-actions">
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
             <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
+            <button class="theme-toggle" aria-label="Toggle Theme" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
             <div class="user-menu">
                 <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> Customer</button>
                 <div class="dropdown">
@@ -599,6 +789,21 @@
         </div>
     </div>
 </header>
+
+<!-- Hero Section -->
+<section class="repair-hero">
+    <div class="container">
+        <h1>Instrument Repair Services</h1>
+        <p>Professional repair services to keep your instruments sounding their best. Submit a request and let our experts handle the rest.</p>
+    </div>
+    <div class="floating-icons">
+        <i class="floating-icon" style="top: 20%; left: 5%; animation-delay: 0s;">🔧</i>
+        <i class="floating-icon" style="top: 60%; left: 10%; animation-delay: 1s;">🎸</i>
+        <i class="floating-icon" style="top: 30%; right: 15%; animation-delay: 2s;">🎹</i>
+        <i class="floating-icon" style="top: 70%; right: 5%; animation-delay: 3s;">🥁</i>
+        <i class="floating-icon" style="top: 40%; left: 15%; animation-delay: 4s;">🎻</i>
+    </div>
+</section>
 
 <div class="container">
     <!-- Page Header -->
@@ -696,7 +901,7 @@
                     %>
                 </td>
                 <td><span class="status-badge status-<%= status.toLowerCase().replace(" ", "-") %>"><%= status %></span></td>
-                <td><span style="color: <%= rs.getBoolean("Approved") ? "#28a745" : "#ff6b6b" %>;"><%= rs.getBoolean("Approved") ? "Yes" : "No" %></span></td>
+                <td><span style="color: <%= rs.getBoolean("Approved") ? "#28a745" : "#ef4444" %>;"><%= rs.getBoolean("Approved") ? "Yes" : "No" %></span></td>
                 <td><%= rs.getString("Comment") != null ? rs.getString("Comment") : "<span style='color: var(--text-secondary); font-style: italic;'>No comment</span>" %></td>
                 <td style="font-weight: 600; color: var(--accent);">$<%= rs.getBigDecimal("EstimatedCost") != null ? rs.getBigDecimal("EstimatedCost") : "0.00" %></td>
                 <td><%= rs.getDate("RepairDate") %></td>
@@ -715,7 +920,7 @@
             <%
                     }
                 } catch (Exception e) {
-                    out.println("<tr><td colspan='10' style='color:#ff6b6b; text-align:center; padding:20px;'>Error loading repair requests: " + e.getMessage() + "</td></tr>");
+                    out.println("<tr><td colspan='10' style='color:#ef4444; text-align:center; padding:20px;'>Error loading repair requests: " + e.getMessage() + "</td></tr>");
                 } finally {
                     if (rs != null) try { rs.close(); } catch (Exception ignored) {}
                     if (ps != null) try { ps.close(); } catch (Exception ignored) {}
@@ -762,6 +967,42 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <script>
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = themeToggle.querySelector('i');
+
+    // Check for saved theme preference or default to light
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeIcon(currentTheme);
+
+    themeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        updateThemeIcon(newTheme);
+    });
+
+    function updateThemeIcon(theme) {
+        if (theme === 'light') {
+            themeIcon.className = 'fas fa-moon';
+        } else {
+            themeIcon.className = 'fas fa-sun';
+        }
+    }
+
+    // Header scroll effect
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+
     $(function() {
         $("#repairDatePicker, #updateRepairDatePicker").datepicker({
             dateFormat: "yy-mm-dd",
@@ -877,6 +1118,19 @@
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }, 3000);
+    });
+
+    // Intersection Observer for animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.page-title, .form-container, .table-container').forEach((el) => {
+        observer.observe(el);
     });
 </script>
 

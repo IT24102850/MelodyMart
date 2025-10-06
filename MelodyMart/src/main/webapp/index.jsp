@@ -83,7 +83,7 @@
             padding: 20px 0;
             transition: all 0.4s ease;
             backdrop-filter: blur(10px);
-            background: var(--header-bg);
+
         }
 
         header.scrolled {
@@ -155,26 +155,9 @@
             align-items: center;
         }
 
-        .search-btn, .cart-btn, .theme-toggle {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            margin-left: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
 
-        .search-btn:hover, .cart-btn:hover, .theme-toggle:hover {
-            color: var(--primary-light);
-            background: var(--primary-soft);
-        }
+
+
 
         .cta-btn {
             background: var(--gradient);
@@ -213,120 +196,292 @@
             width: 100%;
         }
 
-        /* Hero Section with Slideshow */
+        /* User Dropdown */
+        .user-menu {
+            position: relative;
+            margin-left: 20px;
+        }
+
+        .user-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-btn:hover {
+            color: var(--primary-light);
+            background: var(--primary-soft);
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+            z-index: 1000;
+            box-shadow: var(--shadow-hover);
+            padding: 10px 0;
+        }
+
+        .user-menu:hover .dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 12px 20px;
+            color: var(--text);
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s ease, color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        /* Hero Section - Completely Redesigned */
         .hero {
             height: 100vh;
             position: relative;
             overflow: hidden;
             padding-top: 80px;
-            background: var(--gradient-soft);
+            background: linear-gradient(135deg, #1e40af 0%, #06b6d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .slideshow {
+        .hero-content {
+            text-align: center;
+            max-width: 800px;
+            padding: 0 20px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: white;
+            line-height: 1.1;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease 0.5s forwards;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease 0.8s forwards;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 1s ease 1.1s forwards;
+        }
+
+        .hero-btn {
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-btn.primary {
+            background: white;
+            color: #1e40af;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-btn.primary:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-btn.secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .hero-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: translateY(-5px);
+        }
+
+        /* Animated Background Elements */
+        .hero-bg-elements {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            overflow: hidden;
+            z-index: 1;
         }
 
-        .slide {
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 15s infinite ease-in-out;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            left: 10%;
+            animation-delay: 2s;
+        }
+
+        .bg-circle:nth-child(3) {
+            width: 150px;
+            height: 150px;
+            top: 20%;
+            left: 5%;
+            animation-delay: 4s;
+        }
+
+        .bg-circle:nth-child(4) {
+            width: 100px;
+            height: 100px;
+            bottom: 20%;
+            right: 15%;
+            animation-delay: 6s;
+        }
+
+        /* Musical Notes Animation */
+        .musical-notes {
             position: absolute;
             width: 100%;
             height: 100%;
-            opacity: 0;
-            transition: opacity 1.5s ease-in-out;
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
+            top: 0;
+            left: 0;
+            z-index: 1;
         }
 
-        .slide.active {
-            opacity: 1;
-        }
-
-        .slide-1 {
-            background-image: url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
-        }
-        .slide-2 {
-            background-image: url('https://images.unsplash.com/photo-1511735111819-9a3f7709049c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1674&q=80');
-        }
-        .slide-3 {
-            background-image: url('https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
-        }
-        .slide-4 {
-            background-image: url('https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
-        }
-        .slide-5 {
-            background-image: url('https://images.unsplash.com/photo-1571974599782-87624638275f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1742&q=80');
-        }
-
-        .slide-content {
-            max-width: 700px;
-            padding-left: 10%;
-            opacity: 0;
-            transform: translateY(50px);
-            transition: opacity 1s ease, transform 1s ease;
-            background: rgba(255, 255, 255, 0.85);
-            padding: 40px;
-            border-radius: var(--border-radius);
-            margin-left: 5%;
-        }
-
-        .slide.active .slide-content {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .slide h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 64px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            line-height: 1.2;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .slide p {
-            font-size: 20px;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-            max-width: 90%;
-            line-height: 1.7;
-        }
-
-        .slide-btns {
-            display: flex;
-            gap: 15px;
-        }
-
-        .slideshow-dots {
+        .note {
             position: absolute;
-            bottom: 40px;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.3);
+            animation: floatNote 8s infinite linear;
+        }
+
+        .note:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .note:nth-child(2) {
+            top: 60%;
+            left: 85%;
+            animation-delay: 1s;
+        }
+
+        .note:nth-child(3) {
+            top: 80%;
+            left: 20%;
+            animation-delay: 2s;
+        }
+
+        .note:nth-child(4) {
+            top: 40%;
+            left: 75%;
+            animation-delay: 3s;
+        }
+
+        .note:nth-child(5) {
+            top: 10%;
             left: 50%;
-            transform: translateX(-50%);
+            animation-delay: 4s;
+        }
+
+        .note:nth-child(6) {
+            top: 70%;
+            left: 40%;
+            animation-delay: 5s;
+        }
+
+        /* Stats Section */
+        .hero-stats {
             display: flex;
-            gap: 10px;
-            z-index: 10;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 60px;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeIn 1s ease 1.4s forwards;
         }
 
-        .dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: rgba(59, 130, 246, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
+        .stat-item {
+            text-align: center;
+            color: white;
         }
 
-        .dot.active {
-            background: var(--primary);
-            transform: scale(1.3);
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
         }
 
         /* Section Title */
@@ -356,6 +511,13 @@
             height: 4px;
             background: var(--gradient);
             border-radius: 2px;
+        }
+
+        /* Section Backgrounds */
+        .section-bg {
+            background: var(--section-bg);
+            padding: 100px 0;
+            margin: 80px 0;
         }
 
         /* Featured Products */
@@ -403,6 +565,21 @@
 
         .product-card:hover .product-img {
             transform: scale(1.05);
+        }
+
+        .product-img:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.1));
+            transition: opacity 0.3s ease;
+        }
+
+        .product-card:hover .product-img:after {
+            opacity: 0.8;
         }
 
         .product-img img {
@@ -810,31 +987,77 @@
             font-size: 15px;
         }
 
-        /* Additional Animations */
+        /* Animations */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+
+        @keyframes floatNote {
+            0% {
+                transform: translateY(100px) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes rotateIn {
+            from { transform: rotate(-10deg) scale(0.8); opacity: 0; }
+            to { transform: rotate(0) scale(1); opacity: 1; }
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
         }
 
         .float-animation {
             animation: float 5s ease-in-out infinite;
         }
 
-        .floating-icons {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            overflow: hidden;
-            z-index: -1;
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        .floating-icon {
-            position: absolute;
-            font-size: 24px;
-            color: rgba(59, 130, 246, 0.15);
-            animation: float 6s ease-in-out infinite;
+        .rotate-in {
+            animation: rotateIn 1s ease-out forwards;
+        }
+
+        .bounce-in {
+            animation: bounceIn 1s ease-out forwards;
         }
 
         /* Premium Elements */
@@ -849,14 +1072,14 @@
 
         /* Responsive Design */
         @media (max-width: 1200px) {
-            .slide h1 {
-                font-size: 54px;
+            .hero-title {
+                font-size: 3.5rem;
             }
         }
 
         @media (max-width: 992px) {
-            .slide h1 {
-                font-size: 48px;
+            .hero-title {
+                font-size: 3rem;
             }
 
             .section-title {
@@ -873,24 +1096,25 @@
                 display: none;
             }
 
-            .slide-content {
-                text-align: center;
-                padding: 0 5%;
-                margin: 0 auto;
+            .hero-title {
+                font-size: 2.5rem;
             }
 
-            .slide h1 {
-                font-size: 40px;
+            .hero-subtitle {
+                font-size: 1.2rem;
             }
 
-            .slide p {
-                margin: 0 auto 30px;
-                font-size: 18px;
+            .hero-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
             }
 
-            .slide-btns {
-                justify-content: center;
-                flex-wrap: wrap;
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                gap: 20px;
             }
 
             .section-title {
@@ -912,18 +1136,46 @@
                 padding: 18px;
             }
 
+            .user-menu:hover .dropdown {
+                display: none;
+            }
+
+            .user-btn {
+                font-size: 16px;
+            }
+
+            .dropdown {
+                width: 150px;
+                right: -10px;
+            }
+
+            .modal-content {
+                padding: 30px;
+            }
+
             .features-grid {
                 grid-template-columns: 1fr;
             }
         }
 
         @media (max-width: 576px) {
-            .slide h1 {
-                font-size: 36px;
+            .hero-title {
+                font-size: 2rem;
             }
 
-            .slide p {
-                font-size: 16px;
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .hero-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-btn {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
             }
 
             .cta-btn {
@@ -933,6 +1185,11 @@
 
             .section-title {
                 font-size: 28px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 25px;
             }
 
             .footer-content {
@@ -965,85 +1222,65 @@
             <button class="theme-toggle" aria-label="Toggle Theme" id="themeToggle">
                 <i class="fas fa-moon"></i>
             </button>
+            <div class="user-menu">
+                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
+                <div class="dropdown">
+                    <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
+                    <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
+                </div>
+            </div>
             <button class="cta-btn" onclick="window.location.href='shop.jsp'">Shop Now</button>
         </div>
     </div>
 </header>
 
-<!-- Hero Section with Slideshow -->
+<!-- Hero Section - Completely Redesigned -->
 <section class="hero">
-    <div class="slideshow">
-        <div class="slide slide-1 active">
-            <div class="slide-content">
-                <h1>Elevate Your Sound Experience</h1>
-                <p>Discover the world's finest musical instruments crafted for professionals and enthusiasts alike. Experience unparalleled quality and sound.</p>
-                <div class="slide-btns">
-                    <button class="cta-btn">Explore Collection</button>
-                    <button class="cta-btn" style="background: transparent; border: 2px solid var(--primary-light); color: var(--text);">Learn More</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide slide-2">
-            <div class="slide-content">
-                <h1>Premium Guitars For Every Musician</h1>
-                <p>From classic acoustics to modern electrics, find the perfect guitar to express your musical vision.</p>
-                <div class="slide-btns">
-                    <button class="cta-btn">View Guitars</button>
-                    <button class="cta-btn" style="background: transparent; border: 2px solid var(--primary-light); color: var(--text);">View Offers</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide slide-3">
-            <div class="slide-content">
-                <h1>Studio Essentials & Equipment</h1>
-                <p>Everything you need to create, record and produce music at the highest quality.</p>
-                <div class="slide-btns">
-                    <button class="cta-btn">Explore Gear</button>
-                    <button class="cta-btn" style="background: transparent; border: 2px solid var(--primary-light); color: var(--text);">Book a Demo</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide slide-4">
-            <div class="slide-content">
-                <h1>Professional Drums & Percussion</h1>
-                <p>Find your rhythm with our premium selection of drum kits and percussion instruments.</p>
-                <div class="slide-btns">
-                    <button class="cta-btn">Explore Drums</button>
-                    <button class="cta-btn" style="background: transparent; border: 2px solid var(--primary-light); color: var(--text);">View Brands</button>
-                </div>
-            </div>
-        </div>
-        <div class="slide slide-5">
-            <div class="slide-content">
-                <h1>Classic Pianos & Keyboards</h1>
-                <p>From grand pianos to versatile keyboards, discover instruments that inspire creativity.</p>
-                <div class="slide-btns">
-                    <button class="cta-btn">View Pianos</button>
-                    <button class="cta-btn" style="background: transparent; border: 2px solid var(--primary-light); color: var(--text);">Schedule Trial</button>
-                </div>
-            </div>
-        </div>
+    <div class="hero-bg-elements">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
     </div>
 
-    <div class="slideshow-dots">
-        <span class="dot" onclick="goToSlide(0)"></span>
-        <span class="dot" onclick="goToSlide(1)"></span>
-        <span class="dot" onclick="goToSlide(2)"></span>
-        <span class="dot" onclick="goToSlide(3)"></span>
-        <span class="dot" onclick="goToSlide(4)"></span>
+    <div class="musical-notes">
+        <div class="note">♪</div>
+        <div class="note">♫</div>
+        <div class="note">🎵</div>
+        <div class="note">🎶</div>
+        <div class="note">♪</div>
+        <div class="note">♫</div>
     </div>
 
-    <div class="floating-icons">
-        <i class="floating-icon" style="top: 20%; left: 5%; animation-delay: 0s;">🎸</i>
-        <i class="floating-icon" style="top: 60%; left: 10%; animation-delay: 1s;">🎹</i>
-        <i class="floating-icon" style="top: 30%; right: 15%; animation-delay: 2s;">🎷</i>
-        <i class="floating-icon" style="top: 70%; right: 5%; animation-delay: 3s;">🥁</i>
-        <i class="floating-icon" style="top: 40%; left: 15%; animation-delay: 4s;">🎻</i>
-        <i class="floating-icon" style="top: 50%; left: 80%; animation-delay: 0.5s;">🎺</i>
-        <i class="floating-icon" style="top: 10%; right: 20%; animation-delay: 1.5s;">🎼</i>
-        <i class="floating-icon" style="top: 80%; left: 30%; animation-delay: 2.5s;">📯</i>
-        <i class="floating-icon" style="top: 25%; right: 40%; animation-delay: 3.5s;">🎵</i>
-        <i class="floating-icon" style="top: 65%; left: 50%; animation-delay: 4.5s;">🎶</i>
+    <div class="hero-content">
+        <h1 class="hero-title">Elevate Your Sound Experience</h1>
+        <p class="hero-subtitle">Discover the world's finest musical instruments crafted for professionals and enthusiasts alike. Experience unparalleled quality and sound.</p>
+
+        <div class="hero-btns">
+            <a href="shop.jsp" class="hero-btn primary">
+                <i class="fas fa-shopping-cart"></i>
+                Shop Instruments
+            </a>
+            <a href="categories.jsp" class="hero-btn secondary">
+                <i class="fas fa-guitar"></i>
+                Explore Categories
+            </a>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat-item">
+                <span class="stat-number">500+</span>
+                <span class="stat-label">Premium Instruments</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">10K+</span>
+                <span class="stat-label">Happy Musicians</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">Top Brands</span>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -1138,6 +1375,55 @@
                         <i class="far fa-heart"></i>
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories -->
+<section class="section-bg">
+    <div class="container">
+        <h2 class="section-title">Shop By Category</h2>
+        <div class="categories">
+            <div class="category-card">
+                <i class="fas fa-guitar"></i>
+                <h3>Guitars</h3>
+            </div>
+            <div class="category-card">
+                <i class="fas fa-drum"></i>
+                <h3>Drums & Percussion</h3>
+            </div>
+            <div class="category-card">
+                <i class="fas fa-piano"></i>
+                <h3>Pianos & Keyboards</h3>
+            </div>
+            <div class="category-card">
+                <i class="fas fa-microphone"></i>
+                <h3>Recording Equipment</h3>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials">
+    <div class="container">
+        <h2 class="section-title">What Our Customers Say</h2>
+        <div class="testimonial-container">
+            <div class="testimonial active">
+                <p class="testimonial-text">The quality of instruments at Melody Mart is unmatched. My new guitar sounds incredible and was delivered perfectly set up and ready to play.</p>
+                <div class="testimonial-author">Alex Johnson</div>
+                <div class="testimonial-role">Professional Musician</div>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">Excellent customer service and a fantastic selection. The piano I purchased exceeded my expectations in every way.</p>
+                <div class="testimonial-author">Sarah Lee</div>
+                <div class="testimonial-role">Music Teacher</div>
+            </div>
+            <div class="testimonial">
+                <p class="testimonial-text">Fast shipping and great prices. Melody Mart is my go-to for all drumming needs.</p>
+                <div class="testimonial-author">Mike Rodriguez</div>
+                <div class="testimonial-role">Studio Drummer</div>
             </div>
         </div>
     </div>
@@ -1245,45 +1531,36 @@
         }
     });
 
-    // Slideshow handling
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
-    const dots = document.querySelectorAll('.dot');
-    const totalSlides = slides.length;
+    // Testimonials carousel
+    const testimonialContainer = document.querySelector('.testimonial-container');
+    const testimonials = document.querySelectorAll('.testimonial');
+    let currentTestimonial = 0;
 
-    function showSlide(index) {
-        currentSlide = (index + totalSlides) % totalSlides;
-        slides.forEach((slide, i) => {
-            slide.classList.toggle('active', i === currentSlide);
-        });
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === currentSlide);
-        });
+    function showTestimonial(n) {
+        testimonials.forEach(t => t.classList.remove('active'));
+        currentTestimonial = (n + testimonials.length) % testimonials.length;
+        testimonialContainer.style.transform = `translateX(-${currentTestimonial * 100}%)`;
+        testimonials[currentTestimonial].classList.add('active');
     }
 
-    function changeSlide(direction) {
-        showSlide(currentSlide + direction);
+    function nextTestimonial() {
+        showTestimonial(currentTestimonial + 1);
     }
 
-    function goToSlide(index) {
-        showSlide(index);
-    }
+    setInterval(nextTestimonial, 5000);
 
-    let autoSlide = setInterval(() => changeSlide(1), 5000);
-
-    const slideshowContainer = document.querySelector('.slideshow');
-    slideshowContainer.addEventListener('mouseenter', () => clearInterval(autoSlide));
-    slideshowContainer.addEventListener('mouseleave', () => {
-        autoSlide = setInterval(() => changeSlide(1), 5000);
-    });
-
-    showSlide(currentSlide);
+    showTestimonial(0);
 
     // Intersection Observer for animations
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
+                if (entry.target.classList.contains('feature-item')) {
+                    entry.target.classList.add('bounce-in');
+                } else if (entry.target.classList.contains('category-card')) {
+                    entry.target.classList.add('rotate-in');
+                }
             }
         });
     }, { threshold: 0.1 });
@@ -1291,25 +1568,6 @@
     document.querySelectorAll('.section-title, .product-card, .category-card, .feature-item').forEach((el) => {
         observer.observe(el);
     });
-
-    // Add floating icons dynamically
-    function addFloatingIcons() {
-        const icons = ['🎸', '🎹', '🎷', '🥁', '🎻', '🎺', '🎼', '📯', '🎵', '🎶'];
-        const container = document.querySelector('.floating-icons');
-
-        for (let i = 0; i < 20; i++) {
-            const icon = document.createElement('div');
-            icon.className = 'floating-icon';
-            icon.textContent = icons[Math.floor(Math.random() * icons.length)];
-            icon.style.left = Math.random() * 100 + '%';
-            icon.style.top = Math.random() * 100 + '%';
-            icon.style.animationDelay = Math.random() * 5 + 's';
-            icon.style.fontSize = (Math.random() * 20 + 16) + 'px';
-            container.appendChild(icon);
-        }
-    }
-
-    addFloatingIcons();
 </script>
 </body>
 </html>
