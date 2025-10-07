@@ -9,7 +9,7 @@
     <style>
         :root {
             --primary: #8a2be2;
-            --primary-light: #9b45f0;
+            --primary-light: #3b82f6;
             --secondary: #0a0a0a;
             --accent: #00e5ff;
             --accent-alt: #ff00c8;

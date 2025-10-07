@@ -20,7 +20,7 @@
             --card-bg: #f8fafc;
             --card-hover: #ffffff;
             --gradient: linear-gradient(135deg, var(--primary), var(--accent));
-            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
+
             --gradient-soft: linear-gradient(135deg, var(--primary-soft), #e0f2fe);
             --glass-bg: rgba(255, 255, 255, 0.9);
             --glass-border: rgba(255, 255, 255, 0.3);
@@ -178,10 +178,10 @@
         }
 
         .cta-btn {
-            background: var(--gradient);
+            background-color: #1e40af; /* MelodyMart deep blue */
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 12px 28px;
             border-radius: 30px;
             font-weight: 600;
             cursor: pointer;
@@ -189,30 +189,42 @@
             margin-left: 20px;
             position: relative;
             overflow: hidden;
-            z-index: 1;
-            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(30, 64, 175, 0.3);
         }
 
-        .cta-btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 100%;
-            background: var(--gradient-alt);
-            transition: all 0.4s ease;
-            z-index: -1;
-        }
-
+        /* Hover glow and lift effect */
         .cta-btn:hover {
+            background-color: #3b82f6; /* lighter blue hover */
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.4);
+            box-shadow: 0 6px 18px rgba(30, 64, 175, 0.45);
         }
 
-        .cta-btn:hover:before {
-            width: 100%;
+        /* Focus outline for accessibility */
+        .cta-btn:focus {
+            outline: 2px solid #93c5fd;
+            outline-offset: 3px;
         }
+
+        /* Icon styling */
+        .cta-btn i {
+            font-size: 16px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        /* Icon slides slightly on hover */
+        .cta-btn:hover i {
+            transform: translateX(6px);
+            color: #e0f2fe;
+        }
+
+
+
+
+
 
         /* User Dropdown */
         .user-menu {
@@ -1235,8 +1247,7 @@
         </ul>
 
         <div class="nav-actions">
-            <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
-            <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
+
             <button class="theme-toggle" aria-label="Toggle Theme" id="themeToggle">
                 <i class="fas fa-moon"></i>
             </button>
@@ -1247,7 +1258,7 @@
                     <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
                 </div>
             </div>
-            <button class="cta-btn" onclick="window.location.href='shop.jsp'">Shop Now</button>
+
         </div>
     </div>
 </header>
