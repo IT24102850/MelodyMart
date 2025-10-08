@@ -1,5 +1,6 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="java.util.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
@@ -8,8 +9,74 @@
 
     // If session expired accidentally, redirect once to login
     if (userID == null) {
-        response.sendRedirect("sign-up.jsp");
+        response.sendRedirect("login.jsp");
         return;
+    }
+
+    // Create a list to store repair requests data for JavaScript
+    List<Map<String, Object>> repairRequestsList = new ArrayList<>();
+
+    try (Connection conn = DBConnection.getConnection()) {
+        // Query to get repair requests with related data
+        String sql = "SELECT " +
+                "rr.RepairRequestID, " +
+                "rr.OrderID, " +
+                "rr.IssueDescription, " +
+                "rr.Status, " +
+                "rr.RequestDate, " +
+                "rc.RepairDate, " +
+                "rc.EstimatedCost, " +
+                "rp.PhotoPath, " +
+                "rsh.Comment " +
+                "FROM RepairRequest rr " +
+                "LEFT JOIN RepairCost rc ON rr.RepairRequestID = rc.RepairRequestID " +
+                "LEFT JOIN RepairPhoto rp ON rr.RepairRequestID = rp.RepairRequestID " +
+                "LEFT JOIN ( " +
+                "    SELECT RepairRequestID, Comment, ROW_NUMBER() OVER (PARTITION BY RepairRequestID ORDER BY UpdatedDate DESC) as rn " +
+                "    FROM RepairStatusHistory " +
+                ") rsh ON rr.RepairRequestID = rsh.RepairRequestID AND rsh.rn = 1 " +
+                "WHERE rr.UserID = ? " +
+                "ORDER BY rr.RequestDate DESC";
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, userID);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Map<String, Object> repairReq = new HashMap<>();
+            repairReq.put("id", rs.getString("RepairRequestID"));
+            repairReq.put("orderId", rs.getString("OrderID"));
+            repairReq.put("issueDescription", rs.getString("IssueDescription"));
+            repairReq.put("status", rs.getString("Status"));
+            repairReq.put("requestDate", rs.getTimestamp("RequestDate").toString());
+            repairReq.put("repairDate", rs.getDate("RepairDate") != null ? rs.getDate("RepairDate").toString() : null);
+            repairReq.put("estimatedCost", rs.getBigDecimal("EstimatedCost") != null ? "₹" + rs.getBigDecimal("EstimatedCost") : "₹0.00");
+            repairReq.put("photoPath", rs.getString("PhotoPath"));
+            repairReq.put("comment", rs.getString("Comment") != null ? rs.getString("Comment") : "No comment available");
+
+            // Get status history for this request
+            List<Map<String, String>> statusHistory = new ArrayList<>();
+            try (PreparedStatement historyPs = conn.prepareStatement(
+                    "SELECT Status, Comment, UpdatedDate FROM RepairStatusHistory " +
+                            "WHERE RepairRequestID = ? ORDER BY UpdatedDate ASC")) {
+                historyPs.setString(1, rs.getString("RepairRequestID"));
+                ResultSet historyRs = historyPs.executeQuery();
+                while (historyRs.next()) {
+                    Map<String, String> historyItem = new HashMap<>();
+                    historyItem.put("status", historyRs.getString("Status"));
+                    historyItem.put("comment", historyRs.getString("Comment"));
+                    historyItem.put("date", historyRs.getTimestamp("UpdatedDate").toString());
+                    statusHistory.add(historyItem);
+                }
+            }
+            repairReq.put("statusHistory", statusHistory);
+
+            repairRequestsList.add(repairReq);
+        }
+        rs.close();
+        ps.close();
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
 %>
 
@@ -625,134 +692,7 @@
     </div>
 
     <div class="requests-grid" id="requestsContainer">
-        <%
-            try (Connection conn = DBConnection.getConnection()) {
-                // Query to get repair requests with related data
-                String sql = "SELECT " +
-                        "rr.RepairRequestID, " +
-                        "rr.OrderID, " +
-                        "rr.IssueDescription, " +
-                        "rr.Status, " +
-                        "rr.RequestDate, " +
-                        "rc.RepairDate, " +
-                        "rc.EstimatedCost, " +
-                        "rp.PhotoPath, " +
-                        "rsh.Comment " +
-                        "FROM RepairRequest rr " +
-                        "LEFT JOIN RepairCost rc ON rr.RepairRequestID = rc.RepairRequestID " +
-                        "LEFT JOIN RepairPhoto rp ON rr.RepairRequestID = rp.RepairRequestID " +
-                        "LEFT JOIN ( " +
-                        "    SELECT RepairRequestID, Comment, ROW_NUMBER() OVER (PARTITION BY RepairRequestID ORDER BY UpdatedDate DESC) as rn " +
-                        "    FROM RepairStatusHistory " +
-                        ") rsh ON rr.RepairRequestID = rsh.RepairRequestID AND rsh.rn = 1 " +
-                        "WHERE rr.UserID = ? " +
-                        "ORDER BY rr.RequestDate DESC";
-
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ps.setString(1, userID);
-                ResultSet rs = ps.executeQuery();
-
-                if (!rs.isBeforeFirst()) {
-        %>
-        <div class="no-requests">
-            <i class="fas fa-tools"></i>
-            <p>No repair requests found yet.</p>
-        </div>
-        <%
-        } else {
-            while (rs.next()) {
-                String repairRequestId = rs.getString("RepairRequestID");
-                String orderId = rs.getString("OrderID");
-                String issueDescription = rs.getString("IssueDescription");
-                String status = rs.getString("Status");
-                Timestamp requestDate = rs.getTimestamp("RequestDate");
-                String repairDate = rs.getString("RepairDate");
-                String estimatedCost = rs.getString("EstimatedCost");
-                String photoPath = rs.getString("PhotoPath");
-                String comment = rs.getString("Comment");
-
-                // Format dates
-                String formattedRequestDate = requestDate != null ?
-                        new java.text.SimpleDateFormat("MMM dd, yyyy").format(requestDate) : "N/A";
-                String formattedRepairDate = repairDate != null ?
-                        new java.text.SimpleDateFormat("MMM dd, yyyy").format(
-                                java.sql.Date.valueOf(repairDate)) : "Not scheduled";
-
-                // Format cost
-                String formattedCost = "₹0.00";
-                if (estimatedCost != null && !estimatedCost.equals("0.00")) {
-                    formattedCost = "₹" + estimatedCost;
-                }
-
-                // Get status history for this request
-                java.util.List<java.util.Map<String, String>> statusHistory = new java.util.ArrayList<>();
-                try (PreparedStatement historyPs = conn.prepareStatement(
-                        "SELECT Status, Comment, UpdatedDate FROM RepairStatusHistory " +
-                                "WHERE RepairRequestID = ? ORDER BY UpdatedDate DESC")) {
-                    historyPs.setString(1, repairRequestId);
-                    ResultSet historyRs = historyPs.executeQuery();
-                    while (historyRs.next()) {
-                        java.util.Map<String, String> historyItem = new java.util.HashMap<>();
-                        historyItem.put("status", historyRs.getString("Status"));
-                        historyItem.put("comment", historyRs.getString("Comment"));
-                        historyItem.put("date", historyRs.getString("UpdatedDate"));
-                        statusHistory.add(historyItem);
-                    }
-                }
-        %>
-        <div class="request-card" data-id="<%= repairRequestId %>" data-status="<%= status %>">
-            <div class="request-header">
-                <div>
-                    <div class="request-id"><%= repairRequestId %></div>
-                    <div class="request-date">Requested: <%= formattedRequestDate %></div>
-                </div>
-                <div class="request-status status-<%= status.toLowerCase().replace(" ", "-") %>">
-                    <%= status %>
-                </div>
-            </div>
-
-            <div class="request-details">
-                <div class="detail-row">
-                    <span class="detail-label">Order ID:</span>
-                    <span class="detail-value"><%= orderId %></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Repair Date:</span>
-                    <span class="detail-value"><%= formattedRepairDate %></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Estimated Cost:</span>
-                    <span class="detail-value"><%= formattedCost %></span>
-                </div>
-            </div>
-
-            <div class="request-description">
-                <div class="detail-label">Issue Description:</div>
-                <div class="detail-value">
-                    <%= issueDescription.length() > 100 ? issueDescription.substring(0, 100) + "..." : issueDescription %>
-                </div>
-            </div>
-
-            <div class="request-actions">
-                <button class="action-btn view-btn" onclick="showRequestDetails('<%= repairRequestId %>')">
-                    <i class="fas fa-eye"></i> View Details
-                </button>
-                <% if ("Submitted".equals(status)) { %>
-                <button class="action-btn update-btn" onclick="updateRequest('<%= repairRequestId %>')">
-                    <i class="fas fa-edit"></i> Update
-                </button>
-                <% } %>
-            </div>
-        </div>
-        <%
-                    }
-                    rs.close();
-                    ps.close();
-                }
-            } catch (SQLException e) {
-                out.println("<div class='no-requests'><p style='color: var(--error);'>Database error: " + e.getMessage() + "</p></div>");
-            }
-        %>
+        <!-- Repair requests will be dynamically inserted here -->
     </div>
 </div>
 
@@ -770,6 +710,38 @@
 </div>
 
 <script>
+    // Convert Java List to JavaScript array
+    const repairRequests = [
+        <% for (int i = 0; i < repairRequestsList.size(); i++) {
+            Map<String, Object> repairReq = repairRequestsList.get(i);
+        %>
+        {
+            id: "<%= repairReq.get("id") %>",
+            orderId: "<%= repairReq.get("orderId") %>",
+            issueDescription: "<%= escapeJavaScript((String)repairReq.get("issueDescription")) %>",
+            status: "<%= repairReq.get("status") %>",
+            requestDate: "<%= repairReq.get("requestDate") %>",
+            repairDate: "<%= repairReq.get("repairDate") != null ? repairReq.get("repairDate") : "" %>",
+            estimatedCost: "<%= repairReq.get("estimatedCost") %>",
+            photoPath: "<%= repairReq.get("photoPath") != null ? repairReq.get("photoPath") : "" %>",
+            comment: "<%= escapeJavaScript((String)repairReq.get("comment")) %>",
+            statusHistory: [
+                <%
+                List<Map<String, String>> statusHistory = (List<Map<String, String>>) repairReq.get("statusHistory");
+                for (int j = 0; j < statusHistory.size(); j++) {
+                    Map<String, String> history = statusHistory.get(j);
+                %>
+                {
+                    status: "<%= history.get("status") %>",
+                    date: "<%= history.get("date") %>",
+                    comment: "<%= escapeJavaScript(history.get("comment")) %>"
+                }<%= j < statusHistory.size() - 1 ? "," : "" %>
+                <% } %>
+            ]
+        }<%= i < repairRequestsList.size() - 1 ? "," : "" %>
+        <% } %>
+    ];
+
     // DOM elements
     const requestsContainer = document.getElementById('requestsContainer');
     const searchInput = document.getElementById('searchInput');
@@ -781,6 +753,7 @@
 
     // Initialize the page
     document.addEventListener('DOMContentLoaded', function() {
+        renderRequests(repairRequests);
         setupEventListeners();
 
         // Add visible class for animations
@@ -822,76 +795,209 @@
         const statusValue = statusFilter.value;
         const sortValue = sortBy.value;
 
-        const requestCards = document.querySelectorAll('.request-card');
-        let visibleCards = [];
-
-        requestCards.forEach(function(card) {
-            const requestId = card.getAttribute('data-id').toLowerCase();
-            const requestStatus = card.getAttribute('data-status');
-            const requestText = card.textContent.toLowerCase();
-
+        let filteredRequests = repairRequests.filter(function(repairReq) {
             // Search filter
-            const matchesSearch = requestId.includes(searchTerm) || requestText.includes(searchTerm);
+            const matchesSearch =
+                repairReq.id.toLowerCase().includes(searchTerm) ||
+                repairReq.issueDescription.toLowerCase().includes(searchTerm) ||
+                (repairReq.orderId && repairReq.orderId.toLowerCase().includes(searchTerm));
 
             // Status filter
-            const matchesStatus = statusValue === 'all' || requestStatus === statusValue;
+            const matchesStatus = statusValue === 'all' || repairReq.status === statusValue;
 
-            if (matchesSearch && matchesStatus) {
-                card.style.display = 'flex';
-                visibleCards.push(card);
-            } else {
-                card.style.display = 'none';
-            }
+            return matchesSearch && matchesStatus;
         });
 
         // Sort requests
-        visibleCards.sort(function(a, b) {
-            const aId = a.getAttribute('data-id');
-            const bId = b.getAttribute('data-id');
-            const aStatus = a.getAttribute('data-status');
-            const bStatus = b.getAttribute('data-status');
-
+        filteredRequests.sort(function(a, b) {
             switch(sortValue) {
                 case 'newest':
-                    return bId.localeCompare(aId); // Assuming newer IDs are higher
+                    return new Date(b.requestDate) - new Date(a.requestDate);
                 case 'oldest':
-                    return aId.localeCompare(bId);
+                    return new Date(a.requestDate) - new Date(b.requestDate);
                 case 'status':
-                    return aStatus.localeCompare(bStatus);
+                    return a.status.localeCompare(b.status);
                 default:
                     return 0;
             }
         });
 
-        // Reorder the DOM (optional - for visual sorting)
-        visibleCards.forEach(function(card) {
-            requestsContainer.appendChild(card);
+        renderRequests(filteredRequests);
+    }
+
+    // Render requests to the page
+    function renderRequests(requests) {
+        if (requests.length === 0) {
+            requestsContainer.innerHTML = '<div class="no-requests"><i class="fas fa-tools"></i><p>No repair requests found matching your criteria.</p></div>';
+            return;
+        }
+
+        requestsContainer.innerHTML = '';
+
+        requests.forEach(function(repairReq) {
+            const requestCard = document.createElement('div');
+            requestCard.className = 'request-card';
+
+            const statusClass = 'status-' + repairReq.status.toLowerCase().replace(' ', '-');
+            const statusText = repairReq.status;
+
+            requestCard.innerHTML = '<div class="request-header">' +
+                '<div>' +
+                '<div class="request-id">' + repairReq.id + '</div>' +
+                '<div class="request-date">Requested: ' + formatDate(repairReq.requestDate) + '</div>' +
+                '</div>' +
+                '<div class="request-status ' + statusClass + '">' + statusText + '</div>' +
+                '</div>' +
+
+                '<div class="request-details">' +
+                '<div class="detail-row">' +
+                '<span class="detail-label">Order ID:</span>' +
+                '<span class="detail-value">' + (repairReq.orderId || 'N/A') + '</span>' +
+                '</div>' +
+                '<div class="detail-row">' +
+                '<span class="detail-label">Repair Date:</span>' +
+                '<span class="detail-value">' + (repairReq.repairDate ? formatDate(repairReq.repairDate) : 'Not scheduled') + '</span>' +
+                '</div>' +
+                '<div class="detail-row">' +
+                '<span class="detail-label">Estimated Cost:</span>' +
+                '<span class="detail-value">' + repairReq.estimatedCost + '</span>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="request-description">' +
+                '<div class="detail-label">Issue Description:</div>' +
+                '<div class="detail-value">' + truncateText(repairReq.issueDescription, 100) + '</div>' +
+                '</div>' +
+
+                '<div class="request-actions">' +
+                '<button class="action-btn view-btn" data-id="' + repairReq.id + '">' +
+                '<i class="fas fa-eye"></i> View Details' +
+                '</button>' +
+                (repairReq.status === 'Submitted' ? '<button class="action-btn update-btn" data-id="' + repairReq.id + '"><i class="fas fa-edit"></i> Update</button>' : '') +
+                '</div>';
+
+            requestsContainer.appendChild(requestCard);
+        });
+
+        // Add event listeners to the action buttons
+        document.querySelectorAll('.view-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const requestId = this.getAttribute('data-id');
+                showRequestDetails(requestId);
+            });
+        });
+
+        document.querySelectorAll('.update-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const requestId = this.getAttribute('data-id');
+                updateRequest(requestId);
+            });
         });
     }
 
-    // Show request details in modal (this would need server-side implementation for full details)
+    // Show request details in modal
     function showRequestDetails(requestId) {
-        // For now, show a simple alert. In a real implementation, you would:
-        // 1. Make an AJAX call to get detailed information
-        // 2. Populate the modal with the response data
+        const repairReq = repairRequests.find(function(req) { return req.id === requestId; });
+        if (!repairReq) return;
 
-        modalBody.innerHTML = '<p>Loading details for request: ' + requestId + '</p>' +
-            '<p>In a full implementation, this would fetch detailed information from the server including:</p>' +
-            '<ul>' +
-            '<li>Complete status history</li>' +
-            '<li>All uploaded photos</li>' +
-            '<li>Detailed cost breakdown</li>' +
-            '<li>Technician notes</li>' +
-            '</ul>' +
-            '<p>For now, please check the database directly for complete details.</p>';
+        const statusClass = 'status-' + repairReq.status.toLowerCase().replace(' ', '-');
+        const statusText = repairReq.status;
+
+        let photosHtml = '';
+        if (repairReq.photoPath) {
+            photosHtml = '<div><div class="detail-label">Photo:</div><div style="margin-top: 10px;">' +
+                '<img src="' + repairReq.photoPath + '" style="max-width: 100%; max-height: 300px; border-radius: 6px; object-fit: cover;">' +
+                '</div></div>';
+        }
+
+        let historyHtml = '';
+        if (repairReq.statusHistory && repairReq.statusHistory.length > 0) {
+            repairReq.statusHistory.forEach(function(history) {
+                historyHtml += '<div class="history-item">' +
+                    '<div class="history-date">' + formatDate(history.date) + '</div>' +
+                    '<div class="history-status">' + history.status + '</div>' +
+                    '<div class="history-comment">' + history.comment + '</div>' +
+                    '</div>';
+            });
+        } else {
+            historyHtml = '<p>No status history available.</p>';
+        }
+
+        modalBody.innerHTML = '<div class="detail-row">' +
+            '<span class="detail-label">Request ID:</span>' +
+            '<span class="detail-value">' + repairReq.id + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Order ID:</span>' +
+            '<span class="detail-value">' + (repairReq.orderId || 'N/A') + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Status:</span>' +
+            '<span class="detail-value request-status ' + statusClass + '">' + statusText + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Request Date:</span>' +
+            '<span class="detail-value">' + formatDate(repairReq.requestDate) + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Repair Date:</span>' +
+            '<span class="detail-value">' + (repairReq.repairDate ? formatDate(repairReq.repairDate) : 'Not scheduled') + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Estimated Cost:</span>' +
+            '<span class="detail-value">' + repairReq.estimatedCost + '</span>' +
+            '</div>' +
+
+            '<div>' +
+            '<div class="detail-label">Issue Description:</div>' +
+            '<div class="detail-value">' + repairReq.issueDescription + '</div>' +
+            '</div>' +
+
+            '<div>' +
+            '<div class="detail-label">Latest Comment:</div>' +
+            '<div class="detail-value">' + repairReq.comment + '</div>' +
+            '</div>' +
+
+            photosHtml +
+
+            '<div class="status-history">' +
+            '<div class="detail-label">Status History:</div>' +
+            '<div style="margin-top: 10px;">' + historyHtml + '</div>' +
+            '</div>';
 
         requestModal.style.display = 'flex';
     }
 
     // Update request (placeholder function)
     function updateRequest(requestId) {
-        alert('Update functionality for request ' + requestId + ' would be implemented here.\n\nThis would typically allow you to:\n- Update the issue description\n- Change the preferred repair date\n- Add additional photos\n- Cancel the request');
+        alert('Update functionality for request ' + requestId + ' would be implemented here.');
+        // In a real application, this would open a form to update the request
+    }
+
+    // Helper function to format dates
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    }
+
+    // Helper function to truncate text
+    function truncateText(text, maxLength) {
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
     }
 </script>
 </body>
 </html>
+
+<%!
+    // Helper method to escape JavaScript strings
+    private String escapeJavaScript(String text) {
+        if (text == null) return "";
+        return text.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("'", "\\'")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
+    }
+%>
