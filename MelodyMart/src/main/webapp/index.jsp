@@ -1243,7 +1243,7 @@
             <li><a href="categories.jsp">Categories</a></li>
             <li><a href="brands.jsp">Brands</a></li>
             <li><a href="about.jsp">About</a></li>
-            <li><a href="content.jsp">Contact</a></li>
+            <li><a href="addInstrument.jsp">Contact</a></li>
         </ul>
 
         <div class="nav-actions">
