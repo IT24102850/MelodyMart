@@ -346,24 +346,30 @@
             margin: 80px 0;
         }
 
-        /* Brands Section */
+        /* Brands Grid */
         .brands-section {
             padding: 2rem 5% 5rem;
         }
 
         .brands-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 30px;
             margin-bottom: 80px;
         }
 
         .brand-card {
-            background: var(--card-bg);
+            height: 220px;
             border-radius: var(--border-radius);
-            overflow: hidden;
-            transition: all 0.5s ease;
+            background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
             position: relative;
+            overflow: hidden;
             opacity: 0;
             transform: translateY(50px);
             border: 1px solid var(--glass-border);
@@ -376,42 +382,26 @@
         }
 
         .brand-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-hover);
             background: var(--card-hover);
+            transform: scale(1.05);
+            box-shadow: var(--shadow-hover);
         }
 
-        .brand-image {
-            height: 180px;
-            width: 100%;
-            overflow: hidden;
-            background: var(--gradient-soft);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
+        .brand-logo {
+            font-size: 50px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            transition: transform 0.3s ease;
         }
 
-        .brand-image img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            transition: transform 0.5s ease;
-        }
-
-        .brand-card:hover .brand-image img {
-            transform: scale(1.1);
-        }
-
-        .brand-content {
-            padding: 25px;
+        .brand-card:hover .brand-logo {
+            transform: scale(1.2);
+            color: var(--accent);
         }
 
         .brand-title {
-            font-size: 20px;
             font-weight: 600;
-            margin-bottom: 10px;
+            font-size: 20px;
         }
 
         .brand-description {
@@ -419,39 +409,50 @@
             font-size: 15px;
             margin-bottom: 20px;
             line-height: 1.6;
-        }
-
-        .brand-specialty {
-            display: inline-block;
-            background: var(--gradient);
-            color: white;
-            padding: 5px 15px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 15px;
+            text-align: center;
+            padding: 0 15px;
         }
 
         .brand-stats {
             display: flex;
             justify-content: space-between;
-            margin-top: 15px;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 0.9rem;
+            width: 100%;
+            padding: 0 20px;
+            margin-top: 15px;
         }
 
-        .brand-stats span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        /* Premium Brand Highlight */
+        .brand-card.premium {
+            border: 2px solid var(--primary);
+            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.2);
+            position: relative;
+        }
+
+        .brand-card.premium::before {
+            content: 'PREMIUM';
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--gradient);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
         }
 
         /* Featured Brands */
         .featured-brands {
-            padding: 2rem 5% 5rem;
+            padding: 3rem 5% 5rem;
             background: var(--section-bg);
             margin: 2rem 5%;
             border-radius: var(--border-radius);
+            border: 1px solid var(--glass-border);
         }
 
         .featured-brands-grid {
@@ -470,7 +471,7 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            border: 1px solid var(--glass-border);
+            border: 2px solid var(--glass-border);
             cursor: pointer;
             box-shadow: var(--shadow);
             opacity: 0;
@@ -483,26 +484,29 @@
         }
 
         .featured-brand-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
             box-shadow: var(--shadow-hover);
             background: var(--card-hover);
+            border-color: var(--primary-light);
         }
 
         .featured-brand-logo {
-            font-size: 3rem;
+            font-size: 3.5rem;
             margin-bottom: 1rem;
             color: var(--primary);
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .featured-brand-card:hover .featured-brand-logo {
             color: var(--accent);
+            transform: scale(1.1);
         }
 
         .featured-brand-name {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text);
             text-align: center;
+            font-size: 16px;
         }
 
         /* Brand Categories */
@@ -518,11 +522,11 @@
 
         .category-item {
             text-align: center;
-            padding: 30px 20px;
+            padding: 35px 25px;
             border-radius: var(--border-radius);
             background: var(--card-bg);
             transition: all 0.3s ease;
-            border: 1px solid var(--glass-border);
+            border: 2px solid var(--glass-border);
             cursor: pointer;
             box-shadow: var(--shadow);
             opacity: 0;
@@ -538,28 +542,32 @@
             transform: translateY(-10px);
             box-shadow: var(--shadow-hover);
             background: var(--card-hover);
+            border-color: var(--primary-light);
         }
 
         .category-icon {
-            font-size: 50px;
+            font-size: 55px;
             color: var(--primary);
             margin-bottom: 20px;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .category-item:hover .category-icon {
             color: var(--accent);
+            transform: scale(1.1);
         }
 
         .category-title {
-            font-size: 20px;
+            font-size: 22px;
             margin-bottom: 10px;
-            font-weight: 600;
+            font-weight: 700;
+            color: var(--primary-dark);
         }
 
         .category-count {
             color: var(--text-secondary);
             font-size: 15px;
+            font-weight: 600;
         }
 
         /* Footer */
@@ -582,6 +590,7 @@
             position: relative;
             padding-bottom: 10px;
             color: var(--primary);
+            font-weight: 700;
         }
 
         .footer-column h3:after {
@@ -615,6 +624,7 @@
             transition: color 0.3s ease;
             display: flex;
             align-items: center;
+            font-weight: 500;
         }
 
         .footer-links a:before {
@@ -650,6 +660,7 @@
             color: var(--text);
             transition: all 0.3s ease;
             box-shadow: var(--shadow);
+            border: 1px solid var(--glass-border);
         }
 
         .social-links a:hover {
@@ -796,6 +807,7 @@
             <li><a href="categories.jsp">Categories</a></li>
             <li><a href="brands.jsp" class="active">Brands</a></li>
             <li><a href="deals.jsp">Deals</a></li>
+            <li><a href="about.jsp">About</a></li>
             <li><a href="contact.jsp">Contact</a></li>
         </ul>
 
@@ -817,234 +829,158 @@
     </div>
 </header>
 
+<!-- Page Header -->
 <section class="page-header">
     <h1 class="page-title">Premium Brands</h1>
     <p class="page-subtitle">Discover the world's finest musical instrument brands trusted by professionals and enthusiasts worldwide.</p>
 </section>
 
+<!-- Brands Grid -->
 <section class="brands-section">
     <h2 class="section-title">Featured Brands</h2>
     <div class="brands-grid">
-        <!-- Brand 1 -->
-        <div class="brand-card">
-            <div class="brand-image">
-                <img src="${pageContext.request.contextPath}/images/fender-logo.png" alt="Fender">
-            </div>
-            <div class="brand-content">
-                <span class="brand-specialty">Guitars</span>
-                <h3 class="brand-title">Fender</h3>
-                <p class="brand-description">American iconic brand known for Stratocaster and Telecaster guitars, loved by musicians worldwide.</p>
-                <div class="brand-stats">
-                    <span><i class="fas fa-guitar"></i> 45 Products</span>
-                    <span><i class="fas fa-star"></i> 4.9 Rating</span>
-                </div>
+        <!-- Premium Brands with special styling -->
+        <div class="brand-card premium">
+            <i class="fas fa-guitar brand-logo"></i>
+            <h3 class="brand-title">Fender</h3>
+            <p class="brand-description">American iconic brand known for Stratocaster and Telecaster guitars</p>
+            <div class="brand-stats">
+                <span>45 Products</span>
+                <span>4.9 ★</span>
             </div>
         </div>
 
-        <!-- Brand 2 -->
-        <div class="brand-card">
-            <div class="brand-image">
-                <img src="${pageContext.request.contextPath}/images/yamaha-logo.png" alt="Yamaha">
-            </div>
-            <div class="brand-content">
-                <span class="brand-specialty">Multiple</span>
-                <h3 class="brand-title">Yamaha</h3>
-                <p class="brand-description">Japanese manufacturer offering everything from grand pianos to professional audio equipment.</p>
-                <div class="brand-stats">
-                    <span><i class="fas fa-music"></i> 89 Products</span>
-                    <span><i class="fas fa-star"></i> 4.8 Rating</span>
-                </div>
+        <div class="brand-card premium">
+            <i class="fas fa-guitar brand-logo"></i>
+            <h3 class="brand-title">Gibson</h3>
+            <p class="brand-description">Legendary American brand famous for Les Paul and SG models</p>
+            <div class="brand-stats">
+                <span>32 Products</span>
+                <span>4.9 ★</span>
             </div>
         </div>
 
-        <!-- Brand 3 -->
         <div class="brand-card">
-            <div class="brand-image">
-                <img src="${pageContext.request.contextPath}/images/gibson-logo.png" alt="Gibson">
-            </div>
-            <div class="brand-content">
-                <span class="brand-specialty">Guitars</span>
-                <h3 class="brand-title">Gibson</h3>
-                <p class="brand-description">Legendary American brand famous for Les Paul and SG models, setting standards since 1902.</p>
-                <div class="brand-stats">
-                    <span><i class="fas fa-guitar"></i> 32 Products</span>
-                    <span><i class="fas fa-star"></i> 4.9 Rating</span>
-                </div>
+            <i class="fas fa-music brand-logo"></i>
+            <h3 class="brand-title">Yamaha</h3>
+            <p class="brand-description">Japanese manufacturer offering everything from pianos to audio equipment</p>
+            <div class="brand-stats">
+                <span>89 Products</span>
+                <span>4.8 ★</span>
             </div>
         </div>
 
-        <!-- Brand 4 -->
         <div class="brand-card">
-            <div class="brand-image">
-                <img src="${pageContext.request.contextPath}/images/roland-logo.png" alt="Roland">
-            </div>
-            <div class="brand-content">
-                <span class="brand-specialty">Electronics</span>
-                <h3 class="brand-title">Roland</h3>
-                <p class="brand-description">Innovative electronic musical instruments, equipment, and software for modern musicians.</p>
-                <div class="brand-stats">
-                    <span><i class="fas fa-keyboard"></i> 67 Products</span>
-                    <span><i class="fas fa-star"></i> 4.7 Rating</span>
-                </div>
+            <i class="fas fa-keyboard brand-logo"></i>
+            <h3 class="brand-title">Roland</h3>
+            <p class="brand-description">Innovative electronic musical instruments and software</p>
+            <div class="brand-stats">
+                <span>67 Products</span>
+                <span>4.7 ★</span>
             </div>
         </div>
 
-        <!-- Brand 5 -->
         <div class="brand-card">
-            <div class="brand-image">
-                <img src="${pageContext.request.contextPath}/images/pearl-logo.png" alt="Pearl">
-            </div>
-            <div class="brand-content">
-                <span class="brand-specialty">Drums</span>
-                <h3 class="brand-title">Pearl</h3>
-                <p class="brand-description">World-renowned drum manufacturer offering professional kits and percussion instruments.</p>
-                <div class="brand-stats">
-                    <span><i class="fas fa-drum"></i> 28 Products</span>
-                    <span><i class="fas fa-star"></i> 4.8 Rating</span>
-                </div>
+            <i class="fas fa-drum brand-logo"></i>
+            <h3 class="brand-title">Pearl</h3>
+            <p class="brand-description">World-renowned drum manufacturer offering professional kits</p>
+            <div class="brand-stats">
+                <span>28 Products</span>
+                <span>4.8 ★</span>
             </div>
         </div>
 
-        <!-- Brand 6 -->
-        <div class="brand-card">
-            <div class="brand-image">
-                <img src="${pageContext.request.contextPath}/images/kawai-logo.png" alt="Kawai">
-            </div>
-            <div class="brand-content">
-                <span class="brand-specialty">Pianos</span>
-                <h3 class="brand-title">Kawai</h3>
-                <p class="brand-description">Japanese piano manufacturer known for exceptional craftsmanship and rich tonal quality.</p>
-                <div class="brand-stats">
-                    <span><i class="fas fa-piano"></i> 23 Products</span>
-                    <span><i class="fas fa-star"></i> 4.9 Rating</span>
-                </div>
+        <div class="brand-card premium">
+            <i class="fas fa-piano brand-logo"></i>
+            <h3 class="brand-title">Kawai</h3>
+            <p class="brand-description">Japanese piano manufacturer known for exceptional craftsmanship</p>
+            <div class="brand-stats">
+                <span>23 Products</span>
+                <span>4.9 ★</span>
             </div>
         </div>
 
-        <!-- Brand 7 -->
         <div class="brand-card">
-            <div class="brand-image">
-                <img src="${pageContext.request.contextPath}/images/selmer-logo.png" alt="Selmer">
-            </div>
-            <div class="brand-content">
-                <span class="brand-specialty">Woodwinds</span>
-                <h3 class="brand-title">Selmer</h3>
-                <p class="brand-description">French manufacturer of professional-grade saxophones and clarinets since 1885.</p>
-                <div class="brand-stats">
-                    <span><i class="fas fa-saxophone"></i> 18 Products</span>
-                    <span><i class="fas fa-star"></i> 4.8 Rating</span>
-                </div>
+            <i class="fas fa-saxophone brand-logo"></i>
+            <h3 class="brand-title">Selmer</h3>
+            <p class="brand-description">French manufacturer of professional-grade saxophones and clarinets</p>
+            <div class="brand-stats">
+                <span>18 Products</span>
+                <span>4.8 ★</span>
             </div>
         </div>
 
-        <!-- Brand 8 -->
-        <div class="brand-card">
-            <div class="brand-image">
-                <img src="${pageContext.request.contextPath}/images/shure-logo.png" alt="Shure">
-            </div>
-            <div class="brand-content">
-                <span class="brand-specialty">Audio</span>
-                <h3 class="brand-title">Shure</h3>
-                <p class="brand-description">American audio equipment manufacturer famous for microphones and monitoring systems.</p>
-                <div class="brand-stats">
-                    <span><i class="fas fa-microphone"></i> 42 Products</span>
-                    <span><i class="fas fa-star"></i> 4.7 Rating</span>
-                </div>
+        <div class="brand-card premium">
+            <i class="fas fa-microphone brand-logo"></i>
+            <h3 class="brand-title">Shure</h3>
+            <p class="brand-description">American audio equipment manufacturer famous for microphones</p>
+            <div class="brand-stats">
+                <span>42 Products</span>
+                <span>4.7 ★</span>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Featured Brands -->
 <section class="featured-brands">
-    <h2 class="section-title">All Brands</h2>
+    <h2 class="section-title">Popular Brands</h2>
     <div class="featured-brands-grid">
-        <div class="featured-brand-card" onclick="filterByBrand('fender')">
-            <i class="fab fa-spotify featured-brand-logo"></i>
+        <div class="featured-brand-card">
+            <i class="fas fa-guitar featured-brand-logo"></i>
             <span class="featured-brand-name">Fender</span>
         </div>
-        <div class="featured-brand-card" onclick="filterByBrand('yamaha')">
-            <i class="fab fa-itunes-note featured-brand-logo"></i>
+        <div class="featured-brand-card">
+            <i class="fas fa-music featured-brand-logo"></i>
             <span class="featured-brand-name">Yamaha</span>
         </div>
-        <div class="featured-brand-card" onclick="filterByBrand('gibson')">
+        <div class="featured-brand-card">
             <i class="fas fa-guitar featured-brand-logo"></i>
             <span class="featured-brand-name">Gibson</span>
         </div>
-        <div class="featured-brand-card" onclick="filterByBrand('roland')">
+        <div class="featured-brand-card">
             <i class="fas fa-keyboard featured-brand-logo"></i>
             <span class="featured-brand-name">Roland</span>
         </div>
-        <div class="featured-brand-card" onclick="filterByBrand('pearl')">
+        <div class="featured-brand-card">
             <i class="fas fa-drum featured-brand-logo"></i>
             <span class="featured-brand-name">Pearl</span>
         </div>
-        <div class="featured-brand-card" onclick="filterByBrand('kawai')">
+        <div class="featured-brand-card">
             <i class="fas fa-piano featured-brand-logo"></i>
             <span class="featured-brand-name">Kawai</span>
         </div>
-        <div class="featured-brand-card" onclick="filterByBrand('selmer')">
-            <i class="fas fa-saxophone featured-brand-logo"></i>
-            <span class="featured-brand-name">Selmer</span>
-        </div>
-        <div class="featured-brand-card" onclick="filterByBrand('shure')">
-            <i class="fas fa-microphone featured-brand-logo"></i>
-            <span class="featured-brand-name">Shure</span>
-        </div>
-        <div class="featured-brand-card" onclick="filterByBrand('martin')">
-            <i class="fas fa-guitar featured-brand-logo"></i>
-            <span class="featured-brand-name">Martin</span>
-        </div>
-        <div class="featured-brand-card" onclick="filterByBrand('taylor')">
-            <i class="fas fa-guitar featured-brand-logo"></i>
-            <span class="featured-brand-name">Taylor</span>
-        </div>
-        <div class="featured-brand-card" onclick="filterByBrand('steinway')">
-            <i class="fas fa-piano featured-brand-logo"></i>
-            <span class="featured-brand-name">Steinway</span>
-        </div>
-        <div class="featured-brand-card" onclick="filterByBrand('zildjian')">
-            <i class="fas fa-drum featured-brand-logo"></i>
-            <span class="featured-brand-name">Zildjian</span>
-        </div>
     </div>
 </section>
 
+<!-- Brand Categories -->
 <section class="brand-categories">
-    <h2 class="section-title">Browse by Instrument Type</h2>
+    <h2 class="section-title">Brand Categories</h2>
     <div class="categories-grid">
-        <div class="category-item" onclick="filterByCategory('guitars')">
+        <div class="category-item">
             <i class="fas fa-guitar category-icon"></i>
             <h3 class="category-title">Guitar Brands</h3>
-            <div class="category-count">12 Brands</div>
+            <p class="category-count">12 Brands</p>
         </div>
-        <div class="category-item" onclick="filterByCategory('pianos')">
+        <div class="category-item">
             <i class="fas fa-piano category-icon"></i>
             <h3 class="category-title">Piano Brands</h3>
-            <div class="category-count">8 Brands</div>
+            <p class="category-count">8 Brands</p>
         </div>
-        <div class="category-item" onclick="filterByCategory('drums')">
+        <div class="category-item">
             <i class="fas fa-drum category-icon"></i>
             <h3 class="category-title">Drum Brands</h3>
-            <div class="category-count">9 Brands</div>
+            <p class="category-count">10 Brands</p>
         </div>
-        <div class="category-item" onclick="filterByCategory('woodwind')">
-            <i class="fas fa-saxophone category-icon"></i>
-            <h3 class="category-title">Woodwind Brands</h3>
-            <div class="category-count">7 Brands</div>
-        </div>
-        <div class="category-item" onclick="filterByCategory('brass')">
-            <i class="fas fa-trumpet category-icon"></i>
-            <h3 class="category-title">Brass Brands</h3>
-            <div class="category-count">6 Brands</div>
-        </div>
-        <div class="category-item" onclick="filterByCategory('audio')">
+        <div class="category-item">
             <i class="fas fa-microphone category-icon"></i>
             <h3 class="category-title">Audio Brands</h3>
-            <div class="category-count">15 Brands</div>
+            <p class="category-count">15 Brands</p>
         </div>
     </div>
 </section>
 
+<!-- Footer -->
 <footer>
     <div class="container">
         <div class="footer-content">
@@ -1060,39 +996,39 @@
             </div>
 
             <div class="footer-column">
-                <h3>Brands</h3>
+                <h3>Shop</h3>
                 <ul class="footer-links">
-                    <li><a href="#">Fender</a></li>
-                    <li><a href="#">Yamaha</a></li>
-                    <li><a href="#">Gibson</a></li>
-                    <li><a href="#">Roland</a></li>
-                    <li><a href="#">All Brands</a></li>
+                    <li><a href="#">Guitars</a></li>
+                    <li><a href="#">Drums & Percussion</a></li>
+                    <li><a href="#">Pianos & Keyboards</a></li>
+                    <li><a href="#">Recording Equipment</a></li>
+                    <li><a href="#">Accessories</a></li>
                 </ul>
             </div>
 
             <div class="footer-column">
-                <h3>Support</h3>
+                <h3>Company</h3>
                 <ul class="footer-links">
-                    <li><a href="contact.jsp">Contact Us</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Careers</a></li>
                     <li><a href="#">Shipping & Returns</a></li>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Warranty</a></li>
-                    <li><a href="#">Repair Services</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
                 </ul>
             </div>
 
             <div class="footer-column">
                 <h3>Newsletter</h3>
-                <p>Subscribe to get updates on new brands, products, and exclusive offers.</p>
+                <p>Subscribe to our newsletter for the latest products and exclusive offers.</p>
                 <form>
-                    <input type="email" placeholder="Your email address" style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--secondary); color: var(--text);">
+                    <input type="email" placeholder="Your Email" style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--secondary); color: var(--text);">
                     <button class="cta-btn" style="width: 100%;">Subscribe</button>
                 </form>
             </div>
         </div>
 
         <div class="copyright">
-            <p>&copy; 2025 Melody Mart. All rights reserved.</p>
+            &copy; 2025 Melody Mart. All rights reserved.
         </div>
     </div>
 </footer>
@@ -1134,26 +1070,12 @@
         }
     });
 
-    // Filter functions
-    function filterByBrand(brand) {
-        alert(`Filtering by ${brand.charAt(0).toUpperCase() + brand.slice(1)} brand!`);
-        // In real implementation, this would filter the products
-        // window.location.href = `instruments.jsp?brand=${brand}`;
-    }
-
-    function filterByCategory(category) {
-        alert(`Filtering by ${category.charAt(0).toUpperCase() + category.slice(1)} category!`);
-        // In real implementation, this would filter the brands
-        // window.location.href = `brands.jsp?category=${category}`;
-    }
-
     // Intersection Observer for animations
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
-                if (entry.target.classList.contains('featured-brand-card') ||
-                    entry.target.classList.contains('category-item')) {
+                if (entry.target.classList.contains('featured-brand-card')) {
                     entry.target.classList.add('bounce-in');
                 }
             }
@@ -1164,13 +1086,16 @@
         observer.observe(el);
     });
 
-    // Add click functionality to brand cards
-    document.querySelectorAll('.brand-card').forEach(card => {
-        card.addEventListener('click', function() {
-            const brand = this.querySelector('.brand-title').textContent;
-            alert(`Viewing ${brand} products!`);
-            // In real implementation, this would redirect to the brand page
-            // window.location.href = `instruments.jsp?brand=${encodeURIComponent(brand)}`;
+    // Simple script to handle brand clicks
+    document.addEventListener('DOMContentLoaded', function() {
+        const brandCards = document.querySelectorAll('.brand-card, .featured-brand-card');
+
+        brandCards.forEach(card => {
+            card.addEventListener('click', function() {
+                const brandName = this.querySelector('.brand-title, .featured-brand-name').textContent;
+                alert('Navigating to ' + brandName + ' products');
+                // In real implementation: window.location.href = 'instruments.jsp?brand=' + brandName;
+            });
         });
     });
 </script>
