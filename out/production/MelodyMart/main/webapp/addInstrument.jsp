@@ -85,7 +85,7 @@
 
         for (Part part : parts) {
             if (part.getName().equals("images") && part.getSize() > 0) {
-                String fileName = "instrument_" + System.currentTimeMillis() + "_" + part.getSubmittedFileName();
+                String fileName = "instrument_" + System.currentTimeMillis() + "_" + part.getName();
                 String filePath = uploadPath + File.separator + fileName;
                 part.write(filePath);
 

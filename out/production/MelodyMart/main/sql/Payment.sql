@@ -132,3 +132,4 @@ select * from Payment
 select * from Customer
 select * from Orders
 SELECT * FROM PaymentMethods
+

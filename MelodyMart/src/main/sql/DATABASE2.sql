@@ -48,10 +48,11 @@ ALTER TABLE Brand
 
 
 
--- Example: if 1, 2, 3 are missing
-INSERT INTO Manufacturer (ManufacturerID, Name, Website, Country, Description)
-VALUES 
-(1, 'Fender', 'https://www.fender.com', 'USA', 'Leading manufacturer of guitars'),
-(2, 'Yamaha', 'https://www.yamaha.com', 'Japan', 'Global producer of musical instruments'),
-(3, 'Pearl', 'https://www.pearl.com', 'USA', 'Specialists in drums and percussion');
+CREATE TABLE Brand (
+    BrandID NVARCHAR(10) PRIMARY KEY,   -- manual IDs like 'B001'
+    Name NVARCHAR(50) NOT NULL,
+    ManufacturerID NVARCHAR(10),
+    FOREIGN KEY (ManufacturerID) REFERENCES Manufacturer(ManufacturerID)
+);
+GO
 

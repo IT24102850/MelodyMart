@@ -98,7 +98,7 @@ CREATE TABLE Brand (
 
 -- Instrument table
 CREATE TABLE Instrument (
-    InstrumentID INT PRIMARY KEY IDENTITY(1,1),
+    InstrumentID INT PRIMARY KEY 
     Name NVARCHAR(100) NOT NULL,
     Description NVARCHAR(500),
     BrandID INT,  -- Link to Brand
