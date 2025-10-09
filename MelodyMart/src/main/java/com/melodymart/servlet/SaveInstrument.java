@@ -1,7 +1,5 @@
 package com.melodymart.servlet.inventory;
 
-import com.melodymart.dao.InstrumentDAO;
-import com.melodymart.model.Instrument;
 import com.melodymart.util.DatabaseUtil;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -11,248 +9,133 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.*;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.*;
 import java.util.logging.Logger;
 
 @WebServlet("/SaveInstrument")
-@MultipartConfig(maxFileSize = 5 * 1024 * 1024) // 5MB max file size
+@MultipartConfig(maxFileSize = 5 * 1024 * 1024, maxRequestSize = 25 * 1024 * 1024)
 public class SaveInstrument extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(SaveInstrument.class.getName());
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
-        LOGGER.info("Received POST request to SaveInstrument");
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        // Retrieve form parameters
+        response.setContentType("text/html;charset=UTF-8");
+
+        // Retrieve basic parameters (no instrumentId input!)
         String name = request.getParameter("name");
         String description = request.getParameter("description");
-        String brandIdStr = request.getParameter("brandId");
+        String brandId = request.getParameter("brandId");
         String model = request.getParameter("model");
         String color = request.getParameter("color");
         String priceStr = request.getParameter("price");
         String specifications = request.getParameter("specifications");
         String warranty = request.getParameter("warranty");
         String quantityStr = request.getParameter("quantity");
-        String stockLevel = request.getParameter("stockLevel");
-        String manufacturerIdStr = request.getParameter("manufacturerId");
-        LOGGER.info("Form parameters: name=" + name + ", brandId=" + brandIdStr + ", price=" + priceStr + ", quantity=" + quantityStr + ", stockLevel=" + stockLevel);
+        String manufacturerId = request.getParameter("manufacturerId");
 
-        // Validation
-        if (name == null || name.trim().isEmpty() || priceStr == null || quantityStr == null) {
-            LOGGER.warning("Validation failed: Missing required fields");
-            request.setAttribute("addStatus", "Name, price, and quantity are required.");
-            request.getRequestDispatcher("/sellerdashboard.jsp").forward(request, response);
+        if (name == null || priceStr == null || brandId == null || manufacturerId == null) {
+            response.getWriter().println("<h3 style='color:red;'>Missing required fields!</h3>");
             return;
         }
 
-        Integer brandId = (brandIdStr != null && !brandIdStr.isEmpty()) ? Integer.parseInt(brandIdStr) : null;
-        Integer manufacturerId = (manufacturerIdStr != null && !manufacturerIdStr.isEmpty()) ? Integer.parseInt(manufacturerIdStr) : 1;
-        double price = 0.0;
-        int quantity = 0;
+        double price = Double.parseDouble(priceStr);
+        int quantity = (quantityStr != null && !quantityStr.isEmpty()) ? Integer.parseInt(quantityStr) : 0;
 
-        try {
-            price = Double.parseDouble(priceStr);
-            quantity = Integer.parseInt(quantityStr);
-            if (price <= 0 || quantity < 0) {
-                LOGGER.warning("Validation failed: Invalid price or quantity");
-                request.setAttribute("addStatus", "Price must be positive, and quantity cannot be negative.");
-                request.getRequestDispatcher("/sellerdashboard.jsp").forward(request, response);
-                return;
-            }
-        } catch (NumberFormatException e) {
-            LOGGER.severe("Number format exception: " + e.getMessage());
-            request.setAttribute("addStatus", "Invalid price or quantity format.");
-            request.getRequestDispatcher("/sellerdashboard.jsp").forward(request, response);
-            return;
-        }
+        // ✅ Step 1: Generate the next available InstrumentID (e.g., I001, I002)
+        String instrumentId = generateNextInstrumentId();
+        LOGGER.info("Generated Instrument ID: " + instrumentId);
 
-        // Handle image upload
-        String imageUrl = null;
-        try {
-            Part imagePart = request.getPart("imageFile");
+        // ✅ Step 2: Handle image uploads (multiple files)
+        List<String> imagePaths = new ArrayList<>();
+        String uploadDirPath = getServletContext().getRealPath("") + File.separator + "images" + File.separator + "instruments";
+        File uploadDir = new File(uploadDirPath);
+        if (!uploadDir.exists()) uploadDir.mkdirs();
 
-            if (imagePart != null && imagePart.getSize() > 0) {
-                LOGGER.info("Processing image upload, file size: " + imagePart.getSize() + " bytes");
+        int imgCount = 1;
+        for (Part part : request.getParts()) {
+            if (part.getName().equals("images") && part.getSize() > 0) {
+                String extension = ".jpg";
+                if (part.getContentType().contains("png")) extension = ".png";
+                else if (part.getContentType().contains("gif")) extension = ".gif";
 
-                // Validate file type
-                String contentType = imagePart.getContentType();
-                if (contentType == null ||
-                        (!contentType.startsWith("image/jpeg") &&
-                                !contentType.startsWith("image/png") &&
-                                !contentType.startsWith("image/gif") &&
-                                !contentType.startsWith("image/jpg"))) {
-                    LOGGER.warning("Invalid file type: " + contentType);
-                    request.setAttribute("addStatus", "Please upload a valid image file (JPG, PNG, GIF).");
-                    request.getRequestDispatcher("/sellerdashboard.jsp").forward(request, response);
-                    return;
-                }
-
-                // Validate file size (5MB max)
-                if (imagePart.getSize() > 5 * 1024 * 1024) {
-                    LOGGER.warning("File size too large: " + imagePart.getSize() + " bytes");
-                    request.setAttribute("addStatus", "File size should not exceed 5MB.");
-                    request.getRequestDispatcher("/sellerdashboard.jsp").forward(request, response);
-                    return;
-                }
-
-                // Generate unique filename
-                String originalFileName = imagePart.getName();
-                String fileExtension = "";
-                if (originalFileName != null && originalFileName.contains(".")) {
-                    fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-                } else {
-                    // Default extension based on content type
-                    if (contentType.contains("jpeg") || contentType.contains("jpg")) {
-                        fileExtension = ".jpg";
-                    } else if (contentType.contains("png")) {
-                        fileExtension = ".png";
-                    } else if (contentType.contains("gif")) {
-                        fileExtension = ".gif";
-                    } else {
-                        fileExtension = ".jpg"; // default
-                    }
-                }
-
-                String fileName = "instrument_" + System.currentTimeMillis() + fileExtension;
-                LOGGER.info("Generated filename: " + fileName);
-
-                // Set the image URL for database storage (relative path)
-                imageUrl = "images/instruments/" + fileName;
-
-                // Create the upload directory path
-                String uploadPath = getServletContext().getRealPath("") + File.separator + "images" +
-                        File.separator + "instruments";
-
-                // Create directory if it doesn't exist
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    boolean created = uploadDir.mkdirs();
-                    LOGGER.info("Upload directory created: " + created + " at path: " + uploadPath);
-                }
-
-                // Save the file
-                String filePath = uploadPath + File.separator + fileName;
-                LOGGER.info("Saving file to: " + filePath);
-
-                try (InputStream inputStream = imagePart.getInputStream();
-                     FileOutputStream outputStream = new FileOutputStream(filePath)) {
-
+                String fileName = instrumentId + "_IMG" + imgCount + extension;
+                String fullPath = uploadDirPath + File.separator + fileName;
+                try (InputStream input = part.getInputStream();
+                     FileOutputStream output = new FileOutputStream(fullPath)) {
                     byte[] buffer = new byte[1024];
                     int bytesRead;
-                    long totalBytes = 0;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
-                        totalBytes += bytesRead;
+                    while ((bytesRead = input.read(buffer)) != -1) {
+                        output.write(buffer, 0, bytesRead);
                     }
-                    LOGGER.info("File saved successfully. Total bytes written: " + totalBytes);
-                } catch (IOException e) {
-                    LOGGER.severe("Error saving file: " + e.getMessage());
-                    request.setAttribute("addStatus", "Error saving image file: " + e.getMessage());
-                    request.getRequestDispatcher("/sellerdashboard.jsp").forward(request, response);
-                    return;
                 }
-            } else {
-                LOGGER.info("No image file uploaded or file is empty");
+                imagePaths.add("images/instruments/" + fileName);
+                imgCount++;
             }
-        } catch (Exception e) {
-            LOGGER.severe("Error processing image upload: " + e.getMessage());
-            request.setAttribute("addStatus", "Error processing image upload: " + e.getMessage());
-            request.getRequestDispatcher("/sellerdashboard.jsp").forward(request, response);
-            return;
         }
 
-        // Create Instrument object
-        Instrument instrument = new Instrument();
-        instrument.setName(name);
-        instrument.setDescription(description);
-        instrument.setBrandId(brandId);
-        instrument.setModel(model);
-        instrument.setColor(color);
-        instrument.setPrice(price);
-        instrument.setSpecifications(specifications);
-        instrument.setWarranty(warranty);
-        instrument.setImageUrl(imageUrl); // Set the image URL
-        instrument.setQuantity(quantity);
-        instrument.setStockLevel(stockLevel != null ? stockLevel : "In Stock");
-        instrument.setManufacturerId(manufacturerId);
-        LOGGER.info("Instrument object created: " + instrument + ", imageUrl: " + imageUrl);
+        // ✅ Step 3: Insert into Instrument and InstrumentImage tables
+        try (Connection conn = DatabaseUtil.getConnection()) {
+            conn.setAutoCommit(false);
 
-        // Save to database
-        InstrumentDAO dao = new InstrumentDAO();
-        String addStatus = null;
-        try {
-            dao.addInstrument(instrument);
-            LOGGER.info("Instrument added to database successfully");
-            addStatus = "Instrument added successfully!";
+            // Insert instrument
+            String sql = "INSERT INTO Instrument (InstrumentID, Name, Description, BrandID, Model, Color, Price, Specifications, Warranty, Quantity, ManufacturerID, ImageURL) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, instrumentId);
+                ps.setString(2, name);
+                ps.setString(3, description);
+                ps.setString(4, brandId);
+                ps.setString(5, model);
+                ps.setString(6, color);
+                ps.setDouble(7, price);
+                ps.setString(8, specifications);
+                ps.setString(9, warranty);
+                ps.setInt(10, quantity);
+                ps.setString(11, manufacturerId);
+                ps.setString(12, imagePaths.isEmpty() ? null : imagePaths.get(0)); // First image as main
+                ps.executeUpdate();
+            }
 
-            // Redirect to dashboard with success parameter to show success message
-            response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp?success=1");
-            return;
+            // Insert multiple images
+            String sqlImg = "INSERT INTO InstrumentImage (ImageID, InstrumentID, ImageURL) VALUES (?, ?, ?)";
+            try (PreparedStatement psImg = conn.prepareStatement(sqlImg)) {
+                int i = 1;
+                for (String path : imagePaths) {
+                    String imgId = String.format("IMG%03d", i++);
+                    psImg.setString(1, imgId);
+                    psImg.setString(2, instrumentId);
+                    psImg.setString(3, path);
+                    psImg.addBatch();
+                }
+                psImg.executeBatch();
+            }
+
+            conn.commit();
+            response.sendRedirect("sellerdashboard.jsp?success=1");
 
         } catch (SQLException e) {
-            LOGGER.severe("Database error while adding instrument: " + e.getMessage());
-            addStatus = "Database error: " + e.getMessage();
-            if (e.getMessage().contains("Cannot find db.properties") || e.getMessage().contains("The url cannot be null")) {
-                addStatus += " Please ensure db.properties is in src/main/resources with valid database settings.";
-            }
-
-            // If database save failed and we uploaded a file, clean up the file
-            if (imageUrl != null) {
-                try {
-                    String uploadPath = getServletContext().getRealPath("") + File.separator + "images" +
-                            File.separator + "instruments";
-                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                    File fileToDelete = new File(uploadPath + File.separator + fileName);
-                    if (fileToDelete.exists()) {
-                        boolean deleted = fileToDelete.delete();
-                        LOGGER.info("Cleanup: Image file deleted due to database error: " + deleted);
-                    }
-                } catch (Exception cleanupError) {
-                    LOGGER.warning("Error cleaning up uploaded file: " + cleanupError.getMessage());
-                }
-            }
-
-        } catch (Exception e) {
-            LOGGER.severe("Unexpected error: " + e.getMessage());
-            addStatus = "Unexpected error: " + e.getMessage();
-
-            // Cleanup uploaded file if there was an unexpected error
-            if (imageUrl != null) {
-                try {
-                    String uploadPath = getServletContext().getRealPath("") + File.separator + "images" +
-                            File.separator + "instruments";
-                    String fileName = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                    File fileToDelete = new File(uploadPath + File.separator + fileName);
-                    if (fileToDelete.exists()) {
-                        boolean deleted = fileToDelete.delete();
-                        LOGGER.info("Cleanup: Image file deleted due to unexpected error: " + deleted);
-                    }
-                } catch (Exception cleanupError) {
-                    LOGGER.warning("Error cleaning up uploaded file: " + cleanupError.getMessage());
-                }
-            }
+            LOGGER.severe("SQL Error: " + e.getMessage());
+            response.getWriter().println("<h3 style='color:red;'>Database Error: " + e.getMessage() + "</h3>");
         }
+    }
 
-        // Ensure response is always provided
-        if (addStatus != null) {
-            request.setAttribute("addStatus", addStatus);
-            try {
-                request.getRequestDispatcher("/sellerdashboard.jsp").forward(request, response);
-            } catch (Exception e) {
-                LOGGER.severe("Failed to forward to JSP: " + e.getMessage());
-                response.setContentType("text/html");
-                try (PrintWriter out = response.getWriter()) {
-                    out.println("<html><body><h1>Error</h1><p>" + addStatus + "</p></body></html>");
-                }
+    // ✅ Utility method to get next Instrument ID from DB
+    private String generateNextInstrumentId() {
+        String nextId = "I001";
+        try (Connection conn = DatabaseUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT MAX(InstrumentID) FROM Instrument");
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next() && rs.getString(1) != null) {
+                String lastId = rs.getString(1);
+                int num = Integer.parseInt(lastId.substring(1)); // Remove 'I' prefix
+                nextId = String.format("I%03d", num + 1);
             }
-        } else {
-            LOGGER.severe("No addStatus set, providing default error");
-            response.setContentType("text/html");
-            try (PrintWriter out = response.getWriter()) {
-                out.println("<html><body><h1>Error</h1><p>Unknown error occurred. Check server logs.</p></body></html>");
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return nextId;
     }
 }
