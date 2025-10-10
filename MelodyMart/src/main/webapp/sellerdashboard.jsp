@@ -47,6 +47,33 @@
             font-size: 32px;
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        }
+
         .user-profile {
             width: 50px;
             height: 50px;
@@ -351,6 +378,19 @@
                 flex-direction: column;
                 gap: 10px;
             }
+
+            .header-right {
+                gap: 10px;
+            }
+
+            .logout-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .logout-btn span {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -362,8 +402,14 @@
             <i class="fas fa-music"></i>
             <span>MelodyMart</span>
         </div>
-        <div class="user-profile">
-            <i class="fas fa-user"></i>
+        <div class="header-right">
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+            <div class="user-profile">
+                <i class="fas fa-user"></i>
+            </div>
         </div>
     </header>
 
@@ -634,6 +680,14 @@
             }, index * 100);
         });
     });
+
+    // Logout function
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            // Redirect to login page or perform logout action
+            window.location.href = 'index.jsp';
+        }
+    }
 </script>
 </body>
 </html>

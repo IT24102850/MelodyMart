@@ -17,7 +17,7 @@
             --secondary: #ffffff; /* White */
             --accent: #06b6d4; /* Cyan Accent */
             --gold-accent: #f59e0b; /* Amber Gold */
-            --text: #1e293b; /* Dark Blue-Gray */
+            --text: #fdfdfd; /* Dark Blue-Gray */
             --text-secondary: #64748b; /* Medium Gray */
             --card-bg: rgba(30, 41, 59, 0.85); /* Darker glass background */
             --glass-bg: rgba(30, 41, 59, 0.8);
