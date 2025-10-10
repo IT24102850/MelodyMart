@@ -17,37 +17,80 @@
             background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 100%);
             color: #333;
             min-height: 100vh;
-            padding: 20px;
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
 
-        /* Header Styles */
-        header {
+        /* Navigation Bar Styles */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            margin-bottom: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 70px;
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 700;
             color: #1e40af;
+            text-decoration: none;
         }
 
         .logo i {
-            font-size: 32px;
+            font-size: 28px;
         }
 
-        .header-right {
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #475569;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a:hover {
+            background: #f1f5f9;
+            color: #1e40af;
+        }
+
+        .nav-links a.active {
+            background: #1e40af;
+            color: white;
+        }
+
+        .nav-links a i {
+            font-size: 16px;
+        }
+
+        .nav-actions {
             display: flex;
             align-items: center;
             gap: 15px;
@@ -75,8 +118,8 @@
         }
 
         .user-profile {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: linear-gradient(135deg, #3b82f6, #1e40af);
             display: flex;
@@ -91,7 +134,8 @@
         /* Dashboard Header */
         .dashboard-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin: 40px 0;
+            padding: 0 20px;
         }
 
         .dashboard-header h1 {
@@ -309,27 +353,6 @@
             color: #64748b;
         }
 
-        /* Ratings */
-        .rating-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .rating-item:last-child {
-            border-bottom: none;
-        }
-
-        .rating-stars {
-            color: #f59e0b;
-            margin-right: 15px;
-        }
-
-        .rating-text {
-            font-weight: 500;
-        }
-
         /* Footer */
         footer {
             text-align: center;
@@ -360,6 +383,16 @@
             font-size: 14px;
         }
 
+        /* Mobile Navigation */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #1e40af;
+            cursor: pointer;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .cards-grid, .stats-grid {
@@ -371,13 +404,30 @@
                 gap: 10px;
             }
 
-            .header-right {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                flex-direction: column;
+                padding: 20px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
                 gap: 10px;
             }
 
-            .logout-btn {
-                padding: 8px 15px;
-                font-size: 14px;
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links a {
+                padding: 15px;
+                border-radius: 8px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
             }
 
             .logout-btn span {
@@ -387,14 +437,28 @@
     </style>
 </head>
 <body>
-<div class="container">
-    <!-- Header with Logo and Profile -->
-    <header>
-        <div class="logo">
+<!-- Navigation Bar -->
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="customerlanding.jsp" class="logo">
             <i class="fas fa-music"></i>
             <span>MelodyMart</span>
-        </div>
-        <div class="header-right">
+        </a>
+
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <ul class="nav-links" id="navLinks">
+            <li><a href="customerlanding.jsp" class="active"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="shop.jsp"><i class="fas fa-shopping-cart"></i> Shop</a></li>
+            <li><a href="orders.jsp"><i class="fas fa-shopping-bag"></i> Orders</a></li>
+            <li><a href="wishlist.jsp"><i class="fas fa-heart"></i> Wishlist</a></li>
+            <li><a href="repair.jsp"><i class="fas fa-tools"></i> Repairs</a></li>
+            <li><a href="profile.jsp"><i class="fas fa-user"></i> Profile</a></li>
+        </ul>
+
+        <div class="nav-actions">
             <button class="logout-btn" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
@@ -403,8 +467,10 @@
                 <i class="fas fa-user"></i>
             </div>
         </div>
-    </header>
+    </div>
+</nav>
 
+<div class="container">
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <h1>Customer Dashboard</h1>
@@ -641,6 +707,21 @@
 </div>
 
 <script>
+    // Mobile menu functionality
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.getElementById('navLinks');
+
+    mobileMenuBtn.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.nav-container')) {
+            navLinks.classList.remove('active');
+        }
+    });
+
     // Simple animation for cards on page load
     document.addEventListener('DOMContentLoaded', function() {
         const cards = document.querySelectorAll('.card');
