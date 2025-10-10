@@ -49,20 +49,22 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--secondary);
+            background: linear-gradient(135deg, #1e40af 0%, #06b6d4 100%);
             color: var(--text);
             padding: 80px 20px 40px;
             line-height: 1.6;
             margin: 0;
+            min-height: 100vh;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
-            background: var(--card-bg);
+            background: var(--primary-soft);
             padding: 30px;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
+            border: 2px solid var(--primary-light);
         }
 
         h2 {
@@ -70,7 +72,8 @@
             font-size: 2rem;
             text-align: center;
             margin-bottom: 30px;
-            color: var(--primary);
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         h2 i {
@@ -91,20 +94,22 @@
         input, select, textarea {
             width: 100%;
             padding: 12px;
-            border: 1px solid #ccc;
+            border: 1px solid var(--primary-light);
             border-radius: 8px;
             font-size: 14px;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: var(--secondary);
+            color: var(--text);
         }
 
         input:focus, select:focus, textarea:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(30, 64, 175, 0.3);
             outline: none;
         }
 
         input.readonly {
-            background-color: #f3f4f6;
+            background-color: rgba(219, 234, 254, 0.7);
             color: var(--text-secondary);
             cursor: not-allowed;
         }

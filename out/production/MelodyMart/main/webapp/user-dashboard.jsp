@@ -55,8 +55,8 @@
 <!-- Navbar Include -->
 <div id="navbar-container"></div>
 <script>
-    // Dynamically load navbar.html
-    fetch('navbar.html')
+    // Dynamically load
+    fetch('delivery_coordination.jsp')
         .then(response => response.text())
         .then(html => {
             document.getElementById('navbar-container').innerHTML = html;
