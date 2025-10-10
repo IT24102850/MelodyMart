@@ -293,7 +293,7 @@
                 <i class="fas fa-chart-line"></i>
                 <span>Dashboard Overview</span>
             </a>
-            <a href="inventory_management.jsp" class="menu-item">
+            <a href="addInstrument.jsp" class="menu-item">
                 <i class="fas fa-box"></i>
                 <span>Inventory Management</span>
             </a>
@@ -364,19 +364,19 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="inventory_management.jsp" class="nav-link">
+                    <a href="addInstrument.jsp" class="nav-link">
                         <i class="fas fa-box"></i>
                         Inventory Management
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="order_management.jsp" class="nav-link">
+                    <a href="order.jsp" class="nav-link">
                         <i class="fas fa-shopping-cart"></i>
                         Order Management
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="delivery_coordination.jsp" class="nav-link">
+                    <a href="delivery.jsp" class="nav-link">
                         <i class="fas fa-truck"></i>
                         Delivery Coordination
                     </a>
