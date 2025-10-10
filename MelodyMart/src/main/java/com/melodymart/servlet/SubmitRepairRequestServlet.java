@@ -8,19 +8,17 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 @WebServlet("/SubmitRepairRequestServlet")
-@MultipartConfig(maxFileSize = 5 * 1024 * 1024) // 5MB max file size
+@MultipartConfig(maxFileSize = 5 * 1024 * 1024) // 5MB
 public class SubmitRepairRequestServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(SubmitRepairRequestServlet.class.getName());
-
-    // Upload folder relative to your webapp
     private static final String UPLOAD_DIR = "images" + File.separator + "repairrequest";
 
     @Override
@@ -33,79 +31,73 @@ public class SubmitRepairRequestServlet extends HttpServlet {
 
         LOGGER.info("Received POST request to SubmitRepairRequestServlet");
 
-        // Get form inputs
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userId") == null) {
+            LOGGER.warning("Unauthorized access: user not logged in");
+            response.sendRedirect("sign-in.jsp?error=unauthorized");
+            return;
+        }
+
+        String userId = (String) session.getAttribute("userId");
         String orderIdStr = request.getParameter("orderId");
         String issueDescription = request.getParameter("issueDescription");
         String repairDate = request.getParameter("repairDate");
 
-        if (orderIdStr == null || issueDescription == null || repairDate == null) {
-            LOGGER.warning("Validation failed: Missing required fields");
-            response.sendRedirect("customerlanding.jsp?error=missingFields");
+        if (issueDescription == null || issueDescription.trim().isEmpty()) {
+            response.sendRedirect("customerlanding.jsp?error=missingDescription");
             return;
         }
 
-        int orderId;
-        try {
-            orderId = Integer.parseInt(orderIdStr);
-        } catch (NumberFormatException e) {
-            LOGGER.warning("Invalid Order ID: " + orderIdStr);
-            response.sendRedirect("customerlanding.jsp?error=invalidOrderId");
-            return;
+        Integer orderId = null;
+        if (orderIdStr != null && !orderIdStr.trim().isEmpty()) {
+            try {
+                orderId = Integer.parseInt(orderIdStr);
+            } catch (NumberFormatException e) {
+                LOGGER.warning("Invalid Order ID: " + orderIdStr);
+                response.sendRedirect("customerlanding.jsp?error=invalidOrderId");
+                return;
+            }
         }
 
-        // Handle uploaded file
+        // Handle uploaded image
         String photoPath = null;
         try {
             Part filePart = request.getPart("photos");
             if (filePart != null && filePart.getSize() > 0) {
-                LOGGER.info("Processing uploaded file, size=" + filePart.getSize());
-
-                // Validate file type
                 String contentType = filePart.getContentType();
                 if (contentType == null ||
                         (!contentType.startsWith("image/jpeg") &&
                                 !contentType.startsWith("image/png") &&
                                 !contentType.startsWith("image/gif"))) {
-                    LOGGER.warning("Invalid file type: " + contentType);
                     response.sendRedirect("customerlanding.jsp?error=invalidFileType");
                     return;
                 }
 
-                // Extract original file name manually
+                // Generate unique filename
                 String originalFileName = extractFileName(filePart);
                 String extension = "";
                 if (originalFileName != null && originalFileName.contains(".")) {
                     extension = originalFileName.substring(originalFileName.lastIndexOf("."));
                 }
-
-                // Generate unique file name
                 String fileName = "repair_" + System.currentTimeMillis() + extension;
 
-                // Absolute upload path inside webapp
+                // Build upload path
                 String uploadPath = getServletContext().getRealPath("") + File.separator + UPLOAD_DIR;
                 File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    boolean created = uploadDir.mkdirs();
-                    LOGGER.info("Upload directory created: " + created + " at " + uploadPath);
-                }
+                if (!uploadDir.exists()) uploadDir.mkdirs();
 
                 String filePath = uploadPath + File.separator + fileName;
-                LOGGER.info("Saving uploaded file to: " + filePath);
 
-                try (InputStream inputStream = filePart.getInputStream();
-                     FileOutputStream outputStream = new FileOutputStream(filePath)) {
+                try (InputStream input = filePart.getInputStream();
+                     OutputStream output = new FileOutputStream(filePath)) {
                     byte[] buffer = new byte[1024];
                     int bytesRead;
-                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, bytesRead);
+                    while ((bytesRead = input.read(buffer)) != -1) {
+                        output.write(buffer, 0, bytesRead);
                     }
                 }
 
-                // Store relative path in DB
                 photoPath = UPLOAD_DIR + "/" + fileName;
-                LOGGER.info("File uploaded successfully: " + photoPath);
-            } else {
-                LOGGER.info("No photo uploaded for repair request");
             }
         } catch (Exception e) {
             LOGGER.severe("Error during file upload: " + e.getMessage());
@@ -113,37 +105,77 @@ public class SubmitRepairRequestServlet extends HttpServlet {
             return;
         }
 
-        // Insert into DB
-        try (Connection conn = DBConnection.getConnection()) {
-            String sql = "INSERT INTO RepairRequest (OrderID, IssueDescription, Photos, RepairDate) VALUES (?, ?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, orderId);
-            stmt.setString(2, issueDescription);
-            stmt.setString(3, photoPath);
-            stmt.setString(4, repairDate);
+        // Generate IDs
+        String repairRequestId = "RR" + String.format("%03d", (int) (Math.random() * 999));
+        String photoId = "PH" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        String costId = "C" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+        String historyId = "H" + UUID.randomUUID().toString().substring(0, 6).toUpperCase();
 
-            int rows = stmt.executeUpdate();
-            if (rows > 0) {
-                LOGGER.info("Repair request saved successfully");
-                response.sendRedirect("customerlanding.jsp?success=1");
-            } else {
-                LOGGER.warning("Repair request insert failed");
-                response.sendRedirect("customerlanding.jsp?error=dbInsertFailed");
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false); // transaction start
+
+            // 1️⃣ Insert into RepairRequest
+            String sqlRequest = "INSERT INTO RepairRequest (RepairRequestID, UserID, OrderID, IssueDescription, Status, Approved, RequestDate) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, GETDATE())";
+            try (PreparedStatement ps = conn.prepareStatement(sqlRequest)) {
+                ps.setString(1, repairRequestId);
+                ps.setString(2, userId);
+                if (orderId != null) ps.setInt(3, orderId);
+                else ps.setInt(3, 0); // fallback if order optional
+                ps.setString(4, issueDescription);
+                ps.setString(5, "Submitted");
+                ps.setBoolean(6, false);
+                ps.executeUpdate();
             }
 
+            // 2️⃣ Insert into RepairPhoto
+            if (photoPath != null) {
+                String sqlPhoto = "INSERT INTO RepairPhoto (PhotoID, RepairRequestID, PhotoPath, UploadedDate) VALUES (?, ?, ?, GETDATE())";
+                try (PreparedStatement ps = conn.prepareStatement(sqlPhoto)) {
+                    ps.setString(1, photoId);
+                    ps.setString(2, repairRequestId);
+                    ps.setString(3, photoPath);
+                    ps.executeUpdate();
+                }
+            }
+
+            // 3️⃣ Insert into RepairCost
+            String sqlCost = "INSERT INTO RepairCost (CostID, RepairRequestID, EstimatedCost, RepairDate) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement ps = conn.prepareStatement(sqlCost)) {
+                ps.setString(1, costId);
+                ps.setString(2, repairRequestId);
+                ps.setBigDecimal(3, new java.math.BigDecimal("0.00"));
+                ps.setString(4, repairDate);
+                ps.executeUpdate();
+            }
+
+            // 4️⃣ Insert into RepairStatusHistory
+            String sqlHistory = "INSERT INTO RepairStatusHistory (HistoryID, RepairRequestID, Status, Comment, UpdatedDate) VALUES (?, ?, ?, ?, GETDATE())";
+            try (PreparedStatement ps = conn.prepareStatement(sqlHistory)) {
+                ps.setString(1, historyId);
+                ps.setString(2, repairRequestId);
+                ps.setString(3, "Submitted");
+                ps.setString(4, "Awaiting approval");
+                ps.executeUpdate();
+            }
+
+            conn.commit();
+            LOGGER.info("✅ Repair request successfully saved with ID " + repairRequestId);
+            response.sendRedirect("repair.jsp?success=1");
+
         } catch (SQLException e) {
-            LOGGER.severe("Database error: " + e.getMessage());
+            LOGGER.severe("❌ Database error: " + e.getMessage());
             response.sendRedirect("customerlanding.jsp?error=db");
         }
     }
 
-    // Helper method to extract file name from Part header (for older Servlet APIs)
+    // Helper: Extract filename from header
     private String extractFileName(Part part) {
         String contentDisp = part.getHeader("content-disposition");
         if (contentDisp != null) {
             for (String token : contentDisp.split(";")) {
                 if (token.trim().startsWith("filename")) {
-                    return token.substring(token.indexOf("=") + 2, token.length() - 1);
+                    return token.substring(token.indexOf('=') + 2, token.length() - 1);
                 }
             }
         }

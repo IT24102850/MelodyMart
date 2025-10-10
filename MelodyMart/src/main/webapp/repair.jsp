@@ -1,39 +1,139 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
+<%@ page import="java.sql.*" %>
 <%@ page import="main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="java.util.*" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+
+<%
+    // ✅ Get logged-in userID from session (set in login servlet)
+    String userID = (String) session.getAttribute("userID");
+
+    // If session expired accidentally, redirect once to login
+    if (userID == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+
+    // Create a list to store repair requests data for JavaScript
+    List<Map<String, Object>> repairRequestsList = new ArrayList<>();
+
+    try (Connection conn = DBConnection.getConnection()) {
+        // Query to get repair requests with related data
+        String sql = "SELECT " +
+                "rr.RepairRequestID, " +
+                "rr.OrderID, " +
+                "rr.IssueDescription, " +
+                "rr.Status, " +
+                "rr.RequestDate, " +
+                "rc.RepairDate, " +
+                "rc.EstimatedCost, " +
+                "rp.PhotoPath, " +
+                "rsh.Comment " +
+                "FROM RepairRequest rr " +
+                "LEFT JOIN RepairCost rc ON rr.RepairRequestID = rc.RepairRequestID " +
+                "LEFT JOIN RepairPhoto rp ON rr.RepairRequestID = rp.RepairRequestID " +
+                "LEFT JOIN ( " +
+                "    SELECT RepairRequestID, Comment, ROW_NUMBER() OVER (PARTITION BY RepairRequestID ORDER BY UpdatedDate DESC) as rn " +
+                "    FROM RepairStatusHistory " +
+                ") rsh ON rr.RepairRequestID = rsh.RepairRequestID AND rsh.rn = 1 " +
+                "WHERE rr.UserID = ? " +
+                "ORDER BY rr.RequestDate DESC";
+
+        PreparedStatement ps = conn.prepareStatement(sql);
+        ps.setString(1, userID);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Map<String, Object> repairReq = new HashMap<>();
+            repairReq.put("id", rs.getString("RepairRequestID"));
+            repairReq.put("orderId", rs.getString("OrderID"));
+            repairReq.put("issueDescription", rs.getString("IssueDescription"));
+            repairReq.put("status", rs.getString("Status"));
+            repairReq.put("requestDate", rs.getTimestamp("RequestDate").toString());
+            repairReq.put("repairDate", rs.getDate("RepairDate") != null ? rs.getDate("RepairDate").toString() : null);
+            repairReq.put("estimatedCost", rs.getBigDecimal("EstimatedCost") != null ? "₹" + rs.getBigDecimal("EstimatedCost") : "₹0.00");
+            repairReq.put("photoPath", rs.getString("PhotoPath"));
+            repairReq.put("comment", rs.getString("Comment") != null ? rs.getString("Comment") : "No comment available");
+
+            // Get status history for this request
+            List<Map<String, String>> statusHistory = new ArrayList<>();
+            try (PreparedStatement historyPs = conn.prepareStatement(
+                    "SELECT Status, Comment, UpdatedDate FROM RepairStatusHistory " +
+                            "WHERE RepairRequestID = ? ORDER BY UpdatedDate ASC")) {
+                historyPs.setString(1, rs.getString("RepairRequestID"));
+                ResultSet historyRs = historyPs.executeQuery();
+                while (historyRs.next()) {
+                    Map<String, String> historyItem = new HashMap<>();
+                    historyItem.put("status", historyRs.getString("Status"));
+                    historyItem.put("comment", historyRs.getString("Comment"));
+                    historyItem.put("date", historyRs.getTimestamp("UpdatedDate").toString());
+                    statusHistory.add(historyItem);
+                }
+            }
+            repairReq.put("statusHistory", statusHistory);
+
+            repairRequestsList.add(repairReq);
+        }
+        rs.close();
+        ps.close();
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+%>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Repair Requests | Melody Mart</title>
+    <title>Repair Requests | MelodyMart</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <style>
         :root {
-            --primary: #8a2be2;
-            --primary-light: #9b45f0;
-            --secondary: #0a0a0a;
-            --accent: #00e5ff;
-            --accent-alt: #ff00c8;
-            --text: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-bg: #1a1a1a;
-            --card-hover: #2a2a2a;
-            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
-            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
-            --glass-bg: rgba(30, 30, 30, 0.7);
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-soft: #93c5fd;
+            --secondary: #93c5fd;
+            --text: #1e293b;
+            --text-secondary: #475569;
+            --glass-bg: rgba(147, 197, 253, 0.9);
+            --glass-border: rgba(147, 197, 253, 0.3);
+            --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+            --shadow: 0 5px 20px rgba(30, 64, 175, 0.1);
+            --shadow-hover: 0 10px 30px rgba(30, 64, 175, 0.2);
+            --header-bg: rgba(147, 197, 253, 0.95);
+            --card-bg: var(--secondary);
+            --card-hover: #76a9fc;
+            --border-radius: 16px;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --primary-soft: #0f2a5e;
+            --secondary: #0f2a5e;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --glass-bg: rgba(15, 42, 94, 0.9);
             --glass-border: rgba(255, 255, 255, 0.1);
+            --gradient: linear-gradient(135deg, var(--primary), var(--primary-light));
+            --shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --header-bg: rgba(15, 42, 94, 0.95);
+            --card-bg: var(--secondary);
+            --card-hover: #0e2a5d;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --error: #f87171;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
         body {
@@ -42,376 +142,349 @@
             color: var(--text);
             overflow-x: hidden;
             line-height: 1.6;
-            padding-top: 80px;
         }
 
         .container {
-            width: 100%;
+            width: 85%;
             max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Header & Navigation */
-        header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 20px 0;
-            transition: all 0.4s ease;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-        }
-
-        .logo i {
-            margin-right: 10px;
-            font-size: 32px;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-
-        .nav-links li {
-            margin: 0 15px;
-        }
-
-        .nav-links a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a:after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--gradient);
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary-light);
-        }
-
-        .nav-links a:hover:after {
-            width: 100%;
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-        }
-
-        .search-btn, .cart-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            margin-left: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .search-btn:hover, .cart-btn:hover {
-            color: var(--primary-light);
-        }
-
-        .cta-btn {
-            background: var(--gradient);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 20px;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .cta-btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 100%;
-            background: var(--gradient-alt);
-            transition: all 0.4s ease;
-            z-index: -1;
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
-        }
-
-        .cta-btn:hover:before {
-            width: 100%;
-        }
-
-        /* User Dropdown */
-        .user-menu {
-            position: relative;
-            margin-left: 20px;
-        }
-
-        .user-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .user-btn:hover {
-            color: var(--primary-light);
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
+            margin: 60px auto;
             background: var(--glass-bg);
             backdrop-filter: blur(10px);
+            padding: 35px 45px;
             border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            width: 200px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
             opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
-            z-index: 1000;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        .user-menu:hover .dropdown {
+        .container.visible {
             opacity: 1;
-            visibility: visible;
             transform: translateY(0);
         }
 
-        .dropdown-item {
-            display: block;
-            padding: 10px 15px;
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--gradient);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            color: var(--primary);
+            margin: 25px 0 15px;
+        }
+
+        form {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        form.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        label {
+            font-weight: 600;
             color: var(--text);
-            text-decoration: none;
-            font-size: 14px;
-            transition: background 0.3s ease, color 0.3s ease;
+            display: block;
+            margin-top: 15px;
+        }
+
+        input[type="text"], input[type="date"], textarea, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            margin-top: 5px;
+            background: var(--secondary);
+            color: var(--text);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus, textarea:focus, select:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
+            outline: none;
+        }
+
+        input[type="file"] {
+            margin-top: 6px;
+            color: var(--text-secondary);
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: var(--gradient);
+            border: none;
+            color: white;
+            border-radius: 30px;
             cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .dropdown-item:hover {
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        button i {
+            font-size: 14px;
+        }
+
+        .esc-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .esc-button:hover {
             background: var(--card-hover);
-            color: var(--primary-light);
+            color: var(--text-secondary);
+            box-shadow: var(--shadow-hover);
         }
 
-        /* Page Header */
-        .page-header {
+        /* Repair Requests Section */
+        .requests-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .page-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 36px;
-            font-weight: 700;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Form Styles */
-        .form-container {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 40px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .form-title {
-            font-size: 24px;
             margin-bottom: 20px;
-            color: var(--primary-light);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text);
-        }
-
-        .form-control, .form-control-file {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-            background: var(--secondary);
-            color: var(--text);
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus, .form-control-file:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
-        }
-
-        .form-control-file {
-            padding: 10px;
-        }
-
-        .preview-container {
-            display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 15px;
         }
 
-        .preview-img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-            transition: transform 0.3s ease;
+        .filters {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-        .preview-img:hover {
-            transform: scale(1.05);
+        .filters label {
+            margin-top: 0;
+            font-weight: 500;
         }
 
-        /* Table Styles */
-        .table-container {
+        .filters select {
+            width: auto;
+            min-width: 150px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 250px;
+        }
+
+        .search-box input {
+            padding-left: 40px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .requests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .request-card {
             background: var(--card-bg);
-            border-radius: 15px;
+            border-radius: var(--border-radius);
             padding: 20px;
-            margin-top: 30px;
+            box-shadow: var(--shadow);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
+        .request-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
         }
 
-        .data-table th {
-            background: rgba(138, 43, 226, 0.1);
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--primary-light);
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
         }
 
-        .data-table td {
-            padding: 15px;
-            border-bottom: 1px solid var(--glass-border);
+        .request-id {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 18px;
         }
 
-        .data-table tr:last-child td {
-            border-bottom: none;
+        .request-date {
+            color: var(--text-secondary);
+            font-size: 14px;
         }
 
-        .data-table tr:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        /* Status Badges */
-        .status-badge {
-            padding: 6px 12px;
+        .request-status {
+            padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
-            display: inline-block;
+            text-transform: uppercase;
         }
 
-        .status-new {
-            background: rgba(0, 123, 255, 0.2);
-            color: #007bff;
+        .status-submitted {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+        }
+
+        .status-approved {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
         }
 
         .status-in-progress {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
         }
 
         .status-completed {
-            background: rgba(40, 167, 69, 0.2);
-            color: #28a745;
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
         }
 
-        /* Action Buttons */
+        .status-rejected {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        .request-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            color: var(--text);
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .request-description {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
         .action-btn {
-            background: none;
-            border: none;
-            color: var(--primary-light);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 16px;
-            margin-right: 10px;
+            border: none;
             transition: all 0.3s ease;
-            padding: 8px;
-            border-radius: 50%;
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
         }
 
-        .action-btn:hover {
-            background: rgba(138, 43, 226, 0.1);
-            transform: scale(1.1);
+        .view-btn {
+            background-color: var(--primary-light);
+            color: white;
         }
 
-        .action-btn.delete-btn {
-            color: #ff6b6b;
+        .view-btn:hover {
+            background-color: var(--primary);
         }
 
-        .action-btn.delete-btn:hover {
-            background: rgba(255, 107, 107, 0.1);
+        .update-btn {
+            background-color: var(--warning);
+            color: white;
         }
 
-        /* Modal Styles */
+        .update-btn:hover {
+            background-color: #e69500;
+        }
+
+        .no-requests {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            grid-column: 1 / -1;
+        }
+
+        .no-requests i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: var(--primary-soft);
+        }
+
+        .no-requests p {
+            font-size: 18px;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -419,466 +492,512 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
             justify-content: center;
-            backdrop-filter: blur(5px);
+            align-items: center;
         }
 
         .modal-content {
-            background: var(--card-bg);
-            border-radius: 15px;
+            background: var(--glass-bg);
+            border-radius: var(--border-radius);
             padding: 30px;
-            max-width: 600px;
             width: 90%;
-            position: relative;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transform: scale(0.9);
-            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        .modal.active .modal-content {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .modal-close:hover {
-            color: var(--primary-light);
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--glass-border);
         }
 
         .modal-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            margin-bottom: 20px;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 600;
         }
 
-        /* Photo Gallery */
-        .photo-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .gallery-img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
             cursor: pointer;
-            transition: transform 0.3s ease;
+            padding: 0;
+            margin: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .gallery-img:hover {
-            transform: scale(1.1);
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .status-history {
+            margin-top: 20px;
+        }
+
+        .history-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .history-status {
+            font-weight: 600;
+            margin: 5px 0;
+        }
+
+        .history-comment {
+            color: var(--text-secondary);
+            font-size: 14px;
         }
 
         /* Responsive Design */
-        @media (max-width: 992px) {
-            .data-table {
-                display: block;
-                overflow-x: auto;
-            }
-
-            .page-title {
-                font-size: 28px;
-            }
-        }
-
         @media (max-width: 768px) {
-            .nav-links {
-                display: none;
+            .container {
+                width: 90%;
+                margin: 40px auto;
+                padding: 25px;
             }
 
-            .page-header {
+            h2 {
+                font-size: 32px;
+            }
+
+            h3 {
+                font-size: 20px;
+            }
+
+            form {
+                padding: 15px;
+            }
+
+            .requests-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 15px;
             }
 
-            .form-container, .table-container {
-                padding: 20px;
+            .filters {
+                width: 100%;
+                justify-content: space-between;
             }
 
-            .modal-content {
-                padding: 20px;
+            .search-box {
+                width: 100%;
             }
 
-            .user-menu:hover .dropdown {
-                display: none;
+            .requests-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .request-actions {
+                flex-direction: column;
             }
         }
 
         @media (max-width: 576px) {
-            body {
-                padding-top: 70px;
+            .container {
+                width: 95%;
+                padding: 20px;
             }
 
-            .page-title {
-                font-size: 24px;
+            h2 {
+                font-size: 28px;
             }
 
-            .form-title {
-                font-size: 20px;
+            .filters {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
 
-            .data-table th, .data-table td {
-                padding: 10px;
+            .filters select {
+                width: 100%;
             }
         }
-
-        /* Animation for table rows */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .data-table tbody tr {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        .data-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
-        .data-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
-        .data-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
-        .data-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
-        .data-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
     </style>
 </head>
 <body>
-
-<!-- Header & Navigation -->
-<header>
-    <div class="container nav-container">
-        <div class="logo">
-            <i class="fas fa-music"></i>
-            Melody Mart
-        </div>
-
-        <ul class="nav-links">
-            <li><a href="index.jsp">Home</a></li>
-            <li><a href="shop.jsp">Shop</a></li>
-            <li><a href="categories.jsp">Categories</a></li>
-            <li><a href="repair-requests.jsp" style="color: var(--primary-light);">Repair Requests</a></li>
-            <li><a href="orders.jsp">My Orders</a></li>
-            <li><a href="profile.jsp">Profile</a></li>
-        </ul>
-
-        <div class="nav-actions">
-            <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
-            <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
-            <div class="user-menu">
-                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> Customer</button>
-                <div class="dropdown">
-                    <a href="profile.jsp" class="dropdown-item"><i class="fas fa-user-circle"></i> My Profile</a>
-                    <a href="orders.jsp" class="dropdown-item"><i class="fas fa-shopping-bag"></i> My Orders</a>
-                    <a href="repair-requests.jsp" class="dropdown-item"><i class="fas fa-tools"></i> Repair Requests</a>
-                    <a href="wishlist.jsp" class="dropdown-item"><i class="fas fa-heart"></i> Wishlist</a>
-                    <a href="settings.jsp" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
-                    <a href="index.jsp" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-
 <div class="container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 class="page-title">Repair Requests</h1>
-        <button class="cta-btn" id="newRequestBtn">
-            <i class="fas fa-plus"></i> New Repair Request
-        </button>
+    <h2>🛠 Submit a New Repair Request</h2>
+
+    <!-- Repair Request Form -->
+    <form action="SubmitRepairRequestServlet" method="post" enctype="multipart/form-data">
+        <!-- No need to send userID — servlet reads from session -->
+        <label for="orderId">Order ID (optional)</label>
+        <input type="text" name="orderId" id="orderId" placeholder="Enter related order ID">
+
+        <label for="issueDescription">Issue Description</label>
+        <textarea name="issueDescription" id="issueDescription" rows="4" placeholder="Describe the issue" required></textarea>
+
+        <label for="repairDate">Preferred Repair Date</label>
+        <input type="date" name="repairDate" id="repairDate" required>
+
+        <label for="photos">Upload Photo (optional)</label>
+        <input type="file" name="photos" accept="image/*">
+
+        <button type="submit"><i class="fas fa-paper-plane"></i> Submit Request</button>
+    </form>
+
+    <a href="customerlanding.jsp" class="esc-button">Esc - Back to Customer Landing</a>
+
+    <hr style="border: 1px solid var(--glass-border); margin: 40px 0;">
+
+    <!-- Repair Requests Section -->
+    <div class="requests-header">
+        <h3>📋 Your Repair Requests</h3>
+        <div class="filters">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search requests...">
+            </div>
+            <label for="statusFilter">Status:</label>
+            <select id="statusFilter">
+                <option value="all">All Statuses</option>
+                <option value="Submitted">Submitted</option>
+                <option value="Approved">Approved</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+            <label for="sortBy">Sort by:</label>
+            <select id="sortBy">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="status">Status</option>
+            </select>
+        </div>
     </div>
 
-    <!-- New Repair Request Form -->
-    <div class="form-container" id="requestForm">
-        <h2 class="form-title">Submit New Repair Request</h2>
-        <form id="repairRequestForm" method="post" action="${pageContext.request.contextPath}/SubmitRepairRequestServlet" enctype="multipart/form-data">
-            <div class="form-group">
-                <label class="form-label">Order ID</label>
-                <input type="text" class="form-control" name="orderId" placeholder="e.g., MM-7892" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Issue Description</label>
-                <textarea class="form-control" name="issueDescription" placeholder="Describe the issue in detail..." rows="3" required></textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Upload Photos</label>
-                <input type="file" class="form-control-file" name="photos" multiple accept="image/*" id="photoUpload">
-                <div id="previewContainer" class="preview-container"></div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Select Repair Date</label>
-                <input type="text" class="form-control" id="repairDatePicker" name="repairDate" required>
-            </div>
-            <button type="submit" class="cta-btn" style="width: 100%;">
-                <i class="fas fa-paper-plane"></i> Submit Request
-            </button>
-        </form>
-    </div>
-
-    <!-- Repair Requests Table -->
-    <div class="table-container">
-        <h2 class="form-title">Your Repair Requests</h2>
-        <table class="data-table">
-            <thead>
-            <tr>
-                <th>Request ID</th>
-                <th>Order ID</th>
-                <th>Description</th>
-                <th>Photos</th>
-                <th>Status</th>
-                <th>Approved</th>
-                <th>Comment</th>
-                <th>Estimated Cost</th>
-                <th>Repair Date</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <%
-                Connection conn = null;
-                PreparedStatement ps = null;
-                ResultSet rs = null;
-                try {
-                    conn = DBConnection.getConnection();
-                    String sql = "SELECT RepairRequestID, OrderID, IssueDescription, Photos, Status, Approved, Comment, EstimatedCost, RepairDate FROM RepairRequest";
-                    ps = conn.prepareStatement(sql);
-                    rs = ps.executeQuery();
-                    while (rs.next()) {
-                        String status = rs.getString("Status");
-                        boolean canDelete = !status.equalsIgnoreCase("In Progress") && !status.equalsIgnoreCase("Completed");
-            %>
-            <tr>
-                <td>#RR-<%= rs.getInt("RepairRequestID") %></td>
-                <td>#MM-<%= rs.getInt("OrderID") %></td>
-                <td><%= rs.getString("IssueDescription") %></td>
-                <td>
-                    <%
-                        String photo = rs.getString("Photos");
-                        if (photo != null && !photo.isEmpty()) {
-                            String[] photos = photo.split(";");
-                    %>
-                    <div class="photo-gallery">
-                        <%
-                            for (String photoPath : photos) {
-                        %>
-                        <img src="<%= photoPath.replace("\\", "/") %>" class="gallery-img" alt="Repair Photo">
-                        <%
-                            }
-                        %>
-                    </div>
-                    <%
-                    } else {
-                    %>
-                    <span style="color: var(--text-secondary); font-style: italic;">No photos</span>
-                    <%
-                        }
-                    %>
-                </td>
-                <td><span class="status-badge status-<%= status.toLowerCase().replace(" ", "-") %>"><%= status %></span></td>
-                <td><span style="color: <%= rs.getBoolean("Approved") ? "#28a745" : "#ff6b6b" %>;"><%= rs.getBoolean("Approved") ? "Yes" : "No" %></span></td>
-                <td><%= rs.getString("Comment") != null ? rs.getString("Comment") : "<span style='color: var(--text-secondary); font-style: italic;'>No comment</span>" %></td>
-                <td style="font-weight: 600; color: var(--accent);">$<%= rs.getBigDecimal("EstimatedCost") != null ? rs.getBigDecimal("EstimatedCost") : "0.00" %></td>
-                <td><%= rs.getDate("RepairDate") %></td>
-                <td>
-                    <button class="action-btn" title="Update Request"
-                            onclick="openUpdateModal(<%= rs.getInt("RepairRequestID") %>, '<%= rs.getString("IssueDescription").replace("'", "\\'") %>', '<%= rs.getString("Comment") != null ? rs.getString("Comment").replace("'", "\\'") : "" %>', '<%= rs.getDate("RepairDate") %>')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <% if (canDelete) { %>
-                    <button class="action-btn delete-btn" title="Delete Request" onclick="deleteRepairRequest(<%= rs.getInt("RepairRequestID") %>)">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                    <% } %>
-                </td>
-            </tr>
-            <%
-                    }
-                } catch (Exception e) {
-                    out.println("<tr><td colspan='10' style='color:#ff6b6b; text-align:center; padding:20px;'>Error loading repair requests: " + e.getMessage() + "</td></tr>");
-                } finally {
-                    if (rs != null) try { rs.close(); } catch (Exception ignored) {}
-                    if (ps != null) try { ps.close(); } catch (Exception ignored) {}
-                    if (conn != null) try { conn.close(); } catch (Exception ignored) {}
-                }
-            %>
-            </tbody>
-        </table>
+    <div class="requests-grid" id="requestsContainer">
+        <!-- Repair requests will be dynamically inserted here -->
     </div>
 </div>
 
-<!-- Update Repair Request Modal -->
-<div class="modal" id="updateRepairModal">
+<!-- Request Details Modal -->
+<div class="modal" id="requestModal">
     <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('updateRepairModal')">&times;</button>
-        <h2 class="modal-title">Update Repair Request</h2>
-        <form id="updateRepairForm" method="post" action="${pageContext.request.contextPath}/UpdateRepairRequestServlet" enctype="multipart/form-data">
-            <input type="hidden" name="repairRequestId" id="updateRepairRequestId">
-            <div class="form-group">
-                <label class="form-label">Issue Description</label>
-                <textarea class="form-control" name="issueDescription" id="updateIssueDescription" rows="3" required></textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Additional Comments</label>
-                <textarea class="form-control" name="additionalComment" id="updateComment" rows="4" placeholder="Add any additional comments or updates..."></textarea>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Upload Additional Photos</label>
-                <input type="file" class="form-control-file" name="additionalPhotos" multiple accept="image/*" id="updatePhotoUpload">
-                <div id="updatePreviewContainer" class="preview-container"></div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Select Repair Date</label>
-                <input type="text" class="form-control" id="updateRepairDatePicker" name="repairDate" required>
-            </div>
-            <button type="submit" class="cta-btn" style="width: 100%;">
-                <i class="fas fa-save"></i> Update Request
-            </button>
-        </form>
+        <div class="modal-header">
+            <h3 class="modal-title">Repair Request Details</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Modal content will be dynamically inserted here -->
+        </div>
     </div>
 </div>
 
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
 <script>
-    $(function() {
-        $("#repairDatePicker, #updateRepairDatePicker").datepicker({
-            dateFormat: "yy-mm-dd",
-            minDate: 0,
-            showAnim: "fadeIn"
+    // Convert Java List to JavaScript array
+    const repairRequests = [
+        <% for (int i = 0; i < repairRequestsList.size(); i++) {
+            Map<String, Object> repairReq = repairRequestsList.get(i);
+        %>
+        {
+            id: "<%= repairReq.get("id") %>",
+            orderId: "<%= repairReq.get("orderId") %>",
+            issueDescription: "<%= escapeJavaScript((String)repairReq.get("issueDescription")) %>",
+            status: "<%= repairReq.get("status") %>",
+            requestDate: "<%= repairReq.get("requestDate") %>",
+            repairDate: "<%= repairReq.get("repairDate") != null ? repairReq.get("repairDate") : "" %>",
+            estimatedCost: "<%= repairReq.get("estimatedCost") %>",
+            photoPath: "<%= repairReq.get("photoPath") != null ? repairReq.get("photoPath") : "" %>",
+            comment: "<%= escapeJavaScript((String)repairReq.get("comment")) %>",
+            statusHistory: [
+                <%
+                List<Map<String, String>> statusHistory = (List<Map<String, String>>) repairReq.get("statusHistory");
+                for (int j = 0; j < statusHistory.size(); j++) {
+                    Map<String, String> history = statusHistory.get(j);
+                %>
+                {
+                    status: "<%= history.get("status") %>",
+                    date: "<%= history.get("date") %>",
+                    comment: "<%= escapeJavaScript(history.get("comment")) %>"
+                }<%= j < statusHistory.size() - 1 ? "," : "" %>
+                <% } %>
+            ]
+        }<%= i < repairRequestsList.size() - 1 ? "," : "" %>
+        <% } %>
+    ];
+
+    // DOM elements
+    const requestsContainer = document.getElementById('requestsContainer');
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const sortBy = document.getElementById('sortBy');
+    const requestModal = document.getElementById('requestModal');
+    const modalBody = document.getElementById('modalBody');
+    const closeModal = document.querySelector('.close-modal');
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        renderRequests(repairRequests);
+        setupEventListeners();
+
+        // Add visible class for animations
+        document.querySelector('.container').classList.add('visible');
+        document.querySelector('form').classList.add('visible');
+    });
+
+    // Set up event listeners
+    function setupEventListeners() {
+        searchInput.addEventListener('input', filterRequests);
+        statusFilter.addEventListener('change', filterRequests);
+        sortBy.addEventListener('change', filterRequests);
+        closeModal.addEventListener('click', function() {
+            requestModal.style.display = 'none';
         });
-    });
 
-    // Toggle form visibility
-    document.getElementById('newRequestBtn').addEventListener('click', function() {
-        const form = document.getElementById('requestForm');
-        if (form.style.display === 'none') {
-            form.style.display = 'block';
-            form.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            form.style.display = 'none';
-        }
-    });
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === requestModal) {
+                requestModal.style.display = 'none';
+            }
+        });
 
-    // Image preview functionality
-    function setupPreview(inputId, previewId) {
-        document.getElementById(inputId).addEventListener("change", function(event) {
-            const previewContainer = document.getElementById(previewId);
-            previewContainer.innerHTML = "";
-            Array.from(event.target.files).forEach(file => {
-                if (file.type.startsWith("image/")) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement("img");
-                        img.src = e.target.result;
-                        img.className = "preview-img";
-                        previewContainer.appendChild(img);
-                    };
-                    reader.readAsDataURL(file);
+        // Handle Esc key press for redirection
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (requestModal.style.display === 'flex') {
+                    requestModal.style.display = 'none';
+                } else {
+                    window.location.href = 'customerlanding.jsp';
                 }
+            }
+        });
+    }
+
+    // Filter and sort requests
+    function filterRequests() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+        const sortValue = sortBy.value;
+
+        let filteredRequests = repairRequests.filter(function(repairReq) {
+            // Search filter
+            const matchesSearch =
+                repairReq.id.toLowerCase().includes(searchTerm) ||
+                repairReq.issueDescription.toLowerCase().includes(searchTerm) ||
+                (repairReq.orderId && repairReq.orderId.toLowerCase().includes(searchTerm));
+
+            // Status filter
+            const matchesStatus = statusValue === 'all' || repairReq.status === statusValue;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        // Sort requests
+        filteredRequests.sort(function(a, b) {
+            switch(sortValue) {
+                case 'newest':
+                    return new Date(b.requestDate) - new Date(a.requestDate);
+                case 'oldest':
+                    return new Date(a.requestDate) - new Date(b.requestDate);
+                case 'status':
+                    return a.status.localeCompare(b.status);
+                default:
+                    return 0;
+            }
+        });
+
+        renderRequests(filteredRequests);
+    }
+
+    // Render requests to the page
+    function renderRequests(requests) {
+        if (requests.length === 0) {
+            requestsContainer.innerHTML = '<div class="no-requests"><i class="fas fa-tools"></i><p>No repair requests found matching your criteria.</p></div>';
+            return;
+        }
+
+        requestsContainer.innerHTML = '';
+
+        requests.forEach(function(repairReq) {
+            const requestCard = document.createElement('div');
+            requestCard.className = 'request-card';
+
+            const statusClass = 'status-' + repairReq.status.toLowerCase().replace(' ', '-');
+            const statusText = repairReq.status;
+
+            requestCard.innerHTML = '<div class="request-header">' +
+                '<div>' +
+                '<div class="request-id">' + repairReq.id + '</div>' +
+                '<div class="request-date">Requested: ' + formatDate(repairReq.requestDate) + '</div>' +
+                '</div>' +
+                '<div class="request-status ' + statusClass + '">' + statusText + '</div>' +
+                '</div>' +
+
+                '<div class="request-details">' +
+                '<div class="detail-row">' +
+                '<span class="detail-label">Order ID:</span>' +
+                '<span class="detail-value">' + (repairReq.orderId || 'N/A') + '</span>' +
+                '</div>' +
+                '<div class="detail-row">' +
+                '<span class="detail-label">Repair Date:</span>' +
+                '<span class="detail-value">' + (repairReq.repairDate ? formatDate(repairReq.repairDate) : 'Not scheduled') + '</span>' +
+                '</div>' +
+                '<div class="detail-row">' +
+                '<span class="detail-label">Estimated Cost:</span>' +
+                '<span class="detail-value">' + repairReq.estimatedCost + '</span>' +
+                '</div>' +
+                '</div>' +
+
+                '<div class="request-description">' +
+                '<div class="detail-label">Issue Description:</div>' +
+                '<div class="detail-value">' + truncateText(repairReq.issueDescription, 100) + '</div>' +
+                '</div>' +
+
+                '<div class="request-actions">' +
+                '<button class="action-btn view-btn" data-id="' + repairReq.id + '">' +
+                '<i class="fas fa-eye"></i> View Details' +
+                '</button>' +
+                (repairReq.status === 'Submitted' ? '<button class="action-btn update-btn" data-id="' + repairReq.id + '"><i class="fas fa-edit"></i> Update</button>' : '') +
+                '</div>';
+
+            requestsContainer.appendChild(requestCard);
+        });
+
+        // Add event listeners to the action buttons
+        document.querySelectorAll('.view-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const requestId = this.getAttribute('data-id');
+                showRequestDetails(requestId);
+            });
+        });
+
+        document.querySelectorAll('.update-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const requestId = this.getAttribute('data-id');
+                updateRequest(requestId);
             });
         });
     }
 
-    setupPreview("photoUpload", "previewContainer");
-    setupPreview("updatePhotoUpload", "updatePreviewContainer");
+    // Show request details in modal
+    function showRequestDetails(requestId) {
+        const repairReq = repairRequests.find(function(req) { return req.id === requestId; });
+        if (!repairReq) return;
 
-    // Modal functions
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.style.display = "flex";
-        setTimeout(() => modal.classList.add("active"), 10);
-    }
+        const statusClass = 'status-' + repairReq.status.toLowerCase().replace(' ', '-');
+        const statusText = repairReq.status;
 
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.remove("active");
-        setTimeout(() => modal.style.display = "none", 300);
-    }
-
-    function openUpdateModal(id, issue, comment, date) {
-        document.getElementById("updateRepairRequestId").value = id;
-        document.getElementById("updateIssueDescription").value = issue;
-        document.getElementById("updateComment").value = comment;
-        document.getElementById("updateRepairDatePicker").value = date;
-        document.getElementById("updatePreviewContainer").innerHTML = "";
-        openModal("updateRepairModal");
-    }
-
-    function deleteRepairRequest(id) {
-        if (confirm("Are you sure you want to delete this repair request? This action cannot be undone.")) {
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = "${pageContext.request.contextPath}/DeleteRepairRequestServlet";
-            const input = document.createElement("input");
-            input.type = "hidden";
-            input.name = "repairRequestId";
-            input.value = id;
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
+        let photosHtml = '';
+        if (repairReq.photoPath) {
+            photosHtml = '<div><div class="detail-label">Photo:</div><div style="margin-top: 10px;">' +
+                '<img src="' + repairReq.photoPath + '" style="max-width: 100%; max-height: 300px; border-radius: 6px; object-fit: cover;">' +
+                '</div></div>';
         }
+
+        let historyHtml = '';
+        if (repairReq.statusHistory && repairReq.statusHistory.length > 0) {
+            repairReq.statusHistory.forEach(function(history) {
+                historyHtml += '<div class="history-item">' +
+                    '<div class="history-date">' + formatDate(history.date) + '</div>' +
+                    '<div class="history-status">' + history.status + '</div>' +
+                    '<div class="history-comment">' + history.comment + '</div>' +
+                    '</div>';
+            });
+        } else {
+            historyHtml = '<p>No status history available.</p>';
+        }
+
+        modalBody.innerHTML = '<div class="detail-row">' +
+            '<span class="detail-label">Request ID:</span>' +
+            '<span class="detail-value">' + repairReq.id + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Order ID:</span>' +
+            '<span class="detail-value">' + (repairReq.orderId || 'N/A') + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Status:</span>' +
+            '<span class="detail-value request-status ' + statusClass + '">' + statusText + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Request Date:</span>' +
+            '<span class="detail-value">' + formatDate(repairReq.requestDate) + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Repair Date:</span>' +
+            '<span class="detail-value">' + (repairReq.repairDate ? formatDate(repairReq.repairDate) : 'Not scheduled') + '</span>' +
+            '</div>' +
+            '<div class="detail-row">' +
+            '<span class="detail-label">Estimated Cost:</span>' +
+            '<span class="detail-value">' + repairReq.estimatedCost + '</span>' +
+            '</div>' +
+
+            '<div>' +
+            '<div class="detail-label">Issue Description:</div>' +
+            '<div class="detail-value">' + repairReq.issueDescription + '</div>' +
+            '</div>' +
+
+            '<div>' +
+            '<div class="detail-label">Latest Comment:</div>' +
+            '<div class="detail-value">' + repairReq.comment + '</div>' +
+            '</div>' +
+
+            photosHtml +
+
+            '<div class="status-history">' +
+            '<div class="detail-label">Status History:</div>' +
+            '<div style="margin-top: 10px;">' + historyHtml + '</div>' +
+            '</div>';
+
+        requestModal.style.display = 'flex';
     }
 
-    // Close modal when clicking outside
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal(modal.id);
-            }
-        });
-    });
+    // Update request (placeholder function)
+    function updateRequest(requestId) {
+        alert('Update functionality for request ' + requestId + ' would be implemented here.');
+        // In a real application, this would open a form to update the request
+    }
 
-    // Form submission handlers
-    document.getElementById('repairRequestForm').addEventListener('submit', function(e) {
-        // Add loading state to button
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
-        submitBtn.disabled = true;
+    // Helper function to format dates
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('en-US', options);
+    }
 
-        // Reset button after 3 seconds (for demo purposes)
-        setTimeout(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }, 3000);
-    });
-
-    document.getElementById('updateRepairForm').addEventListener('submit', function(e) {
-        // Add loading state to button
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-        submitBtn.disabled = true;
-
-        // Reset button after 3 seconds (for demo purposes)
-        setTimeout(() => {
-            submitBtn.innerHTML = originalText;
-            submitBtn.disabled = false;
-        }, 3000);
-    });
+    // Helper function to truncate text
+    function truncateText(text, maxLength) {
+        if (text.length <= maxLength) return text;
+        return text.substring(0, maxLength) + '...';
+    }
 </script>
-
 </body>
 </html>
+
+<%!
+    // Helper method to escape JavaScript strings
+    private String escapeJavaScript(String text) {
+        if (text == null) return "";
+        return text.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("'", "\\'")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
+    }
+%>

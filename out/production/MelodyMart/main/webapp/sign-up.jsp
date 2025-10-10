@@ -111,29 +111,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #8a2be2;
-            --primary-light: #9b45f0;
-            --secondary: #0a0a0a;
-            --accent: #00e5ff;
-            --accent-alt: #ff00c8;
-            --gold-accent: #d4af37;
-            --text: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-bg: #1a1a1a;
-            --card-hover: #2a2a2a;
-            --glass-bg: rgba(26, 26, 26, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.2);
+            --primary: #3b82f6; /* Bright Blue */
+            --primary-light: #60a5fa;
+            --secondary: #ffffff; /* White */
+            --accent: #06b6d4; /* Cyan Accent */
+            --gold-accent: #f59e0b; /* Amber Gold */
+            --text: #1e293b; /* Dark Blue-Gray */
+            --text-secondary: #64748b; /* Medium Gray */
+            --card-bg: rgba(30, 41, 59, 0.85); /* Darker glass background */
+            --glass-bg: rgba(30, 41, 59, 0.8);
+            --glass-border: rgba(59, 130, 246, 0.3);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             --gradient: linear-gradient(135deg, var(--primary), var(--accent));
-            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
-            --metallic-gradient: linear-gradient(135deg, #c0c0c0, #a9a9a9);
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, var(--primary), var(--secondary)), url('https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
-            background-blend-mode: overlay;
+            background:
+                    linear-gradient(135deg, rgba(224, 242, 254, 0.9), rgba(240, 249, 255, 0.9)),
+                    url('https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             color: var(--text);
             min-height: 100vh;
             display: flex;
@@ -144,40 +143,97 @@
             line-height: 1.6;
         }
 
+        /* Background blur overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            filter: blur(8px) brightness(0.9);
+            z-index: -1;
+            transform: scale(1.1);
+        }
+
         .signup-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
             margin: 20px auto;
             padding: 20px;
+            z-index: 1;
         }
 
         .signup-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow);
             text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            color: white;
+        }
+
+        .signup-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .logo {
+            margin-bottom: 20px;
+        }
+
+        .logo a {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo a i {
+            color: var(--accent);
+            animation: pulse 2s infinite;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         h1 {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 2.5rem;
-            color: var(--text);
-            margin-bottom: 20px;
+            color: white;
+            margin-bottom: 25px;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .error-message {
-            color: #ff6b6b;
-            background: rgba(255, 0, 0, 0.1);
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #fecaca;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
             display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 500;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            backdrop-filter: blur(5px);
         }
 
         .form-grid {
@@ -188,31 +244,39 @@
 
         .form-group {
             text-align: left;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
             font-weight: 500;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
+            color: #e2e8f0;
+            margin-bottom: 8px;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            border-radius: 5px;
-            color: var(--text);
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
             font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
             border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.3);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .submit-btn {
@@ -221,17 +285,24 @@
             background: var(--gradient);
             border: none;
             border-radius: 25px;
-            color: var(--text);
+            color: white;
             font-weight: 700;
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(5px);
+            grid-column: 1 / -1;
+            margin-top: 10px;
         }
 
         .submit-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
         }
 
         .submit-btn .spinner {
@@ -253,13 +324,16 @@
 
         .switch-link {
             margin-top: 15px;
-            color: var(--text-secondary);
+            color: #cbd5e1;
+            grid-column: 1 / -1;
+            text-align: center;
         }
 
         .switch-link a {
             color: var(--primary-light);
             text-decoration: none;
             font-weight: 600;
+            transition: color 0.3s ease;
         }
 
         .switch-link a:hover {
@@ -269,51 +343,136 @@
 
         .success-message {
             color: #4CAF50;
-            background: rgba(76, 175, 80, 0.1);
-            padding: 10px;
-            border-radius: 5px;
+            background: rgba(76, 175, 80, 0.2);
+            padding: 12px;
+            border-radius: 8px;
             margin-top: 15px;
             display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            backdrop-filter: blur(5px);
+            grid-column: 1 / -1;
+        }
+
+        .floating-icons {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 24px;
+            color: rgba(59, 130, 246, 0.3);
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* Enhanced focus states for accessibility */
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--primary-light);
+        }
+
+        /* Loading animation for button */
+        .submit-btn.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .submit-btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: button-loading-spinner 1s ease infinite;
+        }
+
+        @keyframes button-loading-spinner {
+            from { transform: rotate(0turn); }
+            to { transform: rotate(1turn); }
         }
 
         @media (max-width: 768px) {
             .signup-card {
-                padding: 20px;
+                padding: 25px;
             }
 
             h1 {
                 font-size: 2rem;
             }
+
+            .logo a {
+                font-size: 2rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            body::before {
+                filter: blur(5px) brightness(0.9);
+            }
         }
     </style>
 </head>
 <body>
+<div class="floating-icons">
+    <div class="floating-icon" style="top: 10%; left: 5%; animation-delay: 0s;">🎵</div>
+    <div class="floating-icon" style="top: 20%; right: 10%; animation-delay: 1s;">🎸</div>
+    <div class="floating-icon" style="top: 60%; left: 8%; animation-delay: 2s;">🎹</div>
+    <div class="floating-icon" style="top: 70%; right: 7%; animation-delay: 3s;">🥁</div>
+    <div class="floating-icon" style="top: 40%; left: 15%; animation-delay: 4s;">🎻</div>
+</div>
+
 <div class="signup-container">
     <div class="signup-card">
+        <div class="logo">
+            <a href="index.jsp"><i class="fas fa-music"></i>Melody Mart</a>
+        </div>
+
         <h1>Sign Up for MelodyMart</h1>
+
         <c:if test="${not empty errorMessage}">
-            <p class="error-message" style="display: block;"><c:out value="${errorMessage}"/></p>
+            <div class="error-message" style="display: flex;">
+                <i class="fas fa-exclamation-circle"></i> <c:out value="${errorMessage}"/>
+            </div>
         </c:if>
+
         <form id="signupForm" action="sign-up.jsp" method="post" class="form-grid" novalidate>
             <div class="form-group">
                 <label for="firstName">First Name</label>
-                <input type="text" id="firstName" name="firstName" value="${param.firstName}" required aria-label="First Name" aria-describedby="name-error">
-                <p id="name-error" class="error-message">Please enter your first name.</p>
+                <input type="text" id="firstName" name="firstName" value="${param.firstName}" required aria-label="First Name">
             </div>
             <div class="form-group">
                 <label for="lastName">Last Name</label>
-                <input type="text" id="lastName" name="lastName" value="${param.lastName}" required aria-label="Last Name" aria-describedby="lastName-error">
-                <p id="lastName-error" class="error-message">Please enter your last name.</p>
+                <input type="text" id="lastName" name="lastName" value="${param.lastName}" required aria-label="Last Name">
             </div>
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" value="${param.email}" required aria-label="Email" aria-describedby="email-error">
-                <p id="email-error" class="error-message">Please enter a valid email address.</p>
+                <input type="email" id="email" name="email" value="${param.email}" required aria-label="Email">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required minlength="8" aria-label="Password" aria-describedby="password-error">
-                <p id="password-error" class="error-message">Password must be at least 8 characters.</p>
+                <input type="password" id="password" name="password" required minlength="8" aria-label="Password">
             </div>
             <div class="form-group">
                 <label for="phone">Phone</label>
@@ -325,8 +484,7 @@
             </div>
             <div class="form-group">
                 <label for="city">City</label>
-                <input type="text" id="city" name="city" value="${param.city}" required aria-label="City" aria-describedby="city-error">
-                <p id="city-error" class="error-message">Please enter your city.</p>
+                <input type="text" id="city" name="city" value="${param.city}" required aria-label="City">
             </div>
             <div class="form-group">
                 <label for="state">State</label>
@@ -338,7 +496,7 @@
             </div>
             <div class="form-group">
                 <label for="country">Country</label>
-                <select id="country" name="country" required aria-label="Country" aria-describedby="country-error">
+                <select id="country" name="country" required aria-label="Country">
                     <option value="">Select your country</option>
                     <option value="US" ${param.country == 'US' ? 'selected' : ''}>United States</option>
                     <option value="CA" ${param.country == 'CA' ? 'selected' : ''}>Canada</option>
@@ -352,29 +510,49 @@
                     <option value="BR" ${param.country == 'BR' ? 'selected' : ''}>Brazil</option>
                     <option value="SL" ${param.country == 'SL' ? 'selected' : ''}>Sri Lanka</option>
                 </select>
-                <p id="country-error" class="error-message">Please select your country.</p>
             </div>
             <div class="form-group">
                 <label for="role">Role</label>
-                <select id="role" name="role" required aria-label="Role" aria-describedby="role-error">
+                <select id="role" name="role" required aria-label="Role">
                     <option value="">Select your role</option>
                     <option value="customer" ${param.role == 'customer' ? 'selected' : ''}>Customer</option>
                     <option value="seller" ${param.role == 'seller' ? 'selected' : ''}>Seller</option>
                 </select>
-                <p id="role-error" class="error-message">Please select your role.</p>
             </div>
+
             <button type="submit" class="submit-btn" id="submitButton">
                 <span class="spinner" id="spinner"></span>Create Account
             </button>
+
             <div class="switch-link">
                 Already have an account? <a href="sign-in.jsp">Sign In</a>
             </div>
-            <div id="successMessage" class="success-message">Registration successful! Redirecting...</div>
+
+            <div id="successMessage" class="success-message">
+                <i class="fas fa-check-circle"></i> Registration successful! Redirecting...
+            </div>
         </form>
     </div>
 </div>
 
 <script>
+    // Add floating icons dynamically
+    function addFloatingIcons() {
+        const icons = ['🎵', '🎸', '🎹', '🥁', '🎻', '🎺', '🎼', '📯'];
+        const container = document.querySelector('.floating-icons');
+
+        for (let i = 0; i < 12; i++) {
+            const icon = document.createElement('div');
+            icon.className = 'floating-icon';
+            icon.textContent = icons[Math.floor(Math.random() * icons.length)];
+            icon.style.left = Math.random() * 100 + '%';
+            icon.style.top = Math.random() * 100 + '%';
+            icon.style.animationDelay = Math.random() * 5 + 's';
+            icon.style.fontSize = (Math.random() * 20 + 16) + 'px';
+            container.appendChild(icon);
+        }
+    }
+
     document.getElementById('signupForm').addEventListener('submit', function(event) {
         event.preventDefault();
         let isValid = true;
@@ -391,50 +569,46 @@
         // Validation
         const firstName = document.getElementById('firstName').value.trim();
         if (!firstName) {
-            document.getElementById('name-error').style.display = 'block';
             isValid = false;
         }
 
         const lastName = document.getElementById('lastName').value.trim();
         if (!lastName) {
-            document.getElementById('lastName-error').style.display = 'block';
             isValid = false;
         }
 
         const email = document.getElementById('email').value.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            document.getElementById('email-error').style.display = 'block';
             isValid = false;
         }
 
         const password = document.getElementById('password').value;
         if (password.length < 8) {
-            document.getElementById('password-error').style.display = 'block';
             isValid = false;
         }
 
         const city = document.getElementById('city').value.trim();
         if (!city) {
-            document.getElementById('city-error').style.display = 'block';
             isValid = false;
         }
 
         const country = document.getElementById('country').value;
         if (!country) {
-            document.getElementById('country-error').style.display = 'block';
             isValid = false;
         }
 
         const role = document.getElementById('role').value;
         if (!role) {
-            document.getElementById('role-error').style.display = 'block';
             isValid = false;
         }
 
         if (isValid) {
+            // Show loading state
+            submitButton.classList.add('loading');
+
             setTimeout(() => {
-                successMessage.style.display = 'block';
+                successMessage.style.display = 'flex';
                 setTimeout(() => {
                     this.submit();
                 }, 1000); // Delay for success message visibility
@@ -442,14 +616,19 @@
         } else {
             spinner.style.display = 'none';
             submitButton.disabled = false;
+            submitButton.classList.remove('loading');
+
+            // Show error message
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.style.display = 'flex';
+            errorDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> Please fill in all required fields correctly.';
+            document.getElementById('signupForm').insertBefore(errorDiv, document.querySelector('.form-group'));
         }
     });
 
-    // Parallax effect
-    window.addEventListener('scroll', () => {
-        const scrollPosition = window.pageYOffset;
-        document.body.style.backgroundPositionY = -scrollPosition * 0.3 + 'px';
-    });
+    // Initialize floating icons
+    addFloatingIcons();
 </script>
 </body>
 </html>

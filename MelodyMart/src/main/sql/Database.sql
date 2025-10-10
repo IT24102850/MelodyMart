@@ -98,7 +98,7 @@ CREATE TABLE Brand (
 
 -- Instrument table
 CREATE TABLE Instrument (
-    InstrumentID INT PRIMARY KEY IDENTITY(1,1),
+    InstrumentID INT PRIMARY KEY 
     Name NVARCHAR(100) NOT NULL,
     Description NVARCHAR(500),
     BrandID INT,  -- Link to Brand
@@ -603,9 +603,9 @@ VALUES
 ('Thammattama (Traditional Drum)', 'Played with sticks in processions, often in ensembles', NULL, 'Standard', 'Brown', 150.00, 'Pair of twin drums. Wooden body. Cowhide drumheads', '6 months', 'images/instruments/instrument_1759090662906.jpg', 15, 'In Stock', 3);
 
 select * from Orders
-
-
 select * from Payment
+
+select * from Person
 
 
 select * FROM Instrument
@@ -650,3 +650,130 @@ CREATE TABLE OrderNow (
     FOREIGN KEY (SellerID) REFERENCES Seller(SellerID),
     FOREIGN KEY (InstrumentID) REFERENCES Instrument(InstrumentID)
 );
+
+
+-- Add new columns to Payment table
+ALTER TABLE Payment 
+ADD CardNumber VARCHAR(20),
+    ExpiryDate VARCHAR(7),
+    CardName VARCHAR(100);
+
+-- Or if you need to create a new table:
+CREATE TABLE Payment (
+    PaymentID INT IDENTITY(1,1) PRIMARY KEY,
+    OrderID INT NOT NULL,
+    PaymentDate DATETIME DEFAULT GETDATE(),
+    Amount DECIMAL(10,2) NOT NULL,
+    PaymentMethod VARCHAR(20) NOT NULL,
+    TransactionID VARCHAR(50) NOT NULL,
+    CVV VARCHAR(4) NOT NULL,
+    Status VARCHAR(20) NOT NULL,
+    CardNumber VARCHAR(20) NOT NULL,
+    ExpiryDate VARCHAR(7) NOT NULL,
+    CardName VARCHAR(100) NOT NULL,
+    FOREIGN KEY (OrderID) REFERENCES OrderNow(OrderID) -- Adjust based on your order table
+);
+
+use MelodyMartDB
+
+
+select * from Person
+select * from Orders
+select * from Payment
+select * from Cart
+select * from Person
+select * from RepairRequest
+select * from OrderItem
+select * from Delivery
+
+select * FROM Instrument
+select * from stockcorrections
+
+DELETE FROM Person
+WHERE PersonID <> 'P003';
+
+
+
+CREATE OR ALTER TRIGGER trg_AutoGeneratePersonID
+ON Person
+INSTEAD OF INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @MaxNum INT;
+
+    -- Get the highest numeric suffix from existing PersonIDs
+    SELECT @MaxNum = MAX(TRY_CAST(SUBSTRING(PersonID, 2, LEN(PersonID)) AS INT))
+    FROM Person
+    WHERE PersonID LIKE 'P%';
+
+    IF @MaxNum IS NULL 
+        SET @MaxNum = 0;
+
+    DECLARE @RowCount INT = 0;
+
+    -- Insert each new record with incremental PersonIDs
+    INSERT INTO Person (
+        PersonID, FirstName, LastName, Email, Phone, Password,
+        Street, City, State, ZipCode, Country, RegistrationDate, LastLogin, role
+    )
+    SELECT 
+        'P' + RIGHT('000' + CAST(@MaxNum + ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS NVARCHAR(3)), 3),
+        i.FirstName, i.LastName, i.Email, i.Phone, i.Password,
+        i.Street, i.City, i.State, i.ZipCode, i.Country,
+        i.RegistrationDate, i.LastLogin, i.role
+    FROM inserted i;
+END;
+GO
+
+
+use MelodyMartDB
+
+CREATE TABLE RepairRequest (
+    RepairRequestID NVARCHAR(10) PRIMARY KEY,
+    UserID NVARCHAR(10) NOT NULL,             -- FK to Person(PersonID)
+    OrderID INT NOT NULL,                     -- FK to Orders(OrderID)
+    IssueDescription NVARCHAR(255) NOT NULL,
+    Status NVARCHAR(50) NOT NULL DEFAULT 'Submitted',
+    Approved BIT NOT NULL DEFAULT 0,
+    RequestDate DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (UserID) REFERENCES Person(PersonID),
+    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
+);
+
+select * from RepairRequest
+
+drop table RepairRequest
+
+select * from RepairPhoto
+
+
+CREATE TABLE RepairPhoto (
+    PhotoID NVARCHAR(10) PRIMARY KEY,
+    RepairRequestID NVARCHAR(10) NOT NULL,
+    PhotoPath NVARCHAR(255) NOT NULL,
+    UploadedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (RepairRequestID) REFERENCES RepairRequest(RepairRequestID)
+);
+
+
+CREATE TABLE RepairStatusHistory (
+    HistoryID NVARCHAR(10) PRIMARY KEY,
+    RepairRequestID NVARCHAR(10) NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    Comment NVARCHAR(255) NOT NULL DEFAULT 'No additional comment',
+    UpdatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (RepairRequestID) REFERENCES RepairRequest(RepairRequestID)
+);
+
+
+CREATE TABLE RepairCost (
+    CostID NVARCHAR(10) PRIMARY KEY,
+    RepairRequestID NVARCHAR(10) NOT NULL,
+    EstimatedCost DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    RepairDate DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (RepairRequestID) REFERENCES RepairRequest(RepairRequestID)
+);
+
+

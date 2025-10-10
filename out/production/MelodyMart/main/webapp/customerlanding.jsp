@@ -8,19 +8,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #8a2be2;
-            --primary-light: #9b45f0;
-            --secondary: #0a0a0a;
-            --accent: #00e5ff;
-            --accent-alt: #ff00c8;
-            --text: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-bg: #1a1a1a;
-            --card-hover: #2a2a2a;
+            --primary: #3b82f6; /* Bright Blue */
+            --primary-light: #60a5fa;
+            --secondary: #ffffff; /* White */
+            --accent: #06b6d4; /* Cyan Accent */
+            --gold-accent: #f59e0b; /* Amber Gold */
+            --text: #1e293b; /* Dark Blue-Gray */
+            --text-secondary: #64748b; /* Medium Gray */
+            --card-bg: rgba(30, 41, 59, 0.85); /* Darker glass background */
+            --glass-bg: rgba(30, 41, 59, 0.8);
+            --glass-border: rgba(59, 130, 246, 0.3);
+            --shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             --gradient: linear-gradient(135deg, var(--primary), var(--accent));
-            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
-            --glass-bg: rgba(30, 30, 30, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
         }
 
         * {
@@ -31,10 +30,29 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--secondary);
+            background:
+                    linear-gradient(135deg, rgba(224, 242, 254, 0.9), rgba(240, 249, 255, 0.9)),
+                    url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text);
             overflow-x: hidden;
             line-height: 1.6;
+        }
+
+        /* Background blur overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            filter: blur(8px) brightness(0.9);
+            z-index: -1;
+            transform: scale(1.1);
         }
 
         .container {
@@ -42,6 +60,7 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
+            z-index: 1;
         }
 
         /* Header & Navigation */
@@ -53,13 +72,14 @@
             z-index: 1000;
             padding: 20px 0;
             transition: all 0.4s ease;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
         }
 
         header.scrolled {
-            background: rgba(10, 10, 10, 0.95);
             padding: 15px 0;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: var(--shadow);
         }
 
         .nav-container {
@@ -94,7 +114,7 @@
         }
 
         .nav-links a {
-            color: var(--text);
+            color: white;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
@@ -128,7 +148,7 @@
         .search-btn, .cart-btn {
             background: none;
             border: none;
-            color: var(--text);
+            color: white;
             font-size: 18px;
             margin-left: 20px;
             cursor: pointer;
@@ -154,25 +174,9 @@
             z-index: 1;
         }
 
-        .cta-btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 100%;
-            background: var(--gradient-alt);
-            transition: all 0.4s ease;
-            z-index: -1;
-        }
-
         .cta-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
-        }
-
-        .cta-btn:hover:before {
-            width: 100%;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.4);
         }
 
         /* User Dropdown */
@@ -184,7 +188,7 @@
         .user-btn {
             background: none;
             border: none;
-            color: var(--text);
+            color: white;
             font-size: 18px;
             cursor: pointer;
             transition: color 0.3s ease;
@@ -202,12 +206,13 @@
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             border-radius: 10px;
-            width: 150px;
+            width: 180px;
             opacity: 0;
             visibility: hidden;
             transform: translateY(10px);
             transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
             z-index: 1000;
+            box-shadow: var(--shadow);
         }
 
         .user-menu:hover .dropdown {
@@ -218,8 +223,8 @@
 
         .dropdown-item {
             display: block;
-            padding: 10px 15px;
-            color: var(--text);
+            padding: 12px 15px;
+            color: white;
             text-decoration: none;
             font-size: 14px;
             transition: background 0.3s ease, color 0.3s ease;
@@ -227,7 +232,7 @@
         }
 
         .dropdown-item:hover {
-            background: var(--card-hover);
+            background: rgba(255, 255, 255, 0.1);
             color: var(--primary-light);
         }
 
@@ -237,7 +242,7 @@
             position: relative;
             overflow: hidden;
             padding-top: 120px;
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
+            background: linear-gradient(rgba(30, 41, 59, 0.8), rgba(30, 41, 59, 0.8)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -258,11 +263,12 @@
             margin-bottom: 20px;
             line-height: 1.2;
             text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            color: white;
         }
 
         .dashboard-hero p {
             font-size: 20px;
-            color: var(--text-secondary);
+            color: #e2e8f0;
             margin-bottom: 30px;
         }
 
@@ -288,6 +294,8 @@
             border: 1px solid var(--glass-border);
             opacity: 0;
             transform: translateY(30px);
+            backdrop-filter: blur(5px);
+            color: white;
         }
 
         .stat-card.visible {
@@ -297,7 +305,8 @@
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.2);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            background: rgba(30, 41, 59, 0.9);
         }
 
         .stat-icon {
@@ -316,7 +325,7 @@
         }
 
         .stat-label {
-            color: var(--text-secondary);
+            color: #cbd5e1;
             font-size: 16px;
         }
 
@@ -330,6 +339,8 @@
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 1s ease, transform 1s ease;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .section-title.visible {
@@ -367,6 +378,8 @@
             border: 1px solid var(--glass-border);
             opacity: 0;
             transform: translateY(30px);
+            backdrop-filter: blur(5px);
+            color: white;
         }
 
         .dashboard-card.visible {
@@ -376,7 +389,8 @@
 
         .dashboard-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.2);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            background: rgba(30, 41, 59, 0.9);
         }
 
         .dashboard-card h3 {
@@ -384,6 +398,7 @@
             margin-bottom: 15px;
             display: flex;
             align-items: center;
+            color: white;
         }
 
         .dashboard-card h3 i {
@@ -392,7 +407,7 @@
         }
 
         .dashboard-card p {
-            color: var(--text-secondary);
+            color: #cbd5e1;
             margin-bottom: 20px;
         }
 
@@ -411,16 +426,18 @@
             background: var(--card-bg);
             border-radius: 10px;
             overflow: hidden;
+            backdrop-filter: blur(5px);
         }
 
         .orders-table th, .orders-table td {
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid var(--glass-border);
+            color: white;
         }
 
         .orders-table th {
-            background: rgba(138, 43, 226, 0.1);
+            background: rgba(59, 130, 246, 0.2);
             font-weight: 600;
         }
 
@@ -436,25 +453,26 @@
         }
 
         .status-delivered {
-            background: rgba(0, 229, 255, 0.2);
+            background: rgba(6, 182, 212, 0.2);
             color: var(--accent);
         }
 
         .status-pending {
-            background: rgba(255, 200, 0, 0.2);
-            color: #ffc800;
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
         }
 
         .status-shipped {
-            background: rgba(138, 43, 226, 0.2);
+            background: rgba(59, 130, 246, 0.2);
             color: var(--primary-light);
         }
 
         /* Footer */
         footer {
-            background: #0a0a0a;
+            background: var(--card-bg);
             padding: 80px 0 30px;
             border-top: 1px solid var(--glass-border);
+            backdrop-filter: blur(5px);
         }
 
         .footer-content {
@@ -469,6 +487,7 @@
             margin-bottom: 20px;
             position: relative;
             padding-bottom: 10px;
+            color: white;
         }
 
         .footer-column h3:after {
@@ -482,7 +501,7 @@
         }
 
         .footer-column p {
-            color: var(--text-secondary);
+            color: #cbd5e1;
             margin-bottom: 20px;
         }
 
@@ -495,7 +514,7 @@
         }
 
         .footer-links a {
-            color: var(--text-secondary);
+            color: #cbd5e1;
             text-decoration: none;
             transition: color 0.3s ease;
         }
@@ -517,8 +536,8 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: var(--card-bg);
-            color: var(--text);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
             transition: all 0.3s ease;
         }
 
@@ -530,9 +549,32 @@
         .copyright {
             text-align: center;
             padding-top: 30px;
-            border-top: 1px solid #1e1e1e;
-            color: var(--text-secondary);
+            border-top: 1px solid var(--glass-border);
+            color: #cbd5e1;
             font-size: 14px;
+        }
+
+        .floating-icons {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-icon {
+            position: absolute;
+            font-size: 24px;
+            color: rgba(59, 130, 246, 0.2);
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
         }
 
         /* Responsive Design */
@@ -582,8 +624,12 @@
             }
 
             .dropdown {
-                width: 120px;
+                width: 150px;
                 right: -10px;
+            }
+
+            body::before {
+                filter: blur(5px) brightness(0.9);
             }
         }
 
@@ -615,6 +661,14 @@
     </style>
 </head>
 <body>
+<div class="floating-icons">
+    <div class="floating-icon" style="top: 10%; left: 5%; animation-delay: 0s;">🎵</div>
+    <div class="floating-icon" style="top: 20%; right: 10%; animation-delay: 1s;">🎸</div>
+    <div class="floating-icon" style="top: 60%; left: 8%; animation-delay: 2s;">🎹</div>
+    <div class="floating-icon" style="top: 70%; right: 7%; animation-delay: 3s;">🥁</div>
+    <div class="floating-icon" style="top: 40%; left: 15%; animation-delay: 4s;">🎻</div>
+</div>
+
 <!-- Header & Navigation -->
 <header>
     <div class="container nav-container">
@@ -626,9 +680,16 @@
         <ul class="nav-links">
             <li><a href="index.jsp">Home</a></li>
             <li><a href="shop.jsp">Shop</a></li>
-            <li><a href="customerdashboard.jsp">CustomerLanding</a></li>
+            <li><a href="customerdashboard.jsp">Customer Dashboard</a></li>
             <li><a href="order.jsp">My Orders</a></li>
-            <li><a href="repair.jsp">My Repair Requests</a></li>
+
+
+
+
+            <li><a href="repair.jsp" class="btn btn-primary">
+                <i class="fas fa-wrench"></i> Repair Requests
+            </a>
+            </li>
             <li><a href="wishlist.jsp">Wishlist</a></li>
             <li><a href="profile.jsp">Profile</a></li>
         </ul>
@@ -641,7 +702,7 @@
                 <div class="dropdown">
                     <a href="profile.jsp" class="dropdown-item">My Profile</a>
                     <a href="order.jsp" class="dropdown-item">My Orders</a>
-                    <a href="repair.jsp" class="dropdown-item"  >My Repair Requests</a>
+                    <a href="repair.jsp" class="dropdown-item">My Repair Requests</a>
                     <a href="wishlist.jsp" class="dropdown-item">Wishlist</a>
                     <a href="settings.jsp" class="dropdown-item">Settings</a>
                     <a href="index.jsp" class="dropdown-item">Logout</a>
@@ -825,7 +886,7 @@
                 <h3>Newsletter</h3>
                 <p>Subscribe to our newsletter for the latest products and exclusive offers.</p>
                 <form>
-                    <input type="email" placeholder="Your Email" style="width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 5px; border: none; background: var(--card-bg); color: var(--text);">
+                    <input type="email" placeholder="Your Email" style="width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 5px; border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.1); color: white;">
                     <button class="cta-btn" style="width: 100%;">Subscribe</button>
                 </form>
             </div>
@@ -838,6 +899,23 @@
 </footer>
 
 <script>
+    // Add floating icons dynamically
+    function addFloatingIcons() {
+        const icons = ['🎵', '🎸', '🎹', '🥁', '🎻', '🎺', '🎼', '📯'];
+        const container = document.querySelector('.floating-icons');
+
+        for (let i = 0; i < 15; i++) {
+            const icon = document.createElement('div');
+            icon.className = 'floating-icon';
+            icon.textContent = icons[Math.floor(Math.random() * icons.length)];
+            icon.style.left = Math.random() * 100 + '%';
+            icon.style.top = Math.random() * 100 + '%';
+            icon.style.animationDelay = Math.random() * 5 + 's';
+            icon.style.fontSize = (Math.random() * 20 + 16) + 'px';
+            container.appendChild(icon);
+        }
+    }
+
     // Header scroll effect
     window.addEventListener('scroll', function() {
         const header = document.querySelector('header');
@@ -879,6 +957,7 @@
     // Initialize dashboard
     document.addEventListener('DOMContentLoaded', function() {
         updateCustomerName();
+        addFloatingIcons();
 
         // Add sample data for demonstration
         const stats = document.querySelectorAll('.stat-number');
