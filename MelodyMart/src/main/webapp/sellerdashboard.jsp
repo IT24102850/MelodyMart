@@ -527,7 +527,7 @@
         </a>
 
         <!-- Payments Card -->
-        <a href="payments.jsp" class="card payments">
+        <a href="payment.jsp" class="card payments">
             <div class="card-header">
                 <div class="card-title">Payments</div>
                 <div class="card-icon">
