@@ -1,3 +1,4 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -526,6 +527,7 @@
             border: 1px solid var(--glass-border);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
+            cursor: pointer;
         }
 
         .product-card:hover {
@@ -557,6 +559,7 @@
             position: relative;
             transition: transform 0.5s ease;
             background: var(--gradient-soft);
+            cursor: pointer;
         }
 
         .product-card:hover .product-img {
@@ -572,6 +575,7 @@
             height: 100%;
             background: linear-gradient(to bottom, transparent, rgba(100, 181, 246, 0.1));
             transition: opacity 0.3s ease;
+            pointer-events: none;
         }
 
         .product-card:hover .product-img:after {
@@ -606,6 +610,12 @@
             font-weight: 600;
             margin-bottom: 10px;
             line-height: 1.4;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .product-title:hover {
+            color: var(--primary-light);
         }
 
         .product-rating {
@@ -654,6 +664,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            pointer-events: auto;
         }
 
         .add-to-cart {
@@ -668,6 +679,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            pointer-events: auto;
         }
 
         .add-to-cart:hover {
@@ -687,6 +699,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            pointer-events: auto;
         }
 
         .wishlist-btn:hover {
@@ -900,12 +913,20 @@
         </ul>
 
         <div class="nav-actions">
-            <!-- Theme toggle button removed as requested -->
             <div class="user-menu">
+                <%
+                     session = request.getSession(false);
+                    String username = (session != null) ? (String) session.getAttribute("username") : "Guest";
+                %>
                 <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
                 <div class="dropdown">
+                    <% if ("Guest".equals(username)) { %>
                     <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
                     <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
+                    <% } else { %>
+                    <a href="customerLanding.jsp" class="dropdown-item">Profile</a>
+                    <a href="LogoutServlet" class="dropdown-item">Logout</a>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -1025,7 +1046,14 @@
             <div>
                 <h2 style="margin-bottom: 5px;">All Instruments</h2>
                 <%
-                    // Database connection and query
+                     session = request.getSession(false);
+                    if (session == null || session.getAttribute("customerID") == null) {
+                        response.sendRedirect("sign-in.jsp");
+                        return;
+                    }
+                     username = (String) session.getAttribute("username");
+                    int customerID = (Integer) session.getAttribute("customerID");
+
                     Connection conn = null;
                     Statement stmt = null;
                     ResultSet rs = null;
@@ -1042,7 +1070,6 @@
                     } catch (SQLException e) {
                         e.printStackTrace();
                     } finally {
-                        // Close resources
                         try {
                             if (rs != null) rs.close();
                             if (stmt != null) stmt.close();
@@ -1052,7 +1079,7 @@
                         }
                     }
                 %>
-                <p class="products-count">Showing <%= productCount %> products</p>
+                <p class="products-count">Welcome, <%= username %> (Customer ID: <%= customerID %>) | Showing <%= productCount %> products</p>
             </div>
             <div class="sort-options">
                 <select class="sort-select">
@@ -1071,7 +1098,6 @@
 
         <div class="products-grid">
             <%
-                // Database connection and query for products
                 Connection conn2 = null;
                 Statement stmt2 = null;
                 ResultSet rs2 = null;
@@ -1108,7 +1134,7 @@
                         int ratingCount = (int)(Math.random() * 50) + 10; // 10-59 reviews
             %>
             <!-- Product Card -->
-            <div class="product-card">
+            <div class="product-card" data-id="<%= instrumentID %>">
                 <%= badge %>
                 <div class="product-img">
                     <%
@@ -1168,7 +1194,6 @@
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } finally {
-                    // Close resources
                     try {
                         if (rs2 != null) rs2.close();
                         if (stmt2 != null) stmt2.close();
@@ -1285,7 +1310,8 @@
     // Wishlist toggle
     const wishlistBtns = document.querySelectorAll('.wishlist-btn');
     wishlistBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
             const icon = btn.querySelector('i');
             if (icon.classList.contains('far')) {
                 icon.classList.remove('far');
@@ -1299,25 +1325,139 @@
         });
     });
 
-    // Add to cart functionality
+    // Add to cart functionality with AJAX - DEBUG VERSION
     const addToCartBtns = document.querySelectorAll('.add-to-cart');
     addToCartBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const instrumentID = btn.getAttribute('data-id');
-            // Here you would typically send an AJAX request to add the item to cart
-            alert('Added instrument ' + instrumentID + ' to cart!');
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const instrumentID = this.getAttribute('data-id');
+            const quantity = 1;
 
-            // Visual feedback
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i> Added!';
-            btn.style.background = 'var(--accent)';
+            console.log('=== DEBUG INFO ===');
+            console.log('Button clicked, data-id attribute:', instrumentID);
+            console.log('Button element:', this);
+            console.log('All attributes:', this.attributes);
 
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.style.background = '';
-            }, 2000);
+            if (!instrumentID) {
+                console.error('Instrument ID is null or empty!');
+                alert('Error: Instrument ID is missing. Please check the product data.');
+                return;
+            }
+
+            this.disabled = true;
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+
+            const formData = new FormData();
+            formData.append('instrumentID', instrumentID);
+            formData.append('quantity', quantity.toString());
+
+            console.log('Sending FormData:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ': ' + value);
+            }
+
+            fetch('AddToCartServlet', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response OK:', response.ok);
+                    return response.text();
+                })
+                .then(result => {
+                    console.log('Raw response result:', result);
+                    console.log('Trimmed result:', result.trim());
+
+                    if (result.trim() === 'success') {
+                        this.innerHTML = '<i class="fas fa-check"></i> Added!';
+                        this.style.background = 'var(--accent)';
+                        updateCartCounter();
+
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.style.background = '';
+                            this.disabled = false;
+                        }, 2000);
+                    } else {
+                        let errorMessage = 'Failed to add item to cart.';
+                        if (result.includes('error:')) {
+                            errorMessage = result.replace('error:', '').trim();
+                        }
+                        console.error('Server error:', errorMessage);
+                        alert('Error: ' + errorMessage);
+                        this.innerHTML = originalText;
+                        this.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch Error:', error);
+                    alert('Network error. Please check your connection and try again.');
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                });
         });
     });
+
+    function redirectToProductDetails(instrumentID) {
+        window.location.href = 'product-details.jsp?instrumentId=' + instrumentID;
+    }
+
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('.add-to-cart') ||
+                e.target.closest('.wishlist-btn') ||
+                e.target.tagName === 'BUTTON' ||
+                e.target.tagName === 'A') {
+                return;
+            }
+            const instrumentID = this.getAttribute('data-id');
+            redirectToProductDetails(instrumentID);
+        });
+    });
+
+    function updateCartCounter() {
+        console.log('Cart updated - item added successfully');
+    }
+
+    const priceSlider = document.querySelector('.price-slider');
+    const maxPriceInput = document.querySelector('.price-input[placeholder="Max"]');
+
+    if (priceSlider && maxPriceInput) {
+        priceSlider.addEventListener('input', function() {
+            maxPriceInput.value = this.value;
+        });
+
+        maxPriceInput.addEventListener('input', function() {
+            priceSlider.value = this.value;
+        });
+    }
+
+    const applyFiltersBtn = document.querySelector('.filters-sidebar .cta-btn');
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', function() {
+            const selectedCategories = [];
+            document.querySelectorAll('.filter-option input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedCategories.push(checkbox.nextElementSibling.nextElementSibling.textContent);
+            });
+
+            const minPrice = document.querySelector('.price-input[placeholder="Min"]').value;
+            const maxPrice = document.querySelector('.price-input[placeholder="Max"]').value;
+
+            const selectedBrands = [];
+            document.querySelectorAll('.brand-tag.active').forEach(tag => {
+                selectedBrands.push(tag.textContent);
+            });
+
+            console.log('Applied filters:', {
+                categories: selectedCategories,
+                priceRange: { min: minPrice, max: maxPrice },
+                brands: selectedBrands
+            });
+
+            alert('Filters applied! (Check console for details)');
+        });
+    }
 </script>
-</body>
-</html>

@@ -1,3 +1,5 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -474,7 +476,16 @@
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <h1>Customer Dashboard</h1>
-        <p>Welcome back, Alex Johnson</p>
+        <%
+             session = request.getSession(false);
+            if (session == null || session.getAttribute("customerID") == null) {
+                response.sendRedirect("sign-in.jsp");
+                return;
+            }
+            String username = (String) session.getAttribute("username");
+            int customerID = (Integer) session.getAttribute("customerID");
+        %>
+        <p>Welcome back, <%= username %> (Customer ID: <%= customerID %>)</p>
     </div>
 
     <!-- Quick Stats -->
@@ -484,7 +495,33 @@
                 <i class="fas fa-shopping-bag"></i>
             </div>
             <div class="stat-info">
-                <div class="stat-value">12</div>
+                <%
+                    int totalOrders = 0;
+                    Connection conn = null;
+                    Statement stmt = null;
+                    ResultSet rs = null;
+
+                    try {
+                        conn = DBConnection.getConnection();
+                        stmt = conn.createStatement();
+                        String sql = "SELECT COUNT(*) as count FROM Cart WHERE CustomerID = " + customerID;
+                        rs = stmt.executeQuery(sql);
+                        if (rs.next()) {
+                            totalOrders = rs.getInt("count");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (rs != null) rs.close();
+                            if (stmt != null) stmt.close();
+                            if (conn != null) conn.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                %>
+                <div class="stat-value"><%= totalOrders %></div>
                 <div class="stat-label">Total Orders</div>
             </div>
         </div>
@@ -493,7 +530,33 @@
                 <i class="fas fa-heart"></i>
             </div>
             <div class="stat-info">
-                <div class="stat-value">8</div>
+                <%
+                    int wishlistItems = 0;
+                    Connection conn2 = null;
+                    Statement stmt2 = null;
+                    ResultSet rs2 = null;
+
+                    try {
+                        conn2 = DBConnection.getConnection();
+                        stmt2 = conn2.createStatement();
+                        String sql = "SELECT COUNT(*) as count FROM Wishlist WHERE CustomerID = " + customerID;
+                        rs2 = stmt2.executeQuery(sql);
+                        if (rs2.next()) {
+                            wishlistItems = rs2.getInt("count");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (rs2 != null) rs2.close();
+                            if (stmt2 != null) stmt2.close();
+                            if (conn2 != null) conn2.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                %>
+                <div class="stat-value"><%= wishlistItems %></div>
                 <div class="stat-label">Wishlist Items</div>
             </div>
         </div>
@@ -502,7 +565,33 @@
                 <i class="fas fa-tools"></i>
             </div>
             <div class="stat-info">
-                <div class="stat-value">3</div>
+                <%
+                    int activeRepairs = 0;
+                    Connection conn3 = null;
+                    Statement stmt3 = null;
+                    ResultSet rs3 = null;
+
+                    try {
+                        conn3 = DBConnection.getConnection();
+                        stmt3 = conn3.createStatement();
+                        String sql = "SELECT COUNT(*) as count FROM RepairRequests WHERE CustomerID = " + customerID + " AND Status = 'Active'";
+                        rs3 = stmt3.executeQuery(sql);
+                        if (rs3.next()) {
+                            activeRepairs = rs3.getInt("count");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (rs3 != null) rs3.close();
+                            if (stmt3 != null) stmt3.close();
+                            if (conn3 != null) conn3.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                %>
+                <div class="stat-value"><%= activeRepairs %></div>
                 <div class="stat-label">Active Repairs</div>
             </div>
         </div>
@@ -511,8 +600,41 @@
                 <i class="fas fa-star"></i>
             </div>
             <div class="stat-info">
-                <div class="stat-value">4.8/5.0</div>
-                <div class="stat-label">Your Rating</div>
+                <%
+                    double avgRating = 0.0;
+                    int ratingCount = 0;
+                    Connection conn4 = null;
+                    Statement stmt4 = null;
+                    ResultSet rs4 = null;
+
+                    try {
+                        conn4 = DBConnection.getConnection();
+                        stmt4 = conn4.createStatement();
+                        String sql = "SELECT AVG(Rating) as avg_rating, COUNT(*) as count FROM Reviews WHERE CustomerID = " + customerID;
+                        rs4 = stmt4.executeQuery(sql);
+                        if (rs4.next()) {
+                            avgRating = rs4.getDouble("avg_rating");
+                            ratingCount = rs4.getInt("count");
+                            if (ratingCount == 0) {
+                                avgRating = 0.0;
+                            } else {
+                                avgRating = Math.round(avgRating * 10.0) / 10.0;
+                            }
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (rs4 != null) rs4.close();
+                            if (stmt4 != null) stmt4.close();
+                            if (conn4 != null) conn4.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                %>
+                <div class="stat-value"><%= avgRating %>/5.0</div>
+                <div class="stat-label">Your Rating (<%= ratingCount %> Reviews)</div>
             </div>
         </div>
     </div>
@@ -528,11 +650,11 @@
                     <i class="fas fa-shopping-cart"></i>
                 </div>
             </div>
-            <div class="card-value">12 Orders</div>
+            <div class="card-value"><%= totalOrders %> Orders</div>
             <div class="card-description">Track your orders, view order history, and manage returns or exchanges.</div>
             <div class="card-change">
                 <i class="fas fa-clock"></i>
-                <span>2 orders in transit</span>
+                <span><%= totalOrders > 0 ? "Check status" : "No orders yet" %></span>
             </div>
         </a>
 
@@ -544,11 +666,11 @@
                     <i class="fas fa-heart"></i>
                 </div>
             </div>
-            <div class="card-value">8 Items</div>
+            <div class="card-value"><%= wishlistItems %> Items</div>
             <div class="card-description">Save your favorite instruments and accessories for future purchases.</div>
             <div class="card-change">
                 <i class="fas fa-tag"></i>
-                <span>3 items on sale</span>
+                <span><%= wishlistItems > 0 ? "Check wishlist" : "Add items" %></span>
             </div>
         </a>
 
@@ -560,11 +682,11 @@
                     <i class="fas fa-tools"></i>
                 </div>
             </div>
-            <div class="card-value">3 Active</div>
+            <div class="card-value"><%= activeRepairs %> Active</div>
             <div class="card-description">Track instrument repairs, schedule appointments, and view repair status.</div>
             <div class="card-change">
                 <i class="fas fa-exclamation-circle"></i>
-                <span>1 repair in progress</span>
+                <span><%= activeRepairs > 0 ? "View details" : "No active repairs" %></span>
             </div>
         </a>
 
@@ -576,11 +698,11 @@
                     <i class="fas fa-star"></i>
                 </div>
             </div>
-            <div class="card-value">7 Reviews</div>
+            <div class="card-value"><%= ratingCount %> Reviews</div>
             <div class="card-description">View and manage your product reviews and ratings.</div>
             <div class="card-change">
                 <i class="fas fa-edit"></i>
-                <span>Write new reviews</span>
+                <span><%= ratingCount > 0 ? "Manage reviews" : "Write your first review" %></span>
             </div>
         </a>
 
@@ -592,11 +714,37 @@
                     <i class="fas fa-envelope"></i>
                 </div>
             </div>
-            <div class="card-value">5 Unread</div>
+            <%
+                int unreadMessages = 0;
+                Connection conn5 = null;
+                Statement stmt5 = null;
+                ResultSet rs5 = null;
+
+                try {
+                    conn5 = DBConnection.getConnection();
+                    stmt5 = conn5.createStatement();
+                    String sql = "SELECT COUNT(*) as count FROM Messages WHERE CustomerID = " + customerID + " AND IsRead = FALSE";
+                    rs5 = stmt5.executeQuery(sql);
+                    if (rs5.next()) {
+                        unreadMessages = rs5.getInt("count");
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (rs5 != null) rs5.close();
+                        if (stmt5 != null) stmt5.close();
+                        if (conn5 != null) conn5.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            %>
+            <div class="card-value"><%= unreadMessages %> Unread</div>
             <div class="card-description">Communicate with customer support and sellers.</div>
             <div class="card-change">
                 <i class="fas fa-bell"></i>
-                <span>2 new messages</span>
+                <span><%= unreadMessages > 0 ? "Check messages" : "No new messages" %></span>
             </div>
         </a>
 
@@ -608,7 +756,7 @@
                     <i class="fas fa-user"></i>
                 </div>
             </div>
-            <div class="card-value">Alex Johnson</div>
+            <div class="card-value"><%= username %></div>
             <div class="card-description">Update your account information, change password, and manage preferences.</div>
             <div class="card-change">
                 <i class="fas fa-cog"></i>
@@ -627,33 +775,54 @@
             </div>
         </div>
         <ul class="products-list">
+            <%
+                Connection conn6 = null;
+                Statement stmt6 = null;
+                ResultSet rs6 = null;
+
+                try {
+                    conn6 = DBConnection.getConnection();
+                    stmt6 = conn6.createStatement();
+                    String sql = "SELECT c.InstrumentID, i.Name, c.Quantity, c.AddedDate FROM Cart c JOIN Instrument i ON c.InstrumentID = i.InstrumentID WHERE c.CustomerID = " + customerID + " ORDER BY c.AddedDate DESC LIMIT 3";
+                    rs6 = stmt6.executeQuery(sql);
+
+                    while (rs6.next()) {
+                        String instrumentID = rs6.getString("InstrumentID");
+                        String name = rs6.getString("Name");
+                        int quantity = rs6.getInt("Quantity");
+                        java.sql.Timestamp addedDate = rs6.getTimestamp("AddedDate");
+                        String status = "Processing"; // Default status, adjust based on your logic
+                        if (addedDate != null) {
+                            java.util.Date currentDate = new java.util.Date();
+                            long diffInDays = (currentDate.getTime() - addedDate.getTime()) / (1000 * 60 * 60 * 24);
+                            if (diffInDays > 5) status = "Delivered";
+                            else if (diffInDays > 2) status = "Shipped";
+                        }
+                        double price = 0.0; // Fetch price from Instrument table if needed
+            %>
             <li class="product-item">
                 <div class="product-icon">
                     <i class="fas fa-guitar"></i>
                 </div>
                 <div class="product-info">
-                    <div class="product-name">Professional Electric Guitar</div>
-                    <div class="product-status">Order #MM2025001 • Delivered • $1,299.99</div>
+                    <div class="product-name"><%= name %> (x<%= quantity %>)</div>
+                    <div class="product-status">Order #MM<%= String.format("%06d", customerID) + String.format("%03d", instrumentID.hashCode() % 1000) %> • <%= status %> • $0.00</div> <!-- Placeholder price -->
                 </div>
             </li>
-            <li class="product-item">
-                <div class="product-icon">
-                    <i class="fas fa-headphones"></i>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">Studio Headphones</div>
-                    <div class="product-status">Order #MM2025002 • Shipped • $249.99</div>
-                </div>
-            </li>
-            <li class="product-item">
-                <div class="product-icon">
-                    <i class="fas fa-music"></i>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">Guitar Strings Set</div>
-                    <div class="product-status">Order #MM2025003 • Processing • $29.99</div>
-                </div>
-            </li>
+            <%
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (rs6 != null) rs6.close();
+                        if (stmt6 != null) stmt6.close();
+                        if (conn6 != null) conn6.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            %>
         </ul>
     </div>
 
@@ -701,7 +870,7 @@
             <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
         </div>
         <div class="copyright">
-            &copy; 2023 MelodyMart. All rights reserved.
+            &copy; 2025 MelodyMart. All rights reserved.
         </div>
     </footer>
 </div>
@@ -742,9 +911,7 @@
     function logout() {
         if (confirm('Are you sure you want to logout?')) {
             // Redirect to login page or perform logout action
-            window.location.href = 'index.jsp';
+            window.location.href = 'LogoutServlet'; // Assuming LogoutServlet invalidates session
         }
     }
 </script>
-</body>
-</html>
