@@ -225,6 +225,12 @@
             <input type="text" name="warranty" placeholder="Warranty">
         </div>
 
+        <!-- NEW SPECIFICATIONS SECTION -->
+        <div class="form-group">
+            <label>Specifications:</label>
+            <textarea name="specifications" placeholder="Enter detailed specifications of the instrument (e.g., dimensions, materials, features, technical details)"></textarea>
+        </div>
+
         <div class="form-group">
             <label>Description:</label>
             <textarea name="description" placeholder="Description"></textarea>

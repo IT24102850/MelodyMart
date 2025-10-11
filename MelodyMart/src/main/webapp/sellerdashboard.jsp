@@ -463,7 +463,7 @@
     <h2 class="section-header">Management</h2>
     <div class="cards-grid">
         <!-- Inventory Card -->
-        <a href="inventory.jsp" class="card inventory">
+        <a href="addInstrument.jsp" class="card inventory">
             <div class="card-header">
                 <div class="card-title">Inventory</div>
                 <div class="card-icon">

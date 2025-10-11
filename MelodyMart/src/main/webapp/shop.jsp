@@ -1,3 +1,4 @@
+<%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1023,7 +1024,35 @@
         <div class="products-header">
             <div>
                 <h2 style="margin-bottom: 5px;">All Instruments</h2>
-                <p class="products-count">Showing 1-12 of 48 products</p>
+                <%
+                    // Database connection and query
+                    Connection conn = null;
+                    Statement stmt = null;
+                    ResultSet rs = null;
+                    int productCount = 0;
+
+                    try {
+                        conn = DBConnection.getConnection();
+                        stmt = conn.createStatement();
+                        String sql = "SELECT COUNT(*) as count FROM Instrument";
+                        rs = stmt.executeQuery(sql);
+                        if (rs.next()) {
+                            productCount = rs.getInt("count");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    } finally {
+                        // Close resources
+                        try {
+                            if (rs != null) rs.close();
+                            if (stmt != null) stmt.close();
+                            if (conn != null) conn.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                %>
+                <p class="products-count">Showing <%= productCount %> products</p>
             </div>
             <div class="sort-options">
                 <select class="sort-select">
@@ -1041,151 +1070,90 @@
         </div>
 
         <div class="products-grid">
-            <!-- Product 1 -->
-            <div class="product-card">
-                <div class="product-badge">New</div>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Professional Electric Guitar">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Guitars</div>
-                    <h3 class="product-title">Fender American Professional Stratocaster</h3>
-                    <div class="product-rating">
-                        <div class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                        </div>
-                        <span class="rating-count">(42)</span>
-                    </div>
-                    <div class="product-price">
-                        <span class="current-price">$1,499.99</span>
-                        <span class="original-price">$1,699.99</span>
-                    </div>
-                    <p class="product-desc">Professional-grade electric guitar with V-Mod pickups and deep "C" neck profile.</p>
-                    <div class="product-actions">
-                        <button class="add-to-cart">
-                            <i class="fas fa-shopping-cart"></i>
-                            Add to Cart
-                        </button>
-                        <button class="wishlist-btn">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <%
+                // Database connection and query for products
+                Connection conn2 = null;
+                Statement stmt2 = null;
+                ResultSet rs2 = null;
 
-            <!-- Product 2 -->
-            <div class="product-card">
-                <div class="product-badge">Sale</div>
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Premium Drum Set">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Drums</div>
-                    <h3 class="product-title">Yamaha Stage Custom Birch Drum Set</h3>
-                    <div class="product-rating">
-                        <div class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
-                        </div>
-                        <span class="rating-count">(28)</span>
-                    </div>
-                    <div class="product-price">
-                        <span class="current-price">$1,199.99</span>
-                        <span class="original-price">$1,399.99</span>
-                    </div>
-                    <p class="product-desc">5-piece drum kit with birch shells for powerful projection and warm tones.</p>
-                    <div class="product-actions">
-                        <button class="add-to-cart">
-                            <i class="fas fa-shopping-cart"></i>
-                            Add to Cart
-                        </button>
-                        <button class="wishlist-btn">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                try {
+                    conn2 = DBConnection.getConnection();
+                    stmt2 = conn2.createStatement();
+                    String sql = "SELECT * FROM Instrument";
+                    rs2 = stmt2.executeQuery(sql);
 
-            <!-- Product 3 -->
-            <div class="product-card">
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Digital Grand Piano">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Pianos</div>
-                    <h3 class="product-title">Roland LX700 Digital Grand Piano</h3>
-                    <div class="product-rating">
-                        <div class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <span class="rating-count">(35)</span>
-                    </div>
-                    <div class="product-price">
-                        <span class="current-price">$3,799.99</span>
-                    </div>
-                    <p class="product-desc">Premium digital piano with authentic grand piano sound and responsive keyboard action.</p>
-                    <div class="product-actions">
-                        <button class="add-to-cart">
-                            <i class="fas fa-shopping-cart"></i>
-                            Add to Cart
-                        </button>
-                        <button class="wishlist-btn">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                    while (rs2.next()) {
+                        String instrumentID = rs2.getString("InstrumentID");
+                        String name = rs2.getString("Name");
+                        String description = rs2.getString("Description");
+                        String brandID = rs2.getString("BrandID");
+                        String model = rs2.getString("Model");
+                        String color = rs2.getString("Color");
+                        double price = rs2.getDouble("Price");
+                        String specifications = rs2.getString("Specifications");
+                        String warranty = rs2.getString("Warranty");
+                        int quantity = rs2.getInt("Quantity");
+                        String stockLevel = rs2.getString("StockLevel");
+                        String manufacturerID = rs2.getString("ManufacturerID");
+                        String imageURL = rs2.getString("ImageURL");
 
-            <!-- Product 4 -->
-            <div class="product-card">
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Saxophone">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Wind Instruments</div>
-                    <h3 class="product-title">Yamaha YAS-280 Alto Saxophone</h3>
-                    <div class="product-rating">
-                        <div class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                        </div>
-                        <span class="rating-count">(19)</span>
-                    </div>
-                    <div class="product-price">
-                        <span class="current-price">$1,899.99</span>
-                    </div>
-                    <p class="product-desc">Professional alto saxophone with responsive key action and rich, focused tone.</p>
-                    <div class="product-actions">
-                        <button class="add-to-cart">
-                            <i class="fas fa-shopping-cart"></i>
-                            Add to Cart
-                        </button>
-                        <button class="wishlist-btn">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+                        // Determine badge type based on stock level
+                        String badge = "";
+                        if ("In Stock".equals(stockLevel)) {
+                            badge = "<div class='product-badge'>In Stock</div>";
+                        }
 
-            <!-- Product 5 -->
+                        // Generate random rating for demo purposes
+                        double rating = Math.floor(Math.random() * 3) + 3; // 3-5 stars
+                        int ratingCount = (int)(Math.random() * 50) + 10; // 10-59 reviews
+            %>
+            <!-- Product Card -->
             <div class="product-card">
-                <div class="product-badge">Best Seller</div>
+                <%= badge %>
                 <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1593696141115-3f0b37671c36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="Violin">
+                    <%
+                        if (imageURL != null && !imageURL.trim().isEmpty()) {
+                    %>
+                    <img src="<%= imageURL %>" alt="<%= name %>">
+                    <%
+                    } else {
+                    %>
+                    <img src="https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="<%= name %>">
+                    <%
+                        }
+                    %>
                 </div>
                 <div class="product-info">
-                    <div class="product-category">String Instruments</div>
-                    <h3 class="product-title">Stentor Student II Violin Outfit</h3>
+                    <div class="product-category"><%= brandID %></div>
+                    <h3 class="product-title"><%= name %></h3>
                     <div class="product-rating">
                         <div class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                            <%
+                                for (int i = 1; i <= 5; i++) {
+                                    if (i <= rating) {
+                            %>
+                            <i class="fas fa-star"></i>
+                            <%
+                            } else if (i - rating < 1) {
+                            %>
+                            <i class="fas fa-star-half-alt"></i>
+                            <%
+                            } else {
+                            %>
+                            <i class="far fa-star"></i>
+                            <%
+                                    }
+                                }
+                            %>
                         </div>
-                        <span class="rating-count">(31)</span>
+                        <span class="rating-count">(<%= ratingCount %>)</span>
                     </div>
                     <div class="product-price">
-                        <span class="current-price">$299.99</span>
+                        <span class="current-price">$<%= String.format("%.2f", price) %></span>
                     </div>
-                    <p class="product-desc">Complete violin outfit perfect for students, featuring quality craftsmanship.</p>
+                    <p class="product-desc"><%= description != null && description.length() > 100 ? description.substring(0, 100) + "..." : description %></p>
                     <div class="product-actions">
-                        <button class="add-to-cart">
+                        <button class="add-to-cart" data-id="<%= instrumentID %>">
                             <i class="fas fa-shopping-cart"></i>
                             Add to Cart
                         </button>
@@ -1195,36 +1163,21 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Product 6 -->
-            <div class="product-card">
-                <div class="product-img">
-                    <img src="https://images.unsplash.com/photo-1571974599782-87624638275f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1742&q=80" alt="Microphone">
-                </div>
-                <div class="product-info">
-                    <div class="product-category">Recording</div>
-                    <h3 class="product-title">Shure SM7B Vocal Microphone</h3>
-                    <div class="product-rating">
-                        <div class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </div>
-                        <span class="rating-count">(47)</span>
-                    </div>
-                    <div class="product-price">
-                        <span class="current-price">$399.99</span>
-                    </div>
-                    <p class="product-desc">Professional dynamic microphone with smooth, flat frequency response.</p>
-                    <div class="product-actions">
-                        <button class="add-to-cart">
-                            <i class="fas fa-shopping-cart"></i>
-                            Add to Cart
-                        </button>
-                        <button class="wishlist-btn">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <%
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                } finally {
+                    // Close resources
+                    try {
+                        if (rs2 != null) rs2.close();
+                        if (stmt2 != null) stmt2.close();
+                        if (conn2 != null) conn2.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            %>
         </div>
 
         <!-- Pagination -->
@@ -1343,6 +1296,26 @@
                 icon.classList.add('far');
                 icon.style.color = '';
             }
+        });
+    });
+
+    // Add to cart functionality
+    const addToCartBtns = document.querySelectorAll('.add-to-cart');
+    addToCartBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const instrumentID = btn.getAttribute('data-id');
+            // Here you would typically send an AJAX request to add the item to cart
+            alert('Added instrument ' + instrumentID + ' to cart!');
+
+            // Visual feedback
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Added!';
+            btn.style.background = 'var(--accent)';
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 2000);
         });
     });
 </script>

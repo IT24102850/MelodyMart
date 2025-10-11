@@ -8,47 +8,27 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #1e40af;
-            --primary-light: #3b82f6;
-            --primary-soft: #dbeafe;
-            --secondary: #ffffff;
-            --accent: #06b6d4;
-            --accent-alt: #ef4444;
-            --text: #1e40af;
-            --text-secondary: #475569;
-            --text-soft: #64748b;
-            --card-bg: #f8fafc;
-            --card-hover: #ffffff;
-            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
-            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
-            --gradient-soft: linear-gradient(135deg, var(--primary-soft), #e0f2fe);
-            --glass-bg: rgba(255, 255, 255, 0.9);
-            --glass-border: rgba(255, 255, 255, 0.3);
-            --shadow: 0 5px 20px rgba(30, 64, 175, 0.1);
-            --shadow-hover: 0 10px 30px rgba(30, 64, 175, 0.2);
+            --primary: #1e88e5;
+            --primary-light: #64b5f6;
+            --primary-soft: #e3f2fd;
+            --secondary: #f8fdff;
+            --accent: #00acc1;
+            --accent-alt: #ff7043;
+            --text: #1565c0;
+            --text-secondary: #546e7a;
+            --text-soft: #78909c;
+            --card-bg: #e8f5fe;
+            --card-hover: #d0e9ff;
+            --gradient: linear-gradient(135deg, #4fc3f7, #29b6f6, #03a9f4);
+            --gradient-alt: linear-gradient(135deg, #00acc1, #1e88e5);
+            --gradient-soft: linear-gradient(135deg, #e1f5fe, #b3e5fc);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(179, 229, 252, 0.5);
+            --shadow: 0 5px 20px rgba(33, 150, 243, 0.15);
+            --shadow-hover: 0 10px 30px rgba(33, 150, 243, 0.25);
             --header-bg: rgba(255, 255, 255, 0.95);
-            --section-bg: #f1f5f9;
+            --section-bg: #e1f5fe;
             --border-radius: 16px;
-        }
-
-        [data-theme="dark"] {
-            --primary: #3b82f6;
-            --primary-light: #60a5fa;
-            --primary-soft: #1e3a8a;
-            --secondary: #1e40af;
-            --accent: #22d3ee;
-            --accent-alt: #f87171;
-            --text: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-soft: #94a3b8;
-            --card-bg: #1e293b;
-            --card-hover: #334155;
-            --glass-bg: rgba(30, 64, 175, 0.9);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --shadow: 0 5px 20px rgba(30, 64, 175, 0.3);
-            --shadow-hover: 0 10px 30px rgba(30, 64, 175, 0.4);
-            --header-bg: rgba(30, 64, 175, 0.95);
-            --section-bg: #1e40af;
         }
 
         * {
@@ -60,10 +40,11 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background-color: var(--secondary);
+            background: var(--gradient-soft);
             color: var(--text);
             overflow-x: hidden;
             line-height: 1.6;
+            min-height: 100vh;
         }
 
         .container {
@@ -83,12 +64,12 @@
             padding: 20px 0;
             transition: all 0.4s ease;
             backdrop-filter: blur(10px);
+            background-color: var(--header-bg);
+            box-shadow: var(--shadow);
         }
 
         header.scrolled {
             padding: 15px 0;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-            background-color: var(--header-bg);
         }
 
         .nav-container {
@@ -192,7 +173,7 @@
             position: relative;
             overflow: hidden;
             z-index: 1;
-            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+            box-shadow: var(--shadow);
         }
 
         .cta-btn:before {
@@ -209,7 +190,7 @@
 
         .cta-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.4);
+            box-shadow: var(--shadow-hover);
         }
 
         .cta-btn:hover:before {
@@ -339,13 +320,6 @@
             border-radius: 2px;
         }
 
-        /* Section Backgrounds */
-        .section-bg {
-            background: var(--section-bg);
-            padding: 100px 0;
-            margin: 80px 0;
-        }
-
         /* Categories Grid */
         .categories-section {
             padding: 2rem 5% 5rem;
@@ -359,9 +333,9 @@
         }
 
         .category-card {
-            height: 220px;
+            height: 280px;
             border-radius: var(--border-radius);
-            background: var(--card-bg);
+            background: var(--glass-bg);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -374,6 +348,8 @@
             transform: translateY(50px);
             border: 1px solid var(--glass-border);
             box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            padding: 20px;
         }
 
         .category-card.visible {
@@ -402,6 +378,7 @@
         .category-title {
             font-weight: 600;
             font-size: 20px;
+            margin-bottom: 10px;
         }
 
         .category-description {
@@ -426,9 +403,12 @@
         /* Brands Section */
         .brands-section {
             padding: 2rem 5% 5rem;
-            background: var(--section-bg);
+            background: var(--glass-bg);
             margin: 2rem 5%;
             border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
         }
 
         .brands-grid {
@@ -479,11 +459,13 @@
             text-align: center;
             padding: 30px 20px;
             border-radius: var(--border-radius);
-            background: var(--card-bg);
+            background: var(--glass-bg);
             transition: all 0.3s ease;
             opacity: 0;
             transform: translateY(30px);
             box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
         }
 
         .feature-item.visible {
@@ -522,9 +504,11 @@
 
         /* Footer */
         footer {
-            background: var(--card-bg);
+            background: var(--glass-bg);
             padding: 100px 0 40px;
             border-top: 1px solid var(--glass-border);
+            margin-top: 60px;
+            backdrop-filter: blur(10px);
         }
 
         .footer-content {
@@ -769,9 +753,7 @@
         <div class="nav-actions">
             <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
             <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
-            <button class="theme-toggle" aria-label="Toggle Theme" id="themeToggle">
-                <i class="fas fa-moon"></i>
-            </button>
+            <!-- Theme toggle button removed as requested -->
             <div class="user-menu">
                 <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
                 <div class="dropdown">
@@ -975,7 +957,7 @@
                 <h3>Newsletter</h3>
                 <p>Subscribe to our newsletter for the latest products and exclusive offers.</p>
                 <form>
-                    <input type="email" placeholder="Your Email" style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--secondary); color: var(--text);">
+                    <input type="email" placeholder="Your Email" style="width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--card-bg); color: var(--text);">
                     <button class="cta-btn" style="width: 100%;">Subscribe</button>
                 </form>
             </div>
@@ -988,32 +970,6 @@
 </footer>
 
 <script>
-    // Theme toggle functionality
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = themeToggle.querySelector('i');
-
-    // Check for saved theme preference or default to light
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', currentTheme);
-    updateThemeIcon(currentTheme);
-
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        updateThemeIcon(newTheme);
-    });
-
-    function updateThemeIcon(theme) {
-        if (theme === 'light') {
-            themeIcon.className = 'fas fa-moon';
-        } else {
-            themeIcon.className = 'fas fa-sun';
-        }
-    }
-
     // Header scroll effect
     window.addEventListener('scroll', function() {
         const header = document.querySelector('header');
