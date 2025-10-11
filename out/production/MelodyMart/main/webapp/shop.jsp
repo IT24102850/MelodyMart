@@ -260,41 +260,6 @@
             color: var(--primary);
         }
 
-        /* Success/Error Messages */
-        .message-container {
-            margin: 100px auto 0;
-            max-width: 1400px;
-            padding: 0 20px;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: var(--border-radius);
-            margin: 20px 0;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: var(--shadow);
-        }
-
-        .alert-success {
-            background: #4CAF50;
-            color: white;
-            border: 1px solid #45a049;
-        }
-
-        .alert-error {
-            background: #f44336;
-            color: white;
-            border: 1px solid #da190b;
-        }
-
-        .alert-info {
-            background: var(--primary);
-            color: white;
-            border: 1px solid var(--primary-light);
-        }
-
         /* Page Header */
         .page-header {
             background: var(--gradient);
@@ -687,14 +652,8 @@
 
         .product-actions {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
             justify-content: space-between;
+            align-items: center;
         }
 
         .add-to-cart {
@@ -709,20 +668,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            flex: 2;
-            justify-content: center;
         }
 
         .add-to-cart:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-hover);
-        }
-
-        .add-to-cart:disabled {
-            background: var(--text-secondary);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
 
         .wishlist-btn {
@@ -737,39 +687,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex: 1;
         }
 
         .wishlist-btn:hover {
             color: var(--accent-alt);
             background: var(--primary-soft);
-        }
-
-        .order-now-btn {
-            background: var(--accent-alt);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .order-now-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
-            background: #ff5722;
-        }
-
-        .add-to-cart-form {
-            display: contents;
         }
 
         /* Pagination */
@@ -947,12 +869,14 @@
                 flex-direction: column;
             }
 
-            .action-buttons {
+            .product-actions {
                 flex-direction: column;
+                gap: 10px;
             }
 
-            .add-to-cart, .wishlist-btn {
+            .add-to-cart {
                 width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -973,69 +897,20 @@
             <li><a href="brands.jsp">Brands</a></li>
             <li><a href="about.jsp">About</a></li>
             <li><a href="contact.jsp">Contact</a></li>
-            <li><a href="cart.jsp"><i class="fas fa-shopping-cart"></i> Cart</a></li>
         </ul>
 
         <div class="nav-actions">
+            <!-- Theme toggle button removed as requested -->
             <div class="user-menu">
                 <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
                 <div class="dropdown">
-                    <%
-                        Integer customerId = (Integer) session.getAttribute("customerId");
-                        if (customerId != null) {
-                    %>
-                    <a href="profile.jsp" class="dropdown-item">My Profile</a>
-                    <a href="orders.jsp" class="dropdown-item">My Orders</a>
-                    <a href="LogoutServlet" class="dropdown-item">Logout</a>
-                    <%
-                    } else {
-                    %>
                     <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
                     <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
-                    <%
-                        }
-                    %>
                 </div>
             </div>
         </div>
     </div>
 </header>
-
-<!-- Success/Error Messages -->
-<div class="message-container">
-    <%
-        String success = request.getParameter("success");
-        String error = request.getParameter("error");
-
-        if (success != null) {
-    %>
-    <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i>
-        <span><%= success %></span>
-    </div>
-    <%
-        }
-
-        if (error != null) {
-    %>
-    <div class="alert alert-error">
-        <i class="fas fa-exclamation-triangle"></i>
-        <span><%= error %></span>
-    </div>
-    <%
-        }
-
-        // Show login reminder if user is not logged in
-        if (customerId == null) {
-    %>
-    <div class="alert alert-info">
-        <i class="fas fa-info-circle"></i>
-        <span>Please <a href="sign-in.jsp" style="color: white; text-decoration: underline;">sign in</a> to add items to your cart.</span>
-    </div>
-    <%
-        }
-    %>
-</div>
 
 <!-- Page Header -->
 <section class="page-header">
@@ -1224,15 +1099,13 @@
 
                         // Determine badge type based on stock level
                         String badge = "";
-                        boolean isOutOfStock = quantity <= 0;
-
-                        if (isOutOfStock) {
-                            badge = "<div class='product-badge' style='background: #f44336;'>Out of Stock</div>";
-                        } else if ("In Stock".equals(stockLevel)) {
+                        if ("In Stock".equals(stockLevel)) {
                             badge = "<div class='product-badge'>In Stock</div>";
-                        } else if (quantity < 5) {
-                            badge = "<div class='product-badge' style='background: var(--accent-alt);'>Low Stock</div>";
                         }
+
+                        // Generate random rating for demo purposes
+                        double rating = Math.floor(Math.random() * 3) + 3; // 3-5 stars
+                        int ratingCount = (int)(Math.random() * 50) + 10; // 10-59 reviews
             %>
             <!-- Product Card -->
             <div class="product-card">
@@ -1255,33 +1128,38 @@
                     <h3 class="product-title"><%= name %></h3>
                     <div class="product-rating">
                         <div class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            <%
+                                for (int i = 1; i <= 5; i++) {
+                                    if (i <= rating) {
+                            %>
+                            <i class="fas fa-star"></i>
+                            <%
+                            } else if (i - rating < 1) {
+                            %>
+                            <i class="fas fa-star-half-alt"></i>
+                            <%
+                            } else {
+                            %>
+                            <i class="far fa-star"></i>
+                            <%
+                                    }
+                                }
+                            %>
                         </div>
-                        <span class="rating-count">(42)</span>
+                        <span class="rating-count">(<%= ratingCount %>)</span>
                     </div>
                     <div class="product-price">
                         <span class="current-price">$<%= String.format("%.2f", price) %></span>
                     </div>
                     <p class="product-desc"><%= description != null && description.length() > 100 ? description.substring(0, 100) + "..." : description %></p>
-
                     <div class="product-actions">
-                        <div class="action-buttons">
-                            <form method="post" action="CartServlet" class="add-to-cart-form">
-                                <input type="hidden" name="instrumentId" value="<%= instrumentID %>">
-                                <input type="hidden" name="action" value="add">
-                                <button type="submit" class="add-to-cart" <%= isOutOfStock || customerId == null ? "disabled" : "" %>>
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <%= isOutOfStock ? "Out of Stock" : (customerId == null ? "Sign In to Add" : "Add to Cart") %>
-                                </button>
-                            </form>
-                            <button class="wishlist-btn">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
-                        <a href="product-details.jsp?instrumentId=<%= instrumentID %>" class="order-now-btn">
-                            <i class="fas fa-bolt"></i>
-                            View Details
-                        </a>
+                        <button class="add-to-cart" data-id="<%= instrumentID %>">
+                            <i class="fas fa-shopping-cart"></i>
+                            Add to Cart
+                        </button>
+                        <button class="wishlist-btn">
+                            <i class="far fa-heart"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1421,39 +1299,25 @@
         });
     });
 
-    // Add to cart form submission feedback
-    const addToCartForms = document.querySelectorAll('.add-to-cart-form');
-    addToCartForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const button = this.querySelector('.add-to-cart');
-            const originalText = button.innerHTML;
+    // Add to cart functionality
+    const addToCartBtns = document.querySelectorAll('.add-to-cart');
+    addToCartBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const instrumentID = btn.getAttribute('data-id');
+            // Here you would typically send an AJAX request to add the item to cart
+            alert('Added instrument ' + instrumentID + ' to cart!');
 
-            // Only show loading if button is not disabled
-            if (!button.disabled) {
-                // Visual feedback
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-                button.disabled = true;
+            // Visual feedback
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Added!';
+            btn.style.background = 'var(--accent)';
 
-                // Revert after 3 seconds if still on page
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 3000);
-            }
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 2000);
         });
     });
-
-    // Auto-hide messages after 5 seconds
-    setTimeout(() => {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(alert => {
-            alert.style.transition = 'opacity 0.5s ease';
-            alert.style.opacity = '0';
-            setTimeout(() => {
-                alert.style.display = 'none';
-            }, 500);
-        });
-    }, 5000);
 </script>
 </body>
 </html>
