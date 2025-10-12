@@ -139,10 +139,135 @@ use MelodyMartDB
 
 
 select * from Instrument
-sele
 
+select * from Brand
+
+select * from Manufacturer
 
 select * from cart
 
-DROP TABLE IF EXISTS Cart;
+select * from Person
 
+
+select * from customer
+
+
+
+USE MelodyMartDB
+
+CREATE TABLE Customer (
+    CustomerID NVARCHAR(10) PRIMARY KEY,          -- 'CU001'
+    PersonID NVARCHAR(10) NOT NULL UNIQUE,        -- must match Person.PersonID datatype
+    LoyaltyPoints INT DEFAULT 0,
+    PreferredPaymentMethod NVARCHAR(50),
+    FOREIGN KEY (PersonID) REFERENCES Person(PersonID)
+);
+GO
+
+
+
+
+
+SELECT 
+    c.name AS ColumnName,
+    t.name AS DataType
+FROM sys.columns c
+JOIN sys.types t ON c.user_type_id = t.user_type_id
+WHERE c.object_id = OBJECT_ID('Person')
+   OR c.object_id = OBJECT_ID('Customer');
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE Cart (
+    CartID NVARCHAR(10) PRIMARY KEY,               -- manual ID like C001
+    CustomerID NVARCHAR(10) NOT NULL,              -- matches Person/Customer NIC
+    InstrumentID NVARCHAR(10) NOT NULL,            -- matches Instrument.InstrumentID
+    Quantity INT NOT NULL DEFAULT 1,
+    AddedDate DATETIME DEFAULT GETDATE(),
+
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    FOREIGN KEY (InstrumentID) REFERENCES Instrument(InstrumentID)
+);
+GO
+
+
+DELETE FROM person
+WHERE PersonID = 'P005';
+
+
+SELECT 'CustomerID Exists' AS Check1
+WHERE EXISTS (SELECT 1 FROM Customer WHERE CustomerID = 'CU001');
+
+SELECT 'InstrumentID Exists' AS Check2
+WHERE EXISTS (SELECT 1 FROM Instrument WHERE InstrumentID = 'I001');
+
+
+sp_help Cart;
+
+
+SELECT * FROM Customer WHERE CustomerID = 'CU001';
+
+INSERT INTO Cart (CartID, CustomerID, InstrumentID, Quantity, AddedDate)
+VALUES ('CA001', 'CU001', 'I001', 1, GETDATE());
+
+EXEC sp_help 'Cart';
+
+
+SELECT CustomerID FROM dbo.Customer WHERE CustomerID = 'CU001';
+SELECT InstrumentID FROM dbo.Instrument WHERE InstrumentID = 'I001';
+
+
+INSERT INTO dbo.Customer (CustomerID, PersonID, LoyaltyPoints, PreferredPaymentMethod)
+VALUES ('CU001', 'P001', 0, 'Credit Card');
+
+
+INSERT INTO dbo.Person (PersonID, FirstName, LastName, Email, Password)
+VALUES ('P001', 'Demo', 'User', 'demo@gmail.com', '12345');
+
+
+INSERT INTO dbo.Person 
+(PersonID, FirstName, LastName, Email, Phone, Password, Street, City, State, ZipCode, Country, RegistrationDate, LastLogin, role)
+VALUES 
+('P001', 'Demo', 'User', 'demo@gmail.com', '0712345678', 'demo123', '123 Main St', 'Colombo', 'Western', '10000', 'Sri Lanka', GETDATE(), NULL, 'Customer');
+
+INSERT INTO dbo.Person 
+(PersonID, FirstName, LastName, Email, Phone, Password, Street, City, State, ZipCode, Country, RegistrationDate, LastLogin, role)
+VALUES 
+('P002', 'Demo', 'User', 'demo2@gmail.com', '0712345678', 'demo123', '123 Main St', 'Colombo', 'Western', '10000', 'Sri Lanka', GETDATE(), NULL, 'Customer');
+
+
+INSERT INTO dbo.Customer (CustomerID, PersonID, LoyaltyPoints, PreferredPaymentMethod)
+VALUES ('CU001', 'P002', 0, 'Credit Card');
+
+
+
+INSERT INTO dbo.Customer (CustomerID, PersonID, LoyaltyPoints, PreferredPaymentMethod)
+VALUES ('CU001', 'P001', 0, 'Credit Card');
+
+
+
+SELECT PersonID, Email FROM dbo.Person;
+
+
+INSERT INTO dbo.Customer (CustomerID, PersonID, LoyaltyPoints, PreferredPaymentMethod)
+VALUES ('CU001', 'P003', 0, 'Credit Card');
+
+
+SELECT * FROM dbo.Customer;
+
+select * from Cart
+
+
+INSERT INTO dbo.Cart (CartID, CustomerID, InstrumentID, Quantity, AddedDate)
+VALUES ('CA001', 'CU001', 'I001', 1, GETDATE());
+
+
+
+select * 
