@@ -479,7 +479,7 @@
         </a>
 
         <!-- Orders Card -->
-        <a href="orders.jsp" class="card orders">
+        <a href="order.jsp" class="card orders">
             <div class="card-header">
                 <div class="card-title">Orders</div>
                 <div class="card-icon">
