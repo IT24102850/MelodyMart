@@ -134,6 +134,15 @@ FROM Instrument
 WHERE ISNUMERIC(ManufacturerID) = 0;
 
 
+use MelodyMartDB
 
 
-drop table Instrument
+
+select * from Instrument
+sele
+
+
+select * from cart
+
+DROP TABLE IF EXISTS Cart;
+

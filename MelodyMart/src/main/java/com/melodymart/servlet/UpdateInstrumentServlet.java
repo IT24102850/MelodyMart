@@ -1,6 +1,6 @@
-package com.melodymart.servlet;
+package main.java.com.melodymart.servlet;
 
-import com.melodymart.util.DatabaseUtil;
+import main.java.com.melodymart.util.DBConnection;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -21,68 +20,121 @@ import java.sql.PreparedStatement;
         maxRequestSize = 1024 * 1024 * 50 // 50MB
 )
 public class UpdateInstrumentServlet extends HttpServlet {
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        int instrumentId = Integer.parseInt(request.getParameter("instrumentId"));
+        System.out.println("DEBUG: UpdateInstrumentServlet called");
+
+        String instrumentId = request.getParameter("instrumentId");
         String name = request.getParameter("name");
         String description = request.getParameter("description");
+        String brandId = request.getParameter("brandId");
+        String manufacturerId = request.getParameter("manufacturerId");
         String model = request.getParameter("model");
-        double price = Double.parseDouble(request.getParameter("price"));
-        int quantity = Integer.parseInt(request.getParameter("quantity"));
-        String stockLevel = request.getParameter("stockLevel");
+        String color = request.getParameter("color");
+        String priceStr = request.getParameter("price");
+        String quantityStr = request.getParameter("quantity");
+        String warranty = request.getParameter("warranty");
+        String specifications = request.getParameter("specifications");
 
-        // Old image path from hidden field
-        String imageUrl = request.getParameter("imageUrl");
+        System.out.println("DEBUG: Updating instrument ID: " + instrumentId);
+        System.out.println("DEBUG: Name: " + name);
+        System.out.println("DEBUG: Price: " + priceStr);
+        System.out.println("DEBUG: Quantity: " + quantityStr);
 
-        try {
-            Part filePart = request.getPart("imageFile");
-            if (filePart != null && filePart.getSize() > 0) {
-                // ✅ Generate unique filename
-                String extension = ".jpg"; // default extension
-                String submittedName = filePart.getName();
-                if (submittedName != null && submittedName.contains(".")) {
-                    extension = submittedName.substring(submittedName.lastIndexOf("."));
-                }
-                String uniqueFileName = "instrument_" + System.currentTimeMillis() + extension;
-
-                // ✅ Save into your project folder
-                String uploadPath = "C:\\Users\\hasir\\OneDrive\\Documents\\Git Hub\\MelodyMart\\MelodyMart\\src\\main\\webapp\\images\\instruments";
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdirs();
-                }
-
-                String filePath = uploadPath + File.separator + uniqueFileName;
-                filePart.write(filePath);
-
-                // ✅ Update DB with relative path
-                imageUrl = "images/instruments/" + uniqueFileName;
-            }
-
-            // ✅ Update DB record
-            try (Connection conn = DatabaseUtil.getConnection()) {
-                String sql = "UPDATE Instrument SET Name=?, Description=?, Model=?, Price=?, Quantity=?, StockLevel=?, ImageURL=? WHERE InstrumentID=?";
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ps.setString(1, name);
-                ps.setString(2, description);
-                ps.setString(3, model);
-                ps.setDouble(4, price);
-                ps.setInt(5, quantity);
-                ps.setString(6, stockLevel);
-                ps.setString(7, imageUrl);
-                ps.setInt(8, instrumentId);
-
-                ps.executeUpdate();
-                ps.close();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("errorMessage", "Error updating instrument: " + e.getMessage());
+        // Validate required fields
+        if (instrumentId == null || name == null || priceStr == null || quantityStr == null) {
+            response.sendRedirect("addInstrument.jsp?error=MissingRequiredFields");
+            return;
         }
 
-        response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp#inventory");
+        try {
+            double price = Double.parseDouble(priceStr);
+            int quantity = Integer.parseInt(quantityStr);
+
+            try (Connection conn = DBConnection.getConnection()) {
+                String sql;
+                PreparedStatement ps;
+
+                // Check if new image is uploaded
+                Part filePart = request.getPart("images");
+                if (filePart != null && filePart.getSize() > 0) {
+                    System.out.println("DEBUG: New image uploaded, updating with image");
+                    // Handle image upload
+                    String fileName = getFileName(filePart);
+                    String uniqueFileName = "instrument_" + instrumentId + "_" + System.currentTimeMillis() + "_" + fileName;
+
+                    // For now, just update the ImageURL field - you can add file saving logic later
+                    String imageUrl = "images/instruments/" + uniqueFileName;
+
+                    // Update with image
+                    sql = "UPDATE Instrument SET Name=?, Description=?, BrandID=?, ManufacturerID=?, Model=?, Color=?, Price=?, Quantity=?, Warranty=?, Specifications=?, ImageURL=? WHERE InstrumentID=?";
+                    ps = conn.prepareStatement(sql);
+                    ps.setString(1, name);
+                    ps.setString(2, description);
+                    ps.setString(3, brandId);
+                    ps.setString(4, manufacturerId);
+                    ps.setString(5, model);
+                    ps.setString(6, color);
+                    ps.setDouble(7, price);
+                    ps.setInt(8, quantity);
+                    ps.setString(9, warranty);
+                    ps.setString(10, specifications);
+                    ps.setString(11, imageUrl);
+                    ps.setString(12, instrumentId);
+                } else {
+                    System.out.println("DEBUG: No new image, updating without image");
+                    // Update without changing image
+                    sql = "UPDATE Instrument SET Name=?, Description=?, BrandID=?, ManufacturerID=?, Model=?, Color=?, Price=?, Quantity=?, Warranty=?, Specifications=? WHERE InstrumentID=?";
+                    ps = conn.prepareStatement(sql);
+                    ps.setString(1, name);
+                    ps.setString(2, description);
+                    ps.setString(3, brandId);
+                    ps.setString(4, manufacturerId);
+                    ps.setString(5, model);
+                    ps.setString(6, color);
+                    ps.setDouble(7, price);
+                    ps.setInt(8, quantity);
+                    ps.setString(9, warranty);
+                    ps.setString(10, specifications);
+                    ps.setString(11, instrumentId);
+                }
+
+                int rowsUpdated = ps.executeUpdate();
+                System.out.println("DEBUG: Update affected rows: " + rowsUpdated);
+
+                if (rowsUpdated > 0) {
+                    response.sendRedirect("addInstrument.jsp?success=InstrumentUpdated");
+                } else {
+                    response.sendRedirect("addInstrument.jsp?error=UpdateFailed");
+                }
+
+            } catch (Exception e) {
+                System.out.println("ERROR: Database error during update: " + e.getMessage());
+                e.printStackTrace();
+                response.sendRedirect("addInstrument.jsp?error=ServerError");
+            }
+
+        } catch (NumberFormatException e) {
+            System.out.println("ERROR: Invalid number format for price or quantity");
+            response.sendRedirect("addInstrument.jsp?error=InvalidNumberFormat");
+        } catch (Exception e) {
+            System.out.println("ERROR: General error during update: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("addInstrument.jsp?error=UpdateError");
+        }
+    }
+
+    private String getFileName(Part part) {
+        String contentDisp = part.getHeader("content-disposition");
+        String[] tokens = contentDisp.split(";");
+        for (String token : tokens) {
+            if (token.trim().startsWith("filename")) {
+                return token.substring(token.indexOf("=") + 2, token.length() - 1);
+            }
+        }
+        return "unknown.jpg";
     }
 }

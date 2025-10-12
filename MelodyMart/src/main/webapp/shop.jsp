@@ -1,4 +1,3 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
 <!DOCTYPE html>
 <html lang="en">
@@ -136,6 +135,7 @@
         .nav-actions {
             display: flex;
             align-items: center;
+            gap: 15px;
         }
 
         .nav-actions button {
@@ -151,11 +151,28 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
 
         .nav-actions button:hover {
             color: var(--primary-light);
             background: var(--primary-soft);
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--accent-alt);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
         }
 
         .cta-btn {
@@ -199,7 +216,6 @@
         /* User Dropdown */
         .user-menu {
             position: relative;
-            margin-left: 20px;
         }
 
         .user-btn {
@@ -687,6 +703,12 @@
             box-shadow: var(--shadow-hover);
         }
 
+        .add-to-cart:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .wishlist-btn {
             background: none;
             border: none;
@@ -841,6 +863,52 @@
             font-size: 15px;
         }
 
+        /* Notification Styles */
+        .cart-notification {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+            word-wrap: break-word;
+        }
+
+        .cart-notification.error {
+            background: #f44336;
+        }
+
+        .cart-notification button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Mobile Filter Toggle */
+        .mobile-filter-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             .shop-container {
@@ -856,6 +924,10 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 20px;
+            }
+
+            .mobile-filter-toggle {
+                display: flex;
             }
         }
 
@@ -891,6 +963,59 @@
                 width: 100%;
                 justify-content: center;
             }
+
+            .cart-notification {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        /* Animation Keyframes */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes flyToCart {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(0.5) translate(-100px, -100px);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(0.1) translate(-200px, -200px);
+                opacity: 0;
+            }
+        }
+
+        /* List View Styles */
+        .products-grid.list-view {
+            grid-template-columns: 1fr;
+        }
+
+        .products-grid.list-view .product-card {
+            display: flex;
+            gap: 20px;
+        }
+
+        .products-grid.list-view .product-img {
+            width: 200px;
+            height: 150px;
+            flex-shrink: 0;
+        }
+
+        .products-grid.list-view .product-info {
+            flex: 1;
         }
     </style>
 </head>
@@ -913,20 +1038,20 @@
         </ul>
 
         <div class="nav-actions">
+            <!-- Cart Button with Badge -->
             <div class="user-menu">
-                <%
-                     session = request.getSession(false);
-                    String username = (session != null) ? (String) session.getAttribute("username") : "Guest";
-                %>
+                <button class="user-btn" aria-label="Cart" onclick="window.location.href='cart.jsp'">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-badge">0</span>
+                </button>
+            </div>
+
+            <!-- User Menu -->
+            <div class="user-menu">
                 <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
                 <div class="dropdown">
-                    <% if ("Guest".equals(username)) { %>
                     <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
                     <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
-                    <% } else { %>
-                    <a href="customerLanding.jsp" class="dropdown-item">Profile</a>
-                    <a href="LogoutServlet" class="dropdown-item">Logout</a>
-                    <% } %>
                 </div>
             </div>
         </div>
@@ -1038,6 +1163,9 @@
         </div>
 
         <button class="cta-btn" style="width: 100%; margin-top: 20px;">Apply Filters</button>
+        <button class="cta-btn clear-filters-btn" style="width: 100%; margin-top: 10px; background: var(--text-secondary);">
+            <i class="fas fa-times"></i> Clear Filters
+        </button>
     </aside>
 
     <!-- Products Section -->
@@ -1046,14 +1174,7 @@
             <div>
                 <h2 style="margin-bottom: 5px;">All Instruments</h2>
                 <%
-                     session = request.getSession(false);
-                    if (session == null || session.getAttribute("customerID") == null) {
-                        response.sendRedirect("sign-in.jsp");
-                        return;
-                    }
-                     username = (String) session.getAttribute("username");
-                    int customerID = (Integer) session.getAttribute("customerID");
-
+                    // Database connection and query
                     Connection conn = null;
                     Statement stmt = null;
                     ResultSet rs = null;
@@ -1070,6 +1191,7 @@
                     } catch (SQLException e) {
                         e.printStackTrace();
                     } finally {
+                        // Close resources
                         try {
                             if (rs != null) rs.close();
                             if (stmt != null) stmt.close();
@@ -1079,7 +1201,7 @@
                         }
                     }
                 %>
-                <p class="products-count">Welcome, <%= username %> (Customer ID: <%= customerID %>) | Showing <%= productCount %> products</p>
+                <p class="products-count">Showing <%= productCount %> products</p>
             </div>
             <div class="sort-options">
                 <select class="sort-select">
@@ -1098,6 +1220,7 @@
 
         <div class="products-grid">
             <%
+                // Database connection and query for products
                 Connection conn2 = null;
                 Statement stmt2 = null;
                 ResultSet rs2 = null;
@@ -1127,6 +1250,10 @@
                         String badge = "";
                         if ("In Stock".equals(stockLevel)) {
                             badge = "<div class='product-badge'>In Stock</div>";
+                        } else if ("Low Stock".equals(stockLevel)) {
+                            badge = "<div class='product-badge' style='background: #ff9800;'>Low Stock</div>";
+                        } else if ("Out of Stock".equals(stockLevel)) {
+                            badge = "<div class='product-badge' style='background: #f44336;'>Out of Stock</div>";
                         }
 
                         // Generate random rating for demo purposes
@@ -1140,7 +1267,7 @@
                     <%
                         if (imageURL != null && !imageURL.trim().isEmpty()) {
                     %>
-                    <img src="<%= imageURL %>" alt="<%= name %>">
+                    <img src="<%= imageURL %>" alt="<%= name %>" onerror="this.src='https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80'">
                     <%
                     } else {
                     %>
@@ -1179,9 +1306,9 @@
                     </div>
                     <p class="product-desc"><%= description != null && description.length() > 100 ? description.substring(0, 100) + "..." : description %></p>
                     <div class="product-actions">
-                        <button class="add-to-cart" data-id="<%= instrumentID %>">
+                        <button class="add-to-cart" data-id="<%= instrumentID %>" <%= "Out of Stock".equals(stockLevel) ? "disabled" : "" %>>
                             <i class="fas fa-shopping-cart"></i>
-                            Add to Cart
+                            <%= "Out of Stock".equals(stockLevel) ? "Out of Stock" : "Add to Cart" %>
                         </button>
                         <button class="wishlist-btn">
                             <i class="far fa-heart"></i>
@@ -1194,6 +1321,7 @@
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } finally {
+                    // Close resources
                     try {
                         if (rs2 != null) rs2.close();
                         if (stmt2 != null) stmt2.close();
@@ -1272,192 +1400,218 @@
     </div>
 </footer>
 
+<!-- Mobile Filter Toggle Button -->
+<button class="cta-btn mobile-filter-toggle">
+    <i class="fas fa-filter"></i> Filters
+</button>
+
 <script>
-    // Header scroll effect
-    window.addEventListener('scroll', function() {
-        const header = document.querySelector('header');
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
+    // Debug version of add to cart functionality
+    console.log("JavaScript loaded - initializing add to cart buttons");
 
-    // Filter functionality
-    const brandTags = document.querySelectorAll('.brand-tag');
-    brandTags.forEach(tag => {
-        tag.addEventListener('click', () => {
-            tag.classList.toggle('active');
-        });
-    });
+    // Add to cart functionality with detailed debugging
+    document.addEventListener('DOMContentLoaded', function() {
+        const addToCartBtns = document.querySelectorAll('.add-to-cart');
+        console.log(`Found ${addToCartBtns.length} add to cart buttons`);
 
-    // View toggle functionality
-    const viewBtns = document.querySelectorAll('.view-btn');
-    viewBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            viewBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        addToCartBtns.forEach((btn, index) => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-            const productsGrid = document.querySelector('.products-grid');
-            if (btn.querySelector('.fa-list')) {
-                productsGrid.style.gridTemplateColumns = '1fr';
-            } else {
-                productsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
-            }
-        });
-    });
+                const instrumentID = this.getAttribute('data-id');
+                const quantity = 1;
 
-    // Wishlist toggle
-    const wishlistBtns = document.querySelectorAll('.wishlist-btn');
-    wishlistBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const icon = btn.querySelector('i');
-            if (icon.classList.contains('far')) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                icon.style.color = 'var(--accent-alt)';
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                icon.style.color = '';
-            }
-        });
-    });
+                console.log('=== ADD TO CART CLICKED ===');
+                console.log('Button index:', index);
+                console.log('Instrument ID:', instrumentID);
+                console.log('Button element:', this);
+                console.log('All attributes:');
+                for (let attr of this.attributes) {
+                    console.log(`  ${attr.name}: ${attr.value}`);
+                }
 
-    // Add to cart functionality with AJAX - DEBUG VERSION
-    const addToCartBtns = document.querySelectorAll('.add-to-cart');
-    addToCartBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const instrumentID = this.getAttribute('data-id');
-            const quantity = 1;
+                if (!instrumentID) {
+                    console.error('❌ Instrument ID is null or empty!');
+                    alert('Error: Instrument ID is missing. Please check the product data.');
+                    return;
+                }
 
-            console.log('=== DEBUG INFO ===');
-            console.log('Button clicked, data-id attribute:', instrumentID);
-            console.log('Button element:', this);
-            console.log('All attributes:', this.attributes);
+                // Disable button during request
+                this.disabled = true;
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
-            if (!instrumentID) {
-                console.error('Instrument ID is null or empty!');
-                alert('Error: Instrument ID is missing. Please check the product data.');
-                return;
-            }
+                // Create form data
+                const formData = new FormData();
+                formData.append('instrumentID', instrumentID);
+                formData.append('quantity', quantity.toString());
 
-            this.disabled = true;
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+                console.log('Sending FormData:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`  ${key}: ${value}`);
+                }
 
-            const formData = new FormData();
-            formData.append('instrumentID', instrumentID);
-            formData.append('quantity', quantity.toString());
-
-            console.log('Sending FormData:');
-            for (let [key, value] of formData.entries()) {
-                console.log(key + ': ' + value);
-            }
-
-            fetch('AddToCartServlet', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    console.log('Response OK:', response.ok);
-                    return response.text();
+                // Send AJAX request to servlet
+                fetch('AddToCartServlet', {
+                    method: 'POST',
+                    body: formData
                 })
-                .then(result => {
-                    console.log('Raw response result:', result);
-                    console.log('Trimmed result:', result.trim());
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        console.log('Response OK:', response.ok);
+                        return response.text();
+                    })
+                    .then(result => {
+                        console.log('Raw response result:', result);
+                        console.log('Trimmed result:', result.trim());
 
-                    if (result.trim() === 'success') {
-                        this.innerHTML = '<i class="fas fa-check"></i> Added!';
-                        this.style.background = 'var(--accent)';
-                        updateCartCounter();
+                        if (result.trim() === 'success') {
+                            // Success feedback
+                            console.log('✅ Item added to cart successfully');
+                            this.innerHTML = '<i class="fas fa-check"></i> Added!';
+                            this.style.background = 'var(--accent)';
 
-                        setTimeout(() => {
+                            // Update cart count
+                            updateCartCounter();
+
+                            // Show success notification
+                            showNotification('Item added to cart successfully!', 'success');
+
+                            // Re-enable button after delay
+                            setTimeout(() => {
+                                this.innerHTML = originalText;
+                                this.style.background = '';
+                                this.disabled = false;
+                            }, 2000);
+                        } else {
+                            // Error handling
+                            console.error('❌ Server returned error:', result);
+                            let errorMessage = 'Failed to add item to cart.';
+                            if (result.includes('error:')) {
+                                errorMessage = result.replace('error:', '').trim();
+                            }
+                            showNotification(errorMessage, 'error');
                             this.innerHTML = originalText;
-                            this.style.background = '';
                             this.disabled = false;
-                        }, 2000);
-                    } else {
-                        let errorMessage = 'Failed to add item to cart.';
-                        if (result.includes('error:')) {
-                            errorMessage = result.replace('error:', '').trim();
                         }
-                        console.error('Server error:', errorMessage);
-                        alert('Error: ' + errorMessage);
+                    })
+                    .catch(error => {
+                        console.error('❌ Fetch Error:', error);
+                        showNotification('Network error. Please check your connection and try again.', 'error');
                         this.innerHTML = originalText;
                         this.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch Error:', error);
-                    alert('Network error. Please check your connection and try again.');
-                    this.innerHTML = originalText;
-                    this.disabled = false;
-                });
+                    });
+            });
         });
     });
 
-    function redirectToProductDetails(instrumentID) {
-        window.location.href = 'product-details.jsp?instrumentId=' + instrumentID;
-    }
+    // Enhanced notification function
+    function showNotification(message, type) {
+        console.log(`Showing notification: ${message} (${type})`);
 
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach(card => {
-        card.addEventListener('click', function(e) {
-            if (e.target.closest('.add-to-cart') ||
-                e.target.closest('.wishlist-btn') ||
-                e.target.tagName === 'BUTTON' ||
-                e.target.tagName === 'A') {
-                return;
+        // Remove existing notifications
+        const existingNotification = document.querySelector('.cart-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create new notification
+        const notification = document.createElement('div');
+        notification.className = `cart-notification ${type}`;
+        notification.innerHTML = `
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()">&times;</button>
+        `;
+
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: ${type == 'success' ? '#4CAF50' : '#f44336'};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        `;
+
+        // Add close button styles
+        notification.querySelector('button').style.cssText = `
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+
+        document.body.appendChild(notification);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
             }
-            const instrumentID = this.getAttribute('data-id');
-            redirectToProductDetails(instrumentID);
-        });
-    });
+        }, 5000);
+    }
 
+    // Function to update cart counter
     function updateCartCounter() {
-        console.log('Cart updated - item added successfully');
+        console.log('Updating cart counter...');
+
+        const cartBadge = document.querySelector('.cart-badge');
+        if (cartBadge) {
+            const currentCount = parseInt(cartBadge.textContent) || 0;
+            cartBadge.textContent = currentCount + 1;
+            cartBadge.style.display = 'flex';
+            console.log(`Cart counter updated to: ${currentCount + 1}`);
+        }
+
+        // Also try to fetch actual count from server
+        fetch('GetCartCountServlet')
+            .then(response => response.text())
+            .then(count => {
+                console.log('Actual cart count from server:', count);
+                if (cartBadge) {
+                    cartBadge.textContent = count;
+                    cartBadge.style.display = count > 0 ? 'flex' : 'none';
+                }
+            })
+            .catch(error => console.error('Error fetching cart count:', error));
     }
 
-    const priceSlider = document.querySelector('.price-slider');
-    const maxPriceInput = document.querySelector('.price-input[placeholder="Max"]');
-
-    if (priceSlider && maxPriceInput) {
-        priceSlider.addEventListener('input', function() {
-            maxPriceInput.value = this.value;
-        });
-
-        maxPriceInput.addEventListener('input', function() {
-            priceSlider.value = this.value;
-        });
+    // Add CSS for animations if not exists
+    if (!document.querySelector('#notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
     }
 
-    const applyFiltersBtn = document.querySelector('.filters-sidebar .cta-btn');
-    if (applyFiltersBtn) {
-        applyFiltersBtn.addEventListener('click', function() {
-            const selectedCategories = [];
-            document.querySelectorAll('.filter-option input[type="checkbox"]:checked').forEach(checkbox => {
-                selectedCategories.push(checkbox.nextElementSibling.nextElementSibling.textContent);
-            });
-
-            const minPrice = document.querySelector('.price-input[placeholder="Min"]').value;
-            const maxPrice = document.querySelector('.price-input[placeholder="Max"]').value;
-
-            const selectedBrands = [];
-            document.querySelectorAll('.brand-tag.active').forEach(tag => {
-                selectedBrands.push(tag.textContent);
-            });
-
-            console.log('Applied filters:', {
-                categories: selectedCategories,
-                priceRange: { min: minPrice, max: maxPrice },
-                brands: selectedBrands
-            });
-
-            alert('Filters applied! (Check console for details)');
-        });
-    }
+    console.log("Add to cart functionality initialized");
 </script>
+</body>
+</html>
