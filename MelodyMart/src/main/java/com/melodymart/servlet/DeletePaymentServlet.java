@@ -1,7 +1,6 @@
-package main.java.com.melodymart.servlet;
+package com.melodymart.servlet;
 
-import main.java.com.melodymart.util.DBConnection;
-
+import com.melodymart.util.DatabaseUtil;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,35 +12,39 @@ import java.sql.PreparedStatement;
 
 @WebServlet("/DeletePaymentServlet")
 public class DeletePaymentServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String paymentIdStr = request.getParameter("paymentId");
+        String paymentId = request.getParameter("paymentId");
 
-        if (paymentIdStr == null || paymentIdStr.trim().isEmpty()) {
-            response.sendRedirect("sellerdashboard.jsp#Payments?status=error&msg=Payment ID required");
+        System.out.println("DeletePaymentServlet - Payment ID: " + paymentId);
+
+        if (paymentId == null || paymentId.trim().isEmpty()) {
+            response.sendRedirect("PaymentManagementServlet?status=error&msg=Payment ID required");
             return;
         }
 
-        int paymentId = Integer.parseInt(paymentIdStr);
-
-        try (Connection conn = DBConnection.getConnection();
+        try (Connection conn = DatabaseUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement("DELETE FROM Payment WHERE PaymentID = ?")) {
 
-            ps.setInt(1, paymentId);
+            ps.setString(1, paymentId);
             int rows = ps.executeUpdate();
 
             if (rows > 0) {
-                response.sendRedirect("sellerdashboard.jsp#Payments?status=success&msg=Payment deleted");
+                System.out.println("Successfully deleted payment: " + paymentId);
+                response.sendRedirect("PaymentManagementServlet?status=success&msg=Payment deleted successfully");
             } else {
-                response.sendRedirect("sellerdashboard.jsp#Payments?status=error&msg=Payment not found");
+                System.out.println("Payment not found: " + paymentId);
+                response.sendRedirect("PaymentManagementServlet?status=error&msg=Payment not found");
             }
 
         } catch (Exception e) {
+            System.out.println("Error deleting payment: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("sellerdashboard.jsp#Payments?status=error&msg=" + e.getMessage());
+            response.sendRedirect("PaymentManagementServlet?status=error&msg=Error deleting payment: " + e.getMessage());
         }
     }
 }

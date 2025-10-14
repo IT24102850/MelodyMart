@@ -45,9 +45,20 @@ public class PaymentServlet extends HttpServlet {
         boolean success = paymentStrategy.pay(orderId, amount, transactionId, status);
         if (success) {
             request.setAttribute("message", "✅ Payment processed successfully! Transaction ID: " + transactionId);
+            // Update order status to paid
+            updateOrderStatus(orderId, "Paid");
         } else {
             request.setAttribute("message", "⚠️ Payment failed. Please try again.");
         }
         request.getRequestDispatcher("payment-gateway.jsp").forward(request, response);
+    }
+
+    private void updateOrderStatus(int orderId, String status) {
+        try {
+            // Update order status in database
+            // You'll need to implement this method based on your database structure
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
