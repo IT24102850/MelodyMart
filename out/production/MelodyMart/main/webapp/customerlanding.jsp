@@ -1,3 +1,24 @@
+<%@ page import="java.sql.*, javax.servlet.http.*, javax.servlet.*" %>
+<%
+    // Assume you have a login process that validated the user and got their CustomerID
+    String customerId = (String) request.getAttribute("CustomerID");
+
+    // If it's passed from login servlet or JSP
+    if (customerId == null && request.getParameter("CustomerID") != null) {
+        customerId = request.getParameter("CustomerID");
+    }
+
+    if (customerId != null) {
+        session.setAttribute("CustomerID", customerId); // ✅ Store in session
+        System.out.println("Customer Logged In: " + customerId);
+    } else {
+        System.out.println("⚠ No CustomerID found during login.");
+    }
+%>
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -707,6 +728,10 @@
 </div>
 
 <script>
+
+    session.setAttribute("CustomerID", resultSet.getString("CustomerID"));
+    response.sendRedirect("shop.jsp");
+
     // Mobile menu functionality
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const navLinks = document.getElementById('navLinks');

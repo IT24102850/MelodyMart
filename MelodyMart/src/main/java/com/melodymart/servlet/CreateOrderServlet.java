@@ -93,21 +93,21 @@ public class CreateOrderServlet extends HttpServlet {
             } else {
                 System.out.println("No rows affected - order failed to save");
                 // Error - redirect back with error message
-                response.sendRedirect("order-now.jsp?error=Order failed to save to database");
+                response.sendRedirect("ordernow.jsp?error=Order failed to save to database");
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("SQL Error: " + e.getMessage());
-            response.sendRedirect("order-now.jsp?error=Database error: " + e.getMessage());
+            response.sendRedirect("ordernow.jsp?error=Database error: " + e.getMessage());
         } catch (NumberFormatException e) {
             e.printStackTrace();
             System.out.println("Number Format Error: " + e.getMessage());
-            response.sendRedirect("order-now.jsp?error=Invalid total amount format");
+            response.sendRedirect("ordernow.jsp?error=Invalid total amount format");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("General Error: " + e.getMessage());
-            response.sendRedirect("order-now.jsp?error=" + e.getMessage());
+            response.sendRedirect("ordernow.jsp?error=" + e.getMessage());
         } finally {
             if (out != null) {
                 out.close();
