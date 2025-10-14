@@ -1,375 +1,283 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.sql.Connection" %>
-<%@ page import="java.sql.PreparedStatement" %>
-<%@ page import="java.sql.ResultSet" %>
-<%@ page import="main.java.com.melodymart.util.DBConnection" %>
-<%@ page import="java.util.List" %>
+<%@ page import="main.java.com.melodymart.model.Order" %>
 <%@ page import="java.util.ArrayList" %>
-
+<%@ page import="java.util.List" %>
+<%@ page import="java.sql.*" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Management | Melody Mart</title>
+    <title>Order Management | MelodyMart</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root {
-            --primary: #8a2be2;
-            --primary-light: #9b45f0;
-            --secondary: #0a0a0a;
-            --accent: #00e5ff;
-            --accent-alt: #ff00c8;
-            --text: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-bg: #1a1a1a;
-            --card-hover: #2a2a2a;
-            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
-            --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
-            --glass-bg: rgba(30, 30, 30, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.1);
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--secondary);
-            color: var(--text);
-            overflow-x: hidden;
-            line-height: 1.6;
-            padding-top: 80px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
         }
-
         .container {
-            width: 100%;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 20px;
         }
-
-        /* Header & Navigation */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 20px 0;
-            transition: all 0.4s ease;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        .nav-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
         }
-
         .logo {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
+            gap: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e40af;
+            text-decoration: none;
         }
-
         .logo i {
-            margin-right: 10px;
             font-size: 32px;
         }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-        }
-
-        .nav-links li {
-            margin: 0 15px;
-        }
-
-        .nav-links a {
-            color: var(--text);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a:after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--gradient);
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover {
-            color: var(--primary-light);
-        }
-
-        .nav-links a:hover:after {
-            width: 100%;
-        }
-
-        .nav-actions {
+        .header-right {
             display: flex;
             align-items: center;
+            gap: 15px;
         }
-
-        .search-btn, .cart-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            margin-left: 20px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .search-btn:hover, .cart-btn:hover {
-            color: var(--primary-light);
-        }
-
-        .cta-btn {
-            background: var(--gradient);
+        .back-btn {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
             border: none;
-            padding: 12px 25px;
-            border-radius: 30px;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: all 0.3s ease;
-            margin-left: 20px;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .cta-btn:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 100%;
-            background: var(--gradient-alt);
-            transition: all 0.4s ease;
-            z-index: -1;
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.4);
-        }
-
-        .cta-btn:hover:before {
-            width: 100%;
-        }
-
-        /* User Dropdown */
-        .user-menu {
-            position: relative;
-            margin-left: 20px;
-        }
-
-        .user-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
-
-        .user-btn:hover {
-            color: var(--primary-light);
-        }
-
-        .dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
-            z-index: 1000;
-        }
-
-        .user-menu:hover .dropdown {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-item {
-            display: block;
-            padding: 10px 15px;
-            color: var(--text);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-decoration: none;
-            font-size: 14px;
-            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        }
+        .logout-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
-        .dropdown-item:hover {
-            background: var(--card-hover);
-            color: var(--primary-light);
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
         }
-
-        /* Page Header */
-        .page-header {
+        .user-profile {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .dashboard-header h1 {
+            font-size: 36px;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .dashboard-header p {
+            font-size: 18px;
+            color: #64748b;
+        }
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding: 20px 0;
-            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: 25px;
         }
-
-        .page-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 36px;
-            font-weight: 700;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Order Table Container */
-        .table-container {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 40px;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .table-title {
+        .card-title {
             font-size: 24px;
-            margin-bottom: 20px;
-            color: var(--primary-light);
+            font-weight: 600;
+            color: #1e293b;
         }
-
-        /* Table Styles */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .stat-info {
+            flex: 1;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .data-table th {
-            background: rgba(138, 43, 226, 0.1);
-            padding: 15px;
             text-align: left;
-            font-weight: 600;
-            color: var(--primary-light);
-            border-bottom: 1px solid var(--glass-border);
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
         }
-
-        .data-table td {
+        .data-table th, .data-table td {
             padding: 15px;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid #f1f5f9;
         }
-
+        .data-table th {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            font-weight: 600;
+            text-align: left;
+        }
         .data-table tr:last-child td {
             border-bottom: none;
         }
-
         .data-table tr:hover {
-            background: rgba(255, 255, 255, 0.03);
+            background-color: #f8fafc;
         }
-
-        /* Status Badges */
         .status-badge {
             padding: 6px 12px;
             border-radius: 20px;
+            color: white;
             font-size: 12px;
             font-weight: 600;
             display: inline-block;
+            text-align: center;
+            min-width: 90px;
         }
-
         .status-pending {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
         }
-
         .status-processing {
-            background: rgba(0, 123, 255, 0.2);
-            color: #007bff;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
         }
-
         .status-shipped {
-            background: rgba(111, 66, 193, 0.2);
-            color: #6f42c1;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
         }
-
         .status-delivered {
-            background: rgba(40, 167, 69, 0.2);
-            color: #28a745;
+            background: linear-gradient(135deg, #10b981, #059669);
         }
-
         .status-cancelled {
-            background: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
         }
-
-        /* Action Buttons */
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--primary-light);
-            cursor: pointer;
-            font-size: 16px;
-            margin-right: 10px;
-            transition: all 0.3s ease;
-            padding: 8px;
-            border-radius: 50%;
+        .action-btns {
+            display: flex;
+            gap: 8px;
         }
-
-        .action-btn:hover {
-            background: rgba(138, 43, 226, 0.1);
-            transform: scale(1.1);
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 6px;
         }
-
-        .action-btn.delete-btn {
-            color: #ff6b6b;
+        .btn-edit {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
         }
-
-        .action-btn.delete-btn:hover {
-            background: rgba(255, 107, 107, 0.1);
+        .btn-view {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
         }
-
-        .action-btn.cancel-btn {
-            color: #ffa500;
+        .btn-cancel {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
         }
-
-        .action-btn.cancel-btn:hover {
-            background: rgba(255, 165, 0, 0.1);
+        .btn-delete {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
         }
-
-        /* Modal Styles */
         .modal {
             display: none;
             position: fixed;
@@ -377,418 +285,403 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            align-items: center;
+            background: rgba(0, 0, 0, 0.5);
             justify-content: center;
-            backdrop-filter: blur(5px);
+            align-items: center;
+            z-index: 1000;
         }
-
         .modal-content {
-            background: var(--card-bg);
-            border-radius: 15px;
+            background: white;
             padding: 30px;
-            max-width: 500px;
+            border-radius: 16px;
             width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             position: relative;
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transform: scale(0.9);
-            transition: opacity 0.3s ease, transform 0.3s ease;
         }
-
-        .modal.active .modal-content {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .modal-close {
+        .close-modal {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: none;
-            border: none;
-            color: var(--text);
             font-size: 24px;
             cursor: pointer;
-            transition: color 0.3s ease;
+            color: #64748b;
+            transition: color 0.3s;
         }
-
-        .modal-close:hover {
-            color: var(--primary-light);
+        .close-modal:hover {
+            color: #1e293b;
         }
-
         .modal-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #1e293b;
             margin-bottom: 20px;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
-
-        /* Form Styles */
         .form-group {
             margin-bottom: 20px;
         }
-
-        .form-label {
+        .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text);
+            font-weight: 500;
+            color: #475569;
         }
-
         .form-control, .form-select {
             width: 100%;
             padding: 12px 15px;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
-            border: 1px solid var(--glass-border);
-            background: var(--secondary);
-            color: var(--text);
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
-
         .form-control:focus, .form-select:focus {
             outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
-
-        /* Stats Cards */
-        .stats-container {
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        .btn-cancel {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        .btn-cancel:hover {
+            background: #e2e8f0;
+        }
+        .order-details-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
-
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 20px;
+        .order-detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .order-detail-label {
+            font-weight: 500;
+            color: #475569;
+        }
+        .order-detail-value {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        footer {
             text-align: center;
-            border: 1px solid var(--glass-border);
-            transition: all 0.3s ease;
+            padding: 30px 0;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 30px;
         }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(138, 43, 226, 0.2);
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 20px 0;
         }
-
-        .stat-number {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 5px;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .footer-links a {
+            color: #475569;
+            text-decoration: none;
+            transition: color 0.3s;
         }
-
-        .stat-label {
-            color: var(--text-secondary);
+        .footer-links a:hover {
+            color: #1e40af;
+        }
+        .copyright {
             font-size: 14px;
         }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            color: var(--text);
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            border-left: 4px solid var(--primary);
-            z-index: 3000;
-            transform: translateX(150%);
-            transition: transform 0.3s ease;
-        }
-
-        .toast.show {
-            transform: translateX(0);
-        }
-
-        .toast.success {
-            border-left-color: #28a745;
-        }
-
-        .toast.error {
-            border-left-color: #dc3545;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .data-table {
-                display: block;
-                overflow-x: auto;
-            }
-
-            .page-title {
-                font-size: 28px;
-            }
-        }
-
         @media (max-width: 768px) {
-            .nav-links {
+            .stats-grid, .order-details-grid {
+                grid-template-columns: 1fr;
+            }
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .header-right {
+                gap: 10px;
+            }
+            .back-btn, .logout-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            .back-btn span, .logout-btn span {
                 display: none;
             }
-
-            .page-header {
+            .card-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
             }
-
-            .table-container {
-                padding: 20px;
-            }
-
-            .modal-content {
-                padding: 20px;
-            }
-
-            .user-menu:hover .dropdown {
-                display: none;
-            }
-
-            .stats-container {
-                grid-template-columns: 1fr 1fr;
+            .action-btns {
+                flex-wrap: wrap;
             }
         }
-
-        @media (max-width: 576px) {
-            body {
-                padding-top: 70px;
-            }
-
-            .page-title {
-                font-size: 24px;
-            }
-
-            .table-title {
-                font-size: 20px;
-            }
-
-            .data-table th, .data-table td {
-                padding: 10px;
-                font-size: 14px;
-            }
-
-            .stats-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Animation for table rows */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .data-table tbody tr {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        .data-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
-        .data-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
-        .data-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
-        .data-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
-        .data-table tbody tr:nth-child(5) { animation-delay: 0.5s; }
     </style>
 </head>
 <body>
+<%
+    List<Order> orders = new ArrayList<>();
+    int totalOrders = 0, pendingOrders = 0, processingOrders = 0, deliveredOrders = 0;
 
-<!-- Header & Navigation -->
-<header>
-    <div class="container nav-container">
-        <div class="logo">
+    String url = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
+    String user = "Hasiru";
+    String password = "hasiru2004";
+
+    Connection conn = null;
+    Statement stmt = null;
+    ResultSet rs = null;
+
+    try {
+        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+        conn = DriverManager.getConnection(url, user, password);
+        if (conn != null) {
+            stmt = conn.createStatement();
+            String sql = "SELECT OrderID, CustomerID, OrderDate, TotalAmount, Status, Street, PostalCode FROM OrderTable";
+            rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                Order order = new Order();
+                order.setOrderID(rs.getString("OrderID"));
+                order.setCustomerID(rs.getString("CustomerID"));
+                order.setOrderDate(rs.getDate("OrderDate"));
+                order.setTotalAmount(rs.getDouble("TotalAmount"));
+                order.setStatus(rs.getString("Status"));
+                order.setStreet(rs.getString("Street"));
+                order.setPostalCode(rs.getString("PostalCode"));
+                orders.add(order);
+                totalOrders++;
+                if ("Pending".equalsIgnoreCase(order.getStatus())) pendingOrders++;
+                else if ("Processing".equalsIgnoreCase(order.getStatus())) processingOrders++;
+                else if ("Delivered".equalsIgnoreCase(order.getStatus())) deliveredOrders++;
+            }
+        }
+    } catch (ClassNotFoundException e) {
+        out.println("<p style='color: red;'>JDBC Driver not found: " + e.getMessage() + "</p>");
+    } catch (SQLException e) {
+        out.println("<p style='color: red;'>Database error: " + e.getMessage() + "</p>");
+    } catch (Exception e) {
+        out.println("<p style='color: red;'>Unexpected error: " + e.getMessage() + "</p>");
+    } finally {
+        if (rs != null) try { rs.close(); } catch (SQLException e) { /* Ignore */ }
+        if (stmt != null) try { stmt.close(); } catch (SQLException e) { /* Ignore */ }
+        if (conn != null) try { conn.close(); } catch (SQLException e) { /* Ignore */ }
+    }
+
+    // Handle update request
+    String orderId = request.getParameter("orderId");
+    String action = request.getParameter("action");
+    if ("update".equals(action) && orderId != null) {
+        String status = request.getParameter("status");
+        String street = request.getParameter("street");
+        String postalCode = request.getParameter("postalCode");
+
+        Connection updateConn = null;
+        PreparedStatement pstmt = null;
+        try {
+            updateConn = DriverManager.getConnection(url, user, password);
+            String updateSql = "UPDATE OrderTable SET Status = ?, Street = ?, PostalCode = ? WHERE OrderID = ?";
+            pstmt = updateConn.prepareStatement(updateSql);
+            pstmt.setString(1, status);
+            pstmt.setString(2, street);
+            pstmt.setString(3, postalCode);
+            pstmt.setString(4, orderId);
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                response.sendRedirect("order.jsp");
+            } else {
+                out.println("<p style='color: red;'>No order updated.</p>");
+            }
+        } catch (SQLException e) {
+            out.println("<p style='color: red;'>Update error: " + e.getMessage() + "</p>");
+        } finally {
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { /* Ignore */ }
+            if (updateConn != null) try { updateConn.close(); } catch (SQLException e) { /* Ignore */ }
+        }
+    }
+
+    // Handle delete request
+    if ("delete".equals(action) && orderId != null) {
+        Connection deleteConn = null;
+        PreparedStatement pstmt = null;
+        try {
+            deleteConn = DriverManager.getConnection(url, user, password);
+            String deleteSql = "DELETE FROM OrderTable WHERE OrderID = ?";
+            pstmt = deleteConn.prepareStatement(deleteSql);
+            pstmt.setString(1, orderId);
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                response.sendRedirect("order.jsp");
+            } else {
+                out.println("<p style='color: red;'>No order deleted.</p>");
+            }
+        } catch (SQLException e) {
+            out.println("<p style='color: red;'>Delete error: " + e.getMessage() + "</p>");
+        } finally {
+            if (pstmt != null) try { pstmt.close(); } catch (SQLException e) { /* Ignore */ }
+            if (deleteConn != null) try { deleteConn.close(); } catch (SQLException e) { /* Ignore */ }
+        }
+    }
+%>
+<div class="container">
+    <header>
+        <a href="sellerdashboard.jsp" class="logo">
             <i class="fas fa-music"></i>
-            Melody Mart
+            <span>MelodyMart</span>
+        </a>
+        <div class="header-right">
+            <a href="sellerdashboard.jsp" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </a>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+            <div class="user-profile">
+                <i class="fas fa-user"></i>
+            </div>
         </div>
-
-        <ul class="nav-links">
-            <li><a href="index.jsp">Home</a></li>
-            <li><a href="shop.jsp">Shop</a></li>
-            <li><a href="categories.jsp">Categories</a></li>
-            <li><a href="orders.jsp" style="color: var(--primary-light);">Orders</a></li>
-            <li><a href="repair-requests.jsp">Repair Requests</a></li>
-            <li><a href="profile.jsp">Profile</a></li>
-        </ul>
-
-        <div class="nav-actions">
-            <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
-            <button class="cart-btn" aria-label="Cart"><i class="fas fa-shopping-cart"></i></button>
-            <div class="user-menu">
-                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i> Admin</button>
-                <div class="dropdown">
-                    <a href="profile.jsp" class="dropdown-item"><i class="fas fa-user-circle"></i> My Profile</a>
-                    <a href="orders.jsp" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Order Management</a>
-                    <a href="repair-requests.jsp" class="dropdown-item"><i class="fas fa-tools"></i> Repair Requests</a>
-                    <a href="customers.jsp" class="dropdown-item"><i class="fas fa-users"></i> Customer Management</a>
-                    <a href="settings.jsp" class="dropdown-item"><i class="fas fa-cog"></i> Settings</a>
-                    <a href="index.jsp" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
-                </div>
+    </header>
+    <div class="dashboard-header">
+        <h1>Order Management</h1>
+        <p>Manage all customer orders here</p>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" id="totalOrders"><%= totalOrders %></div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" id="pendingOrders"><%= pendingOrders %></div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" id="processingOrders"><%= processingOrders %></div>
+                <div class="stat-label">Processing</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value" id="deliveredOrders"><%= deliveredOrders %></div>
+                <div class="stat-label">Delivered</div>
             </div>
         </div>
     </div>
-</header>
-
-<div class="container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1 class="page-title">Order Management</h1>
-        <button class="cta-btn" id="refreshOrdersBtn">
-            <i class="fas fa-sync-alt"></i> Refresh Orders
-        </button>
+    <div class="content-card">
+        <div class="card-header">
+            <h2 class="card-title">All Orders</h2>
+            <div>
+                <button class="btn btn-primary" onclick="exportOrders()">
+                    <i class="fas fa-file-export"></i> Export Orders
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer ID</th>
+                    <th>Order Date</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Street</th>
+                    <th>PostalCode</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="ordersTableBody">
+                <% if (orders.isEmpty()) { %>
+                <tr><td colspan="8" style="text-align: center; padding: 20px;">No orders found.</td></tr>
+                <% } else { %>
+                <% for (Order order : orders) { %>
+                <tr>
+                    <td><strong><%= order.getOrderID() != null ? order.getOrderID() : "N/A" %></strong></td>
+                    <td><%= order.getCustomerID() != null ? order.getCustomerID() : "N/A" %></td>
+                    <td><%= order.getOrderDate() != null ? order.getOrderDate() : "N/A" %></td>
+                    <td style="font-weight: 600; color: #1e40af;">
+                        $<%= order.getTotalAmount() != 0.0 ? String.format("%.2f", order.getTotalAmount()) : "0.00" %>
+                    </td>
+                    <td><span class="status-badge status-<%= order.getStatus() != null ? order.getStatus().toLowerCase() : "pending" %>">
+                                <%= order.getStatus() != null ? order.getStatus() : "Pending" %>
+                            </span></td>
+                    <td><%= order.getStreet() != null ? order.getStreet() : "N/A" %></td>
+                    <td><%= order.getPostalCode() != null ? order.getPostalCode() : "N/A" %></td>
+                    <td class="action-btns">
+                        <button class="btn btn-sm btn-view" onclick="viewOrderDetails('<%= order.getOrderID() != null ? order.getOrderID() : "" %>')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-sm btn-edit" onclick="editOrder('<%= order.getOrderID() != null ? order.getOrderID() : "" %>')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <% if (!"Cancelled".equalsIgnoreCase(order.getStatus()) && !"Delivered".equalsIgnoreCase(order.getStatus())) { %>
+                        <button class="btn btn-sm btn-cancel" onclick="cancelOrder('<%= order.getOrderID() != null ? order.getOrderID() : "" %>')">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <% } %>
+                        <button class="btn btn-sm btn-delete" onclick="deleteOrder('<%= order.getOrderID() != null ? order.getOrderID() : "" %>')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                <% } %>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-    <!-- Order Statistics -->
-    <div class="stats-container">
-        <div class="stat-card">
-            <div class="stat-number" id="totalOrders">0</div>
-            <div class="stat-label">Total Orders</div>
+    <footer>
+        <div class="footer-links">
+            <a href="#"><i class="fas fa-phone-alt"></i> Help</a>
+            <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+            <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
         </div>
-        <div class="stat-card">
-            <div class="stat-number" id="pendingOrders">0</div>
-            <div class="stat-label">Pending Orders</div>
+        <div class="copyright">
+            &copy; 2023 MelodyMart. All rights reserved.
         </div>
-        <div class="stat-card">
-            <div class="stat-number" id="processingOrders">0</div>
-            <div class="stat-label">Processing Orders</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="deliveredOrders">0</div>
-            <div class="stat-label">Delivered Orders</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="cancelledOrders">0</div>
-            <div class="stat-label">Cancelled Orders</div>
-        </div>
-    </div>
-
-    <!-- Orders Table -->
-    <div class="table-container">
-        <h2 class="table-title">All Orders</h2>
-        <table class="data-table">
-            <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Customer ID</th>
-                <th>Seller ID</th>
-                <th>Order Date</th>
-                <th>Total Amount</th>
-                <th>Status</th>
-                <th>Delivery Address</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <%
-                Connection conn = null;
-                PreparedStatement ps = null;
-                ResultSet rs = null;
-                try {
-                    conn = DBConnection.getConnection();
-                    String sql = "SELECT OrderID, CustomerID, SellerID, OrderDate, TotalAmount, Status, DeliveryAddressID FROM Orders ORDER BY OrderDate DESC";
-                    ps = conn.prepareStatement(sql);
-                    rs = ps.executeQuery();
-
-                    int totalOrders = 0;
-                    int pendingOrders = 0;
-                    int processingOrders = 0;
-                    int deliveredOrders = 0;
-                    int cancelledOrders = 0;
-
-                    while (rs.next()) {
-                        totalOrders++;
-                        String status = rs.getString("Status");
-                        if ("Pending".equalsIgnoreCase(status)) pendingOrders++;
-                        if ("Processing".equalsIgnoreCase(status)) processingOrders++;
-                        if ("Delivered".equalsIgnoreCase(status)) deliveredOrders++;
-                        if ("Cancelled".equalsIgnoreCase(status)) cancelledOrders++;
-            %>
-            <tr>
-                <td>#<%= rs.getInt("OrderID") %></td>
-                <td>#CUST-<%= rs.getInt("CustomerID") %></td>
-                <td>#SELL-<%= rs.getInt("SellerID") %></td>
-                <td><%= rs.getTimestamp("OrderDate") %></td>
-                <td style="font-weight: 600; color: var(--accent);">$<%= rs.getBigDecimal("TotalAmount") %></td>
-                <td>
-                    <span class="status-badge status-<%= status.toLowerCase() %>"><%= status %></span>
-                </td>
-                <td>
-                    <%
-                        if (rs.getObject("DeliveryAddressID") != null) {
-                    %>
-                    #ADDR-<%= rs.getInt("DeliveryAddressID") %>
-                    <%
-                    } else {
-                    %>
-                    <span style="color: var(--text-secondary); font-style: italic;">Not set</span>
-                    <%
-                        }
-                    %>
-                </td>
-                <td>
-                    <button class="action-btn" title="Edit Order" onclick="openEditModal(<%= rs.getInt("OrderID") %>, '<%= status %>')">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="action-btn" title="View Details" onclick="viewOrderDetails(<%= rs.getInt("OrderID") %>)">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <%
-                        if (!"Cancelled".equalsIgnoreCase(status) && !"Delivered".equalsIgnoreCase(status)) {
-                    %>
-                    <button class="action-btn cancel-btn" title="Cancel Order" onclick="cancelOrder(<%= rs.getInt("OrderID") %>)">
-                        <i class="fas fa-times-circle"></i>
-                    </button>
-                    <%
-                        }
-                    %>
-                    <button class="action-btn delete-btn" title="Delete Order" onclick="deleteOrder(<%= rs.getInt("OrderID") %>)">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-            <%
-                    }
-
-                    // Store counts for JavaScript
-                    out.println("<script>");
-                    out.println("document.getElementById('totalOrders').textContent = '" + totalOrders + "';");
-                    out.println("document.getElementById('pendingOrders').textContent = '" + pendingOrders + "';");
-                    out.println("document.getElementById('processingOrders').textContent = '" + processingOrders + "';");
-                    out.println("document.getElementById('deliveredOrders').textContent = '" + deliveredOrders + "';");
-                    out.println("document.getElementById('cancelledOrders').textContent = '" + cancelledOrders + "';");
-                    out.println("</script>");
-
-                } catch (Exception e) {
-                    out.println("<tr><td colspan='8' style='color:#ff6b6b; text-align:center; padding:20px;'>Error loading orders: " + e.getMessage() + "</td></tr>");
-                } finally {
-                    if (rs != null) try { rs.close(); } catch (Exception ignored) {}
-                    if (ps != null) try { ps.close(); } catch (Exception ignored) {}
-                    if (conn != null) try { conn.close(); } catch (Exception ignored) {}
-                }
-            %>
-            </tbody>
-        </table>
-    </div>
+    </footer>
 </div>
-
-<!-- Edit Order Modal -->
-<div class="modal" id="editOrderModal">
+<div id="editOrderModal" class="modal">
     <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('editOrderModal')">&times;</button>
-        <h2 class="modal-title">Update Order Status</h2>
-        <form id="editOrderForm" method="post" action="${pageContext.request.contextPath}/UpdateOrderServlet">
+        <span class="close-modal" onclick="closeModal('editOrderModal')">&times;</span>
+        <h2 class="modal-title">Update Order</h2>
+        <form id="editOrderForm" method="post" action="order.jsp">
             <input type="hidden" name="orderId" id="editOrderId">
+            <input type="hidden" name="action" value="update">
             <div class="form-group">
-                <label class="form-label">Order Status</label>
+                <label for="editOrderStatus">Order Status</label>
                 <select class="form-select" name="status" id="editOrderStatus" required>
                     <option value="Pending">Pending</option>
                     <option value="Processing">Processing</option>
@@ -798,200 +691,209 @@
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">Delivery Address ID (Optional)</label>
-                <input type="text" class="form-control" name="deliveryAddressId" id="editDeliveryAddressId" placeholder="Enter delivery address ID">
+                <label for="editStreet">Street Address</label>
+                <input type="text" class="form-control" name="street" id="editStreet" placeholder="Enter street address" required>
             </div>
-            <button type="submit" class="cta-btn" style="width: 100%;">
-                <i class="fas fa-save"></i> Update Order
-            </button>
+            <div class="form-group">
+                <label for="editPostalCode">Postal Code</label>
+                <input type="text" class="form-control" name="postalCode" id="editPostalCode" placeholder="Enter postal code" required>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-cancel" onclick="closeModal('editOrderModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Update Order</button>
+            </div>
         </form>
     </div>
 </div>
-
-<!-- Order Details Modal -->
-<div class="modal" id="orderDetailsModal">
+<div id="orderDetailsModal" class="modal">
     <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('orderDetailsModal')">&times;</button>
-        <h2 class="modal-title">Order Details</h2>
-        <div id="orderDetailsContent">
-            <!-- Order details will be loaded here -->
+        <span class="close-modal" onclick="closeModal('orderDetailsModal')">&times;</span>
+        <h2 class="modal-title">Order Details - <span id="detailsOrderId"></span></h2>
+        <div class="order-details-grid">
+            <div>
+                <h3 style="margin-bottom: 15px; color: #1e40af;">Order Information</h3>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Order ID:</span>
+                    <span class="order-detail-value" id="detailOrderId">-</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Customer ID:</span>
+                    <span class="order-detail-value" id="detailCustomerId">-</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Order Date:</span>
+                    <span class="order-detail-value" id="detailOrderDate">-</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Status:</span>
+                    <span class="order-detail-value" id="detailStatus">-</span>
+                </div>
+            </div>
+            <div>
+                <h3 style="margin-bottom: 15px; color: #1e40af;">Payment & Shipping</h3>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Total Amount:</span>
+                    <span class="order-detail-value" id="detailTotalAmount">-</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Street:</span>
+                    <span class="order-detail-value" id="detailStreet">-</span>
+                </div>
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Postal Code:</span>
+                    <span class="order-detail-value" id="detailPostalCode">-</span>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="btn btn-cancel" onclick="closeModal('orderDetailsModal')">Close</button>
+            <button type="button" class="btn btn-primary" onclick="editOrder(document.getElementById('detailOrderId').textContent);">
+                <i class="fas fa-edit"></i> Edit Order
+            </button>
         </div>
     </div>
 </div>
-
-<!-- Cancel Order Modal -->
-<div class="modal" id="cancelOrderModal">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('cancelOrderModal')">&times;</button>
-        <h2 class="modal-title">Cancel Order</h2>
-        <div class="form-group">
-            <p>Are you sure you want to cancel order #<span id="cancelOrderId"></span>?</p>
-            <p style="color: var(--text-secondary); margin-top: 10px;">This action cannot be undone.</p>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Cancellation Reason (Optional)</label>
-            <textarea class="form-control" id="cancelReason" placeholder="Enter reason for cancellation" rows="3"></textarea>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button class="cta-btn" style="flex: 1; background: var(--secondary);" onclick="closeModal('cancelOrderModal')">No, Keep Order</button>
-            <button class="cta-btn" style="flex: 1; background: linear-gradient(135deg, #ff6b6b, #ff8e53);" id="confirmCancelBtn">Yes, Cancel Order</button>
-        </div>
-    </div>
-</div>
-
-<!-- Toast Notification -->
-<div class="toast" id="toast"></div>
-
 <script>
-    // Modal functions
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.style.display = "flex";
-        setTimeout(() => modal.classList.add("active"), 10);
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.content-card, .stat-card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+
+    function openModal(id) {
+        document.getElementById(id).style.display = "flex";
     }
 
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.remove("active");
-        setTimeout(() => modal.style.display = "none", 300);
+    function closeModal(id) {
+        document.getElementById(id).style.display = "none";
     }
 
-    function openEditModal(orderId, currentStatus) {
-        document.getElementById("editOrderId").value = orderId;
-        document.getElementById("editOrderStatus").value = currentStatus;
-        document.getElementById("editDeliveryAddressId").value = "";
-        openModal("editOrderModal");
+    function editOrder(orderId) {
+        <% for (Order order : orders) { %>
+        if ('<%= order.getOrderID() != null ? order.getOrderID() : "" %>' === orderId) {
+            document.getElementById('editOrderId').value = '<%= order.getOrderID() != null ? order.getOrderID() : "" %>';
+            document.getElementById('editOrderStatus').value = '<%= order.getStatus() != null ? order.getStatus() : "Pending" %>';
+            document.getElementById('editStreet').value = '<%= order.getStreet() != null ? order.getStreet() : "" %>';
+            document.getElementById('editPostalCode').value = '<%= order.getPostalCode() != null ? order.getPostalCode() : "" %>';
+            openModal('editOrderModal');
+            return;
+        }
+        <% } %>
+        console.error('Order not found:', orderId);
+        Swal.fire("Error", "Order not found.", "error");
     }
 
     function viewOrderDetails(orderId) {
-        // In a real application, you would fetch order details from the server
-        // For now, we'll show a placeholder message
-        document.getElementById("orderDetailsContent").innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-info-circle" style="font-size: 48px; color: var(--primary-light); margin-bottom: 15px;"></i>
-                <p>Order details for order #${orderId} would be displayed here.</p>
-                <p style="color: var(--text-secondary); margin-top: 10px;">This feature would connect to your backend to fetch detailed order information.</p>
-            </div>
-        `;
-        openModal("orderDetailsModal");
+        <% for (Order order : orders) { %>
+        if ('<%= order.getOrderID() != null ? order.getOrderID() : "" %>' === orderId) {
+            document.getElementById('detailsOrderId').textContent = '<%= order.getOrderID() != null ? order.getOrderID() : "N/A" %>';
+            document.getElementById('detailOrderId').textContent = '<%= order.getOrderID() != null ? order.getOrderID() : "N/A" %>';
+            document.getElementById('detailCustomerId').textContent = '<%= order.getCustomerID() != null ? order.getCustomerID() : "N/A" %>';
+            document.getElementById('detailOrderDate').textContent = '<%= order.getOrderDate() != null ? order.getOrderDate() : "N/A" %>';
+            document.getElementById('detailStatus').textContent = '<%= order.getStatus() != null ? order.getStatus() : "Pending" %>';
+            document.getElementById('detailTotalAmount').textContent = '$<%= order.getTotalAmount() != 0.0 ? String.format("%.2f", order.getTotalAmount()) : "0.00" %>';
+            document.getElementById('detailStreet').textContent = '<%= order.getStreet() != null ? order.getStreet() : "N/A" %>';
+            document.getElementById('detailPostalCode').textContent = '<%= order.getPostalCode() != null ? order.getPostalCode() : "N/A" %>';
+            openModal('orderDetailsModal');
+            return;
+        }
+        <% } %>
+        console.error('Order not found:', orderId);
+        Swal.fire("Error", "Order not found.", "error");
     }
 
     function cancelOrder(orderId) {
-        document.getElementById("cancelOrderId").textContent = orderId;
-        document.getElementById("cancelReason").value = "";
-
-        // Set up the confirm button
-        const confirmBtn = document.getElementById("confirmCancelBtn");
-        confirmBtn.onclick = function() {
-            processOrderCancellation(orderId);
-        };
-
-        openModal("cancelOrderModal");
-    }
-
-    function processOrderCancellation(orderId) {
-        const reason = document.getElementById("cancelReason").value;
-        const btn = document.getElementById("confirmCancelBtn");
-        const originalText = btn.innerHTML;
-
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
-        btn.disabled = true;
-
-        // In a real application, you would make an AJAX request to cancel the order
-        // For now, we'll simulate the process
-        setTimeout(() => {
-            showToast("Order #" + orderId + " has been cancelled successfully!", "success");
-            closeModal('cancelOrderModal');
-
-            // In a real application, you would update the order status in the database
-            // For now, we'll just reload the page to show the updated status
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        }, 1500);
+        Swal.fire({
+            title: "Cancel Order?",
+            html: "Are you sure you want to cancel order <strong>#" + orderId + "</strong>?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, cancel it",
+            cancelButtonText: "No, keep it",
+            confirmButtonColor: "#ef4444"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('order.jsp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'action=update&orderId=' + encodeURIComponent(orderId) + '&status=Cancelled&street=' + encodeURIComponent(document.getElementById('detailStreet').textContent) + '&postalCode=' + encodeURIComponent(document.getElementById('detailPostalCode').textContent)
+                }).then(response => {
+                    if (response.ok) {
+                        Swal.fire("Cancelled!", "Order has been cancelled.", "success").then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error", "Failed to cancel order.", "error");
+                    }
+                });
+            }
+        });
     }
 
     function deleteOrder(orderId) {
-        if (confirm("Are you sure you want to delete order #" + orderId + "? This action cannot be undone.")) {
-            // In a real application, you would submit a form or make an AJAX request to delete the order
-            showToast("Order #" + orderId + " deletion request sent.", "success");
-            // Example: window.location.href = "DeleteOrderServlet?orderId=" + orderId;
+        Swal.fire({
+            title: "Delete Order?",
+            html: "Are you sure you want to permanently delete order <strong>#" + orderId + "</strong>?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "No, keep it",
+            confirmButtonColor: "#ef4444"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('order.jsp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'action=delete&orderId=' + encodeURIComponent(orderId)
+                }).then(response => {
+                    if (response.ok) {
+                        Swal.fire("Deleted!", "Order has been deleted.", "success").then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire("Error", "Failed to delete order.", "error");
+                    }
+                });
+            }
+        });
+    }
+
+    function exportOrders() {
+        let csvContent = "OrderID,CustomerID,OrderDate,TotalAmount,Status,Street,PostalCode\n";
+        <% for (Order order : orders) { %>
+        csvContent += "<%= order.getOrderID() != null ? order.getOrderID() : "" %>,<%= order.getCustomerID() != null ? order.getCustomerID() : "" %>,<%= order.getOrderDate() != null ? order.getOrderDate() : "" %>,<%= order.getTotalAmount() != 0.0 ? String.format("%.2f", order.getTotalAmount()) : "0.00" %>,<%= order.getStatus() != null ? order.getStatus() : "Pending" %>,<%= order.getStreet() != null ? order.getStreet() : "" %>,<%= order.getPostalCode() != null ? order.getPostalCode() : "" %>\n";
+        <% } %>
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'orders.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+        Swal.fire("Exported!", "Order data has been exported successfully.", "success");
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = 'index.jsp';
         }
     }
 
-    // Toast notification function
-    function showToast(message, type) {
-        const toast = document.getElementById("toast");
-        toast.textContent = message;
-        toast.className = "toast " + type;
-        toast.classList.add("show");
-
-        setTimeout(() => {
-            toast.classList.remove("show");
-        }, 3000);
-    }
-
-    // Close modal when clicking outside
-    document.querySelectorAll('.modal').forEach(modal => {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal(modal.id);
+    window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let i = 0; i < modals.length; i++) {
+            if (event.target == modals[i]) {
+                closeModal(modals[i].id);
             }
-        });
-    });
-
-    // Refresh orders button
-    document.getElementById('refreshOrdersBtn').addEventListener('click', function() {
-        const btn = this;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
-        btn.disabled = true;
-
-        // Simulate refresh delay
-        setTimeout(() => {
-            location.reload();
-        }, 1000);
-    });
-
-    // Form submission handler
-    document.getElementById('editOrderForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-        submitBtn.disabled = true;
-
-        // Simulate form submission
-        setTimeout(() => {
-            showToast("Order status updated successfully!", "success");
-            closeModal('editOrderModal');
-            location.reload(); // Refresh the page to show updated data
-        }, 1500);
-    });
-
-    // Animate stats counters
-    document.addEventListener('DOMContentLoaded', function() {
-        const statElements = document.querySelectorAll('.stat-number');
-        statElements.forEach(stat => {
-            const target = parseInt(stat.textContent);
-            let current = 0;
-            const increment = target / 50;
-
-            const updateStat = () => {
-                if (current < target) {
-                    current += increment;
-                    stat.textContent = Math.round(current);
-                    setTimeout(updateStat, 30);
-                } else {
-                    stat.textContent = target;
-                }
-            };
-
-            setTimeout(updateStat, 500);
-        });
-    });
+        }
+    }
 </script>
-
 </body>
 </html>

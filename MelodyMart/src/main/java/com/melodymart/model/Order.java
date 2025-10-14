@@ -1,40 +1,49 @@
-package com.melodymart.model;
+package main.java.com.melodymart.model;
+
+import java.util.Date;
 
 public class Order {
-    private int id;
-    private int customerId;
-    private int instrumentId;
-    private int quantity;
-    private double totalPrice;
+    private String orderID;
+    private Date orderDate;
+    private double totalAmount;
     private String status;
-    private String deliveryAddress;
+    private String street;
+    private String postalCode;
+    private String customerID;
 
-    // Constructor
+    // Constructors
     public Order() {}
 
-    public Order(int id, int customerId, int instrumentId, int quantity, double totalPrice, String status, String deliveryAddress) {
-        this.id = id;
-        this.customerId = customerId;
-        this.instrumentId = instrumentId;
-        this.quantity = quantity;
-        this.totalPrice = totalPrice;
+    public Order(String orderID, Date orderDate, double totalAmount, String status,
+                 String street, String postalCode, String customerID) {
+        this.orderID = orderID;
+        this.orderDate = orderDate;
+        this.totalAmount = totalAmount;
         this.status = status;
-        this.deliveryAddress = deliveryAddress;
+        this.street = street;
+        this.postalCode = postalCode;
+        this.customerID = customerID;
     }
 
     // Getters and Setters
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-    public int getCustomerId() { return customerId; }
-    public void setCustomerId(int customerId) { this.customerId = customerId; }
-    public int getInstrumentId() { return instrumentId; }
-    public void setInstrumentId(int instrumentId) { this.instrumentId = instrumentId; }
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
-    public double getTotalPrice() { return totalPrice; }
-    public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
+    public String getOrderID() { return orderID; }
+    public void setOrderID(String orderID) { this.orderID = orderID; }
+
+    public Date getOrderDate() { return orderDate; }
+    public void setOrderDate(Date orderDate) { this.orderDate = orderDate; }
+
+    public double getTotalAmount() { return totalAmount; }
+    public void setTotalAmount(double totalAmount) { this.totalAmount = totalAmount; }
+
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-    public String getDeliveryAddress() { return deliveryAddress; }
-    public void setDeliveryAddress(String deliveryAddress) { this.deliveryAddress = deliveryAddress; }
+
+    public String getStreet() { return street; }
+    public void setStreet(String street) { this.street = street; }
+
+    public String getPostalCode() { return postalCode; }
+    public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
+
+    public String getCustomerID() { return customerID; }
+    public void setCustomerID(String customerID) { this.customerID = customerID; }
 }

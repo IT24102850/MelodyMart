@@ -2,9 +2,9 @@
 <%@ page session="true" %>
 
 <%
-    // Ensure user is logged in
-    Integer customerId = (Integer) session.getAttribute("customerId");
-    if (customerId == null) {
+    // Ensure user is logged in - Updated to match session attribute
+    String customerId = (String) session.getAttribute("CustomerID");
+    if (customerId == null || customerId.isEmpty()) {
         response.sendRedirect("sign-in.jsp");
         return;
     }
@@ -340,154 +340,154 @@
     </style>
 </head>
 <body>
-    <section id="cart" class="dashboard-section">
-        <div class="content-card">
-            <div class="card-header">
-                <h2 class="card-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.4 5.2 16.4H17M17 13V16.4M9 19C9 19.6 8.6 20 8 20C7.4 20 7 19.6 7 19C7 18.4 7.4 18 8 18C8.6 18 9 18.4 9 19ZM17 19C17 19.6 16.6 20 16 20C15.4 20 15 19.6 15 19C15 18.4 15.4 18 16 18C16.6 18 17 18.4 17 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    My Shopping Cart
-                </h2>
-            </div>
+<section id="cart" class="dashboard-section">
+    <div class="content-card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.7 15.3C4.3 15.7 4.6 16.4 5.2 16.4H17M17 13V16.4M9 19C9 19.6 8.6 20 8 20C7.4 20 7 19.6 7 19C7 18.4 7.4 18 8 18C8.6 18 9 18.4 9 19ZM17 19C17 19.6 16.6 20 16 20C15.4 20 15 19.6 15 19C15 18.4 15.4 18 16 18C16.6 18 17 18.4 17 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                My Shopping Cart
+            </h2>
+        </div>
 
-            <div class="cart-container">
-                <div class="cart-items">
-                    <%
-                        Connection conn = null;
-                        PreparedStatement ps = null;
-                        ResultSet rs = null;
+        <div class="cart-container">
+            <div class="cart-items">
+                <%
+                    Connection conn = null;
+                    PreparedStatement ps = null;
+                    ResultSet rs = null;
 
-                        double grandTotal = 0.0;
-                        boolean hasItems = false;
+                    double grandTotal = 0.0;
+                    boolean hasItems = false;
 
-                        try {
-                            conn = DatabaseUtil.getConnection();
-                            String sql = "SELECT c.CartID, c.Quantity, i.Name, i.Price, i.InstrumentID, i.ImageURL " +
-                                    "FROM Cart c JOIN Instrument i ON c.InstrumentID = i.InstrumentID " +
-                                    "WHERE c.CustomerID = ?";
-                            ps = conn.prepareStatement(sql);
-                            ps.setInt(1, customerId);
-                            rs = ps.executeQuery();
+                    try {
+                        conn = DatabaseUtil.getConnection();
+                        String sql = "SELECT c.CartID, c.Quantity, i.Name, i.Price, i.InstrumentID, i.ImageURL " +
+                                "FROM Cart c JOIN Instrument i ON c.InstrumentID = i.InstrumentID " +
+                                "WHERE c.CustomerID = ?";
+                        ps = conn.prepareStatement(sql);
+                        ps.setString(1, customerId);  // Changed to setString
+                        rs = ps.executeQuery();
 
-                            while (rs.next()) {
-                                hasItems = true;
-                                int cartId = rs.getInt("CartID");
-                                int instrumentId = rs.getInt("InstrumentID");
-                                int qty = rs.getInt("Quantity");
-                                double price = rs.getDouble("Price");
-                                double total = qty * price;
-                                grandTotal += total;
-                    %>
-                    <div class="cart-item" id="cart-item-<%= cartId %>">
-                        <img src="<%= (rs.getString("ImageURL") != null && !rs.getString("ImageURL").isEmpty())
+                        while (rs.next()) {
+                            hasItems = true;
+                            int cartId = rs.getInt("CartID");
+                            String instrumentId = rs.getString("InstrumentID");
+                            int qty = rs.getInt("Quantity");
+                            double price = rs.getDouble("Price");
+                            double total = qty * price;
+                            grandTotal += total;
+                %>
+                <div class="cart-item" id="cart-item-<%= cartId %>">
+                    <img src="<%= (rs.getString("ImageURL") != null && !rs.getString("ImageURL").isEmpty())
                                      ? rs.getString("ImageURL")
                                      : "https://via.placeholder.com/80?text=No+Image" %>"
-                             alt="<%= rs.getString("Name") %>" class="item-image">
-                        <div class="item-details">
-                            <div class="item-name"><%= rs.getString("Name") %></div>
-                            <div class="item-price">$<%= String.format("%.2f", price) %></div>
-                        </div>
-                        <div class="quantity-controls">
-                            <form action="UpdateCartServlet" method="post" class="quantity-form">
-                                <input type="hidden" name="cartId" value="<%= cartId %>">
-                                <input type="hidden" name="instrumentId" value="<%= instrumentId %>">
-                                <input type="number" name="quantity" value="<%= qty %>" min="1" class="quantity-input">
-                                <button type="submit" class="update-btn">Update</button>
-                            </form>
-                        </div>
-                        <div class="item-total">$<%= String.format("%.2f", total) %></div>
-                        <div class="item-actions">
-                            <form action="RemoveFromCartServlet" method="post" class="remove-form">
-                                <input type="hidden" name="cartId" value="<%= cartId %>">
-                                <input type="hidden" name="instrumentId" value="<%= instrumentId %>">
-                                <input type="hidden" name="quantity" value="<%= qty %>">
-                                <button type="submit" class="remove-btn">Remove</button>
-                            </form>
-                        </div>
+                         alt="<%= rs.getString("Name") %>" class="item-image">
+                    <div class="item-details">
+                        <div class="item-name"><%= rs.getString("Name") %></div>
+                        <div class="item-price">$<%= String.format("%.2f", price) %></div>
                     </div>
-                    <%
-                            }
-                        } catch (Exception e) {
-                    %>
-                    <div class="error-message">
-                        Error loading cart items: <%= e.getMessage() %>
+                    <div class="quantity-controls">
+                        <form action="UpdateCartServlet" method="post" class="quantity-form">
+                            <input type="hidden" name="cartId" value="<%= cartId %>">
+                            <input type="hidden" name="instrumentId" value="<%= instrumentId %>">
+                            <input type="number" name="quantity" value="<%= qty %>" min="1" class="quantity-input">
+                            <button type="submit" class="update-btn">Update</button>
+                        </form>
                     </div>
-                    <%
-                        } finally {
-                            if (rs != null) try { rs.close(); } catch (Exception ignored) {}
-                            if (ps != null) try { ps.close(); } catch (Exception ignored) {}
-                            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
-                        }
-
-                        if (!hasItems) {
-                    %>
-                    <div class="empty-cart">
-                        <div class="empty-cart-icon">🛒</div>
-                        <h3>Your cart is empty</h3>
-                        <p>Browse our collection and add some instruments to your cart!</p>
-                        <p><a href="shop.jsp">Start Shopping</a></p>
-                    </div>
-                    <%
-                        }
-                    %>
-                </div>
-
-                <% if (hasItems) { %>
-                <div class="cart-summary">
-                    <div class="summary-row">
-                        <span>Subtotal:</span>
-                        <span>$<%= String.format("%.2f", grandTotal) %></span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Shipping:</span>
-                        <span>Calculated at checkout</span>
-                    </div>
-                    <div class="summary-row grand-total">
-                        <span>Total:</span>
-                        <span>$<%= String.format("%.2f", grandTotal) %></span>
-                    </div>
-                    <div class="action-buttons">
-                        <a href="shop.jsp" class="btn btn-secondary">Continue Shopping</a>
-                        <a href="payment-gateway.jsp" class="btn btn-primary">Proceed to Checkout</a>
+                    <div class="item-total">$<%= String.format("%.2f", total) %></div>
+                    <div class="item-actions">
+                        <form action="RemoveFromCartServlet" method="post" class="remove-form">
+                            <input type="hidden" name="cartId" value="<%= cartId %>">
+                            <input type="hidden" name="instrumentId" value="<%= instrumentId %>">
+                            <input type="hidden" name="quantity" value="<%= qty %>">
+                            <button type="submit" class="remove-btn">Remove</button>
+                        </form>
                     </div>
                 </div>
-                <% } %>
-            </div>
-        </div>
-    </section>
-
-    <script>
-        // Add animation when updating quantities
-        document.addEventListener('DOMContentLoaded', function() {
-            const updateForms = document.querySelectorAll('.quantity-form');
-
-            updateForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    const cartId = this.querySelector('input[name="cartId"]').value;
-                    const cartItem = document.getElementById(`cart-item-${cartId}`);
-
-                    // Add animation class
-                    cartItem.classList.add('updated-item');
-
-                    // Remove class after animation completes
-                    setTimeout(() => {
-                        cartItem.classList.remove('updated-item');
-                    }, 1500);
-                });
-            });
-
-            // Add confirmation for remove actions
-            const removeForms = document.querySelectorAll('.remove-form');
-
-            removeForms.forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    if (!confirm('Are you sure you want to remove this item from your cart?')) {
-                        e.preventDefault();
+                <%
                     }
-                });
+                } catch (Exception e) {
+                %>
+                <div class="error-message">
+                    Error loading cart items: <%= e.getMessage() %>
+                </div>
+                <%
+                    } finally {
+                        if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+                        if (ps != null) try { ps.close(); } catch (Exception ignored) {}
+                        if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+                    }
+
+                    if (!hasItems) {
+                %>
+                <div class="empty-cart">
+                    <div class="empty-cart-icon">🛒</div>
+                    <h3>Your cart is empty</h3>
+                    <p>Browse our collection and add some instruments to your cart!</p>
+                    <p><a href="shop.jsp">Start Shopping</a></p>
+                </div>
+                <%
+                    }
+                %>
+            </div>
+
+            <% if (hasItems) { %>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span>$<%= String.format("%.2f", grandTotal) %></span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping:</span>
+                    <span>Calculated at checkout</span>
+                </div>
+                <div class="summary-row grand-total">
+                    <span>Total:</span>
+                    <span>$<%= String.format("%.2f", grandTotal) %></span>
+                </div>
+                <div class="action-buttons">
+                    <a href="shop.jsp" class="btn btn-secondary">Continue Shopping</a>
+                    <a href="payment-gateway.jsp" class="btn btn-primary">Proceed to Checkout</a>
+                </div>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Add animation when updating quantities
+    document.addEventListener('DOMContentLoaded', function() {
+        const updateForms = document.querySelectorAll('.quantity-form');
+
+        updateForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const cartId = this.querySelector('input[name="cartId"]').value;
+                const cartItem = document.getElementById(`cart-item-${cartId}`);
+
+                // Add animation class
+                cartItem.classList.add('updated-item');
+
+                // Remove class after animation completes
+                setTimeout(() => {
+                    cartItem.classList.remove('updated-item');
+                }, 1500);
             });
         });
-    </script>
+
+        // Add confirmation for remove actions
+        const removeForms = document.querySelectorAll('.remove-form');
+
+        removeForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('Are you sure you want to remove this item from your cart?')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>
