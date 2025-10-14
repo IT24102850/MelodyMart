@@ -135,15 +135,7 @@
     </div>
     <% } %>
 
-    <div class="debug-info">
-        <strong>Debug Info:</strong><br>
-        User Role: <%= userRole != null ? userRole : "Not set" %><br>
-        Is Seller: <%= isSeller %><br>
-        Is Customer: <%= isCustomer %><br>
-        Customer ID: <%= customerId != null ? customerId : "Not set" %><br>
-        Session ID: <%= session.getId() %><br>
-        Payments Count: <%= payments.size() %>
-    </div>
+
 </div>
 
 <script>
