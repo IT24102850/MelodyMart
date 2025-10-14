@@ -18,34 +18,35 @@ public class UpdatePaymentServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String paymentIdStr = request.getParameter("paymentId");
+        String paymentId = request.getParameter("paymentId");
         String status = request.getParameter("status");
 
-        if (paymentIdStr == null || status == null || paymentIdStr.isEmpty() || status.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required fields");
+        System.out.println("UpdatePaymentServlet - Payment ID: " + paymentId + ", New Status: " + status);
+
+        if (paymentId == null || status == null || paymentId.isEmpty() || status.isEmpty()) {
+            response.sendRedirect("PaymentManagementServlet?status=error&msg=Missing required fields");
             return;
         }
 
-        int paymentId = Integer.parseInt(paymentIdStr);
-
         try (Connection conn = DatabaseUtil.getConnection()) {
-            String sql = "UPDATE Payment SET Status = ? WHERE PaymentID = ?";
+            String sql = "UPDATE Payment SET TransactionStatus = ? WHERE PaymentID = ?";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, status);
-                ps.setInt(2, paymentId);
+                ps.setString(2, paymentId);
 
                 int rows = ps.executeUpdate();
                 if (rows > 0) {
-                    System.out.println("✅ Payment updated successfully: ID " + paymentId + " → " + status);
+                    System.out.println("Successfully updated payment " + paymentId + " to status: " + status);
+                    response.sendRedirect("PaymentManagementServlet?status=success&msg=Payment status updated to " + status);
                 } else {
-                    System.out.println("⚠ No payment found with ID: " + paymentId);
+                    System.out.println("No payment found with ID: " + paymentId);
+                    response.sendRedirect("PaymentManagementServlet?status=error&msg=No payment found with ID: " + paymentId);
                 }
             }
         } catch (Exception e) {
-            throw new ServletException("Error updating payment status", e);
+            System.out.println("Error updating payment: " + e.getMessage());
+            e.printStackTrace();
+            response.sendRedirect("PaymentManagementServlet?status=error&msg=Error updating payment: " + e.getMessage());
         }
-
-        // Redirect back to dashboard
-        response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp");
     }
 }

@@ -330,7 +330,7 @@
         %>
 
         <!-- Sign In Form -->
-        <form action="login" method="post" class="space-y-4" id="signinForm">
+        <form action="LoginServlet" method="post" class="space-y-4" id="signinForm">
             <div class="form-group relative">
                 <label for="email">Email</label>
                 <div class="relative">
