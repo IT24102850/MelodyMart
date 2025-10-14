@@ -47,7 +47,7 @@
             --glass-border: rgba(255, 255, 255, 0.1);
             --shadow: 0 5px 20px rgb(30, 64, 175);
             --shadow-hover: 0 10px 30px rgb(30, 64, 175);
-            --header-bg: rgb(30, 64, 175);
+            --header-bg: rgb(0, 0, 0);
             --section-bg: #1e40af;
         }
 

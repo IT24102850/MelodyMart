@@ -3,448 +3,690 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seller Dashboard | Melody Mart</title>
+    <title>MelodyMart - Seller Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #1e40af;
-            --background: #eff6ff;
-            --text: #1f2937;
-            --card-bg: #ffffff;
-            --glass-border: rgba(59, 130, 246, 0.2);
-            --gradient: linear-gradient(135deg, var(--primary), #3b82f6);
-            --shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
-            --border-radius: 15px;
-            --sidebar-width: 280px;
-            --header-height: 70px;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--background);
-            color: var(--text);
-            line-height: 1.6;
-            padding: 20px;
-        }
-
-        .dashboard-container {
-            display: flex;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e1f5fe 100%);
+            color: #333;
             min-height: 100vh;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            width: var(--sidebar-width);
-            background: var(--card-bg);
-            border-right: 1px solid var(--glass-border);
-            height: 100vh;
-            position: fixed;
-            overflow-y: auto;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            box-shadow: var(--shadow);
-        }
-
-        .sidebar-header {
             padding: 20px;
-            border-bottom: 1px solid var(--glass-border);
-            text-align: center;
         }
 
-        .sidebar-logo {
-            font-family: 'Playfair Display', serif;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 28px;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            color: #1e40af;
         }
 
-        .sidebar-logo i {
-            margin-right: 10px;
+        .logo i {
             font-size: 32px;
         }
 
-        .sidebar-menu {
-            padding: 20px 0;
-        }
-
-        .menu-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--text);
-            text-decoration: none;
-            background: rgba(59, 130, 246, 0.05);
-            border-radius: 5px;
-            margin: 5px 10px;
-            transition: all 0.3s ease;
-        }
-
-        .menu-item:hover, .menu-item.active {
-            background: var(--primary);
-            color: #ffffff;
-        }
-
-        .menu-item i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-        }
-
-        .dashboard-header {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--glass-border);
-            padding: 0 20px;
-            height: var(--header-height);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: fixed;
-            top: 0;
-            right: 0;
-            left: var(--sidebar-width);
-            z-index: 900;
-            box-shadow: var(--shadow);
-        }
-
-        .page-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 700;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .header-actions {
+        .header-right {
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
-        .notification-btn, .user-menu-btn {
-            background: none;
+        .logout-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
             border: none;
-            color: var(--text);
-            font-size: 18px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
-            position: relative;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .notification-btn:hover, .user-menu-btn:hover {
-            background: var(--primary);
-            color: #ffffff;
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
         }
 
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #3b82f6;
-            color: #ffffff;
-            font-size: 10px;
-            width: 16px;
-            height: 16px;
+        .user-profile {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
             font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .nav-container {
-            max-width: 800px;
-            margin: 100px auto 0;
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 30px;
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--shadow);
-        }
-
-        .nav-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 20px;
+        /* Dashboard Header */
+        .dashboard-header {
             text-align: center;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin-bottom: 40px;
         }
 
-        .nav-list {
-            list-style: none;
-        }
-
-        .nav-item {
+        .dashboard-header h1 {
+            font-size: 36px;
+            color: #1e40af;
             margin-bottom: 10px;
         }
 
-        .nav-link {
+        .dashboard-header p {
+            font-size: 18px;
+            color: #64748b;
+        }
+
+        /* Section Headers */
+        .section-header {
+            font-size: 24px;
+            color: #1e40af;
+            margin: 40px 0 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            background: #f8fafc;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
-            padding: 12px 20px;
-            color: var(--text);
-            text-decoration: none;
-            background: rgba(59, 130, 246, 0.05);
-            border-radius: 5px;
-            transition: all 0.3s ease;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
         }
 
-        .nav-link:hover {
-            background: var(--primary);
-            color: #ffffff;
+        .dashboard .card-icon {
+            background: linear-gradient(135deg, #10b981, #059669);
         }
 
-        .nav-link i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 24px;
-            text-align: center;
+        .inventory .card-icon {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
         }
 
-        /* Responsive */
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 260px;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .dashboard-header {
-                left: 0;
-            }
-
-            .menu-toggle {
-                display: block;
-            }
-
-            .nav-container {
-                margin: 80px 20px 0;
-            }
+        .orders .card-icon {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
         }
 
-        @media (max-width: 768px) {
-            .nav-container {
-                padding: 20px;
-            }
+        .deliveries .card-icon {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
         }
 
-        /* Toggle button for mobile */
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: var(--text);
+        .repairs .card-icon {
+            background: linear-gradient(135deg, #ec4899, #db2777);
+        }
+
+        .payments .card-icon {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+        }
+
+        .stock .card-icon {
+            background: linear-gradient(135deg, #84cc16, #65a30d);
+        }
+
+        .reports .card-icon {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+
+        .notifications .card-icon {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+        }
+
+        .profile .card-icon {
+            background: linear-gradient(135deg, #64748b, #475569);
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .card-change {
+            font-size: 14px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .card-change.negative {
+            color: #ef4444;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-value {
             font-size: 24px;
-            cursor: pointer;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Products List */
+        .products-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .product-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #e0f2fe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #0369a1;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .product-sales {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Ratings */
+        .rating-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .rating-item:last-child {
+            border-bottom: none;
+        }
+
+        .rating-stars {
+            color: #f59e0b;
             margin-right: 15px;
         }
 
-        @media (max-width: 992px) {
-            .menu-toggle {
-                display: block;
+        .rating-text {
+            font-weight: 500;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 30px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 20px 0;
+        }
+
+        .footer-links a {
+            color: #475569;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #1e40af;
+        }
+
+        .copyright {
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .cards-grid, .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .header-right {
+                gap: 10px;
+            }
+
+            .logout-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .logout-btn span {
+                display: none;
             }
         }
     </style>
 </head>
 <body>
-<div class="dashboard-container">
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <i class="fas fa-music"></i>
-                Melody Mart
-            </div>
-            <small>Seller Dashboard</small>
+<div class="container">
+    <!-- Header with Logo and Profile -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-music"></i>
+            <span>MelodyMart</span>
         </div>
-
-        <div class="sidebar-menu">
-            <a href="dashboard_overview.jsp" class="menu-item">
-                <i class="fas fa-chart-line"></i>
-                <span>Dashboard Overview</span>
-            </a>
-            <a href="addInstrument.jsp" class="menu-item">
-                <i class="fas fa-box"></i>
-                <span>Inventory Management</span>
-            </a>
-            <a href="order_management.jsp" class="menu-item">
-                <i class="fas fa-shopping-cart"></i>
-                <span>Order Management</span>
-            </a>
-            <a href="delivery_coordination.jsp" class="menu-item">
-                <i class="fas fa-truck"></i>
-                <span>Delivery Coordination</span>
-            </a>
-            <a href="repair_requests.jsp" class="menu-item">
-                <i class="fas fa-tools"></i>
-                <span>Repair Requests</span>
-            </a>
-            <a href="payment_management.jsp" class="menu-item">
-                <i class="fas fa-credit-card"></i>
-                <span>Payment Management</span>
-            </a>
-            <a href="stock_management.jsp" class="menu-item">
-                <i class="fas fa-cubes"></i>
-                <span>Stock Management</span>
-            </a>
-            <a href="sales_reports.jsp" class="menu-item">
-                <i class="fas fa-chart-bar"></i>
-                <span>Sales Reports</span>
-            </a>
-            <a href="notifications.jsp" class="menu-item">
-                <i class="fas fa-bell"></i>
-                <span>Notifications</span>
-            </a>
-            <a href="profile_settings.jsp" class="menu-item">
-                <i class="fas fa-user"></i>
-                <span>Profile Settings</span>
-            </a>
-            <a href="index.jsp?action=logout" class="menu-item" onclick="return confirmLogout()">
+        <div class="header-right">
+            <button class="logout-btn" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
-            </a>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        <header class="dashboard-header">
-            <button class="menu-toggle" id="menuToggle">
-                <i class="fas fa-bars"></i>
             </button>
-            <h1 class="page-title">Seller Dashboard</h1>
-            <div class="header-actions">
-                <button class="notification-btn">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge">3</span>
-                </button>
-                <button class="user-menu-btn">
-                    <i class="fas fa-user-circle"></i>
-                </button>
+            <div class="user-profile">
+                <i class="fas fa-user"></i>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <div class="nav-container">
-            <h1 class="nav-title">Seller Dashboard Navigation</h1>
-            <ul class="nav-list">
-                <li class="nav-item">
-                    <a href="dashboard_overview.jsp" class="nav-link">
-                        <i class="fas fa-chart-line"></i>
-                        Dashboard Overview
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="addInstrument.jsp" class="nav-link">
-                        <i class="fas fa-box"></i>
-                        Inventory Management
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="order.jsp" class="nav-link">
-                        <i class="fas fa-shopping-cart"></i>
-                        Order Management
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="delivery.jsp" class="nav-link">
-                        <i class="fas fa-truck"></i>
-                        Delivery Coordination
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="repair_requests.jsp" class="nav-link">
-                        <i class="fas fa-tools"></i>
-                        Repair Requests
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="payment_management.jsp" class="nav-link">
-                        <i class="fas fa-credit-card"></i>
-                        Payment Management
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="stock_management.jsp" class="nav-link">
-                        <i class="fas fa-cubes"></i>
-                        Stock Management
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="sales_reports.jsp" class="nav-link">
-                        <i class="fas fa-chart-bar"></i>
-                        Sales Reports
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="notifications.jsp" class="nav-link">
-                        <i class="fas fa-bell"></i>
-                        Notifications
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="profile_settings.jsp" class="nav-link">
-                        <i class="fas fa-user"></i>
-                        Profile Settings
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="index.jsp?action=logout" class="nav-link" onclick="return confirmLogout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </a>
-                </li>
-            </ul>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1>Seller Dashboard</h1>
+        <p>Welcome back, Melody Mahnaro</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">$24,580</div>
+                <div class="stat-label">Total Sales</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">342</div>
+                <div class="stat-label">Orders</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">$18,420</div>
+                <div class="stat-label">Revenue</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-value">4.8/5.0</div>
+                <div class="stat-label">Customer Rating</div>
+            </div>
         </div>
     </div>
+
+    <!-- Main Navigation Cards -->
+    <h2 class="section-header">Management</h2>
+    <div class="cards-grid">
+        <!-- Inventory Card -->
+        <a href="addInstrument.jsp" class="card inventory">
+            <div class="card-header">
+                <div class="card-title">Inventory</div>
+                <div class="card-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+            </div>
+            <div class="card-value">148 Products</div>
+            <div class="card-description">Manage your product inventory, update stock levels, and track product performance.</div>
+            <div class="card-change">
+                <i class="fas fa-arrow-up"></i>
+                <span>12 new items this month</span>
+            </div>
+        </a>
+
+        <!-- Orders Card -->
+        <a href="order.jsp" class="card orders">
+            <div class="card-header">
+                <div class="card-title">Orders</div>
+                <div class="card-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+            <div class="card-value">342 Orders</div>
+            <div class="card-description">View and manage customer orders, process returns, and track order status.</div>
+            <div class="card-change">
+                <i class="fas fa-arrow-up"></i>
+                <span>8.2% from last month</span>
+            </div>
+        </a>
+
+        <!-- Deliveries Card -->
+        <a href="deliveries.jsp" class="card deliveries">
+            <div class="card-header">
+                <div class="card-title">Deliveries</div>
+                <div class="card-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+            </div>
+            <div class="card-value">45 In Transit</div>
+            <div class="card-description">Track shipments, manage delivery schedules, and update shipping status.</div>
+            <div class="card-change">
+                <i class="fas fa-clock"></i>
+                <span>12 delayed deliveries</span>
+            </div>
+        </a>
+
+        <!-- Repair Requests Card -->
+        <a href="repairs.jsp" class="card repairs">
+            <div class="card-header">
+                <div class="card-title">Repair Requests</div>
+                <div class="card-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+            </div>
+            <div class="card-value">8 Active</div>
+            <div class="card-description">Manage instrument repair requests, schedule appointments, and track repair status.</div>
+            <div class="card-change">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>2 high priority requests</span>
+            </div>
+        </a>
+
+        <!-- Payments Card -->
+        <a href="payment.jsp" class="card payments">
+            <div class="card-header">
+                <div class="card-title">Payments</div>
+                <div class="card-icon">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+            </div>
+            <div class="card-value">$18,420</div>
+            <div class="card-description">View payment history, track transactions, and manage payout settings.</div>
+            <div class="card-change">
+                <i class="fas fa-arrow-up"></i>
+                <span>5.7% from last month</span>
+            </div>
+        </a>
+
+        <!-- Stock Management Card -->
+        <a href="stock.jsp" class="card stock">
+            <div class="card-header">
+                <div class="card-title">Stock Management</div>
+                <div class="card-icon">
+                    <i class="fas fa-cubes"></i>
+                </div>
+            </div>
+            <div class="card-value">23 Low Stock</div>
+            <div class="card-description">Monitor stock levels, set up reorder alerts, and manage suppliers.</div>
+            <div class="card-change negative">
+                <i class="fas fa-arrow-down"></i>
+                <span>5 items out of stock</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- Reports & Account Section -->
+    <h2 class="section-header">Reports & Account</h2>
+    <div class="cards-grid">
+        <!-- Sales Reports Card -->
+        <a href="reports.jsp" class="card reports">
+            <div class="card-header">
+                <div class="card-title">Sales Reports</div>
+                <div class="card-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+            </div>
+            <div class="card-value">15 Reports</div>
+            <div class="card-description">Generate detailed sales reports, analyze performance trends, and export data.</div>
+            <div class="card-change">
+                <i class="fas fa-file-export"></i>
+                <span>Export latest data</span>
+            </div>
+        </a>
+
+        <!-- Notifications Card -->
+        <a href="notifications.jsp" class="card notifications">
+            <div class="card-header">
+                <div class="card-title">Notifications</div>
+                <div class="card-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+            </div>
+            <div class="card-value">7 Unread</div>
+            <div class="card-description">View system notifications, customer messages, and important alerts.</div>
+            <div class="card-change">
+                <i class="fas fa-envelope"></i>
+                <span>3 new messages</span>
+            </div>
+        </a>
+
+        <!-- Profile Card -->
+        <a href="profile.jsp" class="card profile">
+            <div class="card-header">
+                <div class="card-title">Profile</div>
+                <div class="card-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+            <div class="card-value">Melody Mahnaro</div>
+            <div class="card-description">Update your account information, change password, and manage preferences.</div>
+            <div class="card-change">
+                <i class="fas fa-cog"></i>
+                <span>Update settings</span>
+            </div>
+        </a>
+    </div>
+
+    <!-- Top Products Section -->
+    <h2 class="section-header">Top Products</h2>
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">Best Selling Instruments</div>
+            <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                <i class="fas fa-guitar"></i>
+            </div>
+        </div>
+        <ul class="products-list">
+            <li class="product-item">
+                <div class="product-icon">
+                    <i class="fas fa-guitar"></i>
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Acoustic Guitar</div>
+                    <div class="product-sales">128 sold • $12,450 revenue</div>
+                </div>
+            </li>
+            <li class="product-item">
+                <div class="product-icon">
+                    <i class="fas fa-drum"></i>
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Electronic Drum Set</div>
+                    <div class="product-sales">76 sold • $9,800 revenue</div>
+                </div>
+            </li>
+            <li class="product-item">
+                <div class="product-icon">
+                    <i class="fas fa-piano"></i>
+                </div>
+                <div class="product-info">
+                    <div class="product-name">Digital Piano</div>
+                    <div class="product-sales">54 sold • $8,100 revenue</div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="#"><i class="fas fa-phone-alt"></i> Help</a>
+            <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+            <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+        </div>
+        <div class="copyright">
+            &copy; 2023 MelodyMart. All rights reserved.
+        </div>
+    </footer>
 </div>
 
 <script>
-    // Sidebar toggle for mobile
-    document.getElementById('menuToggle').addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('active');
+    // Simple animation for cards on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card');
+
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
     });
 
-    // Highlight active menu item based on current page
-    const currentPage = window.location.pathname.split('/').pop();
-    document.querySelectorAll('.menu-item, .nav-link').forEach(item => {
-        if (item.getAttribute('href') === currentPage) {
-            item.classList.add('active');
+    // Logout function
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            // Redirect to login page or perform logout action
+            window.location.href = 'index.jsp';
         }
-    });
-
-    // Logout confirmation
-    function confirmLogout() {
-        return confirm('Are you sure you want to logout?');
     }
 </script>
 </body>
