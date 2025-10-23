@@ -1,159 +1,218 @@
-package com.melodymart.servlet;
+package main.java.com.melodymart.servlet;
 
-import com.melodymart.util.DatabaseUtil;
+import main.java.com.melodymart.util.DBConnection;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @WebServlet("/PaymentManagementServlet")
 public class PaymentManagementServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    @Override
+    // -------------------------------
+    // GET: Load all payment records
+    // -------------------------------
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("=== PaymentManagementServlet called at " + new java.util.Date() + " ===");
 
-        HttpSession session = request.getSession();
-        String userRole = (String) session.getAttribute("userRole");
-        String customerId = (String) session.getAttribute("customerId");
-        System.out.println("PaymentManagementServlet - Session ID: " + session.getId() + ", User Role: " + userRole + ", Customer ID: " + customerId);
+        response.setContentType("text/html;charset=UTF-8");
+        System.out.println("🟢 [PaymentManagementServlet] doGet() triggered");
 
-        if (userRole == null) {
-            System.out.println("Redirecting to login: Role is null");
+        HttpSession session = request.getSession(false);
+
+        // ✅ Validate session and role
+        if (session == null) {
+            System.out.println("⚠️ No session found. Redirecting to sign-in.jsp");
             response.sendRedirect("sign-in.jsp");
             return;
         }
 
-        List<Map<String, Object>> payments = null;
-        try {
-            if ("customer".equals(userRole) && customerId != null) {
-                payments = getCustomerPayments(customerId);
-            } else if ("seller".equals(userRole)) {
-                payments = getAllPayments();
-            }
-            System.out.println("Retrieved " + (payments != null ? payments.size() : 0) + " payments");
-        } catch (SQLException e) {
-            System.out.println("Database error in PaymentManagementServlet: " + e.getMessage());
-            e.printStackTrace();
+        String userRole = (String) session.getAttribute("userRole");
+        String customerId = (String) session.getAttribute("customerId");
+        System.out.println("👤 UserRole=" + userRole + ", CustomerID=" + customerId);
+
+        if (userRole == null) {
+            response.sendRedirect("sign-in.jsp");
+            return;
         }
 
-        if (payments == null) {
-            payments = new ArrayList<>();
-            System.out.println("Payments list initialized as empty due to null result");
+        List<Map<String, Object>> payments = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection()) {
+
+            if (conn == null) {
+                System.out.println("❌ DBConnection returned null!");
+                request.setAttribute("msg", "Database connection failed.");
+                request.setAttribute("status", "error");
+            } else {
+                String sql;
+                PreparedStatement ps;
+
+                if ("seller".equalsIgnoreCase(userRole)) {
+                    sql = "SELECT p.PaymentID, p.OrderID, o.TotalAmount, p.MethodID, "
+                            + "p.TransactionStatus, p.PaymentDate "
+                            + "FROM Payment p JOIN OrderNow o ON p.OrderID = o.OrderID "
+                            + "ORDER BY p.PaymentDate DESC";
+                    ps = conn.prepareStatement(sql);
+                } else {
+                    sql = "SELECT p.PaymentID, p.OrderID, o.TotalAmount, p.MethodID, "
+                            + "p.TransactionStatus, p.PaymentDate "
+                            + "FROM Payment p JOIN OrderNow o ON p.OrderID = o.OrderID "
+                            + "JOIN Person per ON CONCAT(per.FirstName,' ',per.LastName)=o.CustomerName "
+                            + "WHERE per.PersonID = ? ORDER BY p.PaymentDate DESC";
+                    ps = conn.prepareStatement(sql);
+                    ps.setString(1, customerId);
+                }
+
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    row.put("paymentId", rs.getString("PaymentID"));
+                    row.put("orderId", rs.getString("OrderID"));
+                    row.put("totalAmount", rs.getDouble("TotalAmount"));
+                    row.put("methodId", rs.getString("MethodID"));
+                    row.put("transactionStatus", rs.getString("TransactionStatus"));
+                    row.put("paymentDate", rs.getTimestamp("PaymentDate"));
+                    payments.add(row);
+                }
+
+                rs.close();
+                ps.close();
+                System.out.println("✅ Loaded " + payments.size() + " payments.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("❌ Exception in doGet(): " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("msg", "Error loading payments: " + e.getMessage());
+            request.setAttribute("status", "error");
         }
+
         request.setAttribute("payments", payments);
 
-        String status = request.getParameter("status");
-        String msg = request.getParameter("msg");
-        if (status != null && msg != null) {
-            request.setAttribute("status", status);
-            request.setAttribute("msg", msg);
-        } else if (payments.isEmpty()) {
-            request.setAttribute("status", "info");
-            request.setAttribute("msg", "No payment records found.");
-        }
-
-        request.setAttribute("userRole", userRole);
-
-        request.getRequestDispatcher("payment.jsp").forward(request, response);
+        // Always forward (no blank page)
+        RequestDispatcher rd = request.getRequestDispatcher("payment.jsp");
+        rd.forward(request, response);
     }
 
-    private List<Map<String, Object>> getAllPayments() throws SQLException {
-        List<Map<String, Object>> payments = new ArrayList<>();
-        String sql = "SELECT p.PaymentID, p.OrderID, o.TotalAmount AS Amount, p.PaymentMethod, " +
-                "p.MethodID AS TransactionId, p.TransactionStatus AS Status, p.PaymentDate " +
-                "FROM Payment p LEFT JOIN OrderTable o ON p.OrderID = o.OrderID " +
-                "ORDER BY p.PaymentDate DESC";
+    // -------------------------------
+    // POST: Handle Update / Return / Delete
+    // -------------------------------
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-        System.out.println("Executing SQL query: " + sql);
+        response.setContentType("text/html;charset=UTF-8");
+        System.out.println("🟣 [PaymentManagementServlet] doPost() triggered");
 
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        String action = request.getParameter("action");
+        String paymentId = request.getParameter("paymentId");
+        String newStatus = request.getParameter("status");
 
-            while (rs.next()) {
-                Map<String, Object> payment = new HashMap<>();
-                payment.put("paymentId", rs.getString("PaymentID"));
-                payment.put("orderId", rs.getString("OrderID"));
-                payment.put("amount", rs.getDouble("Amount"));
-                payment.put("paymentMethod", rs.getString("PaymentMethod"));
-                payment.put("transactionId", rs.getString("TransactionId"));
-                payment.put("status", rs.getString("Status"));
-                payment.put("paymentDate", rs.getTimestamp("PaymentDate"));
-                payments.add(payment);
+        System.out.println("➡️ Action=" + action + ", PaymentID=" + paymentId + ", NewStatus=" + newStatus);
 
-                System.out.println("Payment retrieved: ID=" + payment.get("paymentId") + ", Amount=" + payment.get("amount"));
+        String msg;
+        String status;
+
+        try (Connection conn = DBConnection.getConnection()) {
+            if (conn == null) {
+                throw new SQLException("Database connection failed (null connection).");
             }
-        } catch (SQLException e) {
-            System.out.println("SQL Exception: " + e.getMessage());
-            throw e;
+
+            conn.setAutoCommit(false);
+
+            switch (action == null ? "" : action.toLowerCase()) {
+                case "update":
+                    msg = updatePaymentStatus(conn, paymentId, newStatus);
+                    status = msg.startsWith("✅") ? "success" : "error";
+                    break;
+
+                case "return":
+                    msg = returnPayment(conn, paymentId);
+                    status = msg.startsWith("✅") ? "success" : "error";
+                    break;
+
+                case "delete":
+                    msg = deletePayment(conn, paymentId);
+                    status = msg.startsWith("✅") ? "success" : "error";
+                    break;
+
+                default:
+                    msg = "⚠️ Unknown action requested.";
+                    status = "error";
+                    break;
+            }
+
+            conn.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            msg = "❌ Database error: " + e.getMessage();
+            status = "error";
         }
-        return payments;
+
+        // Pass feedback to JSP
+        request.setAttribute("msg", msg);
+        request.setAttribute("status", status);
+
+        // Reload payment list
+        doGet(request, response);
     }
 
-    private List<Map<String, Object>> getCustomerPayments(String customerId) throws SQLException {
-        List<Map<String, Object>> payments = new ArrayList<>();
-        String sql = "SELECT p.PaymentID, p.OrderID, o.TotalAmount AS Amount, p.PaymentMethod, " +
-                "p.MethodID AS TransactionId, p.TransactionStatus AS Status, p.PaymentDate " +
-                "FROM Payment p JOIN OrderTable o ON p.OrderID = o.OrderID " +
-                "WHERE o.CustomerNIC = ? " +
-                "ORDER BY p.PaymentDate DESC";
-
-        System.out.println("Executing SQL query for customer: " + sql);
-
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, customerId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Map<String, Object> payment = new HashMap<>();
-                    payment.put("paymentId", rs.getString("PaymentID"));
-                    payment.put("orderId", rs.getString("OrderID"));
-                    payment.put("amount", rs.getDouble("Amount"));
-                    payment.put("paymentMethod", rs.getString("PaymentMethod"));
-                    payment.put("transactionId", rs.getString("TransactionId"));
-                    payment.put("status", rs.getString("Status"));
-                    payment.put("paymentDate", rs.getTimestamp("PaymentDate"));
-                    payments.add(payment);
-
-                    System.out.println("Customer payment retrieved: ID=" + payment.get("paymentId") + ", Amount=" + payment.get("amount"));
-                }
+    // -------------------------------
+    // Helper Methods
+    // -------------------------------
+    private String updatePaymentStatus(Connection conn, String paymentId, String newStatus) {
+        String sql = "UPDATE Payment SET TransactionStatus=?, UpdatedAt=GETDATE() WHERE PaymentID=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newStatus);
+            ps.setString(2, paymentId);
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                System.out.println("✅ Updated " + paymentId + " to " + newStatus);
+                return "✅ Payment " + paymentId + " updated to " + newStatus + ".";
+            } else {
+                return "⚠️ No payment found for update (" + paymentId + ").";
             }
         } catch (SQLException e) {
-            System.out.println("SQL Exception: " + e.getMessage());
-            throw e;
+            e.printStackTrace();
+            return "❌ Error updating payment: " + e.getMessage();
         }
-        return payments;
     }
 
-    // Utility method to check if order belongs to customer
-    public static boolean isOrderBelongsToCustomer(String customerId, String orderId) {
-        if (customerId == null || orderId == null) return false;
-
-        String sql = "SELECT COUNT(*) FROM OrderTable WHERE OrderID = ? AND CustomerNIC = ?";
-
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, orderId);
-            ps.setString(2, customerId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0;
-                }
+    private String returnPayment(Connection conn, String paymentId) {
+        String sql = "UPDATE Payment SET TransactionStatus='Returned', RefundDate=GETDATE(), UpdatedAt=GETDATE() WHERE PaymentID=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, paymentId);
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                System.out.println("✅ Refunded payment " + paymentId);
+                return "✅ Payment " + paymentId + " refunded successfully.";
+            } else {
+                return "⚠️ Refund failed for payment " + paymentId + ".";
             }
         } catch (SQLException e) {
-            System.out.println("Error checking order ownership: " + e.getMessage());
+            e.printStackTrace();
+            return "❌ Error processing refund: " + e.getMessage();
         }
-        return false;
+    }
+
+    private String deletePayment(Connection conn, String paymentId) {
+        String sql = "DELETE FROM Payment WHERE PaymentID=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, paymentId);
+            int rows = ps.executeUpdate();
+            if (rows > 0) {
+                System.out.println("✅ Deleted payment " + paymentId);
+                return "✅ Payment " + paymentId + " deleted successfully.";
+            } else {
+                return "⚠️ Payment not found for delete (" + paymentId + ").";
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "❌ Error deleting payment: " + e.getMessage();
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.melodymart.servlet;
+package main.java.com.melodymart.servlet;
 
 import com.melodymart.util.DatabaseUtil;
 import javax.servlet.ServletException;
@@ -27,20 +27,37 @@ public class DeletePaymentServlet extends HttpServlet {
             return;
         }
 
-        try (Connection conn = DatabaseUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement("DELETE FROM Payment WHERE PaymentID = ?")) {
+        try (Connection conn = DatabaseUtil.getConnection()) {
+            conn.setAutoCommit(false); // Start transaction
 
-            ps.setString(1, paymentId);
-            int rows = ps.executeUpdate();
+            try {
+                // First delete from CardPayment if exists
+                String deleteCardPaymentSql = "DELETE FROM CardPayment WHERE PaymentID = ?";
+                try (PreparedStatement ps = conn.prepareStatement(deleteCardPaymentSql)) {
+                    ps.setString(1, paymentId);
+                    ps.executeUpdate();
+                }
 
-            if (rows > 0) {
-                System.out.println("Successfully deleted payment: " + paymentId);
-                response.sendRedirect("PaymentManagementServlet?status=success&msg=Payment deleted successfully");
-            } else {
-                System.out.println("Payment not found: " + paymentId);
-                response.sendRedirect("PaymentManagementServlet?status=error&msg=Payment not found");
+                // Then delete from Payment
+                String deletePaymentSql = "DELETE FROM Payment WHERE PaymentID = ?";
+                try (PreparedStatement ps = conn.prepareStatement(deletePaymentSql)) {
+                    ps.setString(1, paymentId);
+                    int rows = ps.executeUpdate();
+
+                    if (rows > 0) {
+                        conn.commit(); // Commit transaction
+                        System.out.println("Successfully deleted payment: " + paymentId);
+                        response.sendRedirect("PaymentManagementServlet?status=success&msg=Payment deleted successfully");
+                    } else {
+                        conn.rollback(); // Rollback if no payment found
+                        System.out.println("Payment not found: " + paymentId);
+                        response.sendRedirect("PaymentManagementServlet?status=error&msg=Payment not found");
+                    }
+                }
+            } catch (Exception e) {
+                conn.rollback(); // Rollback on error
+                throw e;
             }
-
         } catch (Exception e) {
             System.out.println("Error deleting payment: " + e.getMessage());
             e.printStackTrace();

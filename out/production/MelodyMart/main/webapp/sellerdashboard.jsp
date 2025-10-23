@@ -136,6 +136,7 @@
             box-shadow: var(--shadow);
             border-left: 5px solid var(--primary);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer; /* Added to indicate clickable */
         }
 
         .stat-card:hover {
@@ -356,14 +357,23 @@
         </div>
     </header>
 
+    <!-- Role Check -->
+    <%
+        String userRole = (String) session.getAttribute("userRole");
+        if (userRole == null || !userRole.equalsIgnoreCase("seller")) {
+            response.sendRedirect("sign-in.jsp?error=Access denied. Please log in as a seller.");
+            return;
+        }
+    %>
+
     <div class="dashboard-header">
         <h1>Seller Dashboard</h1>
-        <p>Welcome back, <%= session.getAttribute("userName") %></p>
+        <p>Welcome back, <%= session.getAttribute("userName") != null ? session.getAttribute("userName") : "Seller" %></p>
     </div>
 
     <!-- Quick Stats -->
     <div class="stats-grid">
-        <div class="stat-card inventory">
+        <div class="stat-card inventory" onclick="navigateTo('addInstrument.jsp')">
             <div class="stat-header">
                 <div class="stat-icon">
                     <i class="fas fa-guitar"></i>
@@ -378,7 +388,7 @@
             <div class="stat-description">Manage your product inventory, update stock levels, and track product performance.</div>
         </div>
 
-        <div class="stat-card payments">
+        <div class="stat-card payments" onclick="navigateTo('payment.jsp')">
             <div class="stat-header">
                 <div class="stat-icon">
                     <i class="fas fa-credit-card"></i>
@@ -393,7 +403,7 @@
             <div class="stat-description">View payment history, track transactions, and manage payout settings.</div>
         </div>
 
-        <div class="stat-card orders">
+        <div class="stat-card orders" onclick="navigateTo('orderManagement.jsp')">
             <div class="stat-header">
                 <div class="stat-icon">
                     <i class="fas fa-shopping-cart"></i>
@@ -408,7 +418,7 @@
             <div class="stat-description">View and manage customer orders, process returns, and track order status.</div>
         </div>
 
-        <div class="stat-card stock">
+        <div class="stat-card stock" onclick="navigateTo('stockManagement.jsp')">
             <div class="stat-header">
                 <div class="stat-icon">
                     <i class="fas fa-boxes"></i>
@@ -423,7 +433,7 @@
             <div class="stat-description">Monitor stock levels, set up reorder alerts, and manage suppliers.</div>
         </div>
 
-        <div class="stat-card deliveries">
+        <div class="stat-card deliveries" onclick="navigateTo('deliveries.jsp')">
             <div class="stat-header">
                 <div class="stat-icon">
                     <i class="fas fa-shipping-fast"></i>
@@ -438,7 +448,7 @@
             <div class="stat-description">Track shipments, manage delivery schedules, and update shipping status.</div>
         </div>
 
-        <div class="stat-card repairs">
+        <div class="stat-card repairs" onclick="navigateTo('repairRequests.jsp')">
             <div class="stat-header">
                 <div class="stat-icon">
                     <i class="fas fa-tools"></i>
@@ -457,17 +467,17 @@
     <!-- Management Section -->
     <h2 class="section-header">Management</h2>
     <div class="cards-grid">
-        <div class="card" onclick="navigateTo('inventory.jsp')">
+        <div class="card" onclick="navigateTo('addInstrument.jsp')">
             <i class="fas fa-warehouse"></i>
             <h3>Inventory Management</h3>
             <p>Add new products, update stock levels, and manage your product catalog</p>
         </div>
-        <div class="card" onclick="navigateTo('orders.jsp')">
+        <div class="card" onclick="navigateTo('orderManagement.jsp')">
             <i class="fas fa-clipboard-list"></i>
             <h3>Order Management</h3>
             <p>Process orders, handle returns, and track order fulfillment</p>
         </div>
-        <div class="card" onclick="navigateTo('PaymentManagementServlet')">
+        <div class="card" onclick="navigateTo('payment.jsp')">
             <i class="fas fa-money-bill-wave"></i>
             <h3>Payment Tracking</h3>
             <p>Monitor transactions, manage payouts, and view financial reports</p>
@@ -482,22 +492,22 @@
     <!-- Reports & Account Section -->
     <h2 class="section-header">Reports & Account</h2>
     <div class="cards-grid">
-        <div class="card" onclick="navigateTo('reports.jsp')">
+        <div class="card" onclick="navigateTo('salesReports.jsp')">
             <i class="fas fa-chart-bar"></i>
             <h3>Sales Reports</h3>
             <p>Generate detailed sales reports and performance analytics</p>
         </div>
-        <div class="card" onclick="navigateTo('analytics.jsp')">
+        <div class="card" onclick="navigateTo('performanceAnalytics.jsp')">
             <i class="fas fa-chart-line"></i>
             <h3>Performance Analytics</h3>
             <p>View business insights and performance metrics</p>
         </div>
-        <div class="card" onclick="navigateTo('account.jsp')">
+        <div class="card" onclick="navigateTo('accountSettings.jsp')">
             <i class="fas fa-user-cog"></i>
             <h3>Account Settings</h3>
             <p>Update your profile, preferences, and business information</p>
         </div>
-        <div class="card" onclick="navigateTo('support.jsp')">
+        <div class="card" onclick="navigateTo('sellerSupport.jsp')">
             <i class="fas fa-headset"></i>
             <h3>Seller Support</h3>
             <p>Get help, contact support, and access resources</p>
@@ -578,13 +588,14 @@
 
     // Navigation function
     function navigateTo(page) {
-        window.location.href = page;
+        // Ensure the page URL includes the context path
+        window.location.href = '<%= request.getContextPath() %>/' + page;
     }
 
     // Logout function
     function logout() {
         if (confirm('Are you sure you want to logout?')) {
-            window.location.href = 'logout.jsp';
+            window.location.href = '<%= request.getContextPath() %>/index.jsp';
         }
     }
 

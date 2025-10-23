@@ -97,7 +97,7 @@ public class OrderServlet extends HttpServlet {
         String orderId = request.getParameter("id");
         Order order = orderDAO.getOrderById(orderId);
         request.setAttribute("order", order);
-        request.getRequestDispatcher("/edit-order.jsp").forward(request, response);
+        request.getRequestDispatcher("/edit-orders.jsp").forward(request, response);
     }
     
     private void updateOrder(HttpServletRequest request, HttpServletResponse response)

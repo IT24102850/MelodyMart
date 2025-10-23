@@ -1,5 +1,6 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="java.util.*" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,60 +11,98 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* Your existing CSS - keeping it all */
         :root {
-            --primary: #8a2be2;
-            --primary-light: #9b45f0;
-            --secondary: #0a0a0a;
-            --accent: #00e5ff;
-            --accent-alt: #ff00c8;
-            --text: #ffffff;
-            --text-secondary: #b3b3b3;
-            --card-bg: #1a1a1a;
-            --card-hover: #2a2a2a;
+            --primary: #1e40af;
+            --primary-light: #3b82f6;
+            --primary-soft: #dbeafe;
+            --secondary: #ffffff;
+            --accent: #06b6d4;
+            --accent-alt: #ef4444;
+            --text: #1e40af;
+            --text-secondary: #475569;
+            --text-soft: #64748b;
+            --card-bg: #f8fafc;
+            --card-hover: #ffffff;
             --gradient: linear-gradient(135deg, var(--primary), var(--accent));
             --gradient-alt: linear-gradient(135deg, var(--accent-alt), var(--primary));
-            --glass-bg: rgba(30, 30, 30, 0.7);
+            --gradient-soft: linear-gradient(135deg, var(--primary-soft), #e0f2fe);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --shadow: 0 5px 20px rgba(30, 64, 175, 0.1);
+            --shadow-hover: 0 10px 30px rgba(30, 64, 175, 0.2);
+            --header-bg: rgba(255, 255, 255, 0.95);
+            --section-bg: #f1f5f9;
+            --border-radius: 16px;
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --primary-soft: #1e3a8a;
+            --secondary: #1e40af;
+            --accent: #22d3ee;
+            --accent-alt: #f87171;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-soft: #94a3b8;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --glass-bg: rgba(30, 64, 175, 0.9);
             --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 5px 20px rgba(30, 64, 175, 0.3);
+            --shadow-hover: 0 10px 30px rgba(30, 64, 175, 0.4);
+            --header-bg: rgba(30, 64, 175, 0.95);
+            --section-bg: #1e40af;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
         }
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, rgba(10, 10, 10, 0.95), rgba(20, 20, 20, 0.95)), url('https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80');
-            background-size: cover;
-            background-attachment: fixed;
+            background-color: var(--secondary);
             color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
             overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        .container-fluid {
-            padding: 0;
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
-        /* Enhanced Navbar */
-        .navbar {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            padding: 15px 40px;
-            border-bottom: 1px solid var(--glass-border);
-            position: sticky;
+        /* Header & Navigation */
+        header {
+            position: fixed;
             top: 0;
+            left: 0;
+            width: 100%;
             z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-            animation: slideDown 0.5s ease-out;
+            padding: 20px 0;
+            transition: all 0.4s ease;
+            backdrop-filter: blur(10px);
+            background-color: var(--header-bg);
+        }
+
+        header.scrolled {
+            padding: 15px 0;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .navbar-brand {
+        .logo {
             font-family: 'Playfair Display', serif;
             font-size: 28px;
             font-weight: 800;
@@ -72,73 +111,127 @@
             -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
-            transition: transform 0.3s ease;
-            text-decoration: none;
         }
 
-        .navbar-brand:hover {
-            transform: scale(1.05);
-        }
-
-        .navbar-brand i {
+        .logo i {
             margin-right: 10px;
             font-size: 32px;
-            animation: pulse 2s infinite;
         }
 
-        .nav-actions {
+        .nav-links {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            list-style: none;
         }
 
-        .nav-link {
+        .nav-links li {
+            margin: 0 15px;
+        }
+
+        .nav-links a {
             color: var(--text);
-            font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 8px 16px;
-            border-radius: 20px;
             text-decoration: none;
-            display: flex;
-            align-items: center;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+            padding: 8px 0;
         }
 
-        .nav-link:hover {
+        .nav-links a.active {
             color: var(--primary-light);
-            background: rgba(138, 43, 226, 0.1);
-            transform: translateY(-2px);
         }
 
-        .nav-link i {
-            margin-right: 8px;
-        }
-
-        .nav-link:after {
+        .nav-links a:after {
             content: '';
             position: absolute;
-            bottom: -5px;
-            left: 50%;
-            transform: translateX(-50%);
+            bottom: 0;
+            left: 0;
             width: 0;
             height: 2px;
             background: var(--gradient);
             transition: width 0.3s ease;
         }
 
-        .nav-link:hover:after {
-            width: 80%;
+        .nav-links a:hover {
+            color: var(--primary-light);
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-actions button {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-actions button:hover {
+            color: var(--primary-light);
+            background: var(--primary-soft);
+        }
+
+        .cta-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 20px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+        }
+
+        .cta-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: var(--gradient-alt);
+            transition: all 0.4s ease;
+            z-index: -1;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(30, 64, 175, 0.4);
+        }
+
+        .cta-btn:hover:before {
+            width: 100%;
         }
 
         /* Main Layout */
         .main-wrapper {
             display: flex;
             min-height: calc(100vh - 76px);
+            margin-top: 76px;
         }
 
         /* Sidebar */
         .sidebar {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(10px);
             border-right: 1px solid var(--glass-border);
             width: 280px;
             padding: 30px 20px;
@@ -147,8 +240,7 @@
             top: 76px;
             height: calc(100vh - 76px);
             overflow-y: auto;
-            animation: slideInLeft 0.5s ease-out;
-            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.2);
+            box-shadow: var(--shadow);
         }
 
         .sidebar-header {
@@ -178,20 +270,7 @@
 
         .sidebar-menu li {
             margin-bottom: 12px;
-            opacity: 0;
-            transform: translateX(-20px);
-            animation: fadeInRight 0.5s ease-out forwards;
         }
-
-        .sidebar-menu li:nth-child(1) { animation-delay: 0.1s; }
-        .sidebar-menu li:nth-child(2) { animation-delay: 0.15s; }
-        .sidebar-menu li:nth-child(3) { animation-delay: 0.2s; }
-        .sidebar-menu li:nth-child(4) { animation-delay: 0.25s; }
-        .sidebar-menu li:nth-child(5) { animation-delay: 0.3s; }
-        .sidebar-menu li:nth-child(6) { animation-delay: 0.35s; }
-        .sidebar-menu li:nth-child(7) { animation-delay: 0.4s; }
-        .sidebar-menu li:nth-child(8) { animation-delay: 0.45s; }
-        .sidebar-menu li:nth-child(9) { animation-delay: 0.5s; }
 
         .sidebar-menu a {
             display: flex;
@@ -199,7 +278,7 @@
             color: var(--text);
             text-decoration: none;
             padding: 14px 15px;
-            border-radius: 10px;
+            border-radius: var(--border-radius);
             transition: all 0.3s ease;
             border: 1px solid transparent;
         }
@@ -208,7 +287,7 @@
             background: var(--gradient);
             color: white;
             transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+            box-shadow: var(--shadow-hover);
             border-color: var(--primary-light);
         }
 
@@ -229,13 +308,12 @@
             flex: 1;
             padding: 40px;
             overflow-y: auto;
-            background: linear-gradient(to bottom, rgba(10, 10, 10, 0.8), rgba(20, 20, 20, 0.8));
+            background: var(--section-bg);
         }
 
         .dashboard-header {
             margin-bottom: 40px;
             text-align: center;
-            animation: fadeInUp 0.5s ease-out 0.3s both;
         }
 
         .dashboard-header h2 {
@@ -261,23 +339,15 @@
         }
 
         .stat-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
+            background: var(--card-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 18px;
+            border-radius: var(--border-radius);
             padding: 25px;
             transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: var(--shadow);
         }
-
-        .stat-card:nth-child(1) { animation-delay: 0.4s; }
-        .stat-card:nth-child(2) { animation-delay: 0.5s; }
-        .stat-card:nth-child(3) { animation-delay: 0.6s; }
-        .stat-card:nth-child(4) { animation-delay: 0.7s; }
 
         .stat-card::before {
             content: '';
@@ -289,12 +359,12 @@
             background: var(--gradient);
             opacity: 0.05;
             z-index: -1;
-            border-radius: 18px;
+            border-radius: var(--border-radius);
         }
 
         .stat-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(138, 43, 226, 0.25);
+            box-shadow: var(--shadow-hover);
         }
 
         .stat-icon {
@@ -303,7 +373,6 @@
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: pulse 2s infinite;
         }
 
         .stat-value {
@@ -322,34 +391,22 @@
 
         /* Section Cards */
         .section-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
+            background: var(--card-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 18px;
+            border-radius: var(--border-radius);
             padding: 0;
             margin-bottom: 35px;
             overflow: hidden;
             transition: all 0.4s ease;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.6s ease-out forwards;
+            box-shadow: var(--shadow);
         }
 
-        .section-card:nth-child(1) { animation-delay: 0.5s; }
-        .section-card:nth-child(2) { animation-delay: 0.6s; }
-        .section-card:nth-child(3) { animation-delay: 0.7s; }
-        .section-card:nth-child(4) { animation-delay: 0.8s; }
-        .section-card:nth-child(5) { animation-delay: 0.9s; }
-        .section-card:nth-child(6) { animation-delay: 1.0s; }
-        .section-card:nth-child(7) { animation-delay: 1.1s; }
-        .section-card:nth-child(8) { animation-delay: 1.2s; }
-
         .section-card:hover {
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            box-shadow: var(--shadow-hover);
         }
 
         .card-header {
-            background: rgba(138, 43, 226, 0.15);
+            background: var(--primary-soft);
             padding: 25px;
             border-bottom: 1px solid var(--glass-border);
             display: flex;
@@ -387,7 +444,8 @@
         .table-container {
             overflow-x: auto;
             border-radius: 10px;
-            background: rgba(20, 20, 20, 0.5);
+            background: var(--secondary);
+            margin-top: 15px;
         }
 
         table {
@@ -403,40 +461,190 @@
         }
 
         th {
-            background: rgba(138, 43, 226, 0.1);
+            background: var(--primary-soft);
             font-weight: 600;
             color: var(--primary-light);
         }
 
         tr {
-            opacity: 0;
-            animation: fadeIn 0.6s ease-out forwards;
             transition: background 0.3s ease;
         }
 
-        tr:nth-child(1) { animation-delay: 0.3s; }
-        tr:nth-child(2) { animation-delay: 0.4s; }
-        tr:nth-child(3) { animation-delay: 0.5s; }
-
         tr:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--primary-soft);
         }
 
         .badge {
-            padding: 4px 8px;
-            border-radius: 12px;
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
+            color: white;
         }
 
-        .badge.bg-success {
-            background: rgba(40, 167, 69, 0.2);
+        .bg-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .bg-warning {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+        }
+
+        .bg-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .bg-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--glass-border);
+            background: var(--secondary);
+            color: var(--text);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.3);
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-select {
+            background: var(--secondary);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 12px 15px;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-light);
+        }
+
+        /* Grid System */
+        .grid {
+            display: grid;
+        }
+
+        .grid-cols-1 {
+            grid-template-columns: repeat(1, 1fr);
+        }
+
+        .md\:grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .md\:grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .md\:grid-cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .md\:col-span-2 {
+            grid-column: span 2;
+        }
+
+        .gap-4 {
+            gap: 1rem;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid;
+        }
+
+        .alert i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .alert-info {
+            background: rgba(23, 162, 184, 0.1);
+            border-left-color: #17a2b8;
+            color: #17a2b8;
+        }
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .alert-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border-left-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.1);
+            border-left-color: #28a745;
             color: #28a745;
         }
 
-        .badge.bg-warning {
-            background: rgba(255, 193, 7, 0.2);
-            color: #ffc107;
+        /* List Group */
+        .list-group {
+            list-style: none;
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--secondary);
+        }
+
+        .list-group-item {
+            padding: 15px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .list-group-item:hover {
+            background: var(--primary-soft);
+        }
+
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--secondary);
+            padding: 20px;
         }
 
         /* Buttons */
@@ -484,7 +692,7 @@
         .btn-primary:hover {
             background: var(--gradient-alt);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.4);
+            box-shadow: 0 5px 15px rgba(30, 64, 175, 0.4);
         }
 
         .btn-warning {
@@ -517,155 +725,54 @@
             box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
         }
 
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+        }
+
         .btn-sm {
             padding: 6px 12px;
             font-size: 14px;
         }
 
-        /* Forms */
-        .form-group {
-            margin-bottom: 20px;
+        .btn-outline-primary {
+            background: transparent;
+            border: 2px solid var(--primary-light);
+            color: var(--primary-light);
         }
 
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--glass-border);
-            background: var(--card-bg);
-            color: var(--text);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
+        .btn-outline-primary:hover {
+            background: var(--primary-light);
+            color: white;
         }
 
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(138, 43, 226, 0.3);
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .form-select {
-            background: var(--card-bg);
-            color: var(--text);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            padding: 12px 15px;
-            width: 100%;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-select:focus {
-            outline: none;
-            border-color: var(--primary-light);
-        }
-
-        /* Alerts */
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            animation: slideInRight 0.5s ease-out;
-            border-left: 4px solid;
-        }
-
-        .alert i {
-            margin-right: 10px;
-            font-size: 20px;
-        }
-
-        .alert-info {
-            background: rgba(23, 162, 184, 0.1);
-            border-left-color: #17a2b8;
-            color: #17a2b8;
-        }
-
-        .alert-danger {
-            background: rgba(220, 53, 69, 0.1);
-            border-left-color: #dc3545;
-            color: #dc3545;
-        }
-
-        .alert-warning {
-            background: rgba(255, 193, 7, 0.1);
-            border-left-color: #ffc107;
-            color: #ffc107;
-        }
-
-        /* List Group */
-        .list-group {
-            list-style: none;
-            border-radius: 10px;
-            overflow: hidden;
-            background: var(--card-bg);
-        }
-
-        .list-group-item {
-            padding: 15px;
-            border-bottom: 1px solid var(--glass-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-            opacity: 0;
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-
-        .list-group-item:nth-child(1) { animation-delay: 0.3s; }
-        .list-group-item:nth-child(2) { animation-delay: 0.4s; }
-        .list-group-item:nth-child(3) { animation-delay: 0.5s; }
-
-        .list-group-item:hover {
-            background: var(--card-hover);
-        }
-
-        .list-group-item:last-child {
-            border-bottom: none;
-        }
-
-        /* Charts */
-        .chart-container {
-            position: relative;
-            height: 350px;
-            width: 100%;
-            margin-top: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        /* Floating elements */
-        .floating-elements {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .floating-element {
-            position: absolute;
-            font-size: 20px;
-            color: rgba(138, 43, 226, 0.1);
-            animation: float 6s ease-in-out infinite;
-        }
+        /* Utility Classes */
+        .mt-3 { margin-top: 0.75rem; }
+        .mt-4 { margin-top: 1rem; }
+        .mt-5 { margin-top: 1.25rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+        .text-center { text-align: center; }
+        .text-muted { color: var(--text-soft); }
+        .w-full { width: 100%; }
+        .float-right { float: right; }
+        .text-sm { font-size: 0.875rem; }
+        .font-semibold { font-weight: 600; }
+        .flex { display: flex; }
+        .flex-wrap { flex-wrap: wrap; }
+        .gap-2 { gap: 0.5rem; }
 
         /* Footer */
         footer {
-            background: #0a0a0a;
+            background: var(--card-bg);
             padding: 30px 0;
             border-top: 1px solid var(--glass-border);
             text-align: center;
-            animation: fadeInUp 0.5s ease-out;
         }
 
         footer p {
@@ -673,95 +780,10 @@
             margin: 0;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInRight {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* Hover effects */
-        .hover-lift {
-            transition: transform 0.3s ease;
-        }
-
-        .hover-lift:hover {
-            transform: translateY(-5px);
-        }
-
         /* Responsive */
         @media (max-width: 992px) {
-            .navbar {
-                padding: 15px 20px;
-            }
-
-            .nav-actions {
-                flex-direction: column;
-                gap: 10px;
+            .nav-links {
+                display: none;
             }
 
             .sidebar {
@@ -796,30 +818,82 @@
             .card-header-actions {
                 align-self: flex-start;
             }
+
+            .grid-cols-1, .md\:grid-cols-2, .md\:grid-cols-3, .md\:grid-cols-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .md\:col-span-2 {
+                grid-column: 1;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            width: 500px;
+            max-width: 90%;
+            box-shadow: var(--shadow-hover);
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            background: var(--text-soft);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-secondary);
         }
     </style>
 </head>
 <body>
-<!-- Floating elements for background -->
-<div class="floating-elements">
-    <div class="floating-element" style="top: 10%; left: 5%; animation-delay: 0s;">🎸</div>
-    <div class="floating-element" style="top: 20%; left: 90%; animation-delay: 2s;">🎹</div>
-    <div class="floating-element" style="top: 40%; left: 7%; animation-delay: 4s;">🎷</div>
-    <div class="floating-element" style="top: 70%; left: 85%; animation-delay: 1s;">🥁</div>
-    <div class="floating-element" style="top: 85%; left: 10%; animation-delay: 3s;">🎻</div>
-    <div class="floating-element" style="top: 30%; left: 80%; animation-delay: 5s;">🎺</div>
-</div>
 
 <!-- Header/Navbar -->
-<nav class="navbar">
-    <a class="navbar-brand" href="index.jsp">
-        <i class="fas fa-music"></i>Melody Mart Admin
-    </a>
-    <div class="nav-actions">
-        <a href="index.jsp" class="nav-link"><i class="fas fa-home"></i> Home</a>
-        <a href="#" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+<header>
+    <div class="container nav-container">
+        <div class="logo">
+            <i class="fas fa-music"></i>
+            Melody Mart Admin
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="index.jsp">Home</a></li>
+            <li><a href="categories.jsp">Categories</a></li>
+            <li><a href="admin-dashboard.jsp" class="active">Admin</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <button class="search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+            <button class="theme-toggle" aria-label="Toggle Theme" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-menu">
+                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
+            </div>
+        </div>
     </div>
-</nav>
+</header>
 
 <div class="main-wrapper">
     <!-- Sidebar -->
@@ -829,8 +903,8 @@
             <p>Control Center</p>
         </div>
         <ul class="sidebar-menu">
-            <li><a href="#user-management" class="active"><i class="fas fa-users"></i> User Management</a></li>
-            <li><a href="#stock-management"><i class="fas fa-boxes"></i> Stock Management</a></li>
+            <li><a href="#user-management"><i class="fas fa-users"></i> User Management</a></li>
+            <li><a href="#stock-management" class="active"><i class="fas fa-boxes"></i> Stock Management</a></li>
             <li><a href="#item-review"><i class="fas fa-flag"></i> Item Review Queue</a></li>
             <li><a href="#reporting"><i class="fas fa-chart-bar"></i> Reporting Tools</a></li>
             <li><a href="#policy-update"><i class="fas fa-file-alt"></i> Policy Update</a></li>
@@ -845,7 +919,7 @@
     <div class="main-content">
         <div class="dashboard-header">
             <h2>Admin Dashboard</h2>
-            <p>As of 11:07 AM +0530 on September 18, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
+            <p>As of 11:07 AM +0530 on October 23, 2025, manage all aspects of the platform efficiently with premium tools and insights.</p>
         </div>
 
         <!-- Stats Overview -->
@@ -872,522 +946,632 @@
             </div>
         </div>
 
-        <!-- User Management Section -->
-        <section id="user-management" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-users"></i> User Management Section</h3>
-                <div class="card-header-actions">
-                    <button class="btn btn-sm btn-primary hover-lift"><i class="fas fa-download"></i> Export</button>
-                    <button class="btn btn-sm btn-success hover-lift"><i class="fas fa-plus"></i> Add New</button>
-                </div>
-            </div>
-            <div class="card-body">
-                <p>Tools to manage users (e.g., view user lists, approve registrations, suspend accounts).</p>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>Name</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1001</td>
-                            <td>John Doe</td>
-                            <td>Customer</td>
-                            <td><span class="badge bg-success">Active</span></td>
-                            <td>
-                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-warning btn-sm hover-lift"><i class="fas fa-ban"></i> Suspend</button>
-                                <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1002</td>
-                            <td>Jane Smith</td>
-                            <td>Seller</td>
-                            <td><span class="badge bg-warning">Pending</span></td>
-                            <td>
-                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-check"></i> Approve</button>
-                                <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-times"></i> Reject</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>1003</td>
-                            <td>Robert Johnson</td>
-                            <td>Admin</td>
-                            <td><span class="badge bg-success">Active</span></td>
-                            <td>
-                                <button class="btn btn-primary btn-sm hover-lift"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-warning btn-sm hover-lift"><i class="fas fa-ban"></i> Suspend</button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-
-
-
-
-
-        <%@ page import="java.sql.Connection" %>
-        <%@ page import="java.sql.PreparedStatement" %>
-        <%@ page import="java.sql.ResultSet" %>
-        <%@ page import="com.melodymart.util.DatabaseUtil" %>
-
-        <!-- ⭐ Improved Stock Management Tools -->
+        <!-- Stock Management Section -->
         <section id="stock-management" class="section-card">
-            <div class="card-header flex items-center justify-between">
-                <h3 class="flex items-center gap-2 text-lg font-semibold">
-                    <i class="fas fa-boxes"></i> Stock Management Tools
-                </h3>
-                <button type="button" class="btn btn-secondary" onclick="refreshStockStatus()">
-                    <i class="fas fa-sync-alt"></i> Refresh Status
-                </button>
-            </div>
-
-            <div class="card-body">
-                <p class="text-muted mb-3">
-                    Quickly update instrument stock levels, track availability, and get real-time alerts for low or oversold items.
-                </p>
-
-                <!-- Update Stock Form -->
-                <form id="stockUpdateForm" method="post" action="${pageContext.request.contextPath}/UpdateStockServlet"
-                      class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-
-                    <!-- Instrument ID -->
-                    <div class="form-group">
-                        <label for="instrumentId" class="form-label font-weight-bold">Instrument ID</label>
-                        <input type="text" class="form-control" id="instrumentId" name="instrumentId" placeholder="Enter ID" required>
-                    </div>
-
-                    <!-- Quantity -->
-                    <div class="form-group">
-                        <label for="stockQuantity" class="form-label font-weight-bold">New Quantity</label>
-                        <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" placeholder="e.g. 20" min="0" required>
-                    </div>
-
-                    <!-- Submit -->
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary hover-lift w-full">
-                            <i class="fas fa-save"></i> Update Stock
+            <div class="card-header">
+                <h3><i class="fas fa-boxes"></i> Stock Management Tools</h3>
+                <div class="card-header-actions">
+                    <form action="${pageContext.request.contextPath}/ExportStockReportServlet" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <i class="fas fa-file-export"></i> Export CSV
                         </button>
-                    </div>
-                </form>
-
-                <!-- 🔔 Stock Alerts (Dynamic from DB) -->
-                <div id="stockAlerts" class="mt-5">
-                    <h5 class="mb-2"><i class="fas fa-bell text-warning"></i> Stock Alerts</h5>
-                    <ul class="list-group">
-                        <%
-                            Connection conn = null;
-                            PreparedStatement ps = null;
-                            ResultSet rs = null;
-                            try {
-                                conn = DatabaseUtil.getConnection();
-                                String sql = "SELECT InstrumentID, Name, StockLevel FROM Instrument WHERE StockLevel IN ('Low Stock', 'Out of Stock')";
-                                ps = conn.prepareStatement(sql);
-                                rs = ps.executeQuery();
-                                while (rs.next()) {
-                                    String level = rs.getString("StockLevel");
-                                    String icon = "Low Stock".equalsIgnoreCase(level)
-                                            ? "<i class='fas fa-exclamation-triangle text-warning'></i>"
-                                            : "<i class='fas fa-times-circle text-danger'></i>";
-                        %>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><%= icon %> Item ID <%= rs.getInt("InstrumentID") %> (<%= rs.getString("Name") %>) is <b><%= level %></b></span>
-                            <button class="btn btn-sm btn-outline-primary" onclick="quickRestock(<%= rs.getInt("InstrumentID") %>)">Restock</button>
-                        </li>
-                        <%
-                                }
-                            } catch (Exception e) {
-                                out.println("<li class='list-group-item text-danger'>Error: " + e.getMessage() + "</li>");
-                            } finally {
-                                if (rs != null) try { rs.close(); } catch (Exception ignored) {}
-                                if (ps != null) try { ps.close(); } catch (Exception ignored) {}
-                                if (conn != null) try { conn.close(); } catch (Exception ignored) {}
-                            }
-                        %>
-                    </ul>
+                    </form>
+                    <button class="btn btn-sm btn-primary" onclick="refreshStockStatus()">
+                        <i class="fas fa-sync-alt"></i> Refresh Status
+                    </button>
                 </div>
             </div>
 
+            <div class="card-body">
+                <p>Quickly update instrument stock levels, track availability, and get real-time alerts for low or oversold items.</p>
 
-            <%@ page import="java.sql.Connection" %>
-            <%@ page import="java.sql.PreparedStatement" %>
-            <%@ page import="java.sql.ResultSet" %>
-            <%@ page import="com.melodymart.util.DatabaseUtil" %>
+                <!-- Success/Error Messages -->
+                <c:if test="${not empty message}">
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> ${message}
+                    </div>
+                    <c:remove var="message" scope="session"/>
+                </c:if>
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> ${error}
+                    </div>
+                    <c:remove var="error" scope="session"/>
+                </c:if>
 
-            <!-- 📊 Stock Reports / Audit Section -->
-            <section id="stock-reports" class="section-card mt-4">
-                <div class="card-header flex items-center justify-between">
-                    <h3 class="flex items-center gap-2 text-lg font-semibold">
-                        <i class="fas fa-chart-line"></i> Stock Reports & Audits
-                    </h3>
-                    <div class="d-flex gap-2">
-                        <!-- Export Report -->
-                        <form method="post" action="${pageContext.request.contextPath}/ExportStockReportServlet" style="display:inline;">
-                            <button type="submit" class="btn btn-secondary">
-                                <i class="fas fa-file-download"></i> Export Report (CSV)
-                            </button>
-                        </form>
+                <!-- Instrument List with Filters -->
+                <div class="instrument-list mt-4">
+                    <h5><i class="fas fa-list text-info"></i> Instrument List with Filters</h5>
 
-                        <!-- Remove Instrument (Global) -->
-                        <form action="${pageContext.request.contextPath}/RemoveInstrumentServlet"
-                              method="post" class="d-flex align-items-center"
-                              onsubmit="return confirm('Are you sure you want to remove this instrument from sale?');">
-                            <input type="text" name="instrumentId" class="form-control form-control-sm mr-2"
-                                   placeholder="Instrument ID" required>
-                            <button type="submit" class="btn btn-sm btn-danger">
-                                <i class="fas fa-ban"></i> Remove from Sale
-                            </button>
-                        </form>
+                    <!-- Filter Form -->
+                    <form id="filterForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
+                        <div class="form-group">
+                            <label class="form-label">Search by Name</label>
+                            <input type="text" id="nameFilter" name="name" class="form-control" placeholder="Instrument name...">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <select id="categoryFilter" name="category" class="form-select">
+                                <option value="">All Categories</option>
+                                <option value="Guitars">Guitars</option>
+                                <option value="Pianos">Pianos</option>
+                                <option value="Drums">Drums</option>
+                                <option value="Violins">Violins</option>
+                                <option value="Wind Instruments">Wind Instruments</option>
+                                <option value="Studio Monitors">Studio Monitors</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Stock Level</label>
+                            <select id="stockLevelFilter" name="stockLevel" class="form-select">
+                                <option value="">All Stock Levels</option>
+                                <option value="In Stock">In Stock</option>
+                                <option value="Low Stock">Low Stock</option>
+                                <option value="Out of Stock">Out of Stock</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="filterInstruments()" class="btn btn-info w-full">
+                                    <i class="fas fa-filter"></i> Filter
+                                </button>
+                                <button type="button" onclick="clearFilters()" class="btn btn-outline-primary">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Instrument List Table -->
+                    <div class="table-container mt-4">
+                        <table id="instrumentsTable" class="w-full">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Quantity</th>
+                                <th>Stock Level</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Evidence</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody id="instrumentsTableBody">
+                            <!-- Sample Data -->
+                            <tr data-name="fender stratocaster" data-category="Guitars" data-stock="In Stock">
+                                <td>1</td>
+                                <td>Fender Stratocaster</td>
+                                <td>15</td>
+                                <td><span class="badge bg-success">In Stock</span></td>
+                                <td>Guitars</td>
+                                <td>$1499.99</td>
+                                <td>No evidence</td>
+                                <td>
+                                    <button onclick="quickUpdate(1)" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Update
+                                    </button>
+                                    <button onclick="quickRemove(1)" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                    <button onclick="quickCorrection(1)" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-exchange-alt"></i> Correct
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-name="yamaha hs8" data-category="Studio Monitors" data-stock="Low Stock">
+                                <td>2</td>
+                                <td>Yamaha HS8</td>
+                                <td>3</td>
+                                <td><span class="badge bg-warning">Low Stock</span></td>
+                                <td>Studio Monitors</td>
+                                <td>$349.99</td>
+                                <td>No evidence</td>
+                                <td>
+                                    <button onclick="quickUpdate(2)" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Update
+                                    </button>
+                                    <button onclick="quickRemove(2)" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                    <button onclick="quickCorrection(2)" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-exchange-alt"></i> Correct
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-name="yamaha piano" data-category="Pianos" data-stock="In Stock">
+                                <td>3</td>
+                                <td>Yamaha Grand Piano</td>
+                                <td>8</td>
+                                <td><span class="badge bg-success">In Stock</span></td>
+                                <td>Pianos</td>
+                                <td>$4500.00</td>
+                                <td>No evidence</td>
+                                <td>
+                                    <button onclick="quickUpdate(3)" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Update
+                                    </button>
+                                    <button onclick="quickRemove(3)" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                    <button onclick="quickCorrection(3)" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-exchange-alt"></i> Correct
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-name="pearl drum set" data-category="Drums" data-stock="Out of Stock">
+                                <td>4</td>
+                                <td>Pearl Drum Set</td>
+                                <td>0</td>
+                                <td><span class="badge bg-danger">Out of Stock</span></td>
+                                <td>Drums</td>
+                                <td>$1200.00</td>
+                                <td>No evidence</td>
+                                <td>
+                                    <button onclick="quickUpdate(4)" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i> Update
+                                    </button>
+                                    <button onclick="quickRemove(4)" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                    <button onclick="quickCorrection(4)" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-exchange-alt"></i> Correct
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div id="noInstrumentsMessage" class="text-center py-4 text-muted" style="display: none;">
+                            <i class="fas fa-search fa-2x mb-2"></i><br>
+                            No instruments found. Try adjusting your filters.
+                        </div>
                     </div>
                 </div>
 
-                <div class="card-body">
-                    <p class="text-muted mb-3">Review stock health across all instruments. Export full reports or remove discontinued/policy-restricted items from sale.</p>
+                <!-- Simple Stock Update Form -->
+                <div class="simple-stock-update mt-5">
+                    <h5><i class="fas fa-sync-alt text-success"></i> Quick Stock Update</h5>
+                    <form action="${pageContext.request.contextPath}/UpdateStockServlet" method="post" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                        <div class="form-group">
+                            <label for="instrumentId" class="form-label">Instrument ID</label>
+                            <input type="text" class="form-control" id="instrumentId" name="instrumentId" placeholder="Enter ID" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="stockQuantity" class="form-label">New Quantity</label>
+                            <input type="number" class="form-control" id="stockQuantity" name="stockQuantity" placeholder="e.g. 20" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-success w-full">
+                                <i class="fas fa-save"></i> Update Stock
+                            </button>
+                        </div>
+                    </form>
+                </div>-
 
-                    <!-- Optional summary cards or stock audit table could go here -->
+                <!-- Stock Correction Form with Evidence -->
+                <div class="stock-correction mt-5">
+                    <h5><i class="fas fa-exchange-alt text-primary"></i> Stock Correction with Evidence</h5>
+
+                    <div class="stock-correction-form">
+                        <form action="${pageContext.request.contextPath}/StockCorrectionServlet"
+                              method="post"
+                              enctype="multipart/form-data"
+                              onsubmit="return validateStockCorrection()"
+                              id="stockCorrectionForm">
+
+                            <h3><i class="fas fa-clipboard-check"></i> Stock Correction with Evidence</h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label for="correctionInstrumentId" class="form-label">Instrument ID</label>
+                                    <select name="instrumentId" id="correctionInstrumentId" class="form-control" required>
+                                        <option value="">Select Instrument ID</option>
+                                        <%
+                                            List<String> instrumentIDs = new ArrayList<>();
+                                            try (Connection conn = DBConnection.getConnection()) {
+                                                String sql = "SELECT InstrumentID FROM Instrument ORDER BY InstrumentID";
+                                                PreparedStatement ps = conn.prepareStatement(sql);
+                                                ResultSet rs = ps.executeQuery();
+                                                while (rs.next()) {
+                                                    instrumentIDs.add(rs.getString("InstrumentID"));
+                                                }
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            }
+                                            for (String id : instrumentIDs) {
+                                        %>
+                                        <option value="<%= id %>"><%= id %></option>
+                                        <% } %>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="correctedQuantity" class="form-label">Corrected Quantity</label>
+                                    <input type="number"
+                                           name="correctedQuantity"
+                                           id="correctedQuantity"
+                                           class="form-control"
+                                           placeholder="Enter new quantity"
+                                           min="0"
+                                           required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reason" class="form-label">Reason for Correction</label>
+                                <textarea name="reason"
+                                          id="reason"
+                                          class="form-control"
+                                          placeholder="Enter detailed reason for stock correction..."
+                                          rows="3"
+                                          required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="evidenceNote" class="form-label">Evidence Note (Optional)</label>
+                                <textarea name="evidenceNote"
+                                          id="evidenceNote"
+                                          class="form-control"
+                                          placeholder="Reference numbers, additional notes, etc."
+                                          rows="2"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="evidenceImages" class="form-label">
+                                    <i class="fas fa-images"></i> Image Evidence
+                                </label>
+                                <input type="file"
+                                       name="evidenceImages"
+                                       id="evidenceImages"
+                                       class="form-control"
+                                       accept=".jpg,.jpeg,.png,.pdf"
+                                       multiple>
+                                <small class="form-text">You can attach multiple images (JPG, PNG, PDF). Max file size: 5MB each.</small>
+                                <div id="fileList" class="file-list"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="adminUsername" class="form-label">Admin Username</label>
+                                <input type="text"
+                                       name="adminUsername"
+                                       id="adminUsername"
+                                       class="form-control"
+                                       placeholder="Enter username"
+                                       required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="adminPassword" class="form-label">Admin Password</label>
+                                <input type="password"
+                                       name="adminPassword"
+                                       id="adminPassword"
+                                       class="form-control"
+                                       placeholder="Enter password"
+                                       required>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="clearCorrectionForm()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-check-circle"></i> Apply Stock Correction
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </section>
+                <%@ page import="java.sql.*, java.util.*" %>
+                <%
+                    // Handle Admin Management Operations
+                    if ("POST".equalsIgnoreCase(request.getMethod())) {
+                        String action = request.getParameter("action");
+                        String adminID = request.getParameter("adminID");
+                        String email = request.getParameter("email");
+                        String clearanceLevel = request.getParameter("clearanceLevel");
 
-            <div class="card-body">
-                <p class="text-muted mb-3">Review stock health across all instruments for audits and decision-making.</p>
+                        Connection adminConn = null;
+                        PreparedStatement adminStmt = null;
+                        ResultSet adminRs = null;
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                    <%
-                        conn = null;
-                        ps = null;
-                        rs = null;
                         try {
-                            conn = DatabaseUtil.getConnection();
+                            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                            String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
+                            String dbUser = "Hasiru";
+                            String dbPassword = "hasiru2004";
 
-                            // Total Instruments
-                            ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument");
-                            rs = ps.executeQuery();
-                            rs.next();
-                            int totalInstruments = rs.getInt(1);
-                            rs.close(); ps.close();
+                            adminConn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
 
-                            // In Stock
-                            ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='In Stock'");
-                            rs = ps.executeQuery();
-                            rs.next();
-                            int inStock = rs.getInt(1);
-                            rs.close(); ps.close();
+                            if ("add".equals(action)) {
+                                // Grant admin access to existing user
+                                if (email != null && clearanceLevel != null) {
+                                    // Check if person exists
+                                    String checkSql = "SELECT PersonID FROM Person WHERE Email = ?";
+                                    adminStmt = adminConn.prepareStatement(checkSql);
+                                    adminStmt.setString(1, email.trim().toLowerCase());
+                                    adminRs = adminStmt.executeQuery();
 
-                            // Low Stock
-                            ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='Low Stock'");
-                            rs = ps.executeQuery();
-                            rs.next();
-                            int lowStock = rs.getInt(1);
-                            rs.close(); ps.close();
+                                    if (adminRs.next()) {
+                                        int personId = adminRs.getInt("PersonID");
 
-                            // Out of Stock
-                            ps = conn.prepareStatement("SELECT COUNT(*) FROM Instrument WHERE StockLevel='Out of Stock'");
-                            rs = ps.executeQuery();
-                            rs.next();
-                            int outOfStock = rs.getInt(1);
-                            rs.close(); ps.close();
-                    %>
+                                        // Check if already admin
+                                        String adminCheckSql = "SELECT COUNT(*) FROM Admin WHERE PersonID = ?";
+                                        adminStmt = adminConn.prepareStatement(adminCheckSql);
+                                        adminStmt.setInt(1, personId);
+                                        adminRs = adminStmt.executeQuery();
+                                        adminRs.next();
 
-                    <!-- KPI Cards -->
-                    <div class="stat-card bg-light shadow-sm p-3 rounded">
-                        <h4>Total Instruments</h4>
-                        <p class="font-weight-bold text-primary"><%= totalInstruments %></p>
-                    </div>
+                                        if (adminRs.getInt(1) > 0) {
+                                            session.setAttribute("adminError", "User is already an admin");
+                                        } else {
+                                            // Grant admin access
+                                            String insertSql = "INSERT INTO Admin (AdminID, PersonID, ClearanceLevel, JoinDate) VALUES (?, ?, ?, GETDATE())";
+                                            adminStmt = adminConn.prepareStatement(insertSql);
+                                            adminStmt.setInt(1, personId);
+                                            adminStmt.setInt(2, personId);
+                                            adminStmt.setString(3, clearanceLevel);
 
-                    <div class="stat-card bg-light shadow-sm p-3 rounded">
-                        <h4>In Stock</h4>
-                        <p class="font-weight-bold text-success"><%= inStock %></p>
-                    </div>
+                                            int result = adminStmt.executeUpdate();
+                                            if (result > 0) {
+                                                session.setAttribute("adminMessage", "Admin access granted successfully!");
+                                            }
+                                        }
+                                    } else {
+                                        session.setAttribute("adminError", "User with this email not found");
+                                    }
+                                }
+                            }
+                            else if ("update".equals(action)) {
+                                // Update clearance level
+                                if (adminID != null && clearanceLevel != null) {
+                                    String sql = "UPDATE Admin SET ClearanceLevel = ? WHERE AdminID = ?";
+                                    adminStmt = adminConn.prepareStatement(sql);
+                                    adminStmt.setString(1, clearanceLevel);
+                                    adminStmt.setInt(2, Integer.parseInt(adminID));
 
-                    <div class="stat-card bg-light shadow-sm p-3 rounded">
-                        <h4>Low Stock</h4>
-                        <p class="font-weight-bold text-warning"><%= lowStock %></p>
-                    </div>
+                                    int rowsAffected = adminStmt.executeUpdate();
+                                    if (rowsAffected > 0) {
+                                        session.setAttribute("adminMessage", "Clearance level updated successfully!");
+                                    } else {
+                                        session.setAttribute("adminError", "Admin not found");
+                                    }
+                                }
+                            }
+                            else if ("delete".equals(action)) {
+                                // Revoke admin access
+                                if (adminID != null) {
+                                    int adminId = Integer.parseInt(adminID);
 
-                    <div class="stat-card bg-light shadow-sm p-3 rounded">
-                        <h4>Out of Stock</h4>
-                        <p class="font-weight-bold text-danger"><%= outOfStock %></p>
-                    </div>
+                                    // Prevent removing yourself
+                                    Integer currentAdminId = (Integer) session.getAttribute("adminId");
+                                    if (currentAdminId != null && currentAdminId == adminId) {
+                                        session.setAttribute("adminError", "Cannot revoke your own admin access");
+                                    } else {
+                                        // Check if this is the last super admin
+                                        boolean isLastSuperAdmin = false;
+                                        String checkSql = "SELECT 1 FROM Admin WHERE AdminID = ? AND ClearanceLevel = 'Super'";
+                                        adminStmt = adminConn.prepareStatement(checkSql);
+                                        adminStmt.setInt(1, adminId);
+                                        adminRs = adminStmt.executeQuery();
 
-                    <%
+                                        boolean isSuperAdmin = adminRs.next();
+
+                                        if (isSuperAdmin) {
+                                            String countSql = "SELECT COUNT(*) as superAdminCount FROM Admin WHERE ClearanceLevel = 'Super'";
+                                            adminStmt = adminConn.prepareStatement(countSql);
+                                            adminRs = adminStmt.executeQuery();
+
+                                            if (adminRs.next()) {
+                                                int superAdminCount = adminRs.getInt("superAdminCount");
+                                                isLastSuperAdmin = (superAdminCount <= 1);
+                                            }
+                                        }
+
+                                        if (isLastSuperAdmin) {
+                                            session.setAttribute("adminError", "Cannot remove the last super admin");
+                                        } else {
+                                            String sql = "DELETE FROM Admin WHERE AdminID = ?";
+                                            adminStmt = adminConn.prepareStatement(sql);
+                                            adminStmt.setInt(1, adminId);
+
+                                            int rowsAffected = adminStmt.executeUpdate();
+                                            if (rowsAffected > 0) {
+                                                session.setAttribute("adminMessage", "Admin access revoked successfully!");
+                                            } else {
+                                                session.setAttribute("adminError", "Admin not found");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
                         } catch (Exception e) {
-                            out.println("<p class='text-danger'>Error loading report: " + e.getMessage() + "</p>");
+                            e.printStackTrace();
+                            session.setAttribute("adminError", "Database error: " + e.getMessage());
                         } finally {
-                            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
-                            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
-                            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+                            if (adminRs != null) try { adminRs.close(); } catch (SQLException e) {}
+                            if (adminStmt != null) try { adminStmt.close(); } catch (SQLException e) {}
+                            if (adminConn != null) try { adminConn.close(); } catch (SQLException e) {}
+
+                            // Redirect to avoid form resubmission
+                            response.sendRedirect("admin-dashboard.jsp#admin-management");
+                            return;
                         }
-                    %>
-                </div>
-            </div>
-        </section>
+                    }
 
+                    // Get current admins for display
+                    List<Map<String, String>> adminList = new ArrayList<>();
+                    Connection displayConn = null;
+                    PreparedStatement displayStmt = null;
+                    ResultSet displayRs = null;
 
-        <!-- 🛠 Stock Override / Correction -->
-        <section id="stock-override" class="section-card mt-4">
-            <div class="card-header">
-                <h3><i class="fas fa-edit"></i> Stock Corrections / Disputes</h3>
-            </div>
+                    try {
+                        Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                        String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
+                        String dbUser = "Hasiru";
+                        String dbPassword = "hasiru2004";
 
-            <div class="card-body">
-                <p class="text-muted mb-3">
-                    Use this tool to override stock levels for audit corrections or dispute resolutions.
-                </p>
+                        displayConn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
 
-                <form method="post" action="${pageContext.request.contextPath}/StockCorrectionServlet" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        String sql = "SELECT p.PersonID, p.FirstName, p.LastName, p.Email, " +
+                                "a.ClearanceLevel, a.JoinDate, a.LastLogin " +
+                                "FROM Person p " +
+                                "INNER JOIN Admin a ON p.PersonID = a.PersonID " +
+                                "ORDER BY p.PersonID";
 
-                    <!-- Instrument ID -->
-                    <div class="form-group">
-                        <label for="correctionInstrumentId" class="form-label">Instrument ID</label>
-                        <input type="text" class="form-control" id="correctionInstrumentId" name="instrumentId" placeholder="Enter ID" required>
-                    </div>
+                        displayStmt = displayConn.prepareStatement(sql);
+                        displayRs = displayStmt.executeQuery();
 
-                    <!-- Corrected Quantity -->
-                    <div class="form-group">
-                        <label for="correctedQuantity" class="form-label">Corrected Quantity</label>
-                        <input type="number" class="form-control" id="correctedQuantity" name="correctedQuantity" min="0" required>
-                    </div>
+                        while (displayRs.next()) {
+                            Map<String, String> admin = new HashMap<>();
+                            admin.put("personId", String.valueOf(displayRs.getInt("PersonID")));
+                            admin.put("firstName", displayRs.getString("FirstName"));
+                            admin.put("lastName", displayRs.getString("LastName"));
+                            admin.put("email", displayRs.getString("Email"));
+                            admin.put("clearanceLevel", displayRs.getString("ClearanceLevel"));
+                            admin.put("joinDate", displayRs.getDate("JoinDate").toString());
+                            admin.put("lastLogin", displayRs.getTimestamp("LastLogin") != null ?
+                                    displayRs.getTimestamp("LastLogin").toString() : "Never");
+                            adminList.add(admin);
+                        }
 
-                    <!-- Reason -->
-                    <div class="form-group">
-                        <label for="correctionReason" class="form-label">Reason</label>
-                        <input type="text" class="form-control" id="correctionReason" name="reason" placeholder="e.g., Damaged item removed, Audit correction" required>
-                    </div>
-
-                    <!-- Submit -->
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-warning hover-lift w-full">
-                            <i class="fas fa-save"></i> Apply Correction
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </section>
-
-
-
-
-        </section>
-
-        <script>
-            // Simulate stock refresh
-            function refreshStockStatus() {
-                location.reload(); // simple page reload to update alerts
-            }
-
-            // Quick restock helper
-            function quickRestock(id) {
-                document.getElementById("instrumentId").value = id;
-                document.getElementById("stockQuantity").focus();
-            }
-        </script>
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        if (displayRs != null) try { displayRs.close(); } catch (SQLException e) {}
+                        if (displayStmt != null) try { displayStmt.close(); } catch (SQLException e) {}
+                        if (displayConn != null) try { displayConn.close(); } catch (SQLException e) {}
+                    }
+                %>
 
 
 
-
-        <!-- Item Review Queue -->
-        <section id="item-review" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-flag"></i> Item Review Queue</h3>
-            </div>
-            <div class="card-body">
-                <p>A list of flagged instruments for review (e.g., those violating guidelines).</p>
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <div>
-                            <strong>Guitar XYZ</strong>
-                            <div class="text-muted">Flagged for: Guideline Violation</div>
+                <!-- Other sections (User Management, Item Review, etc.) would go here -->
+                <!-- Admin Management Section -->
+                <section id="admin-management" class="section-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-shield"></i> Admin Management</h3>
+                        <div class="card-header-actions">
+                            <button class="btn btn-sm btn-success" onclick="showAddAdminModal()">
+                                <i class="fas fa-plus"></i> Grant Admin Access
+                            </button>
                         </div>
-                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
-                    </li>
-                    <li class="list-group-item">
-                        <div>
-                            <strong>Drum Set Pro</strong>
-                            <div class="text-muted">Flagged for: Suspected Counterfeit</div>
-                        </div>
-                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
-                    </li>
-                    <li class="list-group-item">
-                        <div>
-                            <strong>Microphone Studio</strong>
-                            <div class="text-muted">Flagged for: Inaccurate Description</div>
-                        </div>
-                        <button class="btn btn-info btn-sm hover-lift"><i class="fas fa-eye"></i> Review</button>
-                    </li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- Reporting Tools -->
-        <section id="reporting" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-chart-bar"></i> Reporting Tools</h3>
-            </div>
-            <div class="card-body">
-                <p>Options to generate system reports on site activity, sales, or user metrics.</p>
-                <div class="form-group">
-                    <select class="form-select">
-                        <option>Select Report Type</option>
-                        <option>Sales Report</option>
-                        <option>User Activity</option>
-                        <option>System Performance</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary hover-lift"><i class="fas fa-file-export"></i> Generate Report</button>
-                <div class="chart-container">
-                    <canvas id="salesChart"></canvas>
-                </div>
-            </div>
-        </section>
-
-        <!-- Policy Update Interface -->
-        <section id="policy-update" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-file-alt"></i> Policy Update Interface</h3>
-            </div>
-            <div class="card-body">
-                <p>Forms or editors to update platform policies.</p>
-                <div class="form-group">
-                    <textarea class="form-control" rows="6" placeholder="Update Policy Text Here..."></textarea>
-                </div>
-                <button class="btn btn-primary hover-lift"><i class="fas fa-save"></i> Save Policy</button>
-            </div>
-        </section>
-
-        <!-- Admin Management -->
-        <section id="admin-management" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-user-shield"></i> Admin Management</h3>
-            </div>
-            <div class="card-body">
-                <p>Section to add or remove other admins.</p>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>Admin ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>001</td>
-                            <td>Admin User</td>
-                            <td>admin@melodymart.com</td>
-                            <td><button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Remove</button></td>
-                        </tr>
-                        <tr>
-                            <td>002</td>
-                            <td>Site Manager</td>
-                            <td>manager@melodymart.com</td>
-                            <td><button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Remove</button></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <button class="btn btn-success mt-3 hover-lift"><i class="fas fa-plus"></i> Add New Admin</button>
-            </div>
-        </section>
-
-        <!-- Feedback Management -->
-        <section id="feedback-management" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-comments"></i> Feedback Management</h3>
-            </div>
-            <div class="card-body">
-                <p>Area to view, delete, or manage user feedbacks and ratings.</p>
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <div>
-                            <strong>Great service!</strong>
-                            <div class="text-muted">Rating: 5/5 • Posted by: John D.</div>
-                        </div>
-                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
-                    </li>
-                    <li class="list-group-item">
-                        <div>
-                            <strong>Product arrived damaged</strong>
-                            <div class="text-muted">Rating: 2/5 • Posted by: Sarah M.</div>
-                        </div>
-                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
-                    </li>
-                    <li class="list-group-item">
-                        <div>
-                            <strong>Fast shipping, great quality</strong>
-                            <div class="text-muted">Rating: 5/5 • Posted by: Mike R.</div>
-                        </div>
-                        <button class="btn btn-danger btn-sm hover-lift"><i class="fas fa-trash"></i> Delete</button>
-                    </li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- Monitoring Dashboard -->
-        <section id="monitoring" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-desktop"></i> Monitoring Dashboard</h3>
-            </div>
-            <div class="card-body">
-                <p>Real-time or historical views of site activity, such as user logins, orders, or errors.</p>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-user-clock"></i></div>
-                        <div class="stat-value">152</div>
-                        <div class="stat-label">Active Users</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
-                        <div class="stat-value">47</div>
-                        <div class="stat-label">Orders Today</div>
+                    <div class="card-body">
+                        <!-- Success/Error Messages -->
+                        <c:if test="${not empty adminMessage}">
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> ${adminMessage}
+                            </div>
+                            <c:remove var="adminMessage" scope="session"/>
+                        </c:if>
+                        <c:if test="${not empty adminError}">
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle"></i> ${adminError}
+                            </div>
+                            <c:remove var="adminError" scope="session"/>
+                        </c:if>
+
+                        <!-- Current Admins Table -->
+                        <div class="table-container">
+                            <table id="adminsTable">
+                                <thead>
+                                <tr>
+                                    <th>Admin ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Clearance Level</th>
+                                    <th>Join Date</th>
+                                    <th>Last Login</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <% for (Map<String, String> admin : adminList) { %>
+                                <tr>
+                                    <td><%= admin.get("personId") %></td>
+                                    <td><%= admin.get("firstName") %> <%= admin.get("lastName") %></td>
+                                    <td><%= admin.get("email") %></td>
+                                    <td>
+                                        <form method="post" style="display: inline;">
+                                            <input type="hidden" name="action" value="update">
+                                            <input type="hidden" name="adminID" value="<%= admin.get("personId") %>">
+                                            <select name="clearanceLevel" class="form-select" onchange="this.form.submit()">
+                                                <option value="Low" <%= "Low".equals(admin.get("clearanceLevel")) ? "selected" : "" %>>Low</option>
+                                                <option value="Medium" <%= "Medium".equals(admin.get("clearanceLevel")) ? "selected" : "" %>>Medium</option>
+                                                <option value="High" <%= "High".equals(admin.get("clearanceLevel")) ? "selected" : "" %>>High</option>
+                                                <option value="Super" <%= "Super".equals(admin.get("clearanceLevel")) ? "selected" : "" %>>Super</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td><%= admin.get("joinDate") %></td>
+                                    <td><%= admin.get("lastLogin") %></td>
+                                    <td>
+                                        <form method="post" style="display: inline;"
+                                              onsubmit="return confirm('Are you sure you want to revoke admin privileges from <%= admin.get("firstName") %> <%= admin.get("lastName") %>?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="adminID" value="<%= admin.get("personId") %>">
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                    <%= (Integer) session.getAttribute("adminId") != null &&
+                                                            (Integer) session.getAttribute("adminId") == Integer.parseInt(admin.get("personId")) ? "disabled" : "" %>>
+                                                <i class="fas fa-trash"></i> Revoke
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% } %>
+                                <% if (adminList.isEmpty()) { %>
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <i class="fas fa-users fa-2x mb-2"></i><br>
+                                        No admins found. Grant admin access to users to get started.
+                                    </td>
+                                </tr>
+                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Grant Admin Access Modal -->
+                        <div id="addAdminModal" class="modal">
+                            <div class="modal-content">
+                                <h4>Grant Admin Access</h4>
+                                <form method="post">
+                                    <input type="hidden" name="action" value="add">
+                                    <div class="form-group">
+                                        <label class="form-label">Find User by Email</label>
+                                        <input type="email" name="email" class="form-control" placeholder="Enter user's email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Clearance Level</label>
+                                        <select name="clearanceLevel" class="form-control" required>
+                                            <option value="">Select Clearance Level</option>
+                                            <option value="Low">Low - Basic access</option>
+                                            <option value="Medium">Medium - Moderate access</option>
+                                            <option value="High">High - Full access</option>
+                                            <option value="Super">Super - Full system access</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="button" onclick="hideAddAdminModal()" class="btn btn-secondary">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Grant Admin Access</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-bug"></i></div>
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">System Errors</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-server"></i></div>
-                        <div class="stat-value">99.8%</div>
-                        <div class="stat-label">Uptime</div>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="activityChart"></canvas>
-                </div>
+                </section>
             </div>
         </section>
 
-        <!-- Notifications and Alerts -->
-        <section id="notifications" class="section-card">
-            <div class="card-header">
-                <h3><i class="fas fa-bell"></i> Notifications & Alerts</h3>
-            </div>
-            <div class="card-body">
-                <p>Inbox for system-generated alerts (e.g., flagged items or stock issues).</p>
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle"></i> New item flagged for review: Electric Guitar Pro X
-                </div>
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle"></i> Stock low on Premium Guitar - only 2 left in inventory
-                </div>
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> Unusual login activity detected from new location
-                </div>
-            </div>
-        </section>
+
+
     </div>
 </div>
 
@@ -1398,155 +1582,286 @@
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Initialize charts
+
+    // Sample instrument data
+    const sampleInstruments = [
+        { id: 1, name: "Fender Stratocaster", quantity: 15, stockLevel: "In Stock", category: "Guitars", price: 1499.99 },
+        { id: 2, name: "Yamaha HS8", quantity: 3, stockLevel: "Low Stock", category: "Studio Monitors", price: 349.99 },
+        { id: 3, name: "Yamaha Grand Piano", quantity: 8, stockLevel: "In Stock", category: "Pianos", price: 4500.00 },
+        { id: 4, name: "Pearl Drum Set", quantity: 0, stockLevel: "Out of Stock", category: "Drums", price: 1200.00 }
+    ];
+
+    // Initialize when page loads
+    // Initialize when page loads
     document.addEventListener('DOMContentLoaded', function() {
-        // Sales Chart
-        const salesCtx = document.getElementById('salesChart').getContext('2d');
-        const salesChart = new Chart(salesCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-                datasets: [{
-                    label: 'Sales ($)',
-                    data: [12500, 19000, 18000, 22000, 21000, 25000, 28000, 30000, 32000],
-                    borderColor: '#8a2be2',
-                    backgroundColor: 'rgba(138, 43, 226, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#ffffff'
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#b3b3b3'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#b3b3b3'
-                        }
-                    }
-                }
+        initializeTheme();
+        initializeSidebarNavigation();
+
+        // Show all instruments initially
+        filterInstruments();
+
+        // Add real-time filtering
+        document.getElementById('nameFilter').addEventListener('input', filterInstruments);
+        document.getElementById('categoryFilter').addEventListener('change', filterInstruments);
+        document.getElementById('stockLevelFilter').addEventListener('change', filterInstruments);
+    });
+    // Theme toggle functionality
+    function initializeTheme() {
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        updateThemeIcon(currentTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+
+        // SIMPLE Admin Management Functions - No Servlet Needed
+        function updateClearanceLevel(selectElement) {
+            const adminID = selectElement.getAttribute('data-admin-id');
+            const newLevel = selectElement.value;
+
+            // Just show a success message
+            showAlert(`Clearance level for admin ${adminID} updated to ${newLevel}`, 'success');
+        }
+
+        function removeAdmin(adminID) {
+            if(confirm('Are you sure you want to remove this admin? They will lose all admin privileges.')) {
+                // Just show a success message
+                showAlert(`Admin ${adminID} has been removed`, 'success');
+            }
+        }
+
+        function handleAddAdmin(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const firstName = formData.get('firstName');
+            const lastName = formData.get('lastName');
+
+            // Just show a success message
+            showAlert(`New admin ${firstName} ${lastName} has been added successfully!`, 'success');
+
+            // Hide the modal
+            hideAddAdminModal();
+
+            // Reset the form
+            event.target.reset();
+
+            return false;
+        }
+
+        function showAlert(message, type) {
+            // Create a simple alert
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `<i class="fas fa-${type == 'success' ? 'check' : 'exclamation'}-circle"></i> ${message}`;
+
+            // Add to the page
+            document.querySelector('.main-content').insertBefore(alertDiv, document.querySelector('.main-content').firstChild);
+
+            // Remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function showAddAdminModal() {
+            document.getElementById('addAdminModal').style.display = 'block';
+        }
+
+        function hideAddAdminModal() {
+            document.getElementById('addAdminModal').style.display = 'none';
+        }
+
+        document.getElementById("evidenceImages").addEventListener("change", function(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                const fileNames = Array.from(files).map(file => file.name);
+                console.log("Uploaded Image Names:", fileNames);
+
             }
         });
 
-        // Activity Chart
-        const activityCtx = document.getElementById('activityChart').getContext('2d');
-        const activityChart = new Chart(activityCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'User Activity',
-                    data: [120, 190, 140, 180, 160, 140, 180],
-                    backgroundColor: 'rgba(0, 229, 255, 0.5)',
-                    borderColor: '#00e5ff',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#ffffff'
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#b3b3b3'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#b3b3b3'
-                        }
-                    }
-                }
+        function submitStockCorrection() {
+            const form = document.querySelector('form[action*="StockCorrectionServlet"]');
+            const formData = new FormData(form);
+
+            console.log("Submitting to:", form.action);
+            console.log("Form data:", {
+                instrumentId: formData.get('instrumentId'),
+                correctedQuantity: formData.get('correctedQuantity'),
+                reason: formData.get('reason'),
+                evidenceNote: formData.get('evidenceNote'),
+                imageNames: formData.get('evidenceImages') // ✅ list of image names
+            });
+
+            return true; // Allow form to submit
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('addAdminModal');
+            if (event.target === modal) {
+                hideAddAdminModal();
             }
         });
 
-        // Simple script to handle sidebar navigation
-        document.querySelectorAll('.sidebar-menu a').forEach(link => {
+        function updateThemeIcon(theme) {
+            themeIcon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        }
+    }
+
+    // Header scroll effect
+    window.addEventListener('scroll', function() {
+        const header = document.querySelector('header');
+        header.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // FIXED Filter instruments function
+    function filterInstruments() {
+        console.log("=== FILTERING INSTRUMENTS ===");
+
+        const nameFilter = document.getElementById('nameFilter').value.toLowerCase();
+        const categoryFilter = document.getElementById('categoryFilter').value;
+        const stockLevelFilter = document.getElementById('stockLevelFilter').value;
+
+        console.log("Filters:", { nameFilter, categoryFilter, stockLevelFilter });
+
+        const rows = document.querySelectorAll('#instrumentsTableBody tr');
+        console.log("Total rows found:", rows.length);
+
+        let visibleCount = 0;
+
+        rows.forEach((row, index) => {
+            // Get data from each row more reliably
+            const name = row.cells[1].textContent.toLowerCase();
+            const category = row.cells[4].textContent;
+            const stockLevel = row.cells[3].querySelector('.badge').textContent;
+
+            console.log(`Row ${index}:`, { name, category, stockLevel });
+
+            const matchesName = nameFilter === '' || name.includes(nameFilter);
+            const matchesCategory = categoryFilter === '' || category === categoryFilter;
+            const matchesStockLevel = stockLevelFilter === '' || stockLevel === stockLevelFilter;
+
+            console.log(`Row ${index} matches:`, { matchesName, matchesCategory, matchesStockLevel });
+
+            if (matchesName && matchesCategory && matchesStockLevel) {
+                row.style.display = '';
+                visibleCount++;
+                console.log(`Row ${index}: SHOW`);
+            } else {
+                row.style.display = 'none';
+                console.log(`Row ${index}: HIDE`);
+            }
+        });
+
+        console.log("Visible count after filtering:", visibleCount);
+
+        document.getElementById('noInstrumentsMessage').style.display =
+            visibleCount === 0 ? 'block' : 'none';
+    }
+
+    function clearFilters() {
+        document.getElementById('nameFilter').value = '';
+        document.getElementById('categoryFilter').value = '';
+        document.getElementById('stockLevelFilter').value = '';
+        filterInstruments();
+    }
+
+    function refreshStockStatus() {
+        alert('Refreshing stock status...');
+        // Add your refresh logic here
+    }
+
+    function quickUpdate(id) {
+        alert('Quick update for instrument ID: ' + id);
+    }
+
+    function quickRemove(id) {
+        if(confirm('Are you sure you want to remove instrument ' + id + '?')) {
+            alert('Removing instrument: ' + id);
+        }
+    }
+
+    function quickCorrection(id) {
+        alert('Quick correction for instrument ID: ' + id);
+    }
+
+    // Sidebar navigation
+    function initializeSidebarNavigation() {
+        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+        sidebarLinks.forEach(link => {
             link.addEventListener('click', function(e) {
-                document.querySelectorAll('.sidebar-menu a').forEach(item => {
-                    item.classList.remove('active');
-                });
+                sidebarLinks.forEach(l => l.classList.remove('active'));
                 this.classList.add('active');
-
-                const targetId = this.getAttribute('href');
-                const targetSection = document.querySelector(targetId);
-                if (targetSection) {
-                    targetSection.scrollIntoView({ behavior: 'smooth' });
-                }
-                e.preventDefault();
             });
         });
+    }
+    function validateStockCorrection() {
+        const instrumentId = document.getElementById('correctionInstrumentId').value;
+        const quantity = document.getElementById('correctedQuantity').value;
+        const reason = document.getElementById('reason').value;
+        const username = document.getElementById('adminUsername').value;
+        const password = document.getElementById('adminPassword').value;
 
-        // Add hover effects to cards
-        document.querySelectorAll('.stat-card, .section-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-5px)';
-                this.style.boxShadow = '0 10px 20px rgba(138, 43, 226, 0.2)';
-            });
+        console.log("Validating stock correction:");
+        console.log("Instrument ID:", instrumentId);
+        console.log("Quantity:", quantity);
+        console.log("Reason:", reason);
 
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = 'none';
-            });
-        });
+        // Basic validation
+        if (!instrumentId || !quantity || !reason || !username || !password) {
+            alert("Please fill in all fields");
+            return false;
+        }
 
-        // Animate elements on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+        if (quantity < 0) {
+            alert("Quantity cannot be negative");
+            return false;
+        }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
+        // Hardcoded credential check
+        if (username !== 'ravini' || password !== 'ravini2004') {
+            alert("Invalid admin credentials");
+            return false;
+        }
 
-        document.querySelectorAll('.stat-card, .section-card').forEach(card => {
-            card.style.opacity = 0;
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(card);
-        });
+        // Optional: enforce at least one image
+        // const images = document.getElementById('evidenceImages').files;
+        // if (images.length === 0) {
+        //     alert("Please attach at least one evidence image.");
+        //     return false;
+        // }
+
+        console.log("Validation passed - submitting form");
+        return true;
+    }
+
+    // Admin Management Functions
+    function showAddAdminModal() {
+        document.getElementById('addAdminModal').style.display = 'block';
+    }
+
+    function hideAddAdminModal() {
+        document.getElementById('addAdminModal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('addAdminModal');
+        if (event.target === modal) {
+            hideAddAdminModal();
+        }
     });
 </script>
 </body>

@@ -1,4 +1,33 @@
 <%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
+<%
+    // ✅ Retrieve customer data from session (set during login)
+    String customerId = (String) session.getAttribute("customerId");
+    String customerName = (String) session.getAttribute("userName");
+
+    // ✅ Security check — redirect if not logged in
+    if (customerId == null || customerName == null) {
+        response.sendRedirect("sign-in.jsp");
+        return;
+    }
+
+    // ✅ Generate initials
+    String customerInitials = "U";
+    if (customerName != null && !customerName.trim().isEmpty()) {
+        String[] parts = customerName.trim().split("\\s+");
+        if (parts.length >= 2) {
+            customerInitials = ("" + parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+        } else {
+            customerInitials = ("" + parts[0].charAt(0)).toUpperCase();
+        }
+    }
+
+    // ✅ Initialize cart count
+    Integer cartCount = (Integer) session.getAttribute("cartCount");
+    if (cartCount == null) {
+        cartCount = 0;
+        session.setAttribute("cartCount", cartCount);
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -201,24 +230,23 @@
             margin-left: 20px;
         }
 
-        .user-btn {
-            background: none;
-            border: none;
-            color: var(--text);
-            font-size: 18px;
-            cursor: pointer;
-            transition: color 0.3s ease;
+        .user-avatar {
             width: 44px;
             height: 44px;
             border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #1e40af);
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
 
-        .user-btn:hover {
-            color: var(--primary-light);
-            background: var(--primary-soft);
+        .user-avatar:hover {
+            transform: scale(1.05);
         }
 
         .dropdown {
@@ -246,7 +274,9 @@
         }
 
         .dropdown-item {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             padding: 12px 20px;
             color: var(--text);
             text-decoration: none;
@@ -258,6 +288,43 @@
         .dropdown-item:hover {
             background: var(--primary-soft);
             color: var(--primary);
+        }
+
+        /* Cart Icon */
+        .cart-icon-container {
+            position: relative;
+            margin-left: 15px;
+        }
+
+        .cart-icon {
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .cart-icon:hover {
+            background: var(--primary-soft);
+        }
+
+        .cart-count {
+            background: var(--accent-alt);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            position: absolute;
+            top: -5px;
+            right: 0;
         }
 
         /* Page Header */
@@ -301,158 +368,124 @@
             z-index: 2;
         }
 
-        /* Shop Layout */
-        .shop-container {
-            display: flex;
-            gap: 30px;
-            padding: 60px 0;
-        }
-
-        /* Filters Sidebar */
-        .filters-sidebar {
-            width: 300px;
-            background: var(--glass-bg);
+        /* Message Styles */
+        .message-success, .message-error, .message-warning {
+            padding: 15px 20px;
+            text-align: center;
             border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: var(--shadow);
-            height: fit-content;
-            position: sticky;
-            top: 120px;
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-        }
-
-        .filter-section {
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 20px;
-        }
-
-        .filter-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .filter-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .filter-options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .filter-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .filter-option input {
-            display: none;
-        }
-
-        .custom-checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--primary-light);
-            border-radius: 4px;
+            margin: 20px auto;
+            max-width: 1200px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .filter-option input:checked + .custom-checkbox {
-            background: var(--primary-light);
-        }
-
-        .filter-option input:checked + .custom-checkbox:after {
-            content: '✓';
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .filter-option label {
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: color 0.3s ease;
-        }
-
-        .filter-option:hover label {
-            color: var(--text);
-        }
-
-        .price-range {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .price-inputs {
-            display: flex;
             gap: 10px;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+            animation: slideIn 0.5s ease-out;
         }
 
-        .price-input {
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-success {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #a7f3d0;
+        }
+
+        .message-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .message-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: var(--glass-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin: 40px 0;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: transform 0.3s ease;
+        }
+
+        .search-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .search-box {
             flex: 1;
-            padding: 10px 15px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
             border: 1px solid var(--glass-border);
             border-radius: 8px;
+            font-size: 16px;
             background: var(--card-bg);
-            color: var(--text);
-        }
-
-        .price-slider {
-            width: 100%;
-            height: 5px;
-            background: var(--card-bg);
-            border-radius: 5px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .price-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--primary-light);
-            cursor: pointer;
-        }
-
-        .brand-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .brand-tag {
-            padding: 8px 15px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            font-size: 14px;
-            cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .brand-tag:hover, .brand-tag.active {
-            background: var(--primary-light);
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .search-btn {
+            background: var(--gradient);
             color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
         }
 
         /* Products Section */
         .products-section {
-            flex: 1;
+            margin-bottom: 50px;
         }
 
         .products-header {
@@ -466,6 +499,11 @@
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
+            transition: transform 0.3s ease;
+        }
+
+        .products-header:hover {
+            transform: translateY(-3px);
         }
 
         .products-count {
@@ -485,6 +523,11 @@
             color: var(--text);
             border: 1px solid var(--glass-border);
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sort-select:hover {
+            box-shadow: var(--shadow);
         }
 
         .view-options {
@@ -509,6 +552,7 @@
         .view-btn.active, .view-btn:hover {
             background: var(--primary-light);
             color: white;
+            transform: translateY(-2px);
         }
 
         .products-grid {
@@ -526,6 +570,13 @@
             border: 1px solid var(--glass-border);
             box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
+            cursor: pointer;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .product-card:hover {
@@ -545,6 +596,21 @@
             font-size: 12px;
             font-weight: 600;
             z-index: 2;
+            animation: pulse 2s infinite;
+        }
+
+        .product-badge.out-of-stock {
+            background: #6b7280;
+        }
+
+        .product-badge.low-stock {
+            background: #f59e0b;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .product-img {
@@ -654,44 +720,78 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
-        .add-to-cart {
-            background: var(--gradient);
-            color: white;
-            border: none;
+        .btn {
             padding: 10px 20px;
+            border: none;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
-        }
-
-        .add-to-cart:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .wishlist-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
             justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-align: center;
+            min-height: 44px;
         }
 
-        .wishlist-btn:hover {
-            color: var(--accent-alt);
-            background: var(--primary-soft);
+        .btn-order {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            flex: 2;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-order:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-cart {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            flex: 1;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-cart:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled:hover {
+            background: #9ca3af;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Pagination */
@@ -719,6 +819,7 @@
         .pagination-btn.active, .pagination-btn:hover {
             background: var(--primary-light);
             color: white;
+            transform: translateY(-2px);
         }
 
         /* Footer */
@@ -830,15 +931,6 @@
 
         /* Responsive Design */
         @media (max-width: 992px) {
-            .shop-container {
-                flex-direction: column;
-            }
-
-            .filters-sidebar {
-                width: 100%;
-                position: static;
-            }
-
             .products-header {
                 flex-direction: column;
                 align-items: flex-start;
@@ -858,25 +950,23 @@
             .page-title {
                 font-size: 2.5rem;
             }
+
+            .product-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
         }
 
         @media (max-width: 576px) {
             .products-grid {
                 grid-template-columns: 1fr;
-            }
-
-            .price-inputs {
-                flex-direction: column;
-            }
-
-            .product-actions {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .add-to-cart {
-                width: 100%;
-                justify-content: center;
             }
         }
     </style>
@@ -891,7 +981,7 @@
         </div>
 
         <ul class="nav-links">
-            <li><a href="index.jsp">Home</a></li>
+            <li><a href="customerlanding.jsp">Home</a></li>
             <li><a href="shop.jsp" class="active">Shop</a></li>
             <li><a href="categories.jsp">Categories</a></li>
             <li><a href="brands.jsp">Brands</a></li>
@@ -900,12 +990,26 @@
         </ul>
 
         <div class="nav-actions">
-            <!-- Theme toggle button removed as requested -->
+            <div class="cart-icon-container">
+                <a href="cart.jsp" class="cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    Cart
+                    <% if (cartCount > 0) { %>
+                    <span class="cart-count"><%= cartCount %></span>
+                    <% } %>
+                </a>
+            </div>
             <div class="user-menu">
-                <button class="user-btn" aria-label="User Menu"><i class="fas fa-user"></i></button>
+                <button class="user-btn" aria-label="User Menu">
+                    <div class="user-avatar"><%= customerInitials %></div>
+                </button>
                 <div class="dropdown">
-                    <a href="sign-in.jsp" class="dropdown-item">Sign In</a>
-                    <a href="sign-up.jsp" class="dropdown-item">Sign Up</a>
+                    <a href="customerlanding.jsp" class="dropdown-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="profile.jsp" class="dropdown-item"><i class="fas fa-user"></i> Profile</a>
+                    <a href="orders.jsp" class="dropdown-item"><i class="fas fa-shopping-bag"></i> Orders</a>
+                    <a href="wishlist.jsp" class="dropdown-item"><i class="fas fa-heart"></i> Wishlist</a>
+                    <hr style="margin: 5px 0; border: none; border-top: 1px solid var(--glass-border);">
+                    <a href="logout.jsp" class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 </div>
             </div>
         </div>
@@ -916,125 +1020,83 @@
 <section class="page-header">
     <div class="container">
         <h1 class="page-title">Premium Instruments Shop</h1>
-        <p class="page-subtitle">Discover our curated collection of professional musical instruments and equipment</p>
+        <p class="page-subtitle">
+            Welcome back, <%= customerName %>! Discover our curated collection of professional musical instruments and equipment.
+        </p>
     </div>
 </section>
 
-<!-- Shop Content -->
-<div class="container shop-container">
-    <!-- Filters Sidebar -->
-    <aside class="filters-sidebar">
-        <div class="filter-section">
-            <h3 class="filter-title">Categories</h3>
-            <div class="filter-options">
-                <div class="filter-option">
-                    <input type="checkbox" id="cat-guitars">
-                    <label for="cat-guitars" class="custom-checkbox"></label>
-                    <label for="cat-guitars">Guitars</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="cat-drums">
-                    <label for="cat-drums" class="custom-checkbox"></label>
-                    <label for="cat-drums">Drums & Percussion</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="cat-pianos">
-                    <label for="cat-pianos" class="custom-checkbox"></label>
-                    <label for="cat-pianos">Pianos & Keyboards</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="cat-recording">
-                    <label for="cat-recording" class="custom-checkbox"></label>
-                    <label for="cat-recording">Recording Equipment</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="cat-strings">
-                    <label for="cat-strings" class="custom-checkbox"></label>
-                    <label for="cat-strings">String Instruments</label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="cat-wind">
-                    <label for="cat-wind" class="custom-checkbox"></label>
-                    <label for="cat-wind">Wind Instruments</label>
-                </div>
+<!-- ✅ Enhanced Message Block -->
+<%
+    String added = request.getParameter("added");
+    String reason = request.getParameter("reason");
+
+    System.out.println("DEBUG: added=" + added + ", reason=" + reason);
+
+    if ("success".equals(added)) {
+%>
+<div class="message-success">
+    <i class="fas fa-check-circle"></i>
+     Item added to your cart successfully!
+</div>
+<%
+} else if ("fail".equals(added)) {
+    if ("out_of_stock".equals(reason)) {
+%>
+<div class="message-error">
+    <i class="fas fa-exclamation-circle"></i>
+    ❌ Item is out of stock. Please try another product.
+</div>
+<%
+} else {
+%>
+<div class="message-error">
+    <i class="fas fa-exclamation-circle"></i>
+    ❌ Failed to add item. Please try again.
+</div>
+<%
+    }
+} else if ("error".equals(added)) {
+%>
+<div class="message-warning">
+    <i class="fas fa-exclamation-triangle"></i>
+    ⚠ Server error occurred. Try again later.
+</div>
+<%
+    }
+%>
+
+<!-- Search Section -->
+<div class="container">
+    <div class="search-section">
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search for instruments, brands, or categories...">
             </div>
+            <button class="search-btn">
+                <i class="fas fa-search"></i>
+                Search
+            </button>
         </div>
+    </div>
+</div>
 
-        <div class="filter-section">
-            <h3 class="filter-title">Price Range</h3>
-            <div class="price-range">
-                <div class="price-inputs">
-                    <input type="number" class="price-input" placeholder="Min" value="0">
-                    <input type="number" class="price-input" placeholder="Max" value="5000">
-                </div>
-                <input type="range" class="price-slider" min="0" max="10000" value="5000">
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <h3 class="filter-title">Brands</h3>
-            <div class="brand-tags">
-                <div class="brand-tag active">Fender</div>
-                <div class="brand-tag">Gibson</div>
-                <div class="brand-tag">Yamaha</div>
-                <div class="brand-tag">Roland</div>
-                <div class="brand-tag">Shure</div>
-                <div class="brand-tag">Sennheiser</div>
-            </div>
-        </div>
-
-        <div class="filter-section">
-            <h3 class="filter-title">Rating</h3>
-            <div class="filter-options">
-                <div class="filter-option">
-                    <input type="checkbox" id="rating-5">
-                    <label for="rating-5" class="custom-checkbox"></label>
-                    <label for="rating-5">
-                        <span class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                        </span>
-                    </label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="rating-4">
-                    <label for="rating-4" class="custom-checkbox"></label>
-                    <label for="rating-4">
-                        <span class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
-                        </span> & Up
-                    </label>
-                </div>
-                <div class="filter-option">
-                    <input type="checkbox" id="rating-3">
-                    <label for="rating-3" class="custom-checkbox"></label>
-                    <label for="rating-3">
-                        <span class="rating-stars">
-                            <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
-                        </span> & Up
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <button class="cta-btn" style="width: 100%; margin-top: 20px;">Apply Filters</button>
-    </aside>
-
-    <!-- Products Section -->
+<!-- Products Section -->
+<div class="container">
     <main class="products-section">
         <div class="products-header">
             <div>
                 <h2 style="margin-bottom: 5px;">All Instruments</h2>
                 <%
-                    // Database connection and query
                     Connection conn = null;
                     Statement stmt = null;
                     ResultSet rs = null;
                     int productCount = 0;
-
                     try {
                         conn = DBConnection.getConnection();
                         stmt = conn.createStatement();
-                        String sql = "SELECT COUNT(*) as count FROM Instrument";
+                        String sql = "SELECT COUNT(*) AS count FROM Instrument";
                         rs = stmt.executeQuery(sql);
                         if (rs.next()) {
                             productCount = rs.getInt("count");
@@ -1042,7 +1104,6 @@
                     } catch (SQLException e) {
                         e.printStackTrace();
                     } finally {
-                        // Close resources
                         try {
                             if (rs != null) rs.close();
                             if (stmt != null) stmt.close();
@@ -1071,11 +1132,9 @@
 
         <div class="products-grid">
             <%
-                // Database connection and query for products
                 Connection conn2 = null;
                 Statement stmt2 = null;
                 ResultSet rs2 = null;
-
                 try {
                     conn2 = DBConnection.getConnection();
                     stmt2 = conn2.createStatement();
@@ -1087,79 +1146,73 @@
                         String name = rs2.getString("Name");
                         String description = rs2.getString("Description");
                         String brandID = rs2.getString("BrandID");
-                        String model = rs2.getString("Model");
-                        String color = rs2.getString("Color");
                         double price = rs2.getDouble("Price");
-                        String specifications = rs2.getString("Specifications");
-                        String warranty = rs2.getString("Warranty");
                         int quantity = rs2.getInt("Quantity");
-                        String stockLevel = rs2.getString("StockLevel");
-                        String manufacturerID = rs2.getString("ManufacturerID");
                         String imageURL = rs2.getString("ImageURL");
 
-                        // Determine badge type based on stock level
-                        String badge = "";
-                        if ("In Stock".equals(stockLevel)) {
-                            badge = "<div class='product-badge'>In Stock</div>";
+                        String badgeClass = "product-badge";
+                        String badgeText = "In Stock";
+                        boolean inStock = quantity > 0;
+
+                        if (!inStock) {
+                            badgeClass += " out-of-stock";
+                            badgeText = "Out of Stock";
+                        } else if (quantity < 5) {
+                            badgeClass += " low-stock";
+                            badgeText = "Low Stock";
                         }
 
-                        // Generate random rating for demo purposes
-                        double rating = Math.floor(Math.random() * 3) + 3; // 3-5 stars
-                        int ratingCount = (int)(Math.random() * 50) + 10; // 10-59 reviews
+                        double rating = Math.floor(Math.random() * 3) + 3;
+                        int ratingCount = (int)(Math.random() * 50) + 10;
             %>
-            <!-- Product Card -->
-            <div class="product-card">
-                <%= badge %>
+            <div class="product-card" onclick="window.location.href='product-details.jsp?instrumentId=<%= instrumentID %>'">
+                <div class="<%= badgeClass %>"><%= badgeText %></div>
                 <div class="product-img">
-                    <%
-                        if (imageURL != null && !imageURL.trim().isEmpty()) {
-                    %>
-                    <img src="<%= imageURL %>" alt="<%= name %>">
-                    <%
-                    } else {
-                    %>
-                    <img src="https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="<%= name %>">
-                    <%
-                        }
-                    %>
+                    <img src="<%= imageURL != null && !imageURL.trim().isEmpty() ? imageURL :
+                        "https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?auto=format&fit=crop&w=1740&q=80" %>"
+                         alt="<%= name %>" onerror="this.src='https://images.unsplash.com/photo-1516924962500-2b4b3b99ea02?auto=format&fit=crop&w=1740&q=80'">
                 </div>
                 <div class="product-info">
                     <div class="product-category"><%= brandID %></div>
                     <h3 class="product-title"><%= name %></h3>
                     <div class="product-rating">
                         <div class="rating-stars">
-                            <%
-                                for (int i = 1; i <= 5; i++) {
-                                    if (i <= rating) {
-                            %>
-                            <i class="fas fa-star"></i>
-                            <%
-                            } else if (i - rating < 1) {
-                            %>
-                            <i class="fas fa-star-half-alt"></i>
-                            <%
-                            } else {
-                            %>
-                            <i class="far fa-star"></i>
-                            <%
-                                    }
-                                }
-                            %>
+                            <% for (int i = 1; i <= 5; i++) {
+                                if (i <= rating) { %><i class="fas fa-star"></i><% }
+                        else if (i - rating < 1) { %><i class="fas fa-star-half-alt"></i><% }
+                        else { %><i class="far fa-star"></i><% }
+                        } %>
                         </div>
                         <span class="rating-count">(<%= ratingCount %>)</span>
                     </div>
                     <div class="product-price">
                         <span class="current-price">$<%= String.format("%.2f", price) %></span>
                     </div>
-                    <p class="product-desc"><%= description != null && description.length() > 100 ? description.substring(0, 100) + "..." : description %></p>
+                    <p class="product-desc">
+                        <%= description != null && description.length() > 100 ?
+                                description.substring(0, 100) + "..." : description %>
+                    </p>
                     <div class="product-actions">
-                        <button class="add-to-cart" data-id="<%= instrumentID %>">
-                            <i class="fas fa-shopping-cart"></i>
-                            Add to Cart
-                        </button>
-                        <button class="wishlist-btn">
-                            <i class="far fa-heart"></i>
-                        </button>
+                        <form action="order-summary.jsp" method="get" style="display: inline;" onsubmit="event.stopPropagation()">
+                            <input type="hidden" name="instrumentId" value="<%= instrumentID %>">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-order">
+                                <i class="fas fa-bolt"></i> Order Now
+                            </button>
+                        </form>
+
+                        </a>
+
+
+                        <!-- ✅ Fixed Add to Cart Form - No Lag Version -->
+                        <form action="AddToCartServlet" method="post" style="display:inline; margin:0; flex:1;">
+                            <input type="hidden" name="instrumentId" value="<%= instrumentID %>">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-cart" <%= !inStock ? "disabled" : "" %> onclick="event.stopPropagation()">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </button>
+                        </form>
+
                     </div>
                 </div>
             </div>
@@ -1168,7 +1221,6 @@
                 } catch (SQLException e) {
                     e.printStackTrace();
                 } finally {
-                    // Close resources
                     try {
                         if (rs2 != null) rs2.close();
                         if (stmt2 != null) stmt2.close();
@@ -1182,23 +1234,22 @@
 
         <!-- Pagination -->
         <div class="pagination">
-            <button class="pagination-btn"><i class="fas fa-chevron-left"></i></button>
-            <button class="pagination-btn active">1</button>
-            <button class="pagination-btn">2</button>
-            <button class="pagination-btn">3</button>
-            <button class="pagination-btn">4</button>
-            <button class="pagination-btn"><i class="fas fa-chevron-right"></i></button>
+            <div class="pagination-btn active">1</div>
+            <div class="pagination-btn">2</div>
+            <div class="pagination-btn">3</div>
+            <div class="pagination-btn">4</div>
+            <div class="pagination-btn">5</div>
+            <div class="pagination-btn"><i class="fas fa-chevron-right"></i></div>
         </div>
     </main>
 </div>
 
-<!-- Footer -->
 <footer>
     <div class="container">
         <div class="footer-content">
             <div class="footer-column">
                 <h3>Melody Mart</h3>
-                <p>Your premier destination for high-quality musical instruments and professional audio equipment.</p>
+                <p>Your premier destination for professional musical instruments and equipment. We provide quality products for musicians of all levels.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
                     <a href="#"><i class="fab fa-twitter"></i></a>
@@ -1206,41 +1257,35 @@
                     <a href="#"><i class="fab fa-youtube"></i></a>
                 </div>
             </div>
-
             <div class="footer-column">
-                <h3>Shop</h3>
+                <h3>Quick Links</h3>
                 <ul class="footer-links">
-                    <li><a href="#">Guitars</a></li>
-                    <li><a href="#">Drums & Percussion</a></li>
-                    <li><a href="#">Pianos & Keyboards</a></li>
-                    <li><a href="#">Recording Equipment</a></li>
-                    <li><a href="#">Accessories</a></li>
+                    <li><a href="customerlanding.jsp">Home</a></li>
+                    <li><a href="shop.jsp">Shop</a></li>
+                    <li><a href="categories.jsp">Categories</a></li>
+                    <li><a href="brands.jsp">Brands</a></li>
+                    <li><a href="about.jsp">About Us</a></li>
                 </ul>
             </div>
-
-            <div class="footer-column">
-                <h3>Company</h3>
-                <ul class="footer-links">
-                    <li><a href="#">About Us</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                    <li><a href="#">Careers</a></li>
-                    <li><a href="#">Shipping & Returns</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                </ul>
-            </div>
-
             <div class="footer-column">
                 <h3>Customer Service</h3>
                 <ul class="footer-links">
-                    <li><a href="#">My Account</a></li>
-                    <li><a href="#">Order Tracking</a></li>
-                    <li><a href="#">Wish List</a></li>
-                    <li><a href="#">Customer Support</a></li>
-                    <li><a href="#">Returns & Exchanges</a></li>
+                    <li><a href="contact.jsp">Contact Us</a></li>
+                    <li><a href="#">Shipping Policy</a></li>
+                    <li><a href="#">Returns & Refunds</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Contact Info</h3>
+                <ul class="footer-links">
+                    <li><a href="#"><i class="fas fa-map-marker-alt"></i> 123 Music Street, Melody City</a></li>
+                    <li><a href="#"><i class="fas fa-phone"></i> +1 (555) 123-4567</a></li>
+                    <li><a href="#"><i class="fas fa-envelope"></i> support@melodymart.com</a></li>
                 </ul>
             </div>
         </div>
-
         <div class="copyright">
             &copy; 2025 Melody Mart. All rights reserved.
         </div>
@@ -1249,74 +1294,138 @@
 
 <script>
     // Header scroll effect
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', () => {
         const header = document.querySelector('header');
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
+        if (window.scrollY > 50) header.classList.add('scrolled');
+        else header.classList.remove('scrolled');
     });
 
-    // Filter functionality
-    const brandTags = document.querySelectorAll('.brand-tag');
-    brandTags.forEach(tag => {
-        tag.addEventListener('click', () => {
-            tag.classList.toggle('active');
-        });
-    });
-
-    // View toggle functionality
+    // View options
     const viewBtns = document.querySelectorAll('.view-btn');
     viewBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             viewBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-
             const productsGrid = document.querySelector('.products-grid');
-            if (btn.querySelector('.fa-list')) {
-                productsGrid.style.gridTemplateColumns = '1fr';
-            } else {
-                productsGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(280px, 1fr))';
-            }
+            productsGrid.style.gridTemplateColumns =
+                btn.querySelector('.fa-list') ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))';
         });
     });
 
-    // Wishlist toggle
-    const wishlistBtns = document.querySelectorAll('.wishlist-btn');
-    wishlistBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const icon = btn.querySelector('i');
-            if (icon.classList.contains('far')) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                icon.style.color = 'var(--accent-alt)';
+    // ✅ FIXED: Simple Add to Cart with NO LAG
+    function handleAddToCart(event, button) {
+        event.stopPropagation();
+
+        if (button.disabled) return;
+
+        // Show loading state for only 0.3 seconds (very brief)
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<div class="loading"></div>';
+        button.disabled = true;
+
+        // Very brief loading state, then let form submit normally
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        }, 300);
+
+        // Form will submit normally and page will reload with success message
+        // No need to prevent default - let the form submit work naturally
+    }
+
+    // Update cart count from session
+    function updateCartCount() {
+        const cartCount = <%= cartCount %>;
+        const cartCountEl = document.querySelector('.cart-count');
+        if (cartCount > 0) {
+            if (cartCountEl) {
+                cartCountEl.textContent = cartCount;
+                cartCountEl.style.display = 'flex';
             } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                icon.style.color = '';
+                // Create cart count element if it doesn't exist
+                const cartIcon = document.querySelector('.cart-icon');
+                if (cartIcon) {
+                    const countEl = document.createElement('span');
+                    countEl.className = 'cart-count';
+                    countEl.textContent = cartCount;
+                    countEl.style.display = 'flex';
+                    cartIcon.appendChild(countEl);
+                }
             }
-        });
+        }
+    }
+
+    // Search functionality
+    const searchInput = document.querySelector('.search-input');
+    const searchBtn = document.querySelector('.search-btn');
+
+    searchBtn.addEventListener('click', performSearch);
+    searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') performSearch();
     });
 
-    // Add to cart functionality
-    const addToCartBtns = document.querySelectorAll('.add-to-cart');
-    addToCartBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const instrumentID = btn.getAttribute('data-id');
-            // Here you would typically send an AJAX request to add the item to cart
-            alert('Added instrument ' + instrumentID + ' to cart!');
+    function performSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        if (searchTerm) {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                const productName = card.querySelector('.product-title').textContent.toLowerCase();
+                const productCategory = card.querySelector('.product-category').textContent.toLowerCase();
+                const productDesc = card.querySelector('.product-desc').textContent.toLowerCase();
 
-            // Visual feedback
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i> Added!';
-            btn.style.background = 'var(--accent)';
+                if (productName.includes(searchTerm) ||
+                    productCategory.includes(searchTerm) ||
+                    productDesc.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        } else {
+            const productCards = document.querySelectorAll('.product-card');
+            productCards.forEach(card => {
+                card.style.display = 'block';
+            });
+        }
+    }
 
+    // Product card animations on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        observer.observe(card);
+    });
+
+    // Auto-hide messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const messages = document.querySelectorAll('.message-success, .message-error, .message-warning');
+        messages.forEach(message => {
             setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.style.background = '';
-            }, 2000);
+                message.style.opacity = '0';
+                message.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    message.remove();
+                }, 500);
+            }, 5000);
         });
+
+        // Update cart count on page load
+        updateCartCount();
     });
 </script>
 </body>

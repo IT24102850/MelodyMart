@@ -1,11 +1,31 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ page import="java.net.URLDecoder" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MelodyMart - Seller Dashboard</title>
+    <title>MelodyMart - Add/Update Instrument</title>
+    <link rel="icon" type="image/x-icon" href="./images/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #f8fafc;
+            --text: #1e293b;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #3b82f6;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,68 +33,34 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        :root {
-            --primary: #8B5CF6;
-            --primary-dark: #7C3AED;
-            --primary-light: #A78BFA;
-            --secondary: #06D6A0;
-            --accent: #FF6B6B;
-            --text-dark: #1E293B;
-            --text-light: #64748B;
-            --bg-light: #F8FAFC;
-            --bg-white: #FFFFFF;
-            --shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
-            --shadow-light: 0 5px 15px rgba(139, 92, 246, 0.1);
-            --gradient: linear-gradient(135deg, #8B5CF6 0%, #06D6A0 100%);
-            --gradient-card: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
-            --gradient-stats: linear-gradient(135deg, #06D6A0 0%, #4CC9F0 100%);
-        }
-
         body {
-            background: linear-gradient(135deg, #F0F9FF 0%, #E1F5FE 50%, #F3E8FF 100%);
-            color: var(--text-dark);
+            background: var(--secondary);
+            color: var(--text);
             min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background:
-                    radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 20%),
-                    radial-gradient(circle at 90% 80%, rgba(6, 214, 160, 0.1) 0%, transparent 20%),
-                    radial-gradient(circle at 50% 50%, rgba(255, 107, 107, 0.05) 0%, transparent 20%);
-            z-index: -1;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
 
-        /* Header Styles */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 0;
             margin-bottom: 30px;
+            border-bottom: 2px solid var(--border);
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 28px;
             font-weight: 700;
             color: var(--primary);
-            text-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
         }
 
         .logo i {
@@ -87,960 +73,876 @@
         .header-right {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
-        .logout-btn {
-            background: linear-gradient(135deg, #FF6B6B, #EF4444);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
+        .back-btn {
             display: flex;
             align-items: center;
             gap: 8px;
+            padding: 10px 20px;
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
         }
 
-        .logout-btn:hover {
+        .back-btn:hover {
+            background: #dc2626;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            background: linear-gradient(135deg, #EF4444, #DC2626);
         }
 
         .user-profile {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            width: 45px;
+            height: 45px;
             background: var(--gradient);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease;
+            font-size: 18px;
         }
 
-        .user-profile:hover {
-            transform: scale(1.05);
-        }
-
-        /* Dashboard Header */
         .dashboard-header {
-            text-align: center;
-            margin-bottom: 40px;
-            position: relative;
+            margin-bottom: 30px;
         }
 
         .dashboard-header h1 {
-            font-size: 42px;
+            font-size: 36px;
+            color: var(--text);
+            margin-bottom: 10px;
             background: var(--gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
         }
 
         .dashboard-header p {
             font-size: 18px;
-            color: var(--text-light);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
+            color: #64748b;
         }
 
-        .welcome-message {
-            background: var(--bg-white);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: var(--shadow-light);
-            border-left: 4px solid var(--primary);
-        }
-
-        .welcome-message h3 {
-            color: var(--primary);
-            margin-bottom: 10px;
-            font-size: 20px;
-        }
-
-        .welcome-message p {
-            color: var(--text-light);
-            margin: 0;
-        }
-
-        /* Section Headers */
-        .section-header {
-            font-size: 28px;
-            color: var(--primary);
-            margin: 40px 0 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(139, 92, 246, 0.2);
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-header i {
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
+        .form-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 25px;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
             margin-bottom: 40px;
         }
 
-        .stat-card {
-            background: var(--bg-white);
+        @media (max-width: 768px) {
+            .form-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section {
+            background: var(--card-bg);
+            padding: 30px;
             border-radius: 16px;
-            padding: 25px;
             box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 1px solid rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border);
         }
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2);
-        }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            background: var(--gradient-stats);
-            box-shadow: 0 4px 10px rgba(6, 214, 160, 0.3);
-        }
-
-        .stat-info {
-            flex: 1;
-        }
-
-        .stat-value {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 14px;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .stat-change {
-            font-size: 12px;
-            color: var(--secondary);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 5px;
+        .form-section h2 {
+            font-size: 20px;
             font-weight: 600;
+            color: var(--text);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
         }
 
-        .stat-change.negative {
-            color: var(--accent);
-        }
-
-        /* Cards Grid */
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: var(--bg-white);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: var(--shadow-light);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            border: 1px solid rgba(139, 92, 246, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: var(--gradient-card);
-        }
-
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(139, 92, 246, 0.2);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-dark);
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 8px;
         }
 
-        .card-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--error);
+        }
+
+        .image-upload-container {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-container:hover {
+            border-color: var(--primary);
+        }
+
+        .image-upload-container.dragover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .preview-item .remove-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 22px;
-            background: var(--gradient-card);
-            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
-        }
-
-        .card-value {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 10px;
-        }
-
-        .card-description {
-            font-size: 14px;
-            color: var(--text-light);
-            line-height: 1.5;
-            margin-bottom: 15px;
-        }
-
-        .card-change {
-            font-size: 14px;
-            color: var(--secondary);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
-        .card-change.negative {
-            color: var(--accent);
-        }
-
-        /* Enhanced Table Styles */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 20px;
-            border-radius: 16px;
-            box-shadow: var(--shadow);
-            background: var(--bg-white);
-            padding: 0;
-        }
-
-        .instruments-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--bg-white);
-            border-radius: 16px;
-            overflow: hidden;
-            min-width: 1000px;
-        }
-
-        .instruments-table th,
-        .instruments-table td {
-            padding: 16px 20px;
-            text-align: left;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
-        }
-
-        .instruments-table th {
-            background: var(--gradient);
-            color: white;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: sticky;
-            top: 0;
-        }
-
-        .instruments-table tr {
-            transition: background-color 0.2s ease;
-        }
-
-        .instruments-table tr:hover {
-            background: rgba(139, 92, 246, 0.05);
-        }
-
-        .instruments-table tr:nth-child(even) {
-            background: rgba(139, 92, 246, 0.02);
-        }
-
-        .instruments-table tr:nth-child(even):hover {
-            background: rgba(139, 92, 246, 0.07);
-        }
-
-        .instrument-image {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid var(--primary-light);
-            box-shadow: 0 2px 5px rgba(139, 92, 246, 0.2);
         }
 
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 15px;
+            margin-top: 30px;
         }
 
         .btn {
-            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.3s ease;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.85rem;
+            font-size: 14px;
         }
 
-        .btn-edit {
+        .btn-primary {
             background: var(--primary);
             color: white;
         }
 
-        .btn-edit:hover {
-            background: var(--primary-dark);
+        .btn-primary:hover {
+            background: #1d4ed8;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3);
         }
 
-        .btn-delete {
-            background: var(--accent);
+        .btn-secondary {
+            background: #64748b;
             color: white;
         }
 
-        .btn-delete:hover {
-            background: #EF4444;
+        .btn-secondary:hover {
+            background: #475569;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
         }
 
-        /* Products List */
-        .products-list {
-            list-style: none;
-            margin-top: 15px;
+        .btn-danger {
+            background: var(--error);
+            color: white;
         }
 
-        .product-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
-            transition: background-color 0.2s ease;
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
         }
 
-        .product-item:hover {
-            background: rgba(139, 92, 246, 0.05);
+        .message {
+            padding: 15px;
             border-radius: 8px;
-            padding-left: 10px;
-            padding-right: 10px;
-        }
-
-        .product-item:last-child {
-            border-bottom: none;
-        }
-
-        .product-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
-            background: rgba(139, 92, 246, 0.1);
-            display: flex;
+            margin-bottom: 20px;
+            display: none;
             align-items: center;
-            justify-content: center;
-            margin-right: 15px;
-            color: var(--primary);
-            font-size: 20px;
+            gap: 10px;
+            font-weight: 500;
         }
 
-        .product-info {
-            flex: 1;
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
         }
 
-        .product-name {
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .instrument-list {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        .instrument-list h2 {
+            font-size: 24px;
             font-weight: 600;
-            margin-bottom: 4px;
-            color: var(--text-dark);
+            color: var(--text);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
         }
 
-        .product-sales {
-            font-size: 14px;
-            color: var(--text-light);
+        .instrument-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 30px 0;
-            color: var(--text-light);
-            border-top: 1px solid rgba(139, 92, 246, 0.1);
-            margin-top: 30px;
+        .instrument-table th,
+        .instrument-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
         }
 
-        .footer-links {
+        .instrument-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .image-gallery {
             display: flex;
-            justify-content: center;
-            gap: 25px;
-            margin: 20px 0;
+            gap: 5px;
+            flex-wrap: wrap;
         }
 
-        .footer-links a {
-            color: var(--text-light);
-            text-decoration: none;
-            transition: color 0.3s;
+        .image-gallery img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+        }
+
+        .action-buttons-small {
             display: flex;
-            align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
 
-        .footer-links a:hover {
-            color: var(--primary);
-        }
-
-        .copyright {
-            font-size: 14px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .cards-grid, .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-links {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .header-right {
-                gap: 10px;
-            }
-
-            .logout-btn span {
-                display: none;
-            }
-
-            .dashboard-header h1 {
-                font-size: 32px;
-            }
-
-            .section-header {
-                font-size: 24px;
-            }
-        }
-
-        /* Animation for data updates */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .updating {
-            animation: pulse 1s infinite;
-        }
-
-        /* Real-time indicator */
-        .real-time-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
             font-size: 12px;
-            color: var(--secondary);
-            margin-left: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
-        .pulse-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--secondary);
-            animation: pulse 2s infinite;
+        .btn-edit {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-delete {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-edit:hover,
+        .btn-delete:hover {
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- Header with Logo and Profile -->
     <header>
         <div class="logo">
             <i class="fas fa-music"></i>
             <span>MelodyMart</span>
         </div>
         <div class="header-right">
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
+            <a href="sellerdashboard.jsp" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Dashboard</span>
+            </a>
             <div class="user-profile">
                 <i class="fas fa-user"></i>
             </div>
         </div>
     </header>
 
-    <!-- Dashboard Header -->
+    <!-- Role Check -->
+    <%
+        String userRole = (String) session.getAttribute("userRole");
+        if (userRole == null || !userRole.equalsIgnoreCase("seller")) {
+            response.sendRedirect("sign-in.jsp?error=Access denied. Please log in as a seller.");
+            return;
+        }
+        String status = request.getParameter("status");
+        String message = request.getParameter("message");
+        if ("success".equals(status) && message != null) {
+            out.println("<div class='message message-success' style='display: flex;'><i class='fas fa-check-circle'></i> " + URLDecoder.decode(message, "UTF-8") + "</div>");
+        } else if ("error".equals(status) && message != null) {
+            out.println("<div class='message message-error' style='display: flex;'><i class='fas fa-exclamation-circle'></i> " + URLDecoder.decode(message, "UTF-8") + "</div>");
+        }
+        session.removeAttribute("status");
+        session.removeAttribute("message");
+    %>
+
     <div class="dashboard-header">
-        <h1>Seller Dashboard</h1>
-        <p>Welcome back, <span id="sellerName">Melody Mahnaro</span>! Here's your business overview.</p>
-
-        <div class="welcome-message">
-            <h3><i class="fas fa-star"></i> Today's Performance</h3>
-            <p id="welcomePerformance">You've processed <strong id="todayOrders">12</strong> orders today, generating <strong id="todayRevenue">$1,250</strong> in revenue. Keep up the great work!</p>
-        </div>
+        <h1>Instrument Management</h1>
+        <p>Add new instruments or update existing ones in your inventory</p>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-chart-line"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-value" id="totalSales">$24,580</div>
-                <div class="stat-label">Total Sales</div>
-                <div class="stat-change">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>12.5% from last month</span>
-                </div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-shopping-cart"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-value" id="totalOrders">342</div>
-                <div class="stat-label">Orders</div>
-                <div class="stat-change">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>8.2% from last month</span>
-                </div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-dollar-sign"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-value" id="totalRevenue">$18,420</div>
-                <div class="stat-label">Revenue</div>
-                <div class="stat-change">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>5.7% from last month</span>
-                </div>
-            </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-star"></i>
-            </div>
-            <div class="stat-info">
-                <div class="stat-value" id="customerRating">4.8/5.0</div>
-                <div class="stat-label">Customer Rating</div>
-                <div class="stat-change">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>0.2 points improvement</span>
-                </div>
-            </div>
-        </div>
+    <div id="dynamicMessage" class="message message-error" style="display: none;">
+        <i class="fas fa-exclamation-circle"></i> <span id="dynamicMessageText"></span>
+    </div>
+    <div id="dynamicSuccess" class="message message-success" style="display: none;">
+        <i class="fas fa-check-circle"></i> <span id="dynamicSuccessText"></span>
     </div>
 
-    <!-- Main Navigation Cards -->
-    <h2 class="section-header"><i class="fas fa-cogs"></i> Management</h2>
-    <div class="cards-grid">
-        <!-- Inventory Card -->
-        <a href="addInstrument.jsp" class="card inventory">
-            <div class="card-header">
-                <div class="card-title">Inventory</div>
-                <div class="card-icon">
-                    <i class="fas fa-box"></i>
+    <form id="instrumentForm" method="post" action="InstrumentManagementServlet" enctype="multipart/form-data">
+        <input type="hidden" id="instrumentID" name="instrumentID" value="">
+        <input type="hidden" name="action" value="save">
+
+        <div class="form-container">
+            <div class="form-section">
+                <h2>Basic Information</h2>
+
+                <div class="form-group">
+                    <label for="name" class="required">Instrument Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" placeholder="Describe the instrument..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="manufacturerID" class="required">Manufacturer</label>
+                    <select id="manufacturerID" name="manufacturerID" required>
+                        <option value="">Select Manufacturer</option>
+                        <option value="M001">Yamaha Corporation</option>
+                        <option value="M002">Fender Musical Instruments</option>
+                        <option value="M003">Gibson Brands</option>
+                        <option value="M004">Roland Corporation</option>
+                        <option value="M005">Korg Inc.</option>
+                        <option value="M006">Casio Musical Instruments</option>
+                        <option value="M007">Taylor Guitars</option>
+                        <option value="M008">Ibanez Guitars</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="brandID" class="required">Brand</label>
+                    <select id="brandID" name="brandID" required>
+                        <option value="">Select Brand</option>
+                        <option value="B001">Yamaha Music</option>
+                        <option value="B002">Squier</option>
+                        <option value="B003">Epiphone</option>
+                        <option value="B004">Roland Pro</option>
+                        <option value="B005">Korg Studio</option>
+                        <option value="B006">Casio Privia</option>
+                        <option value="B007">Taylor Baby</option>
+                        <option value="B008">Ibanez Prestige</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="model">Model</label>
+                    <input type="text" id="model" name="model" placeholder="Model name/number">
+                </div>
+
+                <div class="form-group">
+                    <label for="color">Color</label>
+                    <input type="text" id="color" name="color" placeholder="Instrument color">
                 </div>
             </div>
-            <div class="card-value" id="productCount">148 Products</div>
-            <div class="card-description">Manage your product inventory, update stock levels, and track product performance.</div>
-            <div class="card-change">
-                <i class="fas fa-arrow-up"></i>
-                <span>12 new items this month</span>
-            </div>
-        </a>
 
-        <!-- Orders Card -->
-        <a href="order.jsp" class="card orders">
-            <div class="card-header">
-                <div class="card-title">Orders</div>
-                <div class="card-icon">
-                    <i class="fas fa-shopping-cart"></i>
+            <div class="form-section">
+                <h2>Pricing & Inventory</h2>
+
+                <div class="form-group">
+                    <label for="price" class="required">Price ($)</label>
+                    <input type="number" id="price" name="price" step="0.01" min="0" placeholder="0.00" required>
                 </div>
-            </div>
-            <div class="card-value" id="orderCount">342 Orders</div>
-            <div class="card-description">View and manage customer orders, process returns, and track order status.</div>
-            <div class="card-change">
-                <i class="fas fa-arrow-up"></i>
-                <span>8.2% from last month</span>
-            </div>
-        </a>
 
-        <!-- Deliveries Card -->
-        <a href="deliveries.jsp" class="card deliveries">
-            <div class="card-header">
-                <div class="card-title">Deliveries</div>
-                <div class="card-icon">
-                    <i class="fas fa-truck"></i>
+                <div class="form-group">
+                    <label for="quantity" class="required">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" min="0" placeholder="0" required>
                 </div>
-            </div>
-            <div class="card-value" id="deliveryCount">45 In Transit</div>
-            <div class="card-description">Track shipments, manage delivery schedules, and update shipping status.</div>
-            <div class="card-change">
-                <i class="fas fa-clock"></i>
-                <span>12 delayed deliveries</span>
-            </div>
-        </a>
 
-        <!-- Repair Requests Card -->
-        <a href="repairs.jsp" class="card repairs">
-            <div class="card-header">
-                <div class="card-title">Repair Requests</div>
-                <div class="card-icon">
-                    <i class="fas fa-tools"></i>
+                <div class="form-group">
+                    <label for="stockLevel">Stock Level</label>
+                    <select id="stockLevel" name="stockLevel">
+                        <option value="In Stock">In Stock</option>
+                        <option value="Low Stock">Low Stock</option>
+                        <option value="Out of Stock">Out of Stock</option>
+                    </select>
                 </div>
-            </div>
-            <div class="card-value" id="repairCount">8 Active</div>
-            <div class="card-description">Manage instrument repair requests, schedule appointments, and track repair status.</div>
-            <div class="card-change">
-                <i class="fas fa-exclamation-circle"></i>
-                <span>2 high priority requests</span>
-            </div>
-        </a>
 
-        <!-- Payments Card -->
-        <a href="payment.jsp" class="card payments">
-            <div class="card-header">
-                <div class="card-title">Payments</div>
-                <div class="card-icon">
-                    <i class="fas fa-credit-card"></i>
+                <div class="form-group">
+                    <label for="warranty">Warranty</label>
+                    <input type="text" id="warranty" name="warranty" placeholder="e.g., 1 Year Limited">
                 </div>
-            </div>
-            <div class="card-value" id="paymentAmount">$18,420</div>
-            <div class="card-description">View payment history, track transactions, and manage payout settings.</div>
-            <div class="card-change">
-                <i class="fas fa-arrow-up"></i>
-                <span>5.7% from last month</span>
-            </div>
-        </a>
 
-        <!-- Stock Management Card -->
-        <a href="stock.jsp" class="card stock">
-            <div class="card-header">
-                <div class="card-title">Stock Management</div>
-                <div class="card-icon">
-                    <i class="fas fa-cubes"></i>
+                <div class="form-group">
+                    <label for="specifications">Specifications</label>
+                    <textarea id="specifications" name="specifications" placeholder="Technical specifications..."></textarea>
                 </div>
-            </div>
-            <div class="card-value" id="lowStockCount">23 Low Stock</div>
-            <div class="card-description">Monitor stock levels, set up reorder alerts, and manage suppliers.</div>
-            <div class="card-change negative">
-                <i class="fas fa-arrow-down"></i>
-                <span>5 items out of stock</span>
-            </div>
-        </a>
-    </div>
 
-    <!-- Reports & Account Section -->
-    <h2 class="section-header"><i class="fas fa-chart-bar"></i> Reports & Account</h2>
-    <div class="cards-grid">
-        <!-- Sales Reports Card -->
-        <a href="reports.jsp" class="card reports">
-            <div class="card-header">
-                <div class="card-title">Sales Reports</div>
-                <div class="card-icon">
-                    <i class="fas fa-chart-bar"></i>
+                <div class="form-group">
+                    <label for="images" class="required">Product Images</label>
+                    <div class="image-upload-container" id="dropZone">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 48px; color: var(--primary); margin-bottom: 10px;"></i>
+                        <p style="margin-bottom: 10px; font-weight: 500;">Drag & drop images here or click to browse</p>
+                        <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;">
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('images').click()">
+                            <i class="fas fa-folder-open"></i> Browse Files
+                        </button>
+                        <small style="color: #64748b; display: block; margin-top: 10px;">Maximum 5 images • PNG, JPG, JPEG</small>
+                    </div>
+                    <div id="imagePreview" class="image-preview"></div>
                 </div>
-            </div>
-            <div class="card-value" id="reportCount">15 Reports</div>
-            <div class="card-description">Generate detailed sales reports, analyze performance trends, and export data.</div>
-            <div class="card-change">
-                <i class="fas fa-file-export"></i>
-                <span>Export latest data</span>
-            </div>
-        </a>
-
-        <!-- Notifications Card -->
-        <a href="notifications.jsp" class="card notifications">
-            <div class="card-header">
-                <div class="card-title">Notifications</div>
-                <div class="card-icon">
-                    <i class="fas fa-bell"></i>
-                </div>
-            </div>
-            <div class="card-value" id="notificationCount">7 Unread</div>
-            <div class="card-description">View system notifications, customer messages, and important alerts.</div>
-            <div class="card-change">
-                <i class="fas fa-envelope"></i>
-                <span>3 new messages</span>
-            </div>
-        </a>
-
-        <!-- Profile Card -->
-        <a href="profile.jsp" class="card profile">
-            <div class="card-header">
-                <div class="card-title">Profile</div>
-                <div class="card-icon">
-                    <i class="fas fa-user"></i>
-                </div>
-            </div>
-            <div class="card-value" id="profileName">Melody Mahnaro</div>
-            <div class="card-description">Update your account information, change password, and manage preferences.</div>
-            <div class="card-change">
-                <i class="fas fa-cog"></i>
-                <span>Update settings</span>
-            </div>
-        </a>
-    </div>
-
-    <!-- Top Products Section -->
-    <h2 class="section-header"><i class="fas fa-trophy"></i> Top Products</h2>
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">Best Selling Instruments</div>
-            <div class="card-icon" style="background: var(--gradient-card);">
-                <i class="fas fa-guitar"></i>
             </div>
         </div>
-        <ul class="products-list">
-            <li class="product-item">
-                <div class="product-icon">
-                    <i class="fas fa-guitar"></i>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">Acoustic Guitar</div>
-                    <div class="product-sales">128 sold • $12,450 revenue</div>
-                </div>
-            </li>
-            <li class="product-item">
-                <div class="product-icon">
-                    <i class="fas fa-drum"></i>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">Electronic Drum Set</div>
-                    <div class="product-sales">76 sold • $9,800 revenue</div>
-                </div>
-            </li>
-            <li class="product-item">
-                <div class="product-icon">
-                    <i class="fas fa-piano"></i>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">Digital Piano</div>
-                    <div class="product-sales">54 sold • $8,100 revenue</div>
-                </div>
-            </li>
-        </ul>
-    </div>
 
-    <!-- Footer -->
-    <footer>
-        <div class="footer-links">
-            <a href="#"><i class="fas fa-phone-alt"></i> Help</a>
-            <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
-            <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+        <div class="action-buttons">
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                <i class="fas fa-save"></i> Save Instrument
+            </button>
+            <button type="reset" class="btn btn-secondary" id="resetBtn">
+                <i class="fas fa-undo"></i> Reset Form
+            </button>
+            <a href="sellerdashboard.jsp" class="btn btn-danger">
+                <i class="fas fa-times"></i> Cancel
+            </a>
         </div>
-        <div class="copyright">
-            &copy; 2023 MelodyMart. All rights reserved.
-        </div>
-    </footer>
+    </form>
+
+    <div class="instrument-list">
+        <h2>Existing Instruments</h2>
+        <table class="instrument-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Images</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="instrumentTable">
+            <!-- Instruments will be loaded dynamically -->
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // Simple animation for cards on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.card');
-        const stats = document.querySelectorAll('.stat-card');
-
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-
-            setTimeout(() => {
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
-
-        stats.forEach((stat, index) => {
-            stat.style.opacity = '0';
-            stat.style.transform = 'translateY(20px)';
-
-            setTimeout(() => {
-                stat.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                stat.style.opacity = '1';
-                stat.style.transform = 'translateY(0)';
-            }, index * 100 + 300);
-        });
-
-        // Initialize real-time data updates
-        initializeRealTimeUpdates();
-    });
-
-    // Logout function
-    function logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            // Redirect to login page or perform logout action
-            window.location.href = 'index.jsp';
-        }
+    const userRole = "<%= session.getAttribute("userRole") != null ? session.getAttribute("userRole") : "unknown" %>";
+    if (userRole !== 'seller') {
+        alert('Access denied. Please log in as a seller.');
+        window.location.href = '<%= request.getContextPath() %>/sign-in.jsp';
     }
 
-    // Real-time data updates
-    function initializeRealTimeUpdates() {
-        // Simulate real-time data updates every 30 seconds
-        setInterval(updateDashboardData, 30000);
+    let uploadedImages = [];
 
-        // Initial data fetch
-        updateDashboardData();
-    }
+    function validateForm() {
+        const requiredFields = ['name', 'manufacturerID', 'brandID', 'price', 'quantity'];
+        let isValid = true;
 
-    function updateDashboardData() {
-        // In a real application, this would fetch data from your server
-        // For demonstration, we'll simulate data updates
-
-        // Add updating animation
-        const elementsToUpdate = [
-            'totalSales', 'totalOrders', 'totalRevenue', 'customerRating',
-            'productCount', 'orderCount', 'deliveryCount', 'repairCount',
-            'paymentAmount', 'lowStockCount', 'reportCount', 'notificationCount',
-            'todayOrders', 'todayRevenue'
-        ];
-
-        elementsToUpdate.forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.classList.add('updating');
+        requiredFields.forEach(field => {
+            const input = document.getElementById(field);
+            if (!input.value.trim()) {
+                isValid = false;
+                input.style.borderColor = 'var(--error)';
+                showMessage('error', input.labels[0].textContent + ' is required.');
+            } else {
+                input.style.borderColor = '';
             }
         });
 
-        // Simulate API call delay
-        setTimeout(() => {
-            // Generate random updates (in a real app, this would come from your backend)
-            const randomIncrement = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-            const randomDecimal = (min, max) => (Math.random() * (max - min) + min).toFixed(1);
+        if (uploadedImages.length === 0) {
+            showMessage('error', 'Please upload at least one image.');
+            isValid = false;
+        }
 
-            // Update stats with realistic fluctuations
-            document.getElementById('totalSales').textContent = '$' + (24580 + randomIncrement(50, 200)).toLocaleString();
-            document.getElementById('totalOrders').textContent = (342 + randomIncrement(1, 5));
-            document.getElementById('totalRevenue').textContent = '$' + (18420 + randomIncrement(30, 150)).toLocaleString();
-            document.getElementById('customerRating').textContent = randomDecimal(4.7, 4.9) + '/5.0';
+        if (!isValid) return false;
 
-            document.getElementById('productCount').textContent = (148 + randomIncrement(0, 2)) + ' Products';
-            document.getElementById('orderCount').textContent = (342 + randomIncrement(1, 3)) + ' Orders';
-            document.getElementById('deliveryCount').textContent = (45 + randomIncrement(-2, 3)) + ' In Transit';
-            document.getElementById('repairCount').textContent = (8 + randomIncrement(-1, 1)) + ' Active';
-            document.getElementById('paymentAmount').textContent = '$' + (18420 + randomIncrement(20, 100)).toLocaleString();
-            document.getElementById('lowStockCount').textContent = (23 + randomIncrement(-2, 2)) + ' Low Stock';
-            document.getElementById('reportCount').textContent = (15 + randomIncrement(0, 1)) + ' Reports';
-            document.getElementById('notificationCount').textContent = (7 + randomIncrement(-1, 2)) + ' Unread';
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-            // Update today's performance
-            document.getElementById('todayOrders').textContent = (12 + randomIncrement(0, 3));
-            document.getElementById('todayRevenue').textContent = '$' + (1250 + randomIncrement(10, 50)).toLocaleString();
+        const formData = new FormData(document.getElementById('instrumentForm'));
 
-            // Remove updating animation
-            elementsToUpdate.forEach(id => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.classList.remove('updating');
+        // Append all uploaded images
+        uploadedImages.forEach((image, index) => {
+            formData.append('imageFile', image.file);
+        });
+
+        fetch('<%= request.getContextPath() %>/InstrumentManagementServlet', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.text())
+            .then(text => {
+                const [status, message] = text.split('|');
+                if (status === 'SUCCESS') {
+                    showMessage('success', message || 'Instrument saved successfully!');
+                    document.getElementById('instrumentForm').reset();
+                    document.getElementById('imagePreview').innerHTML = '';
+                    uploadedImages = [];
+                    loadInstruments();
+                } else {
+                    throw new Error(message || 'Failed to save instrument.');
                 }
+            })
+            .catch(error => showMessage('error', error.message))
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Instrument';
             });
 
-            // Show real-time update indicator
-            showUpdateIndicator();
-        }, 1500);
+        return false;
     }
 
-    function showUpdateIndicator() {
-        // Create or update real-time indicator
-        let indicator = document.querySelector('.real-time-indicator');
-        if (!indicator) {
-            indicator = document.createElement('div');
-            indicator.className = 'real-time-indicator';
-            indicator.innerHTML = '<div class="pulse-dot"></div> Live Updates';
-            document.querySelector('.dashboard-header').appendChild(indicator);
-        }
+    function loadInstruments() {
+        fetch('<%= request.getContextPath() %>/InstrumentManagementServlet?action=list')
+            .then(response => response.text())
+            .then(text => {
+                const tableBody = document.getElementById('instrumentTable');
+                tableBody.innerHTML = '';
 
-        // Make indicator visible for a few seconds
-        indicator.style.opacity = '1';
-        setTimeout(() => {
-            indicator.style.opacity = '0';
-            setTimeout(() => {
-                if (indicator.parentNode) {
-                    indicator.parentNode.removeChild(indicator);
+                if (!text.trim()) {
+                    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No instruments found.</td></tr>';
+                    return;
                 }
-            }, 1000);
-        }, 3000);
+
+                const lines = text.trim().split('\n');
+                lines.forEach(line => {
+                    if (line) {
+                        const [instrumentID, name, brandID, price, quantity, imageURLs] = line.split('|');
+                        const row = document.createElement('tr');
+
+                        const brandName = getBrandName(brandID);
+                        const images = imageURLs ? imageURLs.split(',') : [];
+
+                        row.innerHTML =
+                            '<td>' + (instrumentID || 'N/A') + '</td>' +
+                            '<td>' + (name || 'N/A') + '</td>' +
+                            '<td>' + (brandName || brandID || 'N/A') + '</td>' +
+                            '<td>$' + (price ? parseFloat(price).toFixed(2) : '0.00') + '</td>' +
+                            '<td>' + (quantity || '0') + '</td>' +
+                            '<td>' +
+                            '<div class="image-gallery">' +
+                            (images.length > 0 ?
+                                    images.map(img =>
+                                        '<img src="' + img + '" alt="Instrument" onclick="openImageModal(\'' + img + '\')">'
+                                    ).join('') :
+                                    'No images'
+                            ) +
+                            '</div>' +
+                            '</td>' +
+                            '<td>' +
+                            '<div class="action-buttons-small">' +
+                            '<button class="btn-small btn-edit" onclick="editInstrument(\'' + instrumentID + '\')">Edit</button>' +
+                            '<button class="btn-small btn-delete" onclick="deleteInstrument(\'' + instrumentID + '\')">Delete</button>' +
+                            '</div>' +
+                            '</td>';
+
+                        tableBody.appendChild(row);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading instruments:', error);
+                showMessage('error', 'Failed to load instruments.');
+            });
     }
 
-    // Welcome message based on time of day
-    function getWelcomeMessage() {
-        const hour = new Date().getHours();
-        let timeOfDay = '';
-
-        if (hour < 12) timeOfDay = 'morning';
-        else if (hour < 18) timeOfDay = 'afternoon';
-        else timeOfDay = 'evening';
-
-        return `Good ${timeOfDay}, Melody! Ready to make some beautiful music sales today?`;
+    function getBrandName(brandID) {
+        const brandMap = {
+            'B001': 'Yamaha Music',
+            'B002': 'Squier',
+            'B003': 'Epiphone',
+            'B004': 'Roland Pro',
+            'B005': 'Korg Studio',
+            'B006': 'Casio Privia',
+            'B007': 'Taylor Baby',
+            'B008': 'Ibanez Prestige'
+        };
+        return brandMap[brandID] || brandID;
     }
 
-    // Set welcome message on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const welcomeElement = document.querySelector('.dashboard-header p');
-        if (welcomeElement) {
-            const originalText = welcomeElement.innerHTML;
-            welcomeElement.innerHTML = getWelcomeMessage() + '<br>' + originalText.split('<br>')[1];
+    function editInstrument(id) {
+        fetch('<%= request.getContextPath() %>/InstrumentManagementServlet?action=get&id=' + encodeURIComponent(id))
+            .then(response => response.text())
+            .then(text => {
+                const data = text.split('|');
+                if (data[0] === 'ERROR') throw new Error(data[1]);
+
+                const [status, instrumentID, name, description, brandID, model, color, price, specifications, warranty, quantity, stockLevel, manufacturerID, imageURLs] = data;
+
+                document.getElementById('instrumentID').value = instrumentID || '';
+                document.getElementById('name').value = name || '';
+                document.getElementById('description').value = description || '';
+                document.getElementById('manufacturerID').value = manufacturerID || '';
+                document.getElementById('brandID').value = brandID || '';
+                document.getElementById('model').value = model || '';
+                document.getElementById('color').value = color || '';
+                document.getElementById('price').value = price || '';
+                document.getElementById('specifications').value = specifications || '';
+                document.getElementById('warranty').value = warranty || '';
+                document.getElementById('quantity').value = quantity || '';
+                document.getElementById('stockLevel').value = stockLevel || 'In Stock';
+
+                // Clear existing images
+                document.getElementById('imagePreview').innerHTML = '';
+                uploadedImages = [];
+
+                // Load existing images for editing
+                if (imageURLs) {
+                    const images = imageURLs.split(',');
+                    images.forEach(imgUrl => {
+                        if (imgUrl.trim()) {
+                            addImageToPreview(null, imgUrl);
+                        }
+                    });
+                }
+
+                showMessage('success', 'Instrument loaded for editing.');
+                document.getElementById('instrumentForm').scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => showMessage('error', 'Error loading instrument: ' + error.message));
+    }
+
+    function deleteInstrument(id) {
+        if (confirm('Are you sure you want to delete this instrument? This action cannot be undone.')) {
+            fetch('<%= request.getContextPath() %>/InstrumentManagementServlet?action=delete&id=' + encodeURIComponent(id), {
+                method: 'DELETE'
+            })
+                .then(response => response.text())
+                .then(text => {
+                    const [status, message] = text.split('|');
+                    if (status === 'SUCCESS') {
+                        showMessage('success', message || 'Instrument deleted successfully!');
+                        loadInstruments();
+                    } else {
+                        throw new Error(message || 'Deletion failed');
+                    }
+                })
+                .catch(error => showMessage('error', 'Error deleting instrument: ' + error.message));
         }
+    }
+
+    function addImageToPreview(file, existingUrl = null) {
+        const preview = document.getElementById('imagePreview');
+        const previewItem = document.createElement('div');
+        previewItem.className = 'preview-item';
+
+        const img = document.createElement('img');
+        if (existingUrl) {
+            img.src = existingUrl;
+        } else {
+            img.src = URL.createObjectURL(file);
+        }
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-btn';
+        removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+        removeBtn.onclick = function() {
+            if (file) {
+                uploadedImages = uploadedImages.filter(img => img.file !== file);
+            }
+            previewItem.remove();
+        };
+
+        previewItem.appendChild(img);
+        previewItem.appendChild(removeBtn);
+        preview.appendChild(previewItem);
+
+        if (file) {
+            uploadedImages.push({ file: file, url: URL.createObjectURL(file) });
+        }
+    }
+
+    function handleImageSelection(files) {
+        const maxImages = 5;
+        const currentCount = uploadedImages.length;
+
+        if (currentCount + files.length > maxImages) {
+            showMessage('error', `Maximum ${maxImages} images allowed. You have ${currentCount} and tried to add ${files.length} more.`);
+            return;
+        }
+
+        Array.from(files).forEach(file => {
+            if (!file.type.startsWith('image/')) {
+                showMessage('error', 'Please select only image files.');
+                return;
+            }
+            addImageToPreview(file);
+        });
+    }
+
+    function showMessage(type, message) {
+        hideMessages();
+        const messageDiv = document.getElementById(type === 'success' ? 'dynamicSuccess' : 'dynamicMessage');
+        document.getElementById(type === 'success' ? 'dynamicSuccessText' : 'dynamicMessageText').textContent = message;
+        messageDiv.style.display = 'flex';
+
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    }
+
+    function hideMessages() {
+        document.getElementById('dynamicMessage').style.display = 'none';
+        document.getElementById('dynamicSuccess').style.display = 'none';
+    }
+
+    function openImageModal(imageUrl) {
+        // Simple image modal implementation
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.zIndex = '1000';
+        modal.style.cursor = 'pointer';
+
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.style.maxWidth = '90%';
+        img.style.maxHeight = '90%';
+        img.style.objectFit = 'contain';
+
+        modal.appendChild(img);
+        modal.onclick = function() {
+            document.body.removeChild(modal);
+        };
+
+        document.body.appendChild(modal);
+    }
+
+    // Event Listeners
+    document.getElementById('images').addEventListener('change', function(e) {
+        handleImageSelection(e.target.files);
+        this.value = ''; // Reset file input
     });
+
+    // Drag and drop functionality
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        handleImageSelection(e.dataTransfer.files);
+    });
+
+    document.getElementById('instrumentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        validateForm();
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        document.getElementById('imagePreview').innerHTML = '';
+        uploadedImages = [];
+        hideMessages();
+    });
+
+    document.getElementById('dynamicMessage').addEventListener('click', hideMessages);
+    document.getElementById('dynamicSuccess').addEventListener('click', hideMessages);
+
+    // Initialize
+    window.onload = function() {
+        loadInstruments();
+
+        const elements = document.querySelectorAll('.form-section, .instrument-list');
+        elements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 200);
+        });
+    };
 </script>
 </body>
 </html>

@@ -1,170 +1,178 @@
 package com.melodymart.servlet;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import com.melodymart.util.DatabaseUtil;
+import main.java.com.melodymart.util.DBConnection;
 
 @WebServlet("/AddToCartServlet")
 public class AddToCartServlet extends HttpServlet {
 
+    // ✅ Handles GET (redirects to POST for safety)
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doPost(request, response);
+    }
+
+    // ✅ Handles POST form submission from shop.jsp
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        System.out.println("=== AddToCartServlet Triggered ===");
         HttpSession session = request.getSession();
-        String customerIdStr = (String) session.getAttribute("CustomerID");
 
-        // Check if user is logged in
-        if (customerIdStr == null || customerIdStr.isEmpty()) {
-            response.sendRedirect("sign-in.jsp?error=Please login to add items to cart");
+        // ✅ Ensure customer is logged in
+        String customerId = (String) session.getAttribute("customerId");
+        if (customerId == null) {
+            System.out.println("⚠ No customer in session, redirecting to sign-in.jsp");
+            response.sendRedirect("sign-in.jsp");
             return;
         }
 
-        // Get parameters
+        // ✅ Get product details from form
         String instrumentId = request.getParameter("instrumentId");
-        String quantityStr = request.getParameter("quantity");
-
-        // Validate parameters
-        if (instrumentId == null || instrumentId.isEmpty()) {
-            response.sendRedirect("shop.jsp?error=Invalid instrument selection");
-            return;
+        String quantityParam = request.getParameter("quantity");
+        int quantity = 1;
+        try {
+            if (quantityParam != null) quantity = Integer.parseInt(quantityParam);
+        } catch (NumberFormatException e) {
+            quantity = 1;
         }
+
+        System.out.println("CustomerID: " + customerId +
+                " | InstrumentID: " + instrumentId +
+                " | Quantity: " + quantity);
 
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try {
-            int quantity = 1; // Default quantity
+            conn = DBConnection.getConnection();
+            System.out.println("✅ Database connected successfully.");
 
-            if (quantityStr != null && !quantityStr.isEmpty()) {
-                quantity = Integer.parseInt(quantityStr);
-            }
-
-            if (quantity < 1) {
-                response.sendRedirect("shop.jsp?error=Invalid quantity");
-                return;
-            }
-
-            conn = DatabaseUtil.getConnection();
-
-            // Check if instrument exists and has sufficient stock
-            String checkStockSql = "SELECT Name, Quantity FROM Instrument WHERE InstrumentID = ?";
-            ps = conn.prepareStatement(checkStockSql);
-            ps.setString(1, instrumentId);
-            rs = ps.executeQuery();
-
-            if (!rs.next()) {
-                response.sendRedirect("shop.jsp?error=Instrument not found");
-                return;
-            }
-
-            String instrumentName = rs.getString("Name");
-            int availableStock = rs.getInt("Quantity");
-
-            if (availableStock < quantity) {
-                response.sendRedirect("shop.jsp?error=Insufficient stock for " + instrumentName);
-                return;
-            }
-
-            rs.close();
-            ps.close();
-
-            // Check if item already exists in cart
-            String checkCartSql = "SELECT CartID, Quantity FROM Cart " +
-                    "WHERE CustomerID = ? AND InstrumentID = ?";
-            ps = conn.prepareStatement(checkCartSql);
-            ps.setString(1, customerIdStr);
-            ps.setString(2, instrumentId);
-            rs = ps.executeQuery();
+            // ✅ Check if item already exists in user's cart
+            String checkSql = "SELECT * FROM Cart WHERE CustomerID = ? AND InstrumentID = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+            checkStmt.setString(1, customerId);
+            checkStmt.setString(2, instrumentId);
+            rs = checkStmt.executeQuery();
 
             if (rs.next()) {
-                // Item exists, update quantity
-                int existingQty = rs.getInt("Quantity");
-                int newQty = existingQty + quantity;
+                // ✅ Update existing item quantity
+                int existingQuantity = rs.getInt("Quantity");
+                int newQuantity = existingQuantity + quantity;
+                String cartId = rs.getString("CartID");
 
-                // Check if new quantity exceeds available stock
-                if (newQty > availableStock) {
-                    response.sendRedirect("shop.jsp?error=Cannot add more. Only " +
-                            availableStock + " items available");
+                String updateSql = "UPDATE Cart SET Quantity = ?, AddedDate = ? WHERE CartID = ?";
+                stmt = conn.prepareStatement(updateSql);
+                stmt.setInt(1, newQuantity);
+                stmt.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+                stmt.setString(3, cartId);
+
+                int updatedRows = stmt.executeUpdate();
+                if (updatedRows > 0) {
+                    System.out.println("🟢 Cart item updated successfully.");
+                    updateSessionCart(session, instrumentId, quantity, true);
+                    response.sendRedirect("shop.jsp?added=success");
+                } else {
+                    System.out.println("❌ Failed to update cart item.");
+                    response.sendRedirect("shop.jsp?added=fail");
+                }
+
+            } else {
+                // ✅ Insert new item into cart
+                if (!isInstrumentAvailable(conn, instrumentId, quantity)) {
+                    System.out.println("⚠ Instrument not available / out of stock.");
+                    response.sendRedirect("shop.jsp?added=fail&reason=out_of_stock");
                     return;
                 }
 
-                rs.close();
-                ps.close();
+                String cartId = generateCartId();
+                String insertSql = "INSERT INTO Cart (CartID, CustomerID, InstrumentID, Quantity, AddedDate) VALUES (?, ?, ?, ?, ?)";
+                stmt = conn.prepareStatement(insertSql);
+                stmt.setString(1, cartId);
+                stmt.setString(2, customerId);
+                stmt.setString(3, instrumentId);
+                stmt.setInt(4, quantity);
+                stmt.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
 
-                String updateSql = "UPDATE Cart SET Quantity = ? " +
-                        "WHERE CustomerID = ? AND InstrumentID = ?";
-                ps = conn.prepareStatement(updateSql);
-                ps.setInt(1, newQty);
-                ps.setString(2, customerIdStr);
-                ps.setString(3, instrumentId);
-                ps.executeUpdate();
-
-                response.sendRedirect("shop.jsp?message=" +
-                        java.net.URLEncoder.encode(instrumentName + " quantity updated in cart!", "UTF-8"));
-
-            } else {
-                // Item doesn't exist, insert new record
-                rs.close();
-                ps.close();
-
-                // Generate CartID (auto-increment approach)
-                String maxIdSql = "SELECT MAX(CAST(SUBSTRING(CartID, 2, LEN(CartID)-1) AS INT)) as MaxNum " +
-                        "FROM Cart WHERE CartID LIKE 'C%'";
-                ps = conn.prepareStatement(maxIdSql);
-                rs = ps.executeQuery();
-
-                int nextNum = 1;
-                if (rs.next()) {
-                    Integer maxNum = (Integer) rs.getObject("MaxNum");
-                    if (maxNum != null) {
-                        nextNum = maxNum + 1;
-                    }
+                int insertedRows = stmt.executeUpdate();
+                if (insertedRows > 0) {
+                    System.out.println("🟢 New cart item added successfully.");
+                    updateSessionCart(session, instrumentId, quantity, false);
+                    response.sendRedirect("shop.jsp?added=success");
+                } else {
+                    System.out.println("❌ Failed to insert new cart item.");
+                    response.sendRedirect("shop.jsp?added=fail");
                 }
-
-                String cartId = String.format("C%03d", nextNum);
-
-                rs.close();
-                ps.close();
-
-                String insertSql = "INSERT INTO Cart (CartID, CustomerID, InstrumentID, Quantity, AddedDate) " +
-                        "VALUES (?, ?, ?, ?, GETDATE())";
-                ps = conn.prepareStatement(insertSql);
-                ps.setString(1, cartId);
-                ps.setString(2, customerIdStr);
-                ps.setString(3, instrumentId);
-                ps.setInt(4, quantity);
-                ps.executeUpdate();
-
-                response.sendRedirect("shop.jsp?message=" +
-                        java.net.URLEncoder.encode(instrumentName + " added to cart successfully!", "UTF-8"));
             }
 
-        } catch (NumberFormatException e) {
-            response.sendRedirect("shop.jsp?error=Invalid input format");
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.out.println("💥 SQL Exception: " + e.getMessage());
             e.printStackTrace();
-            response.sendRedirect("shop.jsp?error=" +
-                    java.net.URLEncoder.encode("Error adding to cart: " + e.getMessage(), "UTF-8"));
+            response.sendRedirect("shop.jsp?added=error");
         } finally {
-            if (rs != null) try { rs.close(); } catch (Exception ignored) {}
-            if (ps != null) try { ps.close(); } catch (Exception ignored) {}
-            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            System.out.println("=== AddToCartServlet Completed ===");
         }
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.sendRedirect("shop.jsp");
+    // ✅ Generate unique Cart ID
+    private String generateCartId() {
+        long timestamp = System.currentTimeMillis() % 1000000; // last 6 digits only
+        return "CA" + timestamp;
+    }
+
+
+    // ✅ Check product stock availability
+    private boolean isInstrumentAvailable(Connection conn, String instrumentId, int quantity) throws SQLException {
+        String sql = "SELECT Quantity FROM Instrument WHERE InstrumentID = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, instrumentId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int availableQty = rs.getInt("Quantity");
+                    return availableQty >= quantity;
+                }
+            }
+        }
+        return false;
+    }
+
+    // ✅ Maintain session cart info
+    private void updateSessionCart(HttpSession session, String instrumentId, int quantity, boolean isUpdate) {
+        List<String> cartItems = (List<String>) session.getAttribute("cartItems");
+        if (cartItems == null) {
+            cartItems = new ArrayList<>();
+        }
+
+        if (isUpdate) {
+            Integer currentCount = (Integer) session.getAttribute("cartCount");
+            if (currentCount == null) currentCount = 0;
+            session.setAttribute("cartCount", currentCount + quantity);
+        } else {
+            for (int i = 0; i < quantity; i++) {
+                cartItems.add(instrumentId);
+            }
+            session.setAttribute("cartItems", cartItems);
+            session.setAttribute("cartCount", cartItems.size());
+        }
+
+        System.out.println("🛒 Session cart updated → Count: " + session.getAttribute("cartCount"));
     }
 }

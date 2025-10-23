@@ -1,86 +1,97 @@
-package main.java.com.melodymart.servlet;
-
-import main.java.com.melodymart.util.DBConnection;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import javax.servlet.http.HttpSession;
+import main.java.com.melodymart.util.DBConnection;
 
-/**
- * Servlet for updating stock quantity of instruments.
- */
+
 @WebServlet("/UpdateStockServlet")
 public class UpdateStockServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String instrumentIdStr = request.getParameter("instrumentId");
+        // Get form parameters
+        String instrumentId = request.getParameter("instrumentId");
         String stockQuantityStr = request.getParameter("stockQuantity");
+        HttpSession session = request.getSession();
 
-        if (instrumentIdStr == null || stockQuantityStr == null ||
-                instrumentIdStr.isEmpty() || stockQuantityStr.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters.");
+        // Validate input
+        if (instrumentId == null || instrumentId.trim().isEmpty() || stockQuantityStr == null || stockQuantityStr.trim().isEmpty()) {
+            session.setAttribute("error", "Instrument ID and Quantity are required.");
+            response.sendRedirect("admin-dashboard.jsp#stock-management");
             return;
         }
 
-        int instrumentId;
-        int newQuantity;
+        int stockQuantity = 0;
         try {
-            instrumentId = Integer.parseInt(instrumentIdStr);
-            newQuantity = Integer.parseInt(stockQuantityStr);
+            stockQuantity = Integer.parseInt(stockQuantityStr);
+            if (stockQuantity < 0) {
+                session.setAttribute("error", "Quantity cannot be negative.");
+                response.sendRedirect("admin-dashboard.jsp#stock-management");
+                return;
+            }
         } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid number format.");
+            session.setAttribute("error", "Invalid quantity value.");
+            response.sendRedirect("admin-dashboard.jsp#stock-management");
             return;
         }
 
         Connection conn = null;
-        PreparedStatement ps = null;
+        PreparedStatement pstmt = null;
 
         try {
+            // Establish database connection
             conn = DBConnection.getConnection();
 
-            // Auto-update StockLevel based on Quantity
-            String stockLevel;
-            if (newQuantity == 0) {
-                stockLevel = "Out of Stock";
-            } else if (newQuantity < 5) { // threshold can be adjusted
-                stockLevel = "Low Stock";
-            } else {
-                stockLevel = "In Stock";
+            // Check if the instrument exists
+            String checkSql = "SELECT COUNT(*) FROM Instrument WHERE InstrumentID = ?";
+            pstmt = conn.prepareStatement(checkSql);
+            pstmt.setString(1, instrumentId);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            if (rs.getInt(1) == 0) {
+                session.setAttribute("error", "Instrument ID " + instrumentId + " not found.");
+                response.sendRedirect("admin-dashboard.jsp#stock-management");
+                return;
             }
 
-            String sql = "UPDATE Instrument SET Quantity = ?, StockLevel = ? WHERE InstrumentID = ?";
-            ps = conn.prepareStatement(sql);
-            ps.setInt(1, newQuantity);
-            ps.setString(2, stockLevel);
-            ps.setInt(3, instrumentId);
+            // Update the stock quantity
+            String updateSql = "UPDATE Instrument SET Quantity = ? WHERE InstrumentID = ?";
+            pstmt = conn.prepareStatement(updateSql);
+            pstmt.setInt(1, stockQuantity);
+            pstmt.setString(2, instrumentId);
+            int rowsAffected = pstmt.executeUpdate();
 
-            int rows = ps.executeUpdate();
-
-            if (rows > 0) {
-                request.getSession().setAttribute("message", "Stock updated successfully.");
+            if (rowsAffected > 0) {
+                session.setAttribute("message", "Stock updated successfully for Instrument ID " + instrumentId + " at " +
+                        new java.util.Date() + ".");
             } else {
-                request.getSession().setAttribute("error", "Instrument not found.");
+                session.setAttribute("error", "Failed to update stock for Instrument ID " + instrumentId + ".");
             }
 
-            // Redirect back to inventory/stock management page
-            response.sendRedirect(request.getContextPath() + "/admin-dashboard.jsp#stock-management");
-
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
-            request.getSession().setAttribute("error", "Error updating stock: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/admin-dashboard.jsp#stock-management");
+            session.setAttribute("error", "Database error: " + e.getMessage());
         } finally {
-            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
-            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+            // Close resources
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+
+        // Redirect back to the dashboard with current date and time in the header
+        response.sendRedirect("admin-dashboard.jsp#stock-management");
     }
 }

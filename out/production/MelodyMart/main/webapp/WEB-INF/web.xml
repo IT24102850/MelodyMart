@@ -19,7 +19,7 @@
 
   <!-- Session configuration -->
   <session-config>
-    <session-timeout>30</session-timeout> <!-- Session timeout in minutes -->
+    <session-timeout>30</session-timeout>
   </session-config>
 
   <!-- Error page configuration -->
@@ -32,7 +32,9 @@
     <location>/error.jsp</location>
   </error-page>
 
-  <!-- Servlet mapping for LoginServlet -->
+  <!-- ========================== -->
+  <!-- Existing Servlets          -->
+  <!-- ========================== -->
   <servlet>
     <servlet-name>LoginServlet</servlet-name>
     <servlet-class>main.java.com.melodymart.servlet.LoginServlet</servlet-class>
@@ -42,7 +44,6 @@
     <url-pattern>/login</url-pattern>
   </servlet-mapping>
 
-  <!-- Servlet mapping for AddInstrumentServlet -->
   <servlet>
     <servlet-name>AddInstrumentServlet</servlet-name>
     <servlet-class>main.java.com.melodymart.servlet.AddInstrumentServlet</servlet-class>
@@ -61,9 +62,33 @@
     <url-pattern>/saveInstrument</url-pattern>
   </servlet-mapping>
 
+  <!-- ========================== -->
+  <!-- NEW: Order Management      -->
+  <!-- ========================== -->
 
+  <!-- Update Order Status -->
+  <servlet>
+    <servlet-name>UpdateOrderStatusServlet</servlet-name>
+    <servlet-class>main.java.com.melodymart.seller.UpdateOrderStatusServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UpdateOrderStatusServlet</servlet-name>
+    <url-pattern>/UpdateOrderStatusServlet</url-pattern>
+  </servlet-mapping>
 
-  <!-- Servlet mapping for CartServlet -->
+  <!-- Reject (Delete) Order -->
+  <servlet>
+    <servlet-name>SellerRejectOrderServlet</servlet-name>
+    <servlet-class>main.java.com.melodymart.seller.SellerRejectOrderServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SellerRejectOrderServlet</servlet-name>
+    <url-pattern>/SellerRejectOrderServlet</url-pattern>
+  </servlet-mapping>
 
+  <!-- ========================== -->
+  <!-- You can add more mappings   -->
+  <!-- like CartServlet, etc.      -->
+  <!-- ========================== -->
 
 </web-app>

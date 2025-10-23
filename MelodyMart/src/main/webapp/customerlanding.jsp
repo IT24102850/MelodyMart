@@ -495,7 +495,8 @@
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <h1>Customer Dashboard</h1>
-        <p>Welcome back, Alex Johnson</p>
+
+        <p>Welcome back, <%= session.getAttribute("userName") != null ? session.getAttribute("userName") : "Customer" %></p>
     </div>
 
     <!-- Quick Stats -->

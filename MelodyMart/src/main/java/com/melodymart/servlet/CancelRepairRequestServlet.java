@@ -1,62 +1,52 @@
 package main.java.com.melodymart.servlet;
 
-import main.java.com.melodymart.util.DBConnection;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import main.java.com.melodymart.util.DBConnection;
 
 @WebServlet("/CancelRepairRequestServlet")
 public class CancelRepairRequestServlet extends HttpServlet {
 
-    @Override
+    // ✅ required for HttpServlet
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.sendRedirect(request.getContextPath() + "/repair.jsp");
+    }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
+        String repairRequestID = request.getParameter("repairRequestID");
+        String contextPath = request.getContextPath();
 
-        String repairRequestIdStr = request.getParameter("repairRequestId");
-
-        if (repairRequestIdStr == null || repairRequestIdStr.trim().isEmpty()) {
-            out.println("<p style='color:red;'>❌ Repair Request ID is required.</p>");
-            return;
-        }
-
-        int repairRequestId = Integer.parseInt(repairRequestIdStr);
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-
-        try {
-            conn = DBConnection.getConnection();
-
-            // ✅ Update status to Cancelled
-            String sql = "UPDATE RepairRequest SET Status = 'Cancelled', Approved = 0 WHERE RepairRequestID = ?";
-            ps = conn.prepareStatement(sql);
-            ps.setInt(1, repairRequestId);
+        try (Connection conn = DBConnection.getConnection()) {
+            // ✅ Delete instead of update
+            String sql = "DELETE FROM RepairRequest WHERE RepairRequestID = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, repairRequestID);
 
             int rows = ps.executeUpdate();
 
             if (rows > 0) {
-                // Redirect back to repairs section of seller dashboard
-                response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp#repairs");
+                request.getSession().setAttribute("successMessage", "Repair request deleted successfully.");
             } else {
-                out.println("<p style='color:red;'>⚠️ Failed to cancel repair request. ID not found.</p>");
+                request.getSession().setAttribute("errorMessage", "No matching request found to delete.");
             }
 
-        } catch (Exception e) {
+            ps.close();
+        } catch (SQLException e) {
             e.printStackTrace();
-            out.println("<p style='color:red;'>❌ Error: " + e.getMessage() + "</p>");
-        } finally {
-            try { if (ps != null) ps.close(); } catch (Exception ignored) {}
-            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+            request.getSession().setAttribute("errorMessage", "Database error while deleting: " + e.getMessage());
         }
+
+        // ✅ Redirect safely back to repair.jsp
+        response.sendRedirect(contextPath + "/repair.jsp");
     }
 }

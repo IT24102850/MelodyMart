@@ -1,18 +1,18 @@
-package com.melodymart.servlet;
+package main.java.com.melodymart.seller;
 
-import com.melodymart.util.DatabaseUtil;
-
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-@WebServlet("/UpdateOrderStatusServlet")
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import main.java.com.melodymart.util.DBConnection;
+
 public class UpdateOrderStatusServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -20,41 +20,43 @@ public class UpdateOrderStatusServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String orderIdParam = request.getParameter("orderId");
-        String newStatus = request.getParameter("status");
+        String orderId = request.getParameter("orderId");
+        String status = request.getParameter("status");
+        HttpSession session = request.getSession();
 
-        if (orderIdParam == null || newStatus == null || orderIdParam.isEmpty() || newStatus.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid orderId or status");
+        if (orderId == null || status == null) {
+            session.setAttribute("errorMessage", "Invalid request. Missing order ID or status.");
+            response.sendRedirect(request.getContextPath() + "/orderManagement.jsp");
             return;
         }
 
-        int orderId;
-        try {
-            orderId = Integer.parseInt(orderIdParam);
-        } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid orderId format");
-            return;
-        }
-
-        try (Connection conn = DatabaseUtil.getConnection()) {
-            String sql = "UPDATE OrderNow SET Status = ? WHERE OrderID = ?";
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, newStatus);
-                ps.setInt(2, orderId);
-
-                int rowsAffected = ps.executeUpdate();
-                if (rowsAffected > 0) {
-                    System.out.println("✅ Order " + orderId + " updated to status: " + newStatus);
-                } else {
-                    System.out.println("⚠️ No order found with ID: " + orderId);
-                }
+        try (Connection conn = DBConnection.getConnection()) {
+            if (conn == null) {
+                throw new SQLException("Database connection is null.");
             }
+
+            String sql = "UPDATE OrderNow SET Status = ? WHERE OrderID = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, status);
+            ps.setString(2, orderId);
+
+            int rows = ps.executeUpdate();
+            ps.close();
+
+            if (rows > 0) {
+                session.setAttribute("successMessage", "Order status updated successfully!");
+                System.out.println("✅ Order updated: " + orderId + " → " + status);
+            } else {
+                session.setAttribute("errorMessage", "No order found with ID: " + orderId);
+                System.out.println("⚠️ No order found with ID: " + orderId);
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new ServletException("Database error while updating order status", e);
+            session.setAttribute("errorMessage", "Database error: " + e.getMessage());
         }
 
-        // Redirect back to dashboard (refresh orders table)
-        response.sendRedirect(request.getContextPath() + "/sellerdashboard.jsp#orders");
+        // ✅ Redirect back to the correct JSP (context-safe)
+        response.sendRedirect(request.getContextPath() + "/orderManagement.jsp");
     }
 }

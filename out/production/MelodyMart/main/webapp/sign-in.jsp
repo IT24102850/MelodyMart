@@ -44,7 +44,6 @@
             line-height: 1.6;
         }
 
-        /* Background blur overlay */
         body::before {
             content: '';
             position: fixed;
@@ -250,12 +249,10 @@
             50% { transform: translateY(-20px) rotate(10deg); }
         }
 
-        /* Enhanced focus states for accessibility */
         .form-group input:focus + .input-icon {
             color: var(--accent);
         }
 
-        /* Loading animation for button */
         .btn-primary.loading {
             pointer-events: none;
             opacity: 0.8;
@@ -320,7 +317,7 @@
         <!-- Display error message if passed via query param -->
         <%
             String error = request.getParameter("error");
-            if (error != null) {
+            if (error != null && !error.isEmpty()) {
         %>
         <div class="alert">
             <i class="fas fa-exclamation-circle"></i> <%= error %>
@@ -334,7 +331,7 @@
             <div class="form-group relative">
                 <label for="email">Email</label>
                 <div class="relative">
-                    <input type="email" name="email" id="email" required placeholder="Enter your email">
+                    <input type="email" name="email" id="email" required placeholder="Enter your email" value="<%= request.getParameter("email") != null ? request.getParameter("email") : "" %>">
                     <i class="fas fa-envelope input-icon"></i>
                 </div>
             </div>
@@ -380,9 +377,10 @@
     document.getElementById('signinForm').addEventListener('submit', function(e) {
         const submitBtn = document.getElementById('submitBtn');
         submitBtn.classList.add('loading');
-        submitBtn.innerHTML = 'Signing In...';
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing In...';
 
-        // Simulate loading for demo (remove in production)
+        // Remove loading state after submission (handled by servlet in production)
+        // This timeout is for demo; remove in production
         setTimeout(() => {
             submitBtn.classList.remove('loading');
             submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';

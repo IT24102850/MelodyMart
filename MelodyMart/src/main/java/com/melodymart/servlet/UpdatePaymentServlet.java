@@ -1,4 +1,4 @@
-package com.melodymart.servlet;
+package main.java.com.melodymart.servlet;
 
 import com.melodymart.util.DatabaseUtil;
 import javax.servlet.ServletException;

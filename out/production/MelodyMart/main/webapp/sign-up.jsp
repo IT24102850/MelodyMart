@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page import="java.sql.*, org.mindrot.jbcrypt.BCrypt, java.sql.DriverManager, java.sql.Connection, java.sql.PreparedStatement, java.sql.SQLException, java.util.Date" %>
+<%@ page import="java.sql.*, org.mindrot.jbcrypt.BCrypt" %>
 <%
     if ("POST".equalsIgnoreCase(request.getMethod())) {
         String firstName = request.getParameter("firstName");
@@ -34,67 +34,50 @@
             String dbUser = "Hasiru";
             String dbPassword = "hasiru2004";
 
-            Connection conn = null;
-            PreparedStatement stmt = null;
-            try {
-                conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
-                conn.setAutoCommit(false);
-
-                String personSql = "INSERT INTO Person (FirstName, LastName, Email, Phone, Password, Street, City, State, ZipCode, Country, RegistrationDate, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?)";
-                stmt = conn.prepareStatement(personSql, Statement.RETURN_GENERATED_KEYS);
-                String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-                stmt.setString(1, firstName.trim());
-                stmt.setString(2, lastName.trim());
-                stmt.setString(3, email.trim().toLowerCase());
-                stmt.setString(4, phone);
-                stmt.setString(5, hashedPassword);
-                stmt.setString(6, street);
-                stmt.setString(7, city);
-                stmt.setString(8, state);
-                stmt.setString(9, zipCode);
-                stmt.setString(10, country);
-                stmt.setString(11, role.toLowerCase());
-
-                int rowsAffected = stmt.executeUpdate();
-                if (rowsAffected > 0) {
-                    ResultSet rs = stmt.getGeneratedKeys();
-                    int personId = 0;
-                    if (rs.next()) personId = rs.getInt(1);
-                    rs.close();
-
-                    if ("customer".equalsIgnoreCase(role)) {
-                        PreparedStatement customerStmt = conn.prepareStatement("INSERT INTO Customer (CustomerID, PersonID) VALUES (?, ?)");
-                        customerStmt.setInt(1, personId);
-                        customerStmt.setInt(2, personId);
-                        customerStmt.executeUpdate();
-                        customerStmt.close();
-                    } else if ("seller".equalsIgnoreCase(role)) {
-                        PreparedStatement sellerStmt = conn.prepareStatement("INSERT INTO Seller (SellerID, PersonID) VALUES (?, ?)");
-                        sellerStmt.setInt(1, personId);
-                        sellerStmt.setInt(2, personId);
-                        sellerStmt.executeUpdate();
-                        sellerStmt.close();
-                    } else if ("admin".equalsIgnoreCase(role)) {
-                        PreparedStatement adminStmt = conn.prepareStatement("INSERT INTO Admin (AdminID, PersonID) VALUES (?, ?)");
-                        adminStmt.setInt(1, personId);
-                        adminStmt.setInt(2, personId);
-                        adminStmt.executeUpdate();
-                        adminStmt.close();
+            try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
+                // Auto-commit is true by default
+                // Check if email already exists
+                try (PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM Person WHERE Email = ?")) {
+                    checkStmt.setString(1, email.trim().toLowerCase());
+                    ResultSet rs = checkStmt.executeQuery();
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        request.setAttribute("errorMessage", "Email already exists. Please use a different email.");
+                        rs.close();
+                        return;
                     }
-
-                    conn.commit();
-                    session.setAttribute("userEmail", email.trim().toLowerCase());
-                    session.setAttribute("userRole", role.toLowerCase());
-                    session.setAttribute("userFullName", firstName.trim() + " " + lastName.trim());
-                    response.sendRedirect("sign-in.jsp");
-                    return;
+                    rs.close();
                 }
+
+                // Insert into Person only — trigger will generate PersonID and handle role tables
+                String sql = "INSERT INTO Person (FirstName, LastName, Email, Phone, Password, Street, City, State, ZipCode, Country, RegistrationDate, role) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE(), ?)";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+                    stmt.setString(1, firstName.trim());
+                    stmt.setString(2, lastName.trim());
+                    stmt.setString(3, email.trim().toLowerCase());
+                    stmt.setString(4, phone);
+                    stmt.setString(5, hashedPassword);
+                    stmt.setString(6, street);
+                    stmt.setString(7, city);
+                    stmt.setString(8, state);
+                    stmt.setString(9, zipCode);
+                    stmt.setString(10, country);
+                    stmt.setString(11, role.toLowerCase());
+                    stmt.executeUpdate();
+                }
+
+                // ✅ At this point, the trigger has already created the PersonID and related Customer/Seller/Admin entry
+                session.setAttribute("userEmail", email.trim().toLowerCase());
+                session.setAttribute("userRole", role.toLowerCase());
+                session.setAttribute("userFullName", firstName.trim() + " " + lastName.trim());
+                response.sendRedirect("sign-in.jsp");
+                return;
+
             } catch (SQLException e) {
-                if (conn != null) conn.rollback();
-                request.setAttribute("errorMessage", e.getMessage().contains("UNIQUE KEY") ? "Email already exists" : "Database error: " + e.getMessage());
-            } finally {
-                if (stmt != null) stmt.close();
-                if (conn != null) conn.close();
+                request.setAttribute("errorMessage", e.getMessage().contains("UNIQUE KEY")
+                        ? "Email already exists. Please use a different email."
+                        : "Database error: " + e.getMessage());
             }
         }
     }
@@ -143,7 +126,6 @@
             line-height: 1.6;
         }
 
-        /* Background blur overlay */
         body::before {
             content: '';
             position: fixed;
@@ -379,13 +361,11 @@
             50% { transform: translateY(-20px) rotate(10deg); }
         }
 
-        /* Enhanced focus states for accessibility */
         .form-group input:focus,
         .form-group select:focus {
             border-color: var(--primary-light);
         }
 
-        /* Loading animation for button */
         .submit-btn.loading {
             pointer-events: none;
             opacity: 0.8;
