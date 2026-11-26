@@ -1,5 +1,5 @@
 <%@ page import="java.sql.*" %>
-<%@ page import="main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="com.melodymart.util.DBConnection" %>
 
 <%
     String customerEmail = (String) session.getAttribute("email"); // from login session

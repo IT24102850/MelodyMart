@@ -1,6 +1,6 @@
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="java.sql.*, com.melodymart.util.DBConnection" %>
 <%
     // ✅ Ensure customer is logged in
     String customerId = (String) session.getAttribute("customerId");

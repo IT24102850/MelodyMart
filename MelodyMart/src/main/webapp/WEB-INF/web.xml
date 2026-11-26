@@ -7,22 +7,24 @@
 
   <display-name>MelodyMart</display-name>
 
-  <!-- Disable Logback's ServletContainerInitializer -->
-  <absolute-ordering>
-    <!-- Explicitly list only the initializers you want, excluding Logback -->
-  </absolute-ordering>
+  <!-- Servlets and filters are registered with @WebServlet / @WebFilter annotations. -->
 
-  <!-- Default welcome page -->
   <welcome-file-list>
     <welcome-file>index.jsp</welcome-file>
   </welcome-file-list>
 
-  <!-- Session configuration -->
   <session-config>
     <session-timeout>30</session-timeout>
+    <cookie-config>
+      <http-only>true</http-only>
+    </cookie-config>
+    <tracking-mode>COOKIE</tracking-mode>
   </session-config>
 
-  <!-- Error page configuration -->
+  <error-page>
+    <error-code>403</error-code>
+    <location>/error.jsp</location>
+  </error-page>
   <error-page>
     <error-code>404</error-code>
     <location>/error.jsp</location>
@@ -31,64 +33,18 @@
     <error-code>500</error-code>
     <location>/error.jsp</location>
   </error-page>
+  <error-page>
+    <exception-type>java.lang.Throwable</exception-type>
+    <location>/error.jsp</location>
+  </error-page>
 
-  <!-- ========================== -->
-  <!-- Existing Servlets          -->
-  <!-- ========================== -->
-  <servlet>
-    <servlet-name>LoginServlet</servlet-name>
-    <servlet-class>main.java.com.melodymart.servlet.LoginServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>LoginServlet</servlet-name>
-    <url-pattern>/login</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>AddInstrumentServlet</servlet-name>
-    <servlet-class>main.java.com.melodymart.servlet.AddInstrumentServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>AddInstrumentServlet</servlet-name>
-    <url-pattern>/AddInstrumentServlet</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>SaveInstrument</servlet-name>
-    <servlet-class>com.melodymart.servlet.inventory.SaveInstrument</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>SaveInstrument</servlet-name>
-    <url-pattern>/saveInstrument</url-pattern>
-  </servlet-mapping>
-
-  <!-- ========================== -->
-  <!-- NEW: Order Management      -->
-  <!-- ========================== -->
-
-  <!-- Update Order Status -->
-  <servlet>
-    <servlet-name>UpdateOrderStatusServlet</servlet-name>
-    <servlet-class>main.java.com.melodymart.seller.UpdateOrderStatusServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>UpdateOrderStatusServlet</servlet-name>
-    <url-pattern>/UpdateOrderStatusServlet</url-pattern>
-  </servlet-mapping>
-
-  <!-- Reject (Delete) Order -->
-  <servlet>
-    <servlet-name>SellerRejectOrderServlet</servlet-name>
-    <servlet-class>main.java.com.melodymart.seller.SellerRejectOrderServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>SellerRejectOrderServlet</servlet-name>
-    <url-pattern>/SellerRejectOrderServlet</url-pattern>
-  </servlet-mapping>
-
-  <!-- ========================== -->
-  <!-- You can add more mappings   -->
-  <!-- like CartServlet, etc.      -->
-  <!-- ========================== -->
-
+  <!-- Never serve source or config files directly -->
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Blocked</web-resource-name>
+      <url-pattern>*.sql</url-pattern>
+      <url-pattern>*.properties</url-pattern>
+    </web-resource-collection>
+    <auth-constraint/>
+  </security-constraint>
 </web-app>

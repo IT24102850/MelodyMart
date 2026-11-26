@@ -6,7 +6,7 @@ import java.sql.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 
 @WebServlet("/UpdateCartServlet")
 public class UpdateCartServlet extends HttpServlet {

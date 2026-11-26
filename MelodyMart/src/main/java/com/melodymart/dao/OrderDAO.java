@@ -1,7 +1,7 @@
-package main.java.com.melodymart.dao;
+package com.melodymart.dao;
 
-import main.java.com.melodymart.model.Order;
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.model.Order;
+import com.melodymart.util.DBConnection;
 
 import java.sql.*;
 import java.util.ArrayList;

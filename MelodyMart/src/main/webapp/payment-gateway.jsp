@@ -1,6 +1,6 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
-<%@ page import="main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="com.melodymart.util.DBConnection" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     // Get order details from request attributes

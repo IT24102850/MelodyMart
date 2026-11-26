@@ -1,10 +1,12 @@
+package com.melodymart.servlet;
+
 
 import java.io.IOException;
 import java.sql.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 
 @WebServlet("/PlaceOrderServlet")
 public class PlaceOrderServlet extends HttpServlet {

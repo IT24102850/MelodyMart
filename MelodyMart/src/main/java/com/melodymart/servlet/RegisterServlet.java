@@ -1,4 +1,6 @@
-package main.java.com.melodymart.servlet;
+package com.melodymart.servlet;
+
+import javax.servlet.annotation.WebServlet;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -13,8 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.mindrot.jbcrypt.BCrypt;
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 
+@WebServlet("/RegisterServlet")
 public class RegisterServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -103,7 +106,7 @@ public class RegisterServlet extends HttpServlet {
                 try { con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
             }
             e.printStackTrace();
-            response.sendRedirect("sign-up.jsp?error=Database error: " + e.getMessage());
+            response.sendRedirect("sign-up.jsp?error=" + java.net.URLEncoder.encode("Registration failed. The email may already be in use.", "UTF-8"));
         } finally {
             try { if (psPerson != null) psPerson.close(); } catch (SQLException ignored) {}
             try { if (con != null) con.close(); } catch (SQLException ignored) {}

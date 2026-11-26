@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*" %>
-<%@ page import="main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="com.melodymart.util.DBConnection" %>
 <%@ page isErrorPage="true" %>
 <%
     String orderId = request.getParameter("orderId");

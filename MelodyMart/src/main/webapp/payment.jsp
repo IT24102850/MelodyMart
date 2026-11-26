@@ -1,5 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.*, java.sql.*, main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="java.util.*, java.sql.*, com.melodymart.util.DBConnection" %>
 
 <%
     // --- Session and Role Check ---

@@ -1,4 +1,4 @@
-package main.java.com.melodymart.strategy;
+package com.melodymart.strategy;
 
 
 import java.sql.Connection;

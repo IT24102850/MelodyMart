@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="java.sql.*, com.melodymart.util.DBConnection" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1282,11 +1282,8 @@
 
                         try {
                             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                            String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
-                            String dbUser = "Hasiru";
-                            String dbPassword = "hasiru2004";
 
-                            adminConn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+                            adminConn = com.melodymart.util.DBConnection.getConnection();
 
                             if ("add".equals(action)) {
                                 // Grant admin access to existing user
@@ -1413,11 +1410,8 @@
 
                     try {
                         Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                        String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
-                        String dbUser = "Hasiru";
-                        String dbPassword = "hasiru2004";
 
-                        displayConn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
+                        displayConn = com.melodymart.util.DBConnection.getConnection();
 
                         String sql = "SELECT p.PersonID, p.FirstName, p.LastName, p.Email, " +
                                 "a.ClearanceLevel, a.JoinDate, a.LastLogin " +

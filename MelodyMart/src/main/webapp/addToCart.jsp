@@ -1,16 +1,11 @@
 <%@ page import="java.sql.*" %>
 <%
-    String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true;";
-    String dbUser = "Hasiru";
-    String dbPass = "hasiru2004";
-    String driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
     String instrumentId = request.getParameter("instrumentId");
     Integer customerId = (Integer) session.getAttribute("customerId");
 
     String message = "";
 
-    out.println("DEBUG → CustomerID: " + customerId + ", InstrumentID: " + instrumentId + "<br>");
 
     if (customerId == null) {
         message = "Please log in first to add items to your cart.";
@@ -19,8 +14,7 @@
     } else {
         Connection conn = null;
         try {
-            Class.forName(driver);
-            conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+            conn = com.melodymart.util.DBConnection.getConnection();
 
             // check if already in cart
             String checkSql = "SELECT Quantity FROM Cart WHERE CustomerID=? AND InstrumentID=?";

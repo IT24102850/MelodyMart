@@ -1,7 +1,7 @@
-package main.java.com.melodymart.controller;
+package com.melodymart.servlet;
 
-import main.java.com.melodymart.dao.OrderDAO;
-import main.java.com.melodymart.model.Order;
+import com.melodymart.dao.OrderDAO;
+import com.melodymart.model.Order;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

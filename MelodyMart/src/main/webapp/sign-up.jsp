@@ -30,11 +30,8 @@
                 return;
             }
 
-            String dbUrl = "jdbc:sqlserver://localhost:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true";
-            String dbUser = "Hasiru";
-            String dbPassword = "hasiru2004";
 
-            try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
+            try (Connection conn = com.melodymart.util.DBConnection.getConnection()) {
                 // Auto-commit is true by default
                 // Check if email already exists
                 try (PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM Person WHERE Email = ?")) {

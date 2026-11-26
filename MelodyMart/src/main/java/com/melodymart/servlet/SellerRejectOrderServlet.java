@@ -1,4 +1,6 @@
-package main.java.com.melodymart.seller;
+package com.melodymart.servlet;
+
+import javax.servlet.annotation.WebServlet;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -11,8 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 
+@WebServlet("/SellerRejectOrderServlet")
 public class SellerRejectOrderServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 

@@ -1,4 +1,4 @@
-package main.java.com.melodymart.servlet;
+package com.melodymart.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 
 @WebServlet("/CancelRepairRequestServlet")
 public class CancelRepairRequestServlet extends HttpServlet {
