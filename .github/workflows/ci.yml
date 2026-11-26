@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build and test
+        working-directory: MelodyMart
+        run: mvn -B verify
+
+      - name: Build Docker image
+        run: docker build -t melodymart:ci .
+
+      - name: Smoke test container
+        run: |
+          docker run -d --name mm -p 8080:8080 melodymart:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8080/health; then break; fi
+            sleep 2
+          done
+          curl -fsS http://localhost:8080/health
+          curl -fsS -o /dev/null http://localhost:8080/
+          docker logs mm

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal production Tomcat config for MelodyMart -->
+<Server port="-1" shutdown="SHUTDOWN">
+  <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+
+  <Service name="Catalina">
+    <Connector port="8080" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               maxThreads="100"
+               URIEncoding="UTF-8"
+               server="MelodyMart"
+               compression="on"
+               compressionMinSize="2048"
+               compressibleMimeType="text/html,text/css,application/javascript,application/json,image/svg+xml" />
+
+    <Engine name="Catalina" defaultHost="localhost">
+      <Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="false">
+        <!-- Trust X-Forwarded-* from the platform's load balancer so request.isSecure() works behind TLS -->
+        <Valve className="org.apache.catalina.valves.RemoteIpValve"
+               remoteIpHeader="x-forwarded-for"
+               protocolHeader="x-forwarded-proto" />
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="/dev" prefix="stdout" suffix=""
+               rotatable="false" pattern="%a %t &quot;%r&quot; %s %b %Dms" />
+        <Valve className="org.apache.catalina.valves.ErrorReportValve" showReport="false" showServerInfo="false" />
+      </Host>
+    </Engine>
+  </Service>
+</Server>

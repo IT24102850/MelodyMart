@@ -1,4 +1,4 @@
-<%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="java.sql.*, com.melodymart.util.DBConnection" %>
 <%
     // ✅ Retrieve customer data from session (set during login)
     String customerId = (String) session.getAttribute("customerId");

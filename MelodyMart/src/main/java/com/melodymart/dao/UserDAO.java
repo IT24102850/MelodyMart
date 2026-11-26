@@ -1,7 +1,7 @@
-package main.java.com.melodymart.dao;
+package com.melodymart.dao;
 
-import main.java.com.melodymart.model.User;
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.model.User;
+import com.melodymart.util.DBConnection;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;

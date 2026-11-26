@@ -1,6 +1,6 @@
-package main.java.com.melodymart.servlet;
+package com.melodymart.servlet;
 
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;

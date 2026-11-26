@@ -1,0 +1,21 @@
+# Build output
+target/
+out/
+*.class
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.smarttomcat/
+
+# Tomcat runtime
+logs/
+work/
+
+# Local secrets
+.env
+*.local.properties
+
+.DS_Store

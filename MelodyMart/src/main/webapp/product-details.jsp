@@ -1,4 +1,4 @@
-<%@ page import="java.sql.*, main.java.com.melodymart.util.DBConnection" %>
+<%@ page import="java.sql.*, com.melodymart.util.DBConnection" %>
 <%
     String instrumentId = request.getParameter("instrumentId");
     if (instrumentId == null || instrumentId.isEmpty()) {

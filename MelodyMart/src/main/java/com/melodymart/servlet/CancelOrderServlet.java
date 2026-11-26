@@ -1,11 +1,14 @@
-package main.java.com.melodymart.servlet;
+package com.melodymart.servlet;
+
+import javax.servlet.annotation.WebServlet;
 
 import java.io.*;
 import java.sql.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 
+@WebServlet("/CancelOrderServlet")
 public class CancelOrderServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

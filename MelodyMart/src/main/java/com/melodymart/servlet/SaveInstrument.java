@@ -1,4 +1,4 @@
-package com.melodymart.servlet.inventory;
+package com.melodymart.servlet;
 
 import com.melodymart.util.DatabaseUtil;
 

@@ -1,4 +1,4 @@
-package main.java.com.melodymart.servlet;
+package com.melodymart.servlet;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 
 @WebServlet("/UpdateRepairStatusServlet")
 public class UpdateRepairStatusServlet extends HttpServlet {

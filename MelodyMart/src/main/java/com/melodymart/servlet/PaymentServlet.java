@@ -1,8 +1,8 @@
 package com.melodymart.servlet;
 
-import main.java.com.melodymart.util.DBConnection;
-import main.java.com.melodymart.strategy.PaymentContext;
-import main.java.com.melodymart.strategy.PaymentStrategy;
+import com.melodymart.util.DBConnection;
+import com.melodymart.strategy.PaymentContext;
+import com.melodymart.strategy.PaymentStrategy;
 import javax.servlet.*;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;

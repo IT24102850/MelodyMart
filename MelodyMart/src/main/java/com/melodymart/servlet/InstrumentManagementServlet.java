@@ -1,4 +1,4 @@
-package main.java.com.melodymart.servlet;
+package com.melodymart.servlet;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 
 @WebServlet("/InstrumentManagementServlet")
 @MultipartConfig(maxFileSize = 10485760) // 10MB limit per file

@@ -1,5 +1,5 @@
 
-package main.java.com.melodymart.model;
+package com.melodymart.model;
 
 public class User {
     private int id;

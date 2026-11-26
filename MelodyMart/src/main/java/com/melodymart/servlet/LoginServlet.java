@@ -1,4 +1,4 @@
-package main.java.com.melodymart.servlet;
+package com.melodymart.servlet;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -13,40 +13,37 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import main.java.com.melodymart.util.DBConnection;
+import com.melodymart.util.DBConnection;
 import org.mindrot.jbcrypt.BCrypt;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-@WebServlet("/LoginServlet")
+@WebServlet({"/LoginServlet", "/login"})
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(LoginServlet.class.getName());
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        System.out.println("=== LOGIN ATTEMPT STARTED ===");
 
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        System.out.println("Login attempt for email: " + email);
 
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
-            System.out.println("❌ Validation failed: Email or password missing");
             response.sendRedirect("sign-in.jsp?error=Email and password are required");
             return;
         }
 
         Connection con = null;
         try {
-            System.out.println("🔧 Attempting database connection...");
             con = DBConnection.getConnection();
             if (con == null || con.isClosed()) {
-                System.out.println("❌ Database connection failed - connection is null or closed");
                 response.sendRedirect("sign-in.jsp?error=Database connection failed");
                 return;
             }
-            System.out.println("✅ Database connection established successfully");
 
             // Query user data
             String sql = "SELECT PersonID, FirstName, LastName, Password, role FROM Person WHERE LOWER(Email) = LOWER(?)";
@@ -60,17 +57,15 @@ public class LoginServlet extends HttpServlet {
                         String storedPassword = rs.getString("Password");
                         String role = rs.getString("role");
 
-                        System.out.println("✅ User found in database:");
-                        System.out.println("   - PersonID: " + personId);
-                        System.out.println("   - FullName: " + firstName + " " + lastName);
-                        System.out.println("   - DB Email: " + email);
-                        System.out.println("   - Stored Password: " + storedPassword);
-                        System.out.println("   - Input Password: " + password);
 
                         // Check password (BCrypt comparison)
                         if (BCrypt.checkpw(password, storedPassword)) {
                             // Create session
-                            HttpSession session = request.getSession();
+                            HttpSession old = request.getSession(false);
+                            if (old != null) {
+                                old.invalidate();
+                            }
+                            HttpSession session = request.getSession(true);
                             session.setAttribute("userID", personId);
                             session.setAttribute("userName", firstName + " " + lastName);
                             session.setAttribute("userEmail", email.trim().toLowerCase());
@@ -82,44 +77,31 @@ public class LoginServlet extends HttpServlet {
                                 session.setAttribute("sellerId", personId); // Use PersonID as sellerId
                             }
 
-                            System.out.println("✅ Session attributes set:");
-                            System.out.println("   - userID: " + session.getAttribute("userID"));
-                            System.out.println("   - userRole: " + session.getAttribute("userRole"));
-                            System.out.println("   - customerId: " + session.getAttribute("customerId"));
-                            System.out.println("   - sellerId: " + session.getAttribute("sellerId"));
 
                             // Redirect based on role
                             String redirectUrl = getRedirectUrl(role.toLowerCase());
-                            System.out.println("➡ Redirecting to: " + redirectUrl);
                             response.sendRedirect(redirectUrl);
                         } else {
-                            System.out.println("❌ Password mismatch");
                             response.sendRedirect("sign-in.jsp?error=Invalid email or password");
                         }
                     } else {
-                        System.out.println("❌ No user found with email: " + email);
                         response.sendRedirect("sign-in.jsp?error=Invalid email or password");
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println("❌ SQL Error during login: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Login failed", e);
             response.sendRedirect("sign-in.jsp?error=Login failed. Please try again.");
         } catch (Exception e) {
-            System.err.println("❌ Unexpected error during login: " + e.getMessage());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Login failed", e);
             response.sendRedirect("sign-in.jsp?error=Login failed. Please try again.");
         } finally {
             if (con != null) {
                 try {
                     con.close();
-                    System.out.println("🔧 Database connection closed");
                 } catch (SQLException e) {
-                    System.err.println("Error closing connection: " + e.getMessage());
                 }
             }
-            System.out.println("=== LOGIN ATTEMPT COMPLETED ===");
         }
     }
 

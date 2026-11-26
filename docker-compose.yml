@@ -1,0 +1,30 @@
+# Local development: app + SQL Server.
+#   cp .env.example .env   (then edit the password)
+#   docker compose up --build
+# Load the schema once with:
+#   docker compose exec db /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "$MSSQL_SA_PASSWORD" -i /schema/schema.sql
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD in .env}
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - ./database:/schema:ro
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DB_URL: jdbc:sqlserver://db:1433;databaseName=MelodyMartDB;encrypt=true;trustServerCertificate=true
+      DB_USER: sa
+      DB_PASSWORD: ${MSSQL_SA_PASSWORD}
+    ports:
+      - "8080:8080"
+
+volumes:
+  mssql-data:

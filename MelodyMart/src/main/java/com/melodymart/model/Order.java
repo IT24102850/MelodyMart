@@ -1,4 +1,4 @@
-package main.java.com.melodymart.model;
+package com.melodymart.model;
 
 import java.util.Date;
 
